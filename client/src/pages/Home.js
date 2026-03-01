@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Server, Code, Workflow, Shield, Lightbulb, ArrowRight, CheckCircle, Star, Zap, Globe } from 'lucide-react';
+import { Server, Code, Workflow, Shield, Lightbulb, ArrowRight, CheckCircle, Star, Zap, Globe, Sparkles, Wand2, Brain, BarChart3 } from 'lucide-react';
 import api from '../api';
 import './Home.css';
 
 const iconMap = {
-  server: Server, code: Code, workflow: Workflow, shield: Shield, lightbulb: Lightbulb, globe: Globe
+  server: Server, code: Code, workflow: Workflow, shield: Shield, lightbulb: Lightbulb, globe: Globe, sparkles: Sparkles
 };
 
 const Home = () => {
@@ -135,6 +135,33 @@ const Home = () => {
         </div>
       </section>
 
+      {/* SocialAI Featured */}
+      <section className="sai-featured-section">
+        <div className="container">
+          <div className="sai-featured-banner">
+            <div className="sai-featured-content">
+              <div className="sai-featured-badge-home"><Sparkles size={14} /> NEW</div>
+              <h2>SocialAI Studio</h2>
+              <p>AI-powered social media content generation. Create weeks of engaging Facebook & Instagram posts in minutes — powered by Google Gemini.</p>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <Link to="/social-ai" className="btn btn-primary btn-lg">
+                  Learn More <ArrowRight size={16} />
+                </Link>
+              </div>
+            </div>
+            <div className="sai-featured-visual">
+              <div className="sai-featured-icons">
+                <div className="sai-fi"><Sparkles size={24} /></div>
+                <div className="sai-fi"><Wand2 size={24} /></div>
+                <div className="sai-fi"><Brain size={24} /></div>
+                <div className="sai-fi"><BarChart3 size={24} /></div>
+              </div>
+              <div className="sai-featured-price">From <strong>$49</strong>/mo</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="cta-section">
         <div className="container">
@@ -159,7 +186,8 @@ const defaultServices = [
   { title: 'Custom App Development', shortDescription: 'Bespoke applications built from the ground up to solve your unique business challenges.', icon: 'code', features: ['Custom Web Apps', 'Mobile Apps', 'API Development'] },
   { title: 'Workflow Solutions', shortDescription: 'Streamline your business processes with custom workflow automation.', icon: 'workflow', features: ['Process Automation', 'Custom Dashboards', 'Database Solutions'] },
   { title: 'Website Maintenance', shortDescription: 'Keep your website secure, updated, and performing at its best.', icon: 'shield', features: ['Security Updates', 'Performance Monitoring', 'Content Updates'] },
-  { title: 'IT Consulting', shortDescription: 'Expert guidance on technology strategy and digital transformation.', icon: 'lightbulb', features: ['Technology Audits', 'Architecture Planning', 'Digital Strategy'] }
+  { title: 'IT Consulting', shortDescription: 'Expert guidance on technology strategy and digital transformation.', icon: 'lightbulb', features: ['Technology Audits', 'Architecture Planning', 'Digital Strategy'] },
+  { title: 'SocialAI Studio', shortDescription: 'AI-powered social media content generator and scheduler for your business.', icon: 'sparkles', features: ['AI Content Generation', 'Smart Scheduling', 'Engagement Insights'] }
 ];
 
 export default Home;

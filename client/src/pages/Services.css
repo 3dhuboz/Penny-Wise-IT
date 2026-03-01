@@ -64,6 +64,34 @@
 .price-amount { font-size: 1.5rem; font-weight: 700; color: var(--gray-900); }
 .price-amount small { font-size: 0.8rem; font-weight: 400; color: var(--gray-500); }
 
+/* Featured SocialAI card */
+.sdc-featured {
+  border: 2px solid #f59e0b;
+  position: relative;
+  box-shadow: 0 8px 30px rgba(245,158,11,0.1);
+}
+
+.sdc-featured:hover {
+  box-shadow: 0 12px 40px rgba(245,158,11,0.18);
+}
+
+.sdc-featured-badge {
+  position: absolute;
+  top: -12px;
+  right: 1.5rem;
+  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  color: white;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.875rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
 .services-cta { padding: 2rem 0 4rem; }
 
 @media (max-width: 768px) {

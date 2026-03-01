@@ -116,6 +116,25 @@ router.post('/seed', auth, adminOnly, async (req, res) => {
         features: ['Technology Audits', 'Architecture Planning', 'Digital Strategy', 'Vendor Selection', 'Migration Planning', 'Training & Mentoring'],
         pricing: { type: 'hourly', amount: 150, currency: 'AUD' },
         displayOrder: 5
+      },
+      {
+        title: 'SocialAI Studio',
+        shortDescription: 'AI-powered social media content generator and scheduler for your business.',
+        fullDescription: 'Let AI handle your social media. SocialAI Studio uses Google Gemini to generate platform-optimized posts, create marketing images, plan content calendars, and provide engagement insights — all tailored to your brand voice and industry. Available as Starter, Professional, or Enterprise packages.',
+        icon: 'sparkles',
+        category: 'social-ai',
+        features: [
+          'AI Content Generation for Facebook & Instagram',
+          'AI Marketing Image Creation',
+          'Smart 2-Week Content Calendar Scheduling',
+          'Engagement Insights & Best Posting Times',
+          'Brand-Tailored Content (Tone, Industry, Location)',
+          'Content Export & Analytics',
+          'Dedicated Business Profile',
+          'Powered by Google Gemini 2.5'
+        ],
+        pricing: { type: 'monthly', amount: 49, currency: 'AUD' },
+        displayOrder: 6
       }
     ];
 

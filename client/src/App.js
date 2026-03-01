@@ -22,6 +22,7 @@ import AdminSiteGround from './pages/AdminSiteGround';
 import Profile from './pages/Profile';
 import SocialAI from './pages/SocialAI';
 import AdminSocial from './pages/AdminSocial';
+import SocialAIProduct from './pages/SocialAIProduct';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -40,6 +41,7 @@ const AppRoutes = () => {
       <Route path="/portfolio" element={<Portfolio />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/social-ai" element={<SocialAIProduct />} />
       <Route path="/register" element={<Register />} />
 
       {/* Customer Routes */}
