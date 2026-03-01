@@ -135,6 +135,25 @@ router.post('/seed', auth, adminOnly, async (req, res) => {
         ],
         pricing: { type: 'monthly', amount: 49, currency: 'AUD' },
         displayOrder: 6
+      },
+      {
+        title: 'AutoHue',
+        shortDescription: 'Free AI-powered car photo colour sorter. Upload vehicle photos and auto-sort by colour.',
+        fullDescription: 'AutoHue uses YOLOv8 AI to detect cars in your photos, identify their dominant colour using K-means clustering, and automatically sort them into 11 colour-coded folders. Perfect for car dealerships, automotive photographers, and auction houses. Completely free to use — no account required.',
+        icon: 'palette',
+        category: 'free-tool',
+        features: [
+          'Bulk Photo Upload',
+          'YOLOv8 AI Car Detection',
+          'Automatic Colour Classification',
+          'Sort into 11 Colour Categories',
+          'ZIP Export of Sorted Photos',
+          'Real-Time Processing Progress',
+          '100% Free — No Account Needed',
+          'Open Source (MIT License)'
+        ],
+        pricing: { type: 'fixed', amount: 0, currency: 'AUD' },
+        displayOrder: 7
       }
     ];
 

@@ -23,6 +23,7 @@ import Profile from './pages/Profile';
 import SocialAI from './pages/SocialAI';
 import AdminSocial from './pages/AdminSocial';
 import SocialAIProduct from './pages/SocialAIProduct';
+import AutoHue from './pages/AutoHue';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -42,6 +43,7 @@ const AppRoutes = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/login" element={<Login />} />
       <Route path="/social-ai" element={<SocialAIProduct />} />
+      <Route path="/autohue" element={<AutoHue />} />
       <Route path="/register" element={<Register />} />
 
       {/* Customer Routes */}

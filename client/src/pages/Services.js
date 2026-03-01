@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Server, Code, Workflow, Shield, Lightbulb, Globe, CheckCircle, ArrowRight, Sparkles, Star } from 'lucide-react';
+import { Server, Code, Workflow, Shield, Lightbulb, Globe, CheckCircle, ArrowRight, Sparkles, Star, Palette, ExternalLink } from 'lucide-react';
 import api from '../api';
 import './Services.css';
 
-const iconMap = { server: Server, code: Code, workflow: Workflow, shield: Shield, lightbulb: Lightbulb, globe: Globe, sparkles: Sparkles };
+const iconMap = { server: Server, code: Code, workflow: Workflow, shield: Shield, lightbulb: Lightbulb, globe: Globe, sparkles: Sparkles, palette: Palette };
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -30,11 +30,13 @@ const Services = () => {
         {services.map((service, idx) => {
           const Icon = iconMap[service.icon] || Globe;
           const isSocialAI = service.category === 'social-ai';
+          const isFreeTool = service.category === 'free-tool';
           return (
-            <div key={idx} className={`service-detail-card card fade-in${isSocialAI ? ' sdc-featured' : ''}`}>
+            <div key={idx} className={`service-detail-card card fade-in${isSocialAI ? ' sdc-featured' : ''}${isFreeTool ? ' sdc-free' : ''}`}>
               {isSocialAI && <div className="sdc-featured-badge"><Star size={12} /> FEATURED PRODUCT</div>}
+              {isFreeTool && <div className="sdc-free-badge"><Palette size={12} /> FREE TOOL</div>}
               <div className="sdc-header">
-                <div className="sdc-icon" style={isSocialAI ? { background: 'rgba(245,158,11,0.1)', color: '#f59e0b' } : {}}><Icon size={28} /></div>
+                <div className="sdc-icon" style={isSocialAI ? { background: 'rgba(245,158,11,0.1)', color: '#f59e0b' } : isFreeTool ? { background: 'rgba(6,182,212,0.1)', color: '#06b6d4' } : {}}><Icon size={28} /></div>
                 <div>
                   <h2>{service.title}</h2>
                   <span className="badge badge-info">{service.category?.replace(/-/g, ' ')}</span>
@@ -52,6 +54,8 @@ const Services = () => {
                 <div className="sdc-pricing">
                   {service.pricing.type === 'custom' ? (
                     <span className="price-label">Custom Quote</span>
+                  ) : isFreeTool ? (
+                    <span className="price-free">Free</span>
                   ) : (
                     <span className="price-amount">
                       ${service.pricing.amount} <small>{service.pricing.currency}/{service.pricing.type === 'monthly' ? 'mo' : service.pricing.type === 'hourly' ? 'hr' : ''}</small>
@@ -67,6 +71,15 @@ const Services = () => {
                   <Link to="/contact" className="btn btn-secondary">
                     Contact Sales
                   </Link>
+                </div>
+              ) : isFreeTool ? (
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <Link to="/autohue" className="btn btn-primary">
+                    Learn More <ArrowRight size={16} />
+                  </Link>
+                  <a href="https://autohue.vercel.app" target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
+                    Launch App <ExternalLink size={16} />
+                  </a>
                 </div>
               ) : (
                 <Link to="/contact" className="btn btn-primary">

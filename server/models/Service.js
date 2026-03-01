@@ -8,7 +8,7 @@ const serviceSchema = new mongoose.Schema({
   icon: { type: String, default: 'globe' },
   category: {
     type: String,
-    enum: ['web-hosting', 'app-development', 'workflow-solutions', 'maintenance', 'consulting', 'social-ai'],
+    enum: ['web-hosting', 'app-development', 'workflow-solutions', 'maintenance', 'consulting', 'social-ai', 'free-tool'],
     required: true
   },
   features: [{ type: String }],

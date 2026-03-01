@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Server, Code, Workflow, Shield, Lightbulb, ArrowRight, CheckCircle, Star, Zap, Globe, Sparkles, Wand2, Brain, BarChart3 } from 'lucide-react';
+import { Server, Code, Workflow, Shield, Lightbulb, ArrowRight, CheckCircle, Star, Zap, Globe, Sparkles, Wand2, Brain, BarChart3, Palette, Camera, Cpu, Download, ExternalLink } from 'lucide-react';
 import api from '../api';
 import './Home.css';
 
 const iconMap = {
-  server: Server, code: Code, workflow: Workflow, shield: Shield, lightbulb: Lightbulb, globe: Globe, sparkles: Sparkles
+  server: Server, code: Code, workflow: Workflow, shield: Shield, lightbulb: Lightbulb, globe: Globe, sparkles: Sparkles, palette: Palette
 };
 
 const Home = () => {
@@ -162,6 +162,36 @@ const Home = () => {
         </div>
       </section>
 
+      {/* AutoHue Featured */}
+      <section className="ah-featured-section">
+        <div className="container">
+          <div className="ah-featured-banner">
+            <div className="ah-featured-content">
+              <div className="ah-featured-badge-home"><Palette size={14} /> FREE TOOL</div>
+              <h2>AutoHue</h2>
+              <p>AI-powered car photo colour sorter. Upload vehicle photos and let YOLOv8 AI automatically detect, classify, and sort them by colour. Completely free.</p>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <Link to="/autohue" className="btn btn-primary btn-lg">
+                  Learn More <ArrowRight size={16} />
+                </Link>
+                <a href="https://autohue.vercel.app" target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-lg" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>
+                  Launch App <ExternalLink size={16} />
+                </a>
+              </div>
+            </div>
+            <div className="ah-featured-visual-home">
+              <div className="sai-featured-icons">
+                <div className="ah-fi"><Camera size={24} /></div>
+                <div className="ah-fi"><Cpu size={24} /></div>
+                <div className="ah-fi"><Palette size={24} /></div>
+                <div className="ah-fi"><Download size={24} /></div>
+              </div>
+              <div className="ah-featured-price-home"><strong>100% Free</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="cta-section">
         <div className="container">
@@ -187,7 +217,8 @@ const defaultServices = [
   { title: 'Workflow Solutions', shortDescription: 'Streamline your business processes with custom workflow automation.', icon: 'workflow', features: ['Process Automation', 'Custom Dashboards', 'Database Solutions'] },
   { title: 'Website Maintenance', shortDescription: 'Keep your website secure, updated, and performing at its best.', icon: 'shield', features: ['Security Updates', 'Performance Monitoring', 'Content Updates'] },
   { title: 'IT Consulting', shortDescription: 'Expert guidance on technology strategy and digital transformation.', icon: 'lightbulb', features: ['Technology Audits', 'Architecture Planning', 'Digital Strategy'] },
-  { title: 'SocialAI Studio', shortDescription: 'AI-powered social media content generator and scheduler for your business.', icon: 'sparkles', features: ['AI Content Generation', 'Smart Scheduling', 'Engagement Insights'] }
+  { title: 'SocialAI Studio', shortDescription: 'AI-powered social media content generator and scheduler for your business.', icon: 'sparkles', features: ['AI Content Generation', 'Smart Scheduling', 'Engagement Insights'] },
+  { title: 'AutoHue', shortDescription: 'Free AI car photo colour sorter. Upload vehicle photos and auto-sort by colour.', icon: 'palette', features: ['YOLOv8 AI Detection', 'Colour Classification', 'ZIP Export'] }
 ];
 
 export default Home;
