@@ -1,0 +1,72 @@
+.services-page .page-hero {
+  background: linear-gradient(135deg, var(--gray-900), #1a2744);
+  color: white;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.page-hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.75rem; }
+.page-hero p { color: var(--gray-400); font-size: 1.0625rem; max-width: 600px; margin: 0 auto; }
+.page-loading { text-align: center; padding: 4rem; color: var(--gray-500); }
+
+.services-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  padding: 3rem 1.5rem;
+}
+
+.service-detail-card { padding: 2rem; }
+
+.sdc-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.sdc-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(6,182,212,0.1));
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sdc-header h2 { font-size: 1.25rem; font-weight: 700; color: var(--gray-900); margin-bottom: 0.25rem; }
+
+.sdc-description { font-size: 0.9rem; color: var(--gray-600); line-height: 1.7; margin-bottom: 1.25rem; }
+
+.sdc-features {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.sdc-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--gray-700);
+}
+
+.sdc-features li svg { color: var(--success); flex-shrink: 0; }
+
+.sdc-pricing { margin-bottom: 1.25rem; }
+.price-label { font-size: 0.875rem; font-weight: 600; color: var(--primary); }
+.price-amount { font-size: 1.5rem; font-weight: 700; color: var(--gray-900); }
+.price-amount small { font-size: 0.8rem; font-weight: 400; color: var(--gray-500); }
+
+.services-cta { padding: 2rem 0 4rem; }
+
+@media (max-width: 768px) {
+  .services-detail-grid { grid-template-columns: 1fr; }
+  .sdc-features { grid-template-columns: 1fr; }
+}
