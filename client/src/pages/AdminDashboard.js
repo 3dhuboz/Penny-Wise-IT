@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Ticket, Workflow, Globe, Server, Settings, AlertCircle, TrendingUp, ArrowRight } from 'lucide-react';
+import { Users, Ticket, Workflow, Globe, Server, Settings, AlertCircle, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
 import api from '../api';
 import './Admin.css';
 
@@ -57,6 +57,11 @@ const AdminDashboard = () => {
             <Server size={24} />
             <h3>SiteGround</h3>
             <p>GoGeek hosting management</p>
+          </Link>
+          <Link to="/admin/social" className="admin-nav-card card">
+            <Sparkles size={24} />
+            <h3>Social AI</h3>
+            <p>Manage client social content</p>
           </Link>
           <Link to="/tickets" className="admin-nav-card card">
             <Ticket size={24} />

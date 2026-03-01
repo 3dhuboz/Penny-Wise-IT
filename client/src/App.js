@@ -20,6 +20,8 @@ import AdminServices from './pages/AdminServices';
 import AdminWorkflows from './pages/AdminWorkflows';
 import AdminSiteGround from './pages/AdminSiteGround';
 import Profile from './pages/Profile';
+import SocialAI from './pages/SocialAI';
+import AdminSocial from './pages/AdminSocial';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -46,6 +48,7 @@ const AppRoutes = () => {
       <Route path="/tickets/new" element={<ProtectedRoute><NewTicket /></ProtectedRoute>} />
       <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/social" element={<ProtectedRoute><SocialAI /></ProtectedRoute>} />
 
       {/* Admin Routes */}
       <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
@@ -53,6 +56,7 @@ const AppRoutes = () => {
       <Route path="/admin/services" element={<ProtectedRoute adminOnly><AdminServices /></ProtectedRoute>} />
       <Route path="/admin/workflows" element={<ProtectedRoute adminOnly><AdminWorkflows /></ProtectedRoute>} />
       <Route path="/admin/siteground" element={<ProtectedRoute adminOnly><AdminSiteGround /></ProtectedRoute>} />
+      <Route path="/admin/social" element={<ProtectedRoute adminOnly><AdminSocial /></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

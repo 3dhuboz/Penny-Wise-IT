@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard, Ticket, Settings } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard, Ticket, Settings, Sparkles } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -40,6 +40,7 @@ const Navbar = () => {
             <>
               <Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Dashboard</Link>
               <Link to="/tickets" className={isActive('/tickets') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Tickets</Link>
+              <Link to="/social" className={isActive('/social') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Social AI</Link>
               {user.role === 'admin' && (
                 <Link to="/admin" className={location.pathname.startsWith('/admin') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Admin</Link>
               )}
@@ -63,6 +64,7 @@ const Navbar = () => {
                   </div>
                   <Link to="/dashboard"><LayoutDashboard size={16} /> Dashboard</Link>
                   <Link to="/tickets"><Ticket size={16} /> My Tickets</Link>
+                  <Link to="/social"><Sparkles size={16} /> Social AI</Link>
                   <Link to="/profile"><User size={16} /> Profile</Link>
                   {user.role === 'admin' && <Link to="/admin"><Settings size={16} /> Admin Panel</Link>}
                   <button onClick={handleLogout} className="dropdown-logout"><LogOut size={16} /> Sign Out</button>
