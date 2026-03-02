@@ -18,7 +18,8 @@ const ICON_MAP = {
 
 const CATEGORY_LABELS = {
   ai: 'AI', automation: 'Automation', analytics: 'Analytics',
-  productivity: 'Productivity', marketing: 'Marketing', utility: 'Utility', other: 'Other'
+  productivity: 'Productivity', marketing: 'Marketing', 'food-service': 'Food & Hospitality',
+  utility: 'Utility', other: 'Other'
 };
 
 const Marketplace = () => {

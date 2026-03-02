@@ -49,6 +49,36 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/pennywise
               { key: 'enterprise', name: 'Enterprise', price: 199, features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Unlimited Brand Profiles', 'Dedicated Account Manager'], color: '#a855f7', whiteLabel: true, customDomain: true }
             ],
             displayOrder: 1
+          },
+          {
+            slug: 'foodtruc',
+            name: 'FoodTruc',
+            shortDescription: 'White-label mobile ordering platform for food trucks, caterers, and pop-up kitchens. Online ordering, payments, AI assistant, and loyalty — all under your brand.',
+            fullDescription: 'FoodTruc is a fully-featured, mobile-first ordering web app purpose-built for food trucks, BBQ vendors, caterers, and pop-up kitchens. Customers can browse your menu, place takeaway or catering orders, pay via Square, track deliveries, and earn loyalty stamps — all from a PWA that works offline. The admin dashboard gives you full control over orders, menu items, cook-day planner, customer database, email/SMS blasts, social content generation, and AI-powered chat assistance. Every element — colours, logos, business name, images — is white-label configurable so it looks 100% yours.',
+            icon: 'zap',
+            category: 'food-service',
+            routePath: '/foodtruc',
+            features: [
+              'Online Ordering (Takeaway & Catering)',
+              'DIY Catering Builder',
+              'Square Payment Integration',
+              'AI Chat Assistant (Gemini + Claude)',
+              'Admin Dashboard & Order Management',
+              'Loyalty Rewards Program',
+              'Email & SMS Notifications',
+              'Cook-Day Planner & Events Calendar',
+              'Customer Gallery with Moderation',
+              'PWA — Installable & Offline Ready',
+              'Full White-Label Branding',
+              'Delivery Tracking'
+            ],
+            techStack: ['React 19', 'TypeScript', 'Firebase', 'Square Payments', 'Google Gemini AI', 'Twilio SMS', 'Vite', 'TailwindCSS'],
+            plans: [
+              { key: 'starter', name: 'Starter', price: 79, features: ['Online Menu & Ordering', 'Square Payments', 'Order Management Dashboard', 'Cook-Day Planner', 'Email Notifications', '1 Location'], color: '#10b981', whiteLabel: false, customDomain: false },
+              { key: 'professional', name: 'Professional', price: 149, features: ['Everything in Starter', 'DIY Catering Builder', 'Loyalty Rewards Program', 'SMS Notifications (Twilio)', 'AI Chat Assistant', 'Customer Gallery', 'Full White-Label Branding', '3 Locations'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
+              { key: 'enterprise', name: 'Enterprise', price: 299, features: ['Everything in Professional', 'Custom Domain', 'Multi-Location Management', 'Priority Support', 'AI Social Content Generator', 'Advanced Analytics', 'Dedicated Account Manager', 'Unlimited Locations'], color: '#a855f7', whiteLabel: true, customDomain: true }
+            ],
+            displayOrder: 2
           }
         ]);
         console.log('Marketplace apps auto-seeded');

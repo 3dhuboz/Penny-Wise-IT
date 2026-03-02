@@ -27,6 +27,7 @@ import AutoHue from './pages/AutoHue';
 import Marketplace from './pages/Marketplace';
 import MyApps from './pages/MyApps';
 import AdminApps from './pages/AdminApps';
+import FoodTrucProduct from './pages/FoodTrucProduct';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -48,6 +49,7 @@ const AppRoutes = () => {
       <Route path="/social-ai" element={<SocialAIProduct />} />
       <Route path="/autohue" element={<AutoHue />} />
       <Route path="/marketplace" element={<Marketplace />} />
+      <Route path="/foodtruc" element={<FoodTrucProduct />} />
       <Route path="/register" element={<Register />} />
 
       {/* Customer Routes */}
