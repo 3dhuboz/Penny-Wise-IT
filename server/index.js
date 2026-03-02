@@ -38,6 +38,7 @@ app.use('/api/workflows', require('./routes/workflows'));
 app.use('/api/siteground', require('./routes/siteground'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/social', require('./routes/social'));
+app.use('/api/marketplace', require('./routes/marketplace'));
 
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {

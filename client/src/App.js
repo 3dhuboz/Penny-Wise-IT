@@ -24,6 +24,9 @@ import SocialAI from './pages/SocialAI';
 import AdminSocial from './pages/AdminSocial';
 import SocialAIProduct from './pages/SocialAIProduct';
 import AutoHue from './pages/AutoHue';
+import Marketplace from './pages/Marketplace';
+import MyApps from './pages/MyApps';
+import AdminApps from './pages/AdminApps';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -44,6 +47,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/social-ai" element={<SocialAIProduct />} />
       <Route path="/autohue" element={<AutoHue />} />
+      <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/register" element={<Register />} />
 
       {/* Customer Routes */}
@@ -52,6 +56,7 @@ const AppRoutes = () => {
       <Route path="/tickets/new" element={<ProtectedRoute><NewTicket /></ProtectedRoute>} />
       <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/my-apps" element={<ProtectedRoute><MyApps /></ProtectedRoute>} />
       <Route path="/social" element={<ProtectedRoute><SocialAI /></ProtectedRoute>} />
 
       {/* Admin Routes */}
@@ -61,6 +66,7 @@ const AppRoutes = () => {
       <Route path="/admin/workflows" element={<ProtectedRoute adminOnly><AdminWorkflows /></ProtectedRoute>} />
       <Route path="/admin/siteground" element={<ProtectedRoute adminOnly><AdminSiteGround /></ProtectedRoute>} />
       <Route path="/admin/social" element={<ProtectedRoute adminOnly><AdminSocial /></ProtectedRoute>} />
+      <Route path="/admin/apps" element={<ProtectedRoute adminOnly><AdminApps /></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

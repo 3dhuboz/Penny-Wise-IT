@@ -47,15 +47,25 @@ const SocialAI = () => {
   const [branding, setBranding] = useState({});
   const [savingBranding, setSavingBranding] = useState(false);
 
+  // Marketplace subscription state (generic system)
+  const [mpSub, setMpSub] = useState(null);
+
   const loadData = useCallback(async () => {
     try {
-      const [profileRes, postsRes] = await Promise.all([
+      const [profileRes, postsRes, mpRes] = await Promise.all([
         api.get('/social/profile').catch(() => ({ data: null })),
-        api.get('/social/posts').catch(() => ({ data: [] }))
+        api.get('/social/posts').catch(() => ({ data: [] })),
+        api.get('/marketplace/my-apps/social-ai-studio').catch(() => ({ data: null }))
       ]);
       setProfile(profileRes.data);
       setPosts(postsRes.data);
-      if (profileRes.data?.whiteLabel) setBranding(profileRes.data.whiteLabel);
+      if (mpRes.data && mpRes.data.planKey) setMpSub(mpRes.data);
+      // Use marketplace white-label if available, else fall back to legacy
+      if (mpRes.data?.whiteLabel?.brandName) {
+        setBranding(mpRes.data.whiteLabel);
+      } else if (profileRes.data?.whiteLabel) {
+        setBranding(profileRes.data.whiteLabel);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -65,24 +75,37 @@ const SocialAI = () => {
   useEffect(() => { loadData(); }, [loadData]);
 
   const hasApiKey = !!profile?.geminiApiKey;
-  const isSubscribed = profile?.isSubscribed;
-  const currentPlan = profile?.subscription?.plan || 'none';
+  // Subscribed via legacy SocialProfile OR marketplace AppSubscription
+  const legacySubscribed = profile?.isSubscribed;
+  const mpSubscribed = mpSub?.isActive;
+  const isSubscribed = legacySubscribed || mpSubscribed;
+  // Determine plan from marketplace first, then legacy
+  const currentPlan = (mpSubscribed ? mpSub.planKey : profile?.subscription?.plan) || 'none';
   const canWhiteLabel = isSubscribed && (currentPlan === 'professional' || currentPlan === 'enterprise');
 
-  // White-label derived styles
-  const wl = profile?.whiteLabel || {};
-  const brandColor = wl.primaryColor || '#f59e0b';
-  const headerBg = wl.headerBg || '#0f172a';
-  const displayName = wl.brandName || 'SocialAI Studio';
-  const displayTagline = wl.tagline || '';
+  // White-label derived styles (use branding state which is sourced from marketplace or legacy)
+  const brandColor = branding.primaryColor || '#f59e0b';
+  const headerBg = branding.headerBg || '#0f172a';
+  const displayName = branding.brandName || 'SocialAI Studio';
+  const displayTagline = branding.tagline || '';
+  // Keep wl for byline check
+  const wl = branding;
 
   // ── Purchase Plan ──
   const handlePurchase = async (plan) => {
     setPurchasing(true);
     try {
-      const res = await api.post('/social/subscribe', { plan });
-      setProfile(res.data.profile);
-      toast.success(res.data.message);
+      // Try marketplace first, fall back to legacy
+      const mpRes = await api.post('/marketplace/subscribe', { appSlug: 'social-ai-studio', planKey: plan }).catch(() => null);
+      if (mpRes?.data) {
+        setMpSub(mpRes.data.subscription);
+        toast.success(mpRes.data.message);
+      } else {
+        const res = await api.post('/social/subscribe', { plan });
+        setProfile(res.data.profile);
+        toast.success(res.data.message);
+      }
+      loadData();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Purchase failed');
     }
@@ -92,9 +115,13 @@ const SocialAI = () => {
   const handleCancelSubscription = async () => {
     if (!window.confirm('Cancel your subscription? You\'ll keep access until the end of your billing period.')) return;
     try {
-      const res = await api.post('/social/cancel-subscription');
-      setProfile(res.data.profile);
-      toast.success(res.data.message);
+      if (mpSubscribed) {
+        await api.post('/marketplace/cancel', { appSlug: 'social-ai-studio' });
+      } else {
+        await api.post('/social/cancel-subscription');
+      }
+      toast.success('Subscription cancelled. Access remains until end of billing period.');
+      loadData();
     } catch (err) {
       toast.error('Cancellation failed');
     }
@@ -104,9 +131,16 @@ const SocialAI = () => {
   const saveBranding = async () => {
     setSavingBranding(true);
     try {
-      const res = await api.put('/social/white-label', branding);
-      setBranding(res.data);
-      toast.success('Branding saved!');
+      // Try marketplace white-label first, fall back to legacy
+      const mpRes = await api.put('/marketplace/white-label/social-ai-studio', branding).catch(() => null);
+      if (mpRes?.data) {
+        setBranding(mpRes.data);
+        toast.success('Branding saved!');
+      } else {
+        const res = await api.put('/social/white-label', branding);
+        setBranding(res.data);
+        toast.success('Branding saved!');
+      }
       loadData();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to save branding');
