@@ -208,6 +208,157 @@ router.post('/ai/recommendations', auth, async (req, res) => {
   }
 });
 
+// ── Subscription & Purchase ──
+
+const PLANS = {
+  starter: { name: 'Starter', amount: 49, features: ['AI Content Generation', 'Content Calendar', 'Basic Insights', '1 Brand Profile'] },
+  professional: { name: 'Professional', amount: 99, features: ['Everything in Starter', 'Smart AI Scheduler', 'AI Image Generation', 'Advanced Insights', 'White-Label Branding', '3 Brand Profiles'] },
+  enterprise: { name: 'Enterprise', amount: 199, features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Unlimited Brand Profiles', 'Dedicated Account Manager'] }
+};
+
+// Get available plans
+router.get('/plans', (req, res) => {
+  res.json(PLANS);
+});
+
+// Purchase / activate a plan
+router.post('/subscribe', auth, async (req, res) => {
+  try {
+    const { plan } = req.body;
+    if (!PLANS[plan]) return res.status(400).json({ message: 'Invalid plan. Choose starter, professional, or enterprise.' });
+
+    const profile = await SocialProfile.findOneAndUpdate(
+      { user: req.user._id },
+      {
+        user: req.user._id,
+        'subscription.plan': plan,
+        'subscription.status': 'active',
+        'subscription.startDate': new Date(),
+        'subscription.endDate': new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        'subscription.lastPayment': new Date(),
+        'subscription.amount': PLANS[plan].amount,
+        'subscription.currency': 'AUD'
+      },
+      { new: true, upsert: true }
+    );
+
+    res.json({ message: `${PLANS[plan].name} plan activated!`, profile });
+  } catch (err) {
+    res.status(500).json({ message: 'Subscription failed', error: err.message });
+  }
+});
+
+// Cancel subscription
+router.post('/cancel-subscription', auth, async (req, res) => {
+  try {
+    const profile = await SocialProfile.findOneAndUpdate(
+      { user: req.user._id },
+      { 'subscription.status': 'cancelled' },
+      { new: true }
+    );
+    if (!profile) return res.status(404).json({ message: 'Profile not found' });
+    res.json({ message: 'Subscription cancelled. Access remains until end of billing period.', profile });
+  } catch (err) {
+    res.status(500).json({ message: 'Cancellation failed', error: err.message });
+  }
+});
+
+// ── White Label ──
+
+// Get white-label settings
+router.get('/white-label', auth, async (req, res) => {
+  try {
+    const profile = await SocialProfile.findOne({ user: req.user._id });
+    if (!profile) return res.status(404).json({ message: 'Profile not found' });
+    if (!profile.isSubscribed) return res.status(403).json({ message: 'Active subscription required.' });
+    if (profile.subscription.plan === 'starter') return res.status(403).json({ message: 'White-label requires Professional or Enterprise plan.' });
+    res.json(profile.whiteLabel);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Update white-label settings
+router.put('/white-label', auth, async (req, res) => {
+  try {
+    const profile = await SocialProfile.findOne({ user: req.user._id });
+    if (!profile) return res.status(404).json({ message: 'Profile not found' });
+    if (!profile.isSubscribed) return res.status(403).json({ message: 'Active subscription required.' });
+    if (profile.subscription.plan === 'starter') return res.status(403).json({ message: 'White-label requires Professional or Enterprise plan.' });
+
+    const allowed = ['brandName', 'tagline', 'logoUrl', 'faviconUrl', 'primaryColor', 'accentColor', 'headerBg', 'buttonColor', 'fontFamily', 'hideByline'];
+    if (profile.subscription.plan === 'enterprise') allowed.push('customDomain');
+
+    const updates = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) updates[`whiteLabel.${key}`] = req.body[key];
+    }
+
+    const updated = await SocialProfile.findOneAndUpdate(
+      { user: req.user._id },
+      updates,
+      { new: true }
+    );
+    res.json(updated.whiteLabel);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update branding', error: err.message });
+  }
+});
+
+// ── Admin: manage subscriptions ──
+
+// Admin: activate subscription for a user
+router.post('/admin/subscribe/:userId', auth, adminOnly, async (req, res) => {
+  try {
+    const { plan } = req.body;
+    if (!PLANS[plan]) return res.status(400).json({ message: 'Invalid plan' });
+
+    const profile = await SocialProfile.findOneAndUpdate(
+      { user: req.params.userId },
+      {
+        user: req.params.userId,
+        'subscription.plan': plan,
+        'subscription.status': 'active',
+        'subscription.startDate': new Date(),
+        'subscription.endDate': new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        'subscription.lastPayment': new Date(),
+        'subscription.amount': PLANS[plan].amount,
+        'subscription.currency': 'AUD'
+      },
+      { new: true, upsert: true }
+    );
+    res.json({ message: `${PLANS[plan].name} plan activated for user`, profile });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Admin: cancel subscription for a user
+router.post('/admin/cancel-subscription/:userId', auth, adminOnly, async (req, res) => {
+  try {
+    const profile = await SocialProfile.findOneAndUpdate(
+      { user: req.params.userId },
+      { 'subscription.status': 'cancelled', 'subscription.plan': 'none' },
+      { new: true }
+    );
+    res.json({ message: 'Subscription cancelled', profile });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Admin: list all subscribers
+router.get('/admin/subscribers', auth, adminOnly, async (req, res) => {
+  try {
+    const subscribers = await SocialProfile.find({
+      'subscription.plan': { $ne: 'none' }
+    }).populate('user', 'firstName lastName email company');
+    res.json(subscribers);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 // ── Admin: view any user's social data ──
 
 // Admin: get social stats across all users

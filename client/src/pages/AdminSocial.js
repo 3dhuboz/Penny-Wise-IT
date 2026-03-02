@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeft, Sparkles, Users, BarChart3, Instagram, Facebook,
-  FileText, Clock, CheckCircle, Edit, Eye
+  FileText, Clock, CheckCircle, Edit, Eye, Crown, Zap, XCircle, Palette
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
@@ -11,22 +11,27 @@ import './Admin.css';
 const AdminSocial = () => {
   const [data, setData] = useState(null);
   const [customers, setCustomers] = useState([]);
+  const [subscribers, setSubscribers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
+  const loadAll = () => {
     Promise.all([
       api.get('/social/admin/stats').catch(() => ({ data: null })),
-      api.get('/customers').catch(() => ({ data: [] }))
-    ]).then(([statsRes, custRes]) => {
+      api.get('/customers').catch(() => ({ data: [] })),
+      api.get('/social/admin/subscribers').catch(() => ({ data: [] }))
+    ]).then(([statsRes, custRes, subsRes]) => {
       setData(statsRes.data);
       setCustomers(custRes.data);
+      setSubscribers(subsRes.data);
       setLoading(false);
     });
-  }, []);
+  };
+
+  useEffect(() => { loadAll(); }, []);
 
   const viewUserSocial = async (userId) => {
     setSelectedUser(userId);
@@ -52,9 +57,32 @@ const AdminSocial = () => {
     }
   };
 
+  const activatePlan = async (userId, plan) => {
+    try {
+      await api.post(`/social/admin/subscribe/${userId}`, { plan });
+      toast.success(`${plan} plan activated`);
+      loadAll();
+    } catch (err) {
+      toast.error('Failed to activate plan');
+    }
+  };
+
+  const cancelPlan = async (userId) => {
+    if (!window.confirm('Cancel this user\'s subscription?')) return;
+    try {
+      await api.post(`/social/admin/cancel-subscription/${userId}`);
+      toast.success('Subscription cancelled');
+      loadAll();
+    } catch (err) {
+      toast.error('Failed to cancel subscription');
+    }
+  };
+
   if (loading) return <div className="page-loading">Loading social admin...</div>;
 
   const stats = data?.stats || {};
+  const activeSubscribers = subscribers.filter(s => s.subscription?.status === 'active');
+  const totalRevenue = activeSubscribers.reduce((sum, s) => sum + (s.subscription?.amount || 0), 0);
 
   return (
     <div className="admin-page">
@@ -74,22 +102,103 @@ const AdminSocial = () => {
         {/* Stats */}
         <div className="admin-stats">
           <div className="stat-card card">
-            <div className="stat-icon" style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}><Sparkles size={24} /></div>
-            <div className="stat-info"><strong>{stats.totalPosts || 0}</strong><span>Total Posts</span></div>
+            <div className="stat-icon" style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}><Crown size={24} /></div>
+            <div className="stat-info"><strong>{activeSubscribers.length}</strong><span>Active Subscribers</span></div>
+          </div>
+          <div className="stat-card card">
+            <div className="stat-icon" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981' }}><BarChart3 size={24} /></div>
+            <div className="stat-info"><strong>${totalRevenue}</strong><span>Monthly Revenue</span></div>
           </div>
           <div className="stat-card card">
             <div className="stat-icon" style={{ background: 'rgba(37,99,235,0.1)', color: '#2563eb' }}><FileText size={24} /></div>
-            <div className="stat-info"><strong>{stats.draftPosts || 0}</strong><span>Drafts</span></div>
+            <div className="stat-info"><strong>{stats.totalPosts || 0}</strong><span>Total Posts</span></div>
           </div>
           <div className="stat-card card">
             <div className="stat-icon" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}><Clock size={24} /></div>
             <div className="stat-info"><strong>{stats.scheduledPosts || 0}</strong><span>Scheduled</span></div>
           </div>
-          <div className="stat-card card">
-            <div className="stat-icon" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981' }}><CheckCircle size={24} /></div>
-            <div className="stat-info"><strong>{stats.postedPosts || 0}</strong><span>Posted</span></div>
-          </div>
         </div>
+
+        {/* Active Subscribers */}
+        {subscribers.length > 0 && (
+          <div className="admin-section" style={{ marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Crown size={18} style={{ color: '#f59e0b' }} /> Subscribers
+            </h2>
+            <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Plan</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                    <th>Brand Name</th>
+                    <th>Started</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {subscribers.map(s => (
+                    <tr key={s._id}>
+                      <td style={{ fontWeight: 600 }}>{s.user?.firstName} {s.user?.lastName}</td>
+                      <td>
+                        <span style={{
+                          textTransform: 'capitalize', fontWeight: 700, fontSize: '0.8125rem',
+                          color: s.subscription?.plan === 'enterprise' ? '#a855f7' : s.subscription?.plan === 'professional' ? '#f59e0b' : '#3b82f6'
+                        }}>
+                          {s.subscription?.plan}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`badge ${s.subscription?.status === 'active' ? 'badge-success' : 'badge-gray'}`}>
+                          {s.subscription?.status}
+                        </span>
+                      </td>
+                      <td>${s.subscription?.amount || 0}/mo</td>
+                      <td>
+                        {s.whiteLabel?.brandName ? (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Palette size={12} style={{ color: s.whiteLabel.primaryColor || '#f59e0b' }} />
+                            {s.whiteLabel.brandName}
+                          </span>
+                        ) : <span style={{ color: 'var(--gray-400)' }}>—</span>}
+                      </td>
+                      <td style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>
+                        {s.subscription?.startDate ? new Date(s.subscription.startDate).toLocaleDateString() : '—'}
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+                          {s.subscription?.plan !== 'enterprise' && s.subscription?.status === 'active' && (
+                            <button
+                              onClick={() => activatePlan(s.user?._id, s.subscription?.plan === 'starter' ? 'professional' : 'enterprise')}
+                              className="btn btn-sm btn-primary"
+                              style={{ fontSize: '0.6875rem', padding: '0.25rem 0.5rem' }}
+                            >
+                              <Zap size={12} /> Upgrade
+                            </button>
+                          )}
+                          {s.subscription?.status === 'active' && (
+                            <button
+                              onClick={() => cancelPlan(s.user?._id)}
+                              className="btn btn-sm btn-danger"
+                              style={{ fontSize: '0.6875rem', padding: '0.25rem 0.5rem' }}
+                            >
+                              <XCircle size={12} /> Cancel
+                            </button>
+                          )}
+                          <button onClick={() => viewUserSocial(s.user?._id)} className="btn btn-sm btn-secondary" style={{ fontSize: '0.6875rem', padding: '0.25rem 0.5rem' }}>
+                            <Eye size={12} /> View
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Platform breakdown */}
         {data?.postsByPlatform && data.postsByPlatform.length > 0 && (
@@ -197,6 +306,46 @@ const AdminSocial = () => {
 
               {userProfile && !userProfile.message ? (
                 <>
+                  {/* Subscription Management */}
+                  <div style={{ background: 'var(--gray-50)', borderRadius: 8, padding: '1rem', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                      <Crown size={14} style={{ color: '#f59e0b' }} /> Subscription
+                    </h3>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', fontSize: '0.8125rem' }}>
+                      <span>
+                        Plan: <strong style={{ textTransform: 'capitalize' }}>{userProfile.subscription?.plan || 'none'}</strong>
+                      </span>
+                      <span>
+                        Status: <span className={`badge ${userProfile.subscription?.status === 'active' ? 'badge-success' : 'badge-gray'}`}>
+                          {userProfile.subscription?.status || 'inactive'}
+                        </span>
+                      </span>
+                      {userProfile.whiteLabel?.brandName && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <Palette size={12} /> Brand: <strong>{userProfile.whiteLabel.brandName}</strong>
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+                      {['starter', 'professional', 'enterprise'].map(plan => (
+                        <button
+                          key={plan}
+                          onClick={() => activatePlan(selectedUser, plan)}
+                          className={`btn btn-sm ${userProfile.subscription?.plan === plan ? 'btn-secondary' : 'btn-primary'}`}
+                          style={{ fontSize: '0.6875rem', padding: '0.25rem 0.5rem', textTransform: 'capitalize' }}
+                          disabled={userProfile.subscription?.plan === plan && userProfile.subscription?.status === 'active'}
+                        >
+                          {userProfile.subscription?.plan === plan && userProfile.subscription?.status === 'active' ? <CheckCircle size={10} /> : <Zap size={10} />} {plan}
+                        </button>
+                      ))}
+                      {userProfile.subscription?.status === 'active' && (
+                        <button onClick={() => cancelPlan(selectedUser)} className="btn btn-sm btn-danger" style={{ fontSize: '0.6875rem', padding: '0.25rem 0.5rem' }}>
+                          <XCircle size={10} /> Cancel
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                     <div className="form-group">
                       <label>Business Name</label>

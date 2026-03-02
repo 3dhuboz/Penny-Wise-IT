@@ -1,17 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Sparkles, Settings, Calendar, BarChart3, Wand2, Image as ImageIcon,
-  Loader2, Trash2, Clock, CheckCircle, Zap, Save, Brain, Instagram, Facebook
+  Loader2, Trash2, Clock, CheckCircle, Zap, Save, Brain, Instagram, Facebook,
+  Palette, Crown, ArrowRight, Star, Shield, ExternalLink, X
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
 import './SocialAI.css';
+
+const PLAN_DETAILS = {
+  starter: { name: 'Starter', price: 49, color: '#3b82f6', icon: Star, features: ['AI Content Generation', 'Content Calendar', 'Basic Insights', '1 Brand Profile'] },
+  professional: { name: 'Professional', price: 99, color: '#f59e0b', icon: Crown, popular: true, features: ['Everything in Starter', 'Smart AI Scheduler', 'AI Image Generation', 'Advanced Insights', 'White-Label Branding', '3 Brand Profiles'] },
+  enterprise: { name: 'Enterprise', price: 199, color: '#a855f7', icon: Shield, features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Unlimited Brand Profiles', 'Dedicated Account Manager'] }
+};
 
 const SocialAI = () => {
   const [activeTab, setActiveTab] = useState('create');
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [purchasing, setPurchasing] = useState(false);
 
   // Content generator state
   const [topic, setTopic] = useState('');
@@ -34,6 +43,10 @@ const SocialAI = () => {
   const [bestTimes, setBestTimes] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  // White-label state
+  const [branding, setBranding] = useState({});
+  const [savingBranding, setSavingBranding] = useState(false);
+
   const loadData = useCallback(async () => {
     try {
       const [profileRes, postsRes] = await Promise.all([
@@ -42,6 +55,7 @@ const SocialAI = () => {
       ]);
       setProfile(profileRes.data);
       setPosts(postsRes.data);
+      if (profileRes.data?.whiteLabel) setBranding(profileRes.data.whiteLabel);
     } catch (err) {
       console.error(err);
     }
@@ -51,6 +65,54 @@ const SocialAI = () => {
   useEffect(() => { loadData(); }, [loadData]);
 
   const hasApiKey = !!profile?.geminiApiKey;
+  const isSubscribed = profile?.isSubscribed;
+  const currentPlan = profile?.subscription?.plan || 'none';
+  const canWhiteLabel = isSubscribed && (currentPlan === 'professional' || currentPlan === 'enterprise');
+
+  // White-label derived styles
+  const wl = profile?.whiteLabel || {};
+  const brandColor = wl.primaryColor || '#f59e0b';
+  const headerBg = wl.headerBg || '#0f172a';
+  const displayName = wl.brandName || 'SocialAI Studio';
+  const displayTagline = wl.tagline || '';
+
+  // ── Purchase Plan ──
+  const handlePurchase = async (plan) => {
+    setPurchasing(true);
+    try {
+      const res = await api.post('/social/subscribe', { plan });
+      setProfile(res.data.profile);
+      toast.success(res.data.message);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Purchase failed');
+    }
+    setPurchasing(false);
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!window.confirm('Cancel your subscription? You\'ll keep access until the end of your billing period.')) return;
+    try {
+      const res = await api.post('/social/cancel-subscription');
+      setProfile(res.data.profile);
+      toast.success(res.data.message);
+    } catch (err) {
+      toast.error('Cancellation failed');
+    }
+  };
+
+  // ── Save White-Label ──
+  const saveBranding = async () => {
+    setSavingBranding(true);
+    try {
+      const res = await api.put('/social/white-label', branding);
+      setBranding(res.data);
+      toast.success('Branding saved!');
+      loadData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to save branding');
+    }
+    setSavingBranding(false);
+  };
 
   // ── Content Generation ──
   const handleGenerate = async () => {
@@ -186,8 +248,9 @@ const SocialAI = () => {
   const tabs = [
     { id: 'create', label: 'Create', icon: Wand2 },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
-    { id: 'smart', label: 'Smart AI', icon: Brain },
+    { id: 'smart', label: 'Smart AI', icon: Brain, requirePlan: ['professional', 'enterprise'] },
     { id: 'insights', label: 'Insights', icon: BarChart3 },
+    { id: 'branding', label: 'Branding', icon: Palette, requirePlan: ['professional', 'enterprise'] },
     { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
@@ -196,19 +259,91 @@ const SocialAI = () => {
   const PlatformIcon = ({ p, size = 14 }) =>
     p === 'Instagram' ? <Instagram size={size} style={{ color: '#e1306c' }} /> : <Facebook size={size} style={{ color: '#1877f2' }} />;
 
-  return (
-    <div className="social-ai-page">
-      {/* Header */}
-      <div className="sai-header">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Sparkles size={28} style={{ color: '#f59e0b' }} />
-            <div>
+  // ── Purchase Gate ──
+  if (!isSubscribed) {
+    return (
+      <div className="social-ai-page">
+        <div className="sai-header">
+          <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <Sparkles size={28} style={{ color: '#f59e0b' }} />
               <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'white' }}>SocialAI Studio</h1>
-              <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>{profile?.businessName || 'Configure in Settings'}</p>
             </div>
           </div>
-          <div style={{ fontSize: '0.75rem' }}>
+        </div>
+
+        <div className="container" style={{ padding: '3rem 1.5rem', maxWidth: '1000px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <Crown size={48} style={{ color: '#f59e0b', marginBottom: '1rem' }} />
+            <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.75rem' }}>Choose Your Plan</h2>
+            <p style={{ color: '#9ca3af', fontSize: '1.0625rem', maxWidth: '500px', margin: '0 auto' }}>
+              Get your own branded AI social media manager. Each plan gives you a personalised login and full white-label control.
+            </p>
+          </div>
+
+          <div className="sai-plans-grid">
+            {Object.entries(PLAN_DETAILS).map(([key, plan]) => {
+              const Icon = plan.icon;
+              return (
+                <div key={key} className={`sai-plan-card${plan.popular ? ' sai-plan-popular' : ''}`}>
+                  {plan.popular && <div className="sai-plan-badge">MOST POPULAR</div>}
+                  <Icon size={28} style={{ color: plan.color, marginBottom: '0.75rem' }} />
+                  <h3>{plan.name}</h3>
+                  <div className="sai-plan-price">
+                    <span className="sai-plan-amount">${plan.price}</span>
+                    <span className="sai-plan-period">/month AUD</span>
+                  </div>
+                  <ul className="sai-plan-features">
+                    {plan.features.map((f, i) => (
+                      <li key={i}><CheckCircle size={14} style={{ color: plan.color }} /> {f}</li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => handlePurchase(key)}
+                    disabled={purchasing}
+                    className="btn btn-primary"
+                    style={{ width: '100%', background: plan.color, borderColor: plan.color }}
+                  >
+                    {purchasing ? <Loader2 size={16} className="spin" /> : <><Zap size={16} /> Get {plan.name}</>}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+            <Link to="/social-ai" className="service-link" style={{ color: '#9ca3af' }}>
+              Learn more about SocialAI Studio <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Subscribed: Full App ──
+  return (
+    <div className="social-ai-page">
+      {/* Header — branded */}
+      <div className="sai-header" style={{ background: headerBg }}>
+        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {wl.logoUrl ? (
+              <img src={wl.logoUrl} alt="" style={{ height: 32, width: 32, borderRadius: 8, objectFit: 'cover' }} />
+            ) : (
+              <Sparkles size={28} style={{ color: brandColor }} />
+            )}
+            <div>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'white' }}>{displayName}</h1>
+              <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                {displayTagline || profile?.businessName || 'Configure in Settings'}
+              </p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.75rem' }}>
+            <span style={{ color: brandColor, display: 'flex', alignItems: 'center', gap: '0.25rem', textTransform: 'capitalize' }}>
+              <Crown size={14} /> {currentPlan}
+            </span>
             {hasApiKey ? (
               <span style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><CheckCircle size={14} /> AI Active</span>
             ) : (
@@ -221,16 +356,22 @@ const SocialAI = () => {
       {/* Tab Nav */}
       <div className="sai-tabs">
         <div className="container" style={{ display: 'flex', gap: '0.25rem', padding: '0 1.5rem', overflowX: 'auto' }}>
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`sai-tab ${activeTab === tab.id ? 'active' : ''}`}
-            >
-              <tab.icon size={16} />
-              {tab.label}
-            </button>
-          ))}
+          {tabs.map(tab => {
+            const locked = tab.requirePlan && !tab.requirePlan.includes(currentPlan);
+            return (
+              <button
+                key={tab.id}
+                onClick={() => !locked && setActiveTab(tab.id)}
+                className={`sai-tab ${activeTab === tab.id ? 'active' : ''} ${locked ? 'locked' : ''}`}
+                title={locked ? `Requires ${tab.requirePlan.join(' or ')} plan` : ''}
+                style={activeTab === tab.id ? { borderBottomColor: brandColor, color: brandColor } : {}}
+              >
+                <tab.icon size={16} />
+                {tab.label}
+                {locked && <Crown size={10} style={{ opacity: 0.5 }} />}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -456,18 +597,168 @@ const SocialAI = () => {
           </div>
         )}
 
+        {/* ═══ BRANDING TAB ═══ */}
+        {activeTab === 'branding' && canWhiteLabel && (
+          <div className="sai-section">
+            <h2 className="sai-title"><Palette size={22} style={{ color: brandColor }} /> White-Label Branding</h2>
+            <p style={{ color: '#9ca3af', marginBottom: '1.5rem' }}>Customise the look and feel of your AI manager. Your customers will see your brand, not ours.</p>
+
+            {/* Live Preview */}
+            <div className="sai-card" style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ fontWeight: 600, color: 'white', marginBottom: '1rem' }}>Live Preview</h3>
+              <div style={{ background: branding.headerBg || '#0f172a', borderRadius: 10, padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                {branding.logoUrl ? (
+                  <img src={branding.logoUrl} alt="" style={{ height: 32, width: 32, borderRadius: 8, objectFit: 'cover' }} />
+                ) : (
+                  <Sparkles size={28} style={{ color: branding.primaryColor || '#f59e0b' }} />
+                )}
+                <div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: 700, color: 'white' }}>{branding.brandName || 'Your Brand Name'}</div>
+                  {branding.tagline && <div style={{ fontSize: '0.7rem', color: '#9ca3af' }}>{branding.tagline}</div>}
+                </div>
+              </div>
+            </div>
+
+            {/* Identity */}
+            <div className="sai-card" style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ fontWeight: 600, color: 'white', marginBottom: '1rem' }}>Brand Identity</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-group">
+                  <label>Brand Name</label>
+                  <input value={branding.brandName || ''} onChange={e => setBranding(prev => ({ ...prev, brandName: e.target.value }))} placeholder="Your Company Name" />
+                </div>
+                <div className="form-group">
+                  <label>Tagline</label>
+                  <input value={branding.tagline || ''} onChange={e => setBranding(prev => ({ ...prev, tagline: e.target.value }))} placeholder="Your smart social manager" />
+                </div>
+                <div className="form-group">
+                  <label>Logo URL</label>
+                  <input value={branding.logoUrl || ''} onChange={e => setBranding(prev => ({ ...prev, logoUrl: e.target.value }))} placeholder="https://..." />
+                </div>
+                <div className="form-group">
+                  <label>Favicon URL</label>
+                  <input value={branding.faviconUrl || ''} onChange={e => setBranding(prev => ({ ...prev, faviconUrl: e.target.value }))} placeholder="https://..." />
+                </div>
+              </div>
+            </div>
+
+            {/* Colours */}
+            <div className="sai-card" style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ fontWeight: 600, color: 'white', marginBottom: '1rem' }}>Colours</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.75rem' }}>
+                {[
+                  { key: 'primaryColor', label: 'Primary / Accent' },
+                  { key: 'accentColor', label: 'Background Accent' },
+                  { key: 'headerBg', label: 'Header Background' },
+                  { key: 'buttonColor', label: 'Button Colour' }
+                ].map(c => (
+                  <div key={c.key} className="form-group">
+                    <label style={{ fontSize: '0.7rem' }}>{c.label}</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input
+                        type="color"
+                        value={branding[c.key] || '#f59e0b'}
+                        onChange={e => setBranding(prev => ({ ...prev, [c.key]: e.target.value }))}
+                        style={{ width: 36, height: 36, padding: 2, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, cursor: 'pointer' }}
+                      />
+                      <input
+                        type="text"
+                        value={branding[c.key] || ''}
+                        onChange={e => setBranding(prev => ({ ...prev, [c.key]: e.target.value }))}
+                        style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.75rem' }}
+                        placeholder="#hex"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Advanced */}
+            <div className="sai-card" style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ fontWeight: 600, color: 'white', marginBottom: '1rem' }}>Advanced</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-group">
+                  <label>Custom Font Family</label>
+                  <input value={branding.fontFamily || ''} onChange={e => setBranding(prev => ({ ...prev, fontFamily: e.target.value }))} placeholder="e.g., Inter, Poppins" />
+                </div>
+                {currentPlan === 'enterprise' && (
+                  <div className="form-group">
+                    <label>Custom Domain</label>
+                    <input value={branding.customDomain || ''} onChange={e => setBranding(prev => ({ ...prev, customDomain: e.target.value }))} placeholder="social.yourdomain.com" />
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
+                <input
+                  type="checkbox"
+                  id="hideByline"
+                  checked={branding.hideByline || false}
+                  onChange={e => setBranding(prev => ({ ...prev, hideByline: e.target.checked }))}
+                  style={{ width: 16, height: 16 }}
+                />
+                <label htmlFor="hideByline" style={{ fontSize: '0.8125rem', color: '#d1d5db', cursor: 'pointer' }}>
+                  Hide "Powered by Penny Wise I.T" byline
+                </label>
+              </div>
+            </div>
+
+            <button onClick={saveBranding} disabled={savingBranding} className="btn btn-primary" style={{ background: brandColor, borderColor: brandColor }}>
+              {savingBranding ? <Loader2 size={16} className="spin" /> : <Save size={16} />}
+              Save Branding
+            </button>
+          </div>
+        )}
+
         {/* ═══ SETTINGS TAB ═══ */}
         {activeTab === 'settings' && (
           <div className="sai-section">
-            <h2 className="sai-title"><Settings size={22} style={{ color: '#f59e0b' }} /> Settings</h2>
+            <h2 className="sai-title"><Settings size={22} style={{ color: brandColor }} /> Settings</h2>
+
+            {/* Subscription Status */}
+            <div className="sai-card" style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <Crown size={18} style={{ color: brandColor }} /> Subscription
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Plan</div>
+                  <div style={{ fontSize: '1rem', fontWeight: 700, color: brandColor, textTransform: 'capitalize' }}>{currentPlan}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status</div>
+                  <div style={{ fontSize: '1rem', fontWeight: 700, color: '#34d399', textTransform: 'capitalize' }}>{profile?.subscription?.status}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Renews</div>
+                  <div style={{ fontSize: '0.875rem', color: '#d1d5db' }}>
+                    {profile?.subscription?.endDate ? new Date(profile.subscription.endDate).toLocaleDateString() : '—'}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Amount</div>
+                  <div style={{ fontSize: '1rem', fontWeight: 700, color: '#d1d5db' }}>${profile?.subscription?.amount || 0}/mo</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                {currentPlan !== 'enterprise' && (
+                  <button onClick={() => handlePurchase(currentPlan === 'starter' ? 'professional' : 'enterprise')} className="btn btn-primary btn-sm" style={{ background: brandColor, borderColor: brandColor }}>
+                    <Zap size={14} /> Upgrade Plan
+                  </button>
+                )}
+                <button onClick={handleCancelSubscription} className="btn btn-danger btn-sm">
+                  Cancel Subscription
+                </button>
+              </div>
+            </div>
 
             {/* API Key */}
             <div className="sai-card">
               <h3 style={{ fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <Sparkles size={18} style={{ color: '#f59e0b' }} /> Gemini API Key
+                <Sparkles size={18} style={{ color: brandColor }} /> Gemini API Key
               </h3>
               <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '1rem' }}>
-                Powers all AI features. Get a free key from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style={{ color: '#f59e0b' }}>Google AI Studio</a>.
+                Powers all AI features. Get a free key from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style={{ color: brandColor }}>Google AI Studio</a>.
               </p>
               <div style={{ display: 'flex', gap: '0.5rem', maxWidth: '500px' }}>
                 <input
@@ -477,7 +768,7 @@ const SocialAI = () => {
                   placeholder="Paste your API key..."
                   style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.8125rem' }}
                 />
-                <button onClick={saveProfile} className="btn btn-primary btn-sm">Save</button>
+                <button onClick={saveProfile} className="btn btn-primary btn-sm" style={{ background: brandColor, borderColor: brandColor }}>Save</button>
               </div>
               {hasApiKey && (
                 <p style={{ fontSize: '0.75rem', color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
@@ -512,7 +803,7 @@ const SocialAI = () => {
                 <label>Business Description</label>
                 <textarea value={profile?.description || ''} onChange={e => setProfile(prev => ({ ...prev, description: e.target.value }))} placeholder="Brief description of your business..." rows={2} />
               </div>
-              <button onClick={saveProfile} className="btn btn-primary"><Save size={16} /> Save Profile</button>
+              <button onClick={saveProfile} className="btn btn-primary" style={{ background: brandColor, borderColor: brandColor }}><Save size={16} /> Save Profile</button>
             </div>
 
             {/* Data */}
@@ -546,6 +837,13 @@ const SocialAI = () => {
                 >Clear All Posts</button>
               </div>
             </div>
+
+            {/* Powered By */}
+            {!wl.hideByline && (
+              <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.75rem', color: '#4b5563' }}>
+                Powered by <strong>Penny Wise I.T</strong>
+              </div>
+            )}
           </div>
         )}
       </div>
