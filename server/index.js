@@ -25,7 +25,38 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/pennywise-it')
-  .then(() => console.log('MongoDB connected successfully'))
+  .then(async () => {
+    console.log('MongoDB connected successfully');
+    // Auto-seed marketplace apps if empty
+    try {
+      const AppDefinition = require('./models/AppDefinition');
+      const count = await AppDefinition.countDocuments();
+      if (count === 0) {
+        await AppDefinition.insertMany([
+          {
+            slug: 'social-ai-studio',
+            name: 'SocialAI Studio',
+            shortDescription: 'AI-powered social media content generator and scheduler. Create weeks of engaging posts in minutes.',
+            fullDescription: 'SocialAI Studio uses Google Gemini AI to generate on-brand social media content, images, and full 2-week posting schedules for Facebook and Instagram. Each subscriber gets their own branded AI social media manager with full white-label control.',
+            icon: 'sparkles',
+            category: 'marketing',
+            routePath: '/social',
+            features: ['AI Content Generation', 'AI Image Generation', 'Smart 2-Week Scheduler', 'Content Calendar', 'Engagement Insights', 'Multi-Platform (Facebook & Instagram)', 'White-Label Branding', 'Export Data'],
+            techStack: ['Google Gemini AI', 'React', 'Node.js', 'MongoDB'],
+            plans: [
+              { key: 'starter', name: 'Starter', price: 49, features: ['AI Content Generation', 'Content Calendar', 'Basic Insights', '1 Brand Profile'], color: '#3b82f6', whiteLabel: false, customDomain: false },
+              { key: 'professional', name: 'Professional', price: 99, features: ['Everything in Starter', 'Smart AI Scheduler', 'AI Image Generation', 'Advanced Insights', 'White-Label Branding', '3 Brand Profiles'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
+              { key: 'enterprise', name: 'Enterprise', price: 199, features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Unlimited Brand Profiles', 'Dedicated Account Manager'], color: '#a855f7', whiteLabel: true, customDomain: true }
+            ],
+            displayOrder: 1
+          }
+        ]);
+        console.log('Marketplace apps auto-seeded');
+      }
+    } catch (err) {
+      console.error('Auto-seed check error:', err.message);
+    }
+  })
   .catch(err => console.error('MongoDB connection error:', err));
 
 // API Routes

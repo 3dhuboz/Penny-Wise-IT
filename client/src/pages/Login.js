@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogIn } from 'lucide-react';
 import toast from 'react-hot-toast';
+import GoogleSignIn from '../components/GoogleSignIn';
 import './Auth.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -25,6 +26,18 @@ const Login = () => {
     setLoading(false);
   };
 
+  const handleGoogle = useCallback(async (credential) => {
+    setLoading(true);
+    try {
+      const data = await googleLogin(credential);
+      toast.success(`Welcome, ${data.user.firstName}!`);
+      navigate(data.user.role === 'admin' ? '/admin' : '/dashboard');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Google sign-in failed');
+    }
+    setLoading(false);
+  }, [googleLogin, navigate]);
+
   return (
     <div className="auth-page">
       <div className="auth-card card">
@@ -32,6 +45,12 @@ const Login = () => {
           <div className="auth-logo"><span className="brand-icon">PW</span></div>
           <h1>Welcome Back</h1>
           <p>Sign in to your Penny Wise I.T account</p>
+        </div>
+
+        <GoogleSignIn onSuccess={handleGoogle} text="signin_with" />
+
+        <div className="auth-divider">
+          <span>or sign in with email</span>
         </div>
 
         <form onSubmit={handleSubmit}>
