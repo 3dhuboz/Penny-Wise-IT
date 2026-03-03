@@ -308,6 +308,97 @@
   margin-bottom: 1.5rem;
 }
 
+/* Setup Fee */
+.mp-setup-fee {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1px solid #f59e0b;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mp-setup-fee span {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.mp-setup-fee strong {
+  font-size: 1.125rem;
+  color: #78350f;
+  margin-left: auto;
+}
+
+.mp-setup-fee small {
+  width: 100%;
+  font-size: 0.7rem;
+  color: #a16207;
+}
+
+/* Billing Toggle */
+.mp-plans-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.mp-plans-header h4 {
+  margin-bottom: 0 !important;
+}
+
+.mp-billing-toggle {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.mp-billing-toggle button {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mp-billing-toggle button.active {
+  background: white;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.mp-save-badge {
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.mp-plan-savings {
+  color: #16a34a;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: -4px;
+  margin-bottom: 8px;
+}
+
 .mp-modal-features h4,
 .mp-modal-plans h4,
 .mp-modal-tech h4 {

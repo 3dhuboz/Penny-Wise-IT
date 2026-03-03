@@ -59,12 +59,13 @@ async function connectDB() {
         icon: 'sparkles',
         category: 'marketing',
         routePath: '/social',
+        setupFee: 299,
         features: ['AI Content Generation', 'AI Image Generation', 'Smart 2-Week Scheduler', 'Content Calendar', 'Engagement Insights', 'Multi-Platform (Facebook & Instagram)', 'White-Label Branding', 'Export Data'],
         techStack: ['Google Gemini AI', 'React', 'Node.js', 'MongoDB'],
         plans: [
-          { key: 'starter', name: 'Starter', price: 49, features: ['AI Content Generation', 'Content Calendar', 'Basic Insights', '1 Brand Profile'], color: '#3b82f6', whiteLabel: false, customDomain: false },
-          { key: 'professional', name: 'Professional', price: 99, features: ['Everything in Starter', 'Smart AI Scheduler', 'AI Image Generation', 'Advanced Insights', 'White-Label Branding', '3 Brand Profiles'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
-          { key: 'enterprise', name: 'Enterprise', price: 199, features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Unlimited Brand Profiles', 'Dedicated Account Manager'], color: '#a855f7', whiteLabel: true, customDomain: true }
+          { key: 'starter', name: 'Starter', price: 49, yearlyPrice: 490, features: ['AI Content Generation', 'Content Calendar', 'Basic Insights', '1 Brand Profile'], color: '#3b82f6', whiteLabel: false, customDomain: false },
+          { key: 'professional', name: 'Professional', price: 99, yearlyPrice: 990, features: ['Everything in Starter', 'Smart AI Scheduler', 'AI Image Generation', 'Advanced Insights', 'White-Label Branding', '3 Brand Profiles'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
+          { key: 'enterprise', name: 'Enterprise', price: 199, yearlyPrice: 1990, features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Unlimited Brand Profiles', 'Dedicated Account Manager'], color: '#a855f7', whiteLabel: true, customDomain: true }
         ],
         isActive: true, isPublished: true, displayOrder: 1
       },
@@ -76,12 +77,13 @@ async function connectDB() {
         icon: 'zap',
         category: 'food-service',
         routePath: '/foodtruc',
+        setupFee: 499,
         features: ['Online Ordering (Takeaway & Catering)', 'DIY Catering Builder', 'Square Payment Integration', 'AI Chat Assistant (Gemini + Claude)', 'Admin Dashboard & Order Management', 'Loyalty Rewards Program', 'Email & SMS Notifications', 'Cook-Day Planner & Events Calendar', 'Customer Gallery with Moderation', 'PWA — Installable & Offline Ready', 'Full White-Label Branding', 'Delivery Tracking'],
         techStack: ['React 19', 'TypeScript', 'Firebase', 'Square Payments', 'Google Gemini AI', 'Twilio SMS', 'Vite', 'TailwindCSS'],
         plans: [
-          { key: 'starter', name: 'Starter', price: 79, features: ['Online Menu & Ordering', 'Square Payments', 'Order Management Dashboard', 'Cook-Day Planner', 'Email Notifications', '1 Location'], color: '#10b981', whiteLabel: false, customDomain: false },
-          { key: 'professional', name: 'Professional', price: 149, features: ['Everything in Starter', 'DIY Catering Builder', 'Loyalty Rewards Program', 'SMS Notifications (Twilio)', 'AI Chat Assistant', 'Customer Gallery', 'Full White-Label Branding', '3 Locations'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
-          { key: 'enterprise', name: 'Enterprise', price: 299, features: ['Everything in Professional', 'Custom Domain', 'Multi-Location Management', 'Priority Support', 'AI Social Content Generator', 'Advanced Analytics', 'Dedicated Account Manager', 'Unlimited Locations'], color: '#a855f7', whiteLabel: true, customDomain: true }
+          { key: 'starter', name: 'Starter', price: 79, yearlyPrice: 790, features: ['Online Menu & Ordering', 'Square Payments', 'Order Management Dashboard', 'Cook-Day Planner', 'Email Notifications', '1 Location'], color: '#10b981', whiteLabel: false, customDomain: false },
+          { key: 'professional', name: 'Professional', price: 149, yearlyPrice: 1490, features: ['Everything in Starter', 'DIY Catering Builder', 'Loyalty Rewards Program', 'SMS Notifications (Twilio)', 'AI Chat Assistant', 'Customer Gallery', 'Full White-Label Branding', '3 Locations'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
+          { key: 'enterprise', name: 'Enterprise', price: 299, yearlyPrice: 2990, features: ['Everything in Professional', 'Custom Domain', 'Multi-Location Management', 'Priority Support', 'AI Social Content Generator', 'Advanced Analytics', 'Dedicated Account Manager', 'Unlimited Locations'], color: '#a855f7', whiteLabel: true, customDomain: true }
         ],
         isActive: true, isPublished: true, displayOrder: 2
       },
@@ -94,12 +96,13 @@ async function connectDB() {
         category: 'automotive',
         routePath: '/autohue',
         demoUrl: 'https://autohue.vercel.app',
+        setupFee: 199,
         features: ['AI Car Detection (YOLOv8)', 'Dominant Colour Extraction', '11 Colour Categories', 'Bulk Photo Upload', 'Automatic Folder Sorting', 'ZIP Download Export', 'Real-Time Processing Status', 'White-Label Branding', 'API Access'],
         techStack: ['YOLOv8', 'PyTorch', 'OpenCV', 'K-Means Clustering', 'React', 'Vercel'],
         plans: [
-          { key: 'starter', name: 'Starter', price: 29, features: ['Up to 500 photos/month', 'AI Car Detection', '11 Colour Categories', 'ZIP Export', 'Email Support'], color: '#06b6d4', whiteLabel: false, customDomain: false },
-          { key: 'professional', name: 'Professional', price: 69, features: ['Everything in Starter', 'Unlimited Photos', 'API Access', 'Batch Processing', 'White-Label Branding', 'Priority Processing'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
-          { key: 'enterprise', name: 'Enterprise', price: 149, features: ['Everything in Professional', 'Custom Domain', 'Custom Colour Categories', 'Dedicated Support', 'SLA-Backed Uptime', 'Multi-User Access'], color: '#a855f7', whiteLabel: true, customDomain: true }
+          { key: 'starter', name: 'Starter', price: 29, yearlyPrice: 290, features: ['Up to 500 photos/month', 'AI Car Detection', '11 Colour Categories', 'ZIP Export', 'Email Support'], color: '#06b6d4', whiteLabel: false, customDomain: false },
+          { key: 'professional', name: 'Professional', price: 69, yearlyPrice: 690, features: ['Everything in Starter', 'Unlimited Photos', 'API Access', 'Batch Processing', 'White-Label Branding', 'Priority Processing'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
+          { key: 'enterprise', name: 'Enterprise', price: 149, yearlyPrice: 1490, features: ['Everything in Professional', 'Custom Domain', 'Custom Colour Categories', 'Dedicated Support', 'SLA-Backed Uptime', 'Multi-User Access'], color: '#a855f7', whiteLabel: true, customDomain: true }
         ],
         isActive: true, isPublished: true, displayOrder: 3
       }

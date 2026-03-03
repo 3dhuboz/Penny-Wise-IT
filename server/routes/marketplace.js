@@ -1,7 +1,9 @@
 const express = require('express');
 const AppDefinition = require('../models/AppDefinition');
 const AppSubscription = require('../models/AppSubscription');
+const User = require('../models/User');
 const { auth, adminOnly } = require('../middleware/auth');
+const { sendEmail, subscriptionConfirmationEmail, adminNotificationEmail } = require('../utils/email');
 
 const router = express.Router();
 
@@ -60,7 +62,7 @@ router.get('/my-apps/:appSlug', auth, async (req, res) => {
 // Purchase / subscribe to an app
 router.post('/subscribe', auth, async (req, res) => {
   try {
-    const { appSlug, planKey } = req.body;
+    const { appSlug, planKey, billingInterval = 'monthly' } = req.body;
     const appDef = await AppDefinition.findOne({ slug: appSlug, isActive: true });
     if (!appDef) return res.status(404).json({ message: 'App not found' });
 
@@ -68,9 +70,16 @@ router.post('/subscribe', auth, async (req, res) => {
     if (!plan) return res.status(400).json({ message: 'Invalid plan' });
 
     const now = new Date();
-    const endDate = plan.interval === 'yearly'
+    const isYearly = billingInterval === 'yearly';
+    const endDate = isYearly
       ? new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000)
       : new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const amount = isYearly && plan.yearlyPrice ? plan.yearlyPrice : plan.price;
+
+    // Check if setup fee already paid
+    const existingSub = await AppSubscription.findOne({ user: req.user._id, app: appDef._id });
+    const setupFeePaid = existingSub?.setupFeePaid || false;
+    const setupFee = appDef.setupFee || 0;
 
     const sub = await AppSubscription.findOneAndUpdate(
       { user: req.user._id, app: appDef._id },
@@ -78,17 +87,60 @@ router.post('/subscribe', auth, async (req, res) => {
         user: req.user._id,
         app: appDef._id,
         planKey: plan.key,
+        billingInterval: isYearly ? 'yearly' : 'monthly',
         status: 'active',
         startDate: now,
         endDate,
         lastPayment: now,
-        amount: plan.price,
+        amount,
+        setupFeePaid: true,
+        setupFeeAmount: setupFeePaid ? 0 : setupFee,
         currency: plan.currency || 'AUD'
       },
       { new: true, upsert: true }
     ).populate('app');
 
-    res.json({ message: `${plan.name} plan activated for ${appDef.name}!`, subscription: sub });
+    // Get user details for emails
+    const customer = await User.findById(req.user._id);
+    const userName = customer?.name || customer?.email || 'Customer';
+
+    // Send confirmation email to customer (non-blocking)
+    sendEmail({
+      to: customer.email,
+      subject: `Subscription Confirmed — ${appDef.name} (${plan.name})`,
+      html: subscriptionConfirmationEmail({
+        userName,
+        appName: appDef.name,
+        planName: plan.name,
+        amount,
+        billingInterval: isYearly ? 'yearly' : 'monthly',
+        setupFee,
+        setupFeePaid
+      })
+    }).catch(err => console.error('[Email] Customer confirmation failed:', err.message));
+
+    // Notify admin (non-blocking)
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@pennywiseit.com.au';
+    sendEmail({
+      to: adminEmail,
+      subject: `💰 New Subscription: ${appDef.name} — ${plan.name} (${userName})`,
+      html: adminNotificationEmail({
+        userName,
+        userEmail: customer.email,
+        appName: appDef.name,
+        planName: plan.name,
+        amount,
+        billingInterval: isYearly ? 'yearly' : 'monthly',
+        setupFee: setupFeePaid ? 0 : setupFee
+      })
+    }).catch(err => console.error('[Email] Admin notification failed:', err.message));
+
+    const intervalLabel = isYearly ? 'year' : 'month';
+    const setupMsg = !setupFeePaid && setupFee > 0 ? ` Setup fee: $${setupFee}.` : '';
+    res.json({
+      message: `${plan.name} plan activated for ${appDef.name}! ($${amount}/${intervalLabel})${setupMsg} Confirmation email sent.`,
+      subscription: sub
+    });
   } catch (err) {
     res.status(500).json({ message: 'Subscription failed', error: err.message });
   }

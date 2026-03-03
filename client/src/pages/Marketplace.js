@@ -32,6 +32,7 @@ const Marketplace = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedApp, setSelectedApp] = useState(null);
   const [purchasing, setPurchasing] = useState(false);
+  const [billingInterval, setBillingInterval] = useState('monthly');
 
   useEffect(() => {
     const load = async () => {
@@ -56,7 +57,7 @@ const Marketplace = () => {
     if (!user) { navigate('/login'); return; }
     setPurchasing(true);
     try {
-      const res = await api.post('/marketplace/subscribe', { appSlug, planKey });
+      const res = await api.post('/marketplace/subscribe', { appSlug, planKey, billingInterval });
       toast.success(res.data.message);
       // Refresh subs
       const subsRes = await api.get('/marketplace/my-apps');
@@ -204,13 +205,29 @@ const Marketplace = () => {
               </div>
             )}
 
+            {selectedApp.setupFee > 0 && (
+              <div className="mp-setup-fee">
+                <span>One-Time Setup Fee</span>
+                <strong>${selectedApp.setupFee} AUD</strong>
+                <small>Includes branding configuration, deployment, and onboarding</small>
+              </div>
+            )}
+
             <div className="mp-modal-plans">
-              <h4>Choose a Plan</h4>
+              <div className="mp-plans-header">
+                <h4>Choose a Plan</h4>
+                <div className="mp-billing-toggle">
+                  <button className={billingInterval === 'monthly' ? 'active' : ''} onClick={() => setBillingInterval('monthly')}>Monthly</button>
+                  <button className={billingInterval === 'yearly' ? 'active' : ''} onClick={() => setBillingInterval('yearly')}>Yearly <span className="mp-save-badge">Save 2 months</span></button>
+                </div>
+              </div>
               <div className="mp-plans-row">
                 {selectedApp.plans.map(plan => {
                   const sub = getSubForApp(selectedApp._id);
                   const isCurrent = sub?.isActive && sub?.planKey === plan.key;
                   const PlanIcon = plan.color === '#a855f7' ? Shield : plan.color === '#f59e0b' ? Crown : Star;
+                  const displayPrice = billingInterval === 'yearly' && plan.yearlyPrice ? plan.yearlyPrice : plan.price;
+                  const period = billingInterval === 'yearly' ? '/yr' : '/mo';
                   return (
                     <div key={plan.key} className={`mp-plan-card ${plan.popular ? 'mp-plan-popular' : ''} ${isCurrent ? 'mp-plan-current' : ''}`}>
                       {plan.popular && <div className="mp-plan-badge">POPULAR</div>}
@@ -218,9 +235,12 @@ const Marketplace = () => {
                       <PlanIcon size={22} style={{ color: plan.color, marginBottom: '0.5rem' }} />
                       <h5>{plan.name}</h5>
                       <div className="mp-plan-price">
-                        <span className="mp-plan-amount">${plan.price}</span>
-                        <span className="mp-plan-period">/mo</span>
+                        <span className="mp-plan-amount">${displayPrice}</span>
+                        <span className="mp-plan-period">{period}</span>
                       </div>
+                      {billingInterval === 'yearly' && plan.yearlyPrice > 0 && (
+                        <div className="mp-plan-savings">Save ${(plan.price * 12) - plan.yearlyPrice}/yr</div>
+                      )}
                       <ul className="mp-plan-features">
                         {plan.features.map((f, i) => (
                           <li key={i}><CheckCircle size={12} style={{ color: plan.color }} /> {f}</li>

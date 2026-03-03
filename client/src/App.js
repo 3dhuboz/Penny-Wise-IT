@@ -28,6 +28,7 @@ import Marketplace from './pages/Marketplace';
 import MyApps from './pages/MyApps';
 import AdminApps from './pages/AdminApps';
 import FoodTrucProduct from './pages/FoodTrucProduct';
+import PennyAgent from './components/PennyAgent';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -85,6 +86,7 @@ function App() {
             <AppRoutes />
           </main>
           <Footer />
+          <PennyAgent />
         </div>
         <Toaster position="top-right" toastOptions={{
           duration: 4000,

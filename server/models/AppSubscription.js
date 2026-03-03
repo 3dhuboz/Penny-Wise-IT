@@ -9,7 +9,10 @@ const appSubscriptionSchema = new mongoose.Schema({
   endDate: { type: Date },
   trialEndsAt: { type: Date },
   lastPayment: { type: Date },
+  billingInterval: { type: String, enum: ['monthly', 'yearly'], default: 'monthly' },
   amount: { type: Number, default: 0 },
+  setupFeePaid: { type: Boolean, default: false },
+  setupFeeAmount: { type: Number, default: 0 },
   currency: { type: String, default: 'AUD' },
   // White-label branding (per user per app)
   whiteLabel: {

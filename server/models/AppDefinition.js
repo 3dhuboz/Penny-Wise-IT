@@ -12,10 +12,12 @@ const appDefinitionSchema = new mongoose.Schema({
   techStack: [{ type: String }],
   demoUrl: { type: String, default: '' },
   routePath: { type: String, default: '' },
+  setupFee: { type: Number, default: 0 },
   plans: [{
     key: { type: String, required: true },
     name: { type: String, required: true },
     price: { type: Number, required: true },
+    yearlyPrice: { type: Number, default: 0 },
     currency: { type: String, default: 'AUD' },
     interval: { type: String, enum: ['monthly', 'yearly', 'one-time'], default: 'monthly' },
     features: [{ type: String }],
