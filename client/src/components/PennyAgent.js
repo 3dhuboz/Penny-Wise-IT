@@ -14,7 +14,7 @@ const SOLUTIONS = [
   },
   {
     keywords: ['food', 'truck', 'restaurant', 'catering', 'menu', 'order', 'ordering', 'kitchen', 'bbq', 'takeaway', 'delivery', 'loyalty'],
-    app: 'FoodTruc',
+    app: 'Food Truck',
     slug: 'foodtruc',
     route: '/foodtruc',
     description: 'A complete mobile ordering platform for food trucks, caterers, and pop-up kitchens. Online ordering, payments, loyalty rewards, and admin dashboard — all white-labelled as yours.',
@@ -64,7 +64,7 @@ function generateResponse(text) {
     return {
       messages: [
         { role: 'agent', text: "Here are our ready-to-go white-label solutions — each one can be set up under your own brand:" },
-        { role: 'agent', text: "🎨 **AutoHue** — AI car photo colour sorter ($29/mo)\n📱 **FoodTruc** — Mobile ordering platform ($79/mo)\n✨ **SocialAI Studio** — AI social media manager ($49/mo)", link: { to: '/marketplace', label: 'Browse Marketplace' } }
+        { role: 'agent', text: "🎨 **AutoHue** — AI car photo colour sorter ($29/mo)\n📱 **Food Truck** — Mobile ordering platform ($79/mo)\n✨ **SocialAI Studio** — AI social media manager ($49/mo)", link: { to: '/marketplace', label: 'Browse Marketplace' } }
       ]
     };
   }
@@ -83,7 +83,7 @@ function generateResponse(text) {
   if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('pricing')) {
     return {
       messages: [
-        { role: 'agent', text: "Great question! Our white-label apps include a one-time setup fee plus a monthly subscription:\n\n• **AutoHue**: $199 setup + from $29/mo\n• **SocialAI Studio**: $299 setup + from $49/mo\n• **FoodTruc**: $499 setup + from $79/mo\n\nYearly plans get 2 months free! Each includes your own branded instance with admin access." },
+        { role: 'agent', text: "Great question! Our white-label apps include a one-time setup fee plus a monthly subscription:\n\n• **AutoHue**: $199 setup + from $29/mo\n• **SocialAI Studio**: $299 setup + from $49/mo\n• **Food Truck**: $499 setup + from $79/mo\n\nYearly plans get 2 months free! Each includes your own branded instance with admin access." },
         { role: 'agent', text: "For custom builds, pricing depends on scope. We'll give you a clear quote after understanding your needs.", link: { to: '/marketplace', label: 'View All Plans' } }
       ]
     };

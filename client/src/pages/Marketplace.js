@@ -52,8 +52,18 @@ const APP_LOGOS = {
 
 const SAVINGS_DATA = {
   'social-ai': { alternative: 'Social media manager', altCost: 2000 },
+  'social-ai-studio': { alternative: 'Social media manager', altCost: 2000 },
   'autohue': { alternative: 'Manual photo sorting', altCost: 1200 },
   'foodtruc': { alternative: 'Third-party ordering platform fees', altCost: 800 },
+  'food-truck': { alternative: 'Third-party ordering platform fees', altCost: 800 },
+};
+
+const APP_PREVIEWS = {
+  'social-ai': '/app-previews/socialai-preview.svg',
+  'social-ai-studio': '/app-previews/socialai-preview.svg',
+  'autohue': '/app-previews/autohue-preview.svg',
+  'foodtruc': '/app-previews/foodtruck-preview.svg',
+  'food-truck': '/app-previews/foodtruck-preview.svg',
 };
 
 const CATEGORY_LABELS = {
@@ -169,6 +179,11 @@ const Marketplace = () => {
               const lowestPrice = Math.min(...app.plans.map(p => p.price));
               return (
                 <div key={app._id} className="mp-card" onClick={() => setSelectedApp(app)}>
+                  {(app.heroImage || APP_PREVIEWS[app.slug]) && (
+                    <div className="mp-card-preview">
+                      <img src={app.heroImage || APP_PREVIEWS[app.slug]} alt={app.name} />
+                    </div>
+                  )}
                   <div className="mp-card-header">
                     <div className="mp-card-icon">{LogoSvg ? <LogoSvg /> : <Icon size={24} />}</div>
                     <div className="mp-card-meta">

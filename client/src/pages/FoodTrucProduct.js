@@ -162,7 +162,7 @@ const FoodTrucProduct = () => {
           <div className="ft-hero-badge">
             <Zap size={14} /> WHITE-LABEL PLATFORM
           </div>
-          <h1>FoodTruc</h1>
+          <h1>Food Truck</h1>
           <p className="ft-hero-sub">
             The all-in-one ordering, payments, and management platform for food trucks,
             caterers, and pop-up kitchens. Your brand. Your business. Your app.
@@ -195,7 +195,7 @@ const FoodTrucProduct = () => {
       {/* Why FoodTruc */}
       <section className="ft-benefits">
         <div className="container">
-          <h2 className="section-heading">Why Food Businesses Choose FoodTruc</h2>
+          <h2 className="section-heading">Why Food Businesses Choose Food Truck</h2>
           <p className="section-sub">Stop losing sales to pen-and-paper. Go digital with a platform built specifically for mobile food vendors.</p>
           <div className="ft-benefits-grid">
             {benefits.map((b, i) => (
