@@ -14,6 +14,7 @@ const appSubscriptionSchema = new mongoose.Schema({
   setupFeePaid: { type: Boolean, default: false },
   setupFeeAmount: { type: Number, default: 0 },
   currency: { type: String, default: 'AUD' },
+  squareInvoiceId: { type: String, default: '' },
   // White-label branding (per user per app)
   whiteLabel: {
     brandName: { type: String, default: '' },

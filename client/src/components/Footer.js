@@ -28,6 +28,7 @@ const Footer = () => {
           <div className="footer-section">
             <h4>Quick Links</h4>
             <Link to="/portfolio">Portfolio</Link>
+            <Link to="/marketplace">Marketplace</Link>
             <Link to="/contact">Contact Us</Link>
             <Link to="/login">Client Login</Link>
             <Link to="/register">Get Started</Link>
@@ -43,6 +44,11 @@ const Footer = () => {
 
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} Penny Wise I.T. All rights reserved.</p>
+          <div className="footer-legal">
+            <Link to="/terms">Terms of Service</Link>
+            <span className="footer-divider">|</span>
+            <Link to="/privacy">Privacy Policy</Link>
+          </div>
         </div>
       </div>
     </footer>

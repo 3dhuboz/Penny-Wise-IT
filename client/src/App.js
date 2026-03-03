@@ -29,6 +29,8 @@ import MyApps from './pages/MyApps';
 import AdminApps from './pages/AdminApps';
 import FoodTrucProduct from './pages/FoodTrucProduct';
 import AdminInvoices from './pages/AdminInvoices';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 import PennyAgent from './components/PennyAgent';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
@@ -53,6 +55,8 @@ const AppRoutes = () => {
       <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/foodtruc" element={<FoodTrucProduct />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
 
       {/* Customer Routes */}
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

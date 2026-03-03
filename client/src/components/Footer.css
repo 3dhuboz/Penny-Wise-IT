@@ -73,6 +73,29 @@
   color: #4b5563;
 }
 
+.footer-legal {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.footer-legal a {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-legal a:hover {
+  color: #00d4ff;
+}
+
+.footer-divider {
+  color: #374151;
+  font-size: 0.75rem;
+}
+
 @media (max-width: 768px) {
   .footer-grid {
     grid-template-columns: 1fr 1fr;

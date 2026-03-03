@@ -4,6 +4,7 @@ const AppSubscription = require('../models/AppSubscription');
 const User = require('../models/User');
 const { auth, adminOnly } = require('../middleware/auth');
 const { sendEmail, subscriptionConfirmationEmail, adminNotificationEmail } = require('../utils/email');
+const { findOrCreateSquareCustomer, createSquareInvoice, publishSquareInvoice } = require('../utils/square');
 
 const router = express.Router();
 
@@ -102,7 +103,44 @@ router.post('/subscribe', auth, async (req, res) => {
 
     // Get user details for emails
     const customer = await User.findById(req.user._id);
-    const userName = customer?.name || customer?.email || 'Customer';
+    const userName = `${customer?.firstName || ''} ${customer?.lastName || ''}`.trim() || customer?.email || 'Customer';
+
+    // Create Square invoice for payment collection (non-blocking)
+    (async () => {
+      try {
+        const sqCustomer = await findOrCreateSquareCustomer({
+          email: customer.email,
+          firstName: customer.firstName,
+          lastName: customer.lastName,
+          company: customer.company,
+          phone: customer.phone
+        });
+        if (sqCustomer) {
+          const lineItems = [];
+          if (!setupFeePaid && setupFee > 0) {
+            lineItems.push({ description: `${appDef.name} — One-Time Setup Fee`, quantity: 1, unitPrice: setupFee });
+          }
+          lineItems.push({ description: `${appDef.name} — ${plan.name} Plan (${isYearly ? 'Yearly' : 'Monthly'})`, quantity: 1, unitPrice: amount });
+
+          const invoiceNum = `PW-${appDef.slug.toUpperCase().slice(0, 4)}-${Date.now().toString(36).toUpperCase()}`;
+          const result = await createSquareInvoice({
+            squareCustomerId: sqCustomer.id,
+            lineItems,
+            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Due in 7 days
+            title: `${appDef.name} Subscription`,
+            invoiceNumber: invoiceNum
+          });
+          if (result?.invoice) {
+            await publishSquareInvoice(result.invoice.id, result.invoice.version);
+            console.log(`[Square] Invoice ${invoiceNum} created & published for ${customer.email}`);
+            // Store invoice reference on subscription
+            await AppSubscription.findByIdAndUpdate(sub._id, { squareInvoiceId: result.invoice.id });
+          }
+        }
+      } catch (sqErr) {
+        console.error('[Square] Invoice creation failed (non-blocking):', sqErr.message);
+      }
+    })();
 
     // Send confirmation email to customer (non-blocking)
     sendEmail({
@@ -343,9 +381,9 @@ router.post('/admin/seed', auth, adminOnly, async (req, res) => {
       },
       {
         slug: 'foodtruc',
-        name: 'FoodTruc',
+        name: 'Food Truck',
         shortDescription: 'White-label mobile ordering platform for food trucks, caterers, and pop-up kitchens. Online ordering, payments, AI assistant, and loyalty — all under your brand.',
-        fullDescription: 'FoodTruc is a fully-featured, mobile-first ordering web app purpose-built for food trucks, BBQ vendors, caterers, and pop-up kitchens. Customers can browse your menu, place takeaway or catering orders, pay via Square, track deliveries, and earn loyalty stamps — all from a PWA that works offline. The admin dashboard gives you full control over orders, menu items, cook-day planner, customer database, email/SMS blasts, social content generation, and AI-powered chat assistance. Every element is white-label configurable.',
+        fullDescription: 'Food Truck is a fully-featured, mobile-first ordering web app purpose-built for food trucks, BBQ vendors, caterers, and pop-up kitchens. Customers can browse your menu, place takeaway or catering orders, pay via Square, track deliveries, and earn loyalty stamps — all from a PWA that works offline. The admin dashboard gives you full control over orders, menu items, cook-day planner, customer database, email/SMS blasts, social content generation, and AI-powered chat assistance. Every element is white-label configurable.',
         icon: 'zap',
         category: 'food-service',
         routePath: '/foodtruc',
