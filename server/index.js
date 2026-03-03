@@ -1,5 +1,8 @@
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '8.8.4.4']);
+// Use Google DNS locally to resolve MongoDB Atlas SRV records (skip on Vercel)
+if (!process.env.VERCEL) {
+  const dns = require('dns');
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+}
 
 const express = require('express');
 const mongoose = require('mongoose');
