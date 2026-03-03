@@ -297,8 +297,12 @@
 
 .sai-plan-features li:last-child { border-bottom: none; }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .social-ai-page .sai-card { padding: 1rem; }
   .social-ai-page input, .social-ai-page textarea { font-size: 16px; }
   .sai-plans-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .social-ai-page .sai-card { padding: 0.75rem; }
 }

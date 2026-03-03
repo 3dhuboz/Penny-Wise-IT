@@ -524,56 +524,230 @@ const SocialAI = () => {
         {activeTab === 'smart' && (
           <div className="sai-section">
             <h2 className="sai-title"><Brain size={22} style={{ color: '#f59e0b' }} /> Smart AI Scheduler</h2>
-            <p style={{ color: '#9ca3af', marginBottom: '1.5rem' }}>Let AI plan your entire content calendar for the next 2 weeks — optimized for engagement, timing, and variety.</p>
+            <p style={{ color: '#9ca3af', marginBottom: '1.5rem', lineHeight: 1.7 }}>
+              Let AI plan your entire content calendar for the next 2 weeks — optimised for engagement, timing, and variety. Our AI uses industry research to pick the best platforms, times, and content pillars for your business.
+            </p>
 
-            <div className="sai-card">
+            {/* Generator Card */}
+            <div className="sai-card" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(168,85,247,0.08))', borderColor: 'rgba(245,158,11,0.2)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #f59e0b, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Zap size={18} style={{ color: '#000' }} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'white' }}>Generate Your Content Plan</h3>
+                  <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>AI analyses your profile, industry, and audience to create the perfect schedule</p>
+                </div>
+              </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'flex-end' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
+                <div className="form-group" style={{ marginBottom: 0, minWidth: 140 }}>
                   <label style={{ fontSize: '0.75rem' }}>Posts to Generate</label>
                   <select value={smartCount} onChange={e => setSmartCount(Number(e.target.value))} className="sai-select">
-                    <option value={5}>5 posts</option>
-                    <option value={7}>7 posts</option>
-                    <option value={10}>10 posts</option>
-                    <option value={14}>14 posts</option>
+                    <option value={5}>5 posts (1 week light)</option>
+                    <option value={7}>7 posts (1 week)</option>
+                    <option value={10}>10 posts (mixed)</option>
+                    <option value={14}>14 posts (2 weeks)</option>
                   </select>
                 </div>
-                <button onClick={handleSmartSchedule} disabled={isSmartGenerating} className="btn sai-btn-smart">
+                <button onClick={handleSmartSchedule} disabled={isSmartGenerating} className="btn sai-btn-smart" style={{ padding: '0.75rem 1.5rem' }}>
                   {isSmartGenerating ? <Loader2 size={16} className="spin" /> : <Zap size={16} />}
-                  Generate Schedule
+                  {isSmartGenerating ? 'AI is Thinking...' : 'Generate Schedule'}
                 </button>
               </div>
 
               {smartStrategy && (
-                <div className="sai-strategy">
-                  <h4>Strategy</h4>
+                <div className="sai-strategy" style={{ marginTop: '1.25rem' }}>
+                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}><Brain size={14} /> AI Strategy</h4>
                   <p>{smartStrategy}</p>
                 </div>
               )}
             </div>
 
+            {/* Best Practices Knowledge Hub */}
+            {smartPosts.length === 0 && (
+              <div style={{ marginTop: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
+                  <Star size={18} style={{ color: '#fcd34d' }} />
+                  <h3 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'white' }}>Social Media Best Practices</h3>
+                </div>
+
+                {/* Quick Stats Banner */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                  {[
+                    { stat: '3–5x', label: 'More engagement with video content vs static images', color: '#f59e0b' },
+                    { stat: '10am–1pm', label: 'Peak engagement window for Facebook in Australia', color: '#1877f2' },
+                    { stat: '11am & 7pm', label: 'Best posting times for Instagram engagement', color: '#e1306c' },
+                    { stat: '3–7', label: 'Hashtags per Instagram post for optimal reach', color: '#a855f7' }
+                  ].map((item, i) => (
+                    <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
+                      <div style={{ fontSize: '1.375rem', fontWeight: 800, color: item.color, marginBottom: '0.25rem' }}>{item.stat}</div>
+                      <div style={{ fontSize: '0.6875rem', color: '#9ca3af', lineHeight: 1.4 }}>{item.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Content Pillars */}
+                <div className="sai-card" style={{ marginBottom: '1rem' }}>
+                  <h4 style={{ fontWeight: 700, color: '#fcd34d', fontSize: '0.9375rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                    <Zap size={15} /> The 5 Content Pillars Every Business Needs
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.5rem' }}>
+                    {[
+                      { name: 'Educate', emoji: '📚', desc: 'Tips, how-tos, and industry insights that position you as an expert', color: '#3b82f6' },
+                      { name: 'Entertain', emoji: '🎬', desc: 'Behind-the-scenes, fun facts, memes, and relatable moments', color: '#f59e0b' },
+                      { name: 'Engage', emoji: '💬', desc: 'Questions, polls, and conversation starters that drive comments', color: '#10b981' },
+                      { name: 'Inspire', emoji: '✨', desc: 'Success stories, testimonials, and motivational content', color: '#a855f7' },
+                      { name: 'Promote', emoji: '🎯', desc: 'Products, services, offers, and clear calls-to-action', color: '#ef4444' }
+                    ].map((pillar, i) => (
+                      <div key={i} style={{ background: `${pillar.color}10`, border: `1px solid ${pillar.color}25`, borderRadius: 10, padding: '0.75rem', textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.5rem', marginBottom: '0.375rem' }}>{pillar.emoji}</div>
+                        <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: pillar.color, marginBottom: '0.25rem' }}>{pillar.name}</div>
+                        <div style={{ fontSize: '0.625rem', color: '#9ca3af', lineHeight: 1.4 }}>{pillar.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: '0.75rem', padding: '0.625rem 0.875rem', background: 'rgba(245,158,11,0.08)', borderRadius: 8, fontSize: '0.75rem', color: '#fcd34d', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                    <Brain size={13} /> <strong>Pro tip:</strong> Follow the 80/20 rule — 80% value-driven content, 20% promotional. Our AI automatically balances this for you.
+                  </div>
+                </div>
+
+                {/* Platform-Specific Tips */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div className="sai-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                      <Instagram size={20} style={{ color: '#e1306c' }} />
+                      <h4 style={{ fontWeight: 700, color: '#e1306c', fontSize: '0.9375rem' }}>Instagram Best Practices</h4>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {[
+                        { tip: 'Reels get 2x more reach than static posts — use them for tips and behind-the-scenes content', icon: '🎥' },
+                        { tip: 'Use 3–7 targeted hashtags instead of 30 generic ones — quality beats quantity since the 2024 algorithm update', icon: '#️⃣' },
+                        { tip: 'Post consistently 3–5 times per week. Instagram rewards accounts that show up regularly', icon: '📅' },
+                        { tip: 'Write captions that start with a hook — the first line decides if people read more or scroll past', icon: '🪝' },
+                        { tip: 'Carousel posts get 3x more engagement than single images — tell a story across slides', icon: '📸' },
+                        { tip: 'Reply to every comment within 1 hour to boost your post in the algorithm', icon: '⚡' },
+                        { tip: 'Use Stories daily with polls, questions, and quizzes to keep your audience engaged between posts', icon: '📊' }
+                      ].map((item, i) => (
+                        <div key={i} style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', color: '#d1d5db', lineHeight: 1.5 }}>
+                          <span style={{ flexShrink: 0 }}>{item.icon}</span>
+                          <span>{item.tip}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="sai-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                      <Facebook size={20} style={{ color: '#1877f2' }} />
+                      <h4 style={{ fontWeight: 700, color: '#1877f2', fontSize: '0.9375rem' }}>Facebook Best Practices</h4>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {[
+                        { tip: 'Video posts get 6x more engagement than text or link posts — even short clips outperform images', icon: '🎬' },
+                        { tip: 'Post 1–2 times per day max. Over-posting causes unfollows and algorithm penalties', icon: '⏰' },
+                        { tip: 'Ask questions in your posts — Facebook prioritises content that sparks conversations', icon: '❓' },
+                        { tip: 'Go Live at least once a month — Facebook Live gets 6x more interactions than regular video', icon: '🔴' },
+                        { tip: 'Share user-generated content and tag customers — social proof drives 4x more conversions', icon: '🏷️' },
+                        { tip: 'Use Facebook Groups to build community — group posts get 5x more organic reach than page posts', icon: '👥' },
+                        { tip: 'Pin your best-performing or most important post to the top of your page for new visitors', icon: '📌' }
+                      ].map((item, i) => (
+                        <div key={i} style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', color: '#d1d5db', lineHeight: 1.5 }}>
+                          <span style={{ flexShrink: 0 }}>{item.icon}</span>
+                          <span>{item.tip}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* General Strategy Tips */}
+                <div className="sai-card" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.06), rgba(59,130,246,0.06))', borderColor: 'rgba(16,185,129,0.15)' }}>
+                  <h4 style={{ fontWeight: 700, color: '#34d399', fontSize: '0.9375rem', marginBottom: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                    <BarChart3 size={16} /> Engagement Strategy Facts
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    {[
+                      { fact: 'Posts with emojis get 25.4% more engagement than those without', source: 'Hootsuite 2024' },
+                      { fact: 'The ideal Facebook post length is 40–80 characters for maximum engagement', source: 'Buffer Research' },
+                      { fact: 'Content with faces gets 38% more likes and 32% more comments on Instagram', source: 'Georgia Tech Study' },
+                      { fact: 'Posting at consistent times trains your audience to expect and look for your content', source: 'Sprout Social' },
+                      { fact: 'User-generated content has a 4.5% higher conversion rate than brand-created content', source: 'Nosto Research' },
+                      { fact: 'Responding to comments within 60 minutes increases engagement by 12% on average', source: 'Socialinsider 2024' },
+                      { fact: 'Stories with stickers (polls, questions) get up to 83% more views than plain stories', source: 'Instagram Insights' },
+                      { fact: 'Brands that post 4–7 Reels per week see an average 23% increase in follower growth', source: 'Later 2024' }
+                    ].map((item, i) => (
+                      <div key={i} style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', lineHeight: 1.5 }}>
+                        <CheckCircle size={13} style={{ color: '#34d399', flexShrink: 0, marginTop: 2 }} />
+                        <div>
+                          <span style={{ color: '#d1d5db' }}>{item.fact}</span>
+                          <span style={{ display: 'block', fontSize: '0.625rem', color: '#6b7280', marginTop: 1 }}>— {item.source}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Posting Frequency Guide */}
+                <div className="sai-card" style={{ marginTop: '1rem' }}>
+                  <h4 style={{ fontWeight: 700, color: '#c4b5fd', fontSize: '0.9375rem', marginBottom: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                    <Calendar size={16} /> Recommended Posting Frequency
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
+                    {[
+                      { platform: 'Instagram Feed', freq: '3–5 posts/week', note: 'Consistency matters more than volume' },
+                      { platform: 'Instagram Stories', freq: '1–3 per day', note: 'Keep your account active between posts' },
+                      { platform: 'Instagram Reels', freq: '4–7 per week', note: 'Highest organic reach format in 2024' },
+                      { platform: 'Facebook Page', freq: '1–2 posts/day', note: 'Quality over quantity; avoid over-posting' },
+                      { platform: 'Facebook Stories', freq: '1–2 per day', note: 'Underused — less competition for attention' },
+                      { platform: 'Facebook Live', freq: '1–2 per month', note: 'Highest engagement format on Facebook' }
+                    ].map((item, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div>
+                          <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#e5e7eb' }}>{item.platform}</div>
+                          <div style={{ fontSize: '0.625rem', color: '#6b7280' }}>{item.note}</div>
+                        </div>
+                        <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#fcd34d', whiteSpace: 'nowrap' }}>{item.freq}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Generated Posts */}
             {smartPosts.length > 0 && (
               <div style={{ marginTop: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <strong style={{ color: 'white' }}>{smartPosts.length} Posts Generated</strong>
-                  <button onClick={handleAcceptSmartPosts} className="btn sai-btn-save">
+                  <div>
+                    <strong style={{ color: 'white', fontSize: '1.0625rem' }}>{smartPosts.length} Posts Generated</strong>
+                    <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Review your AI-crafted content plan below</p>
+                  </div>
+                  <button onClick={handleAcceptSmartPosts} className="btn sai-btn-save" style={{ padding: '0.625rem 1.25rem' }}>
                     <CheckCircle size={16} /> Accept All & Add to Calendar
                   </button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {smartPosts.map((sp, i) => (
-                    <div key={i} className="sai-card" style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        <PlatformIcon p={sp.platform} />
-                        <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                          {new Date(sp.scheduledFor).toLocaleDateString()} {new Date(sp.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <div key={i} className="sai-card" style={{ padding: '1.25rem', borderLeft: `3px solid ${sp.platform === 'Instagram' ? '#e1306c' : '#1877f2'}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
+                        <PlatformIcon p={sp.platform} size={16} />
+                        <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'white' }}>{sp.platform}</span>
+                        <span style={{ fontSize: '0.75rem', color: '#9ca3af', marginLeft: 'auto' }}>
+                          <Clock size={11} style={{ display: 'inline', marginRight: 3 }} />
+                          {new Date(sp.scheduledFor).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })} at {new Date(sp.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         {sp.pillar && <span className="sai-pillar">{sp.pillar}</span>}
                       </div>
-                      <p style={{ fontSize: '0.875rem', color: '#e5e7eb', marginBottom: '0.5rem' }}>{sp.content}</p>
+                      <p style={{ fontSize: '0.875rem', color: '#e5e7eb', marginBottom: '0.625rem', lineHeight: 1.6 }}>{sp.content}</p>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                        {sp.hashtags.map((t, j) => <span key={j} style={{ fontSize: '0.625rem', color: '#f59e0b' }}>{t}</span>)}
+                        {sp.hashtags.map((t, j) => <span key={j} className="sai-hashtag">{t.startsWith('#') ? t : `#${t}`}</span>)}
                       </div>
-                      {sp.reasoning && <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.5rem', fontStyle: 'italic' }}>{sp.reasoning}</p>}
+                      {sp.reasoning && (
+                        <div style={{ marginTop: '0.625rem', padding: '0.5rem 0.75rem', background: 'rgba(245,158,11,0.06)', borderRadius: 6, fontSize: '0.75rem', color: '#9ca3af', fontStyle: 'italic', display: 'flex', gap: '0.375rem' }}>
+                          <Brain size={12} style={{ color: '#f59e0b', flexShrink: 0, marginTop: 2 }} />
+                          {sp.reasoning}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
