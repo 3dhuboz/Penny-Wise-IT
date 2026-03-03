@@ -1,4 +1,4 @@
-.tickets-page { background: var(--gray-50); min-height: calc(100vh - 64px); }
+.tickets-page { background: #0a0a1a; min-height: calc(100vh - 64px); }
 
 .tickets-header {
   display: flex;
@@ -7,7 +7,7 @@
   margin-bottom: 1.5rem;
 }
 
-.tickets-header h1 { font-size: 1.5rem; font-weight: 700; color: var(--gray-900); }
+.tickets-header h1 { font-size: 1.5rem; font-weight: 700; color: #f3f4f6; }
 
 .tickets-toolbar {
   display: flex;
@@ -31,6 +31,7 @@
   font-size: 0.875rem;
   width: 100%;
   background: transparent;
+  color: #f3f4f6;
 }
 
 .filter-group {
@@ -41,12 +42,12 @@
 }
 
 .filter-group select {
-  border: 1px solid var(--gray-200);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
   padding: 0.375rem 0.75rem;
   font-size: 0.8125rem;
-  background: white;
-  color: var(--gray-700);
+  background: rgba(255,255,255,0.06);
+  color: #d1d5db;
 }
 
 .tickets-table { padding: 0; overflow-x: auto; }
@@ -61,38 +62,38 @@
   padding: 0.75rem 1rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--gray-500);
+  color: #9ca3af;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--gray-200);
-  background: var(--gray-50);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.02);
 }
 
 .tickets-table td {
   padding: 0.875rem 1rem;
   font-size: 0.875rem;
-  border-bottom: 1px solid var(--gray-100);
-  color: var(--gray-700);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: #d1d5db;
 }
 
-.tickets-table tr:hover td { background: var(--gray-50); }
+.tickets-table tr:hover td { background: rgba(255,255,255,0.03); }
 
 .ticket-link {
   font-family: monospace;
   font-weight: 600;
   font-size: 0.8125rem;
-  color: var(--primary);
+  color: #00d4ff;
 }
 
 .ticket-subject {
   font-weight: 500;
-  color: var(--gray-900);
+  color: #f3f4f6;
   text-decoration: none;
 }
 
-.ticket-subject:hover { color: var(--primary); }
+.ticket-subject:hover { color: #00d4ff; }
 
-.td-date { font-size: 0.8125rem; color: var(--gray-500); white-space: nowrap; }
+.td-date { font-size: 0.8125rem; color: #9ca3af; white-space: nowrap; }
 
 @media (max-width: 768px) {
   .tickets-toolbar { flex-direction: column; }

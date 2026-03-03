@@ -1,7 +1,7 @@
 /* ═══ SocialAI Product Page ═══ */
 
 .sai-product-page {
-  color: var(--gray-900);
+  color: #e2e8f0;
 }
 
 /* Hero */
@@ -91,7 +91,7 @@
 /* Features */
 .sai-features {
   padding: 5rem 1.5rem;
-  background: var(--gray-50);
+  background: #0d0d1a;
 }
 
 .section-heading {
@@ -103,7 +103,7 @@
 
 .section-sub {
   text-align: center;
-  color: var(--gray-500);
+  color: #9ca3af;
   margin-bottom: 3rem;
   font-size: 1.0625rem;
 }
@@ -117,8 +117,8 @@
 }
 
 .sai-feature-card {
-  background: white;
-  border: 1px solid var(--gray-200);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 12px;
   padding: 2rem;
   transition: all 0.3s ease;
@@ -126,7 +126,8 @@
 
 .sai-feature-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 40px rgba(245,158,11,0.08);
+  border-color: rgba(245,158,11,0.2);
 }
 
 .sai-feature-icon {
@@ -143,10 +144,11 @@
   font-size: 1.125rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  color: #f3f4f6;
 }
 
 .sai-feature-card p {
-  color: var(--gray-500);
+  color: #9ca3af;
   font-size: 0.9rem;
   line-height: 1.6;
 }
@@ -154,7 +156,7 @@
 /* How It Works */
 .sai-how-it-works {
   padding: 5rem 1.5rem;
-  background: white;
+  background: #0a0a1a;
 }
 
 .sai-steps {
@@ -188,10 +190,11 @@
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  color: #f3f4f6;
 }
 
 .sai-step p {
-  color: var(--gray-500);
+  color: #9ca3af;
   font-size: 0.875rem;
   line-height: 1.6;
 }
@@ -199,7 +202,7 @@
 /* Pricing */
 .sai-pricing {
   padding: 5rem 1.5rem;
-  background: var(--gray-50);
+  background: #0d0d1a;
 }
 
 .sai-pricing-grid {
@@ -212,8 +215,8 @@
 }
 
 .sai-plan-card {
-  background: white;
-  border: 1px solid var(--gray-200);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   padding: 2rem;
   position: relative;
@@ -221,13 +224,13 @@
 }
 
 .sai-plan-card:hover {
-  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 40px rgba(139,92,246,0.1);
 }
 
 .sai-plan-card.featured {
-  border: 2px solid #f59e0b;
+  border: 2px solid rgba(251,191,36,0.4);
   transform: scale(1.04);
-  box-shadow: 0 20px 60px rgba(245,158,11,0.15);
+  box-shadow: 0 20px 60px rgba(251,191,36,0.1);
 }
 
 .sai-plan-badge {
@@ -261,16 +264,16 @@
 .sai-price-amount {
   font-size: 2.5rem;
   font-weight: 800;
-  color: var(--gray-900);
+  color: #f3f4f6;
 }
 
 .sai-price-period {
   font-size: 1rem;
-  color: var(--gray-500);
+  color: #9ca3af;
 }
 
 .sai-plan-desc {
-  color: var(--gray-500);
+  color: #9ca3af;
   font-size: 0.875rem;
   margin-bottom: 1.5rem;
   line-height: 1.5;
@@ -287,12 +290,12 @@
   align-items: flex-start;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: var(--gray-700);
+  color: #d1d5db;
   padding: 0.375rem 0;
 }
 
 .sai-plan-features li svg {
-  color: #10b981;
+  color: #00ff88;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -305,7 +308,7 @@
 /* Social Proof */
 .sai-social-proof {
   padding: 4rem 1.5rem;
-  background: white;
+  background: #0a0a1a;
 }
 
 .sai-proof-grid {
@@ -330,7 +333,7 @@
 
 .sai-proof-item span {
   font-size: 0.8125rem;
-  color: var(--gray-500);
+  color: #9ca3af;
 }
 
 /* Final CTA */

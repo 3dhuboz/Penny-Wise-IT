@@ -1,5 +1,5 @@
 .contact-page .page-hero {
-  background: linear-gradient(135deg, var(--gray-900), #1a2744);
+  background: radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.12) 0%, transparent 60%), #0a0a1a;
   color: white;
   padding: 4rem 0;
   text-align: center;
@@ -14,8 +14,8 @@
   align-items: start;
 }
 
-.contact-info h2 { font-size: 1.75rem; font-weight: 700; color: var(--gray-900); margin-bottom: 0.75rem; }
-.contact-info > p { color: var(--gray-600); line-height: 1.7; margin-bottom: 2rem; }
+.contact-info h2 { font-size: 1.75rem; font-weight: 700; color: #f3f4f6; margin-bottom: 0.75rem; }
+.contact-info > p { color: #9ca3af; line-height: 1.7; margin-bottom: 2rem; }
 
 .contact-details { margin-bottom: 2rem; }
 
@@ -30,23 +30,23 @@
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: rgba(37,99,235,0.1);
-  color: var(--primary);
+  background: rgba(139,92,246,0.15);
+  color: #00d4ff;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.contact-item strong { display: block; font-size: 0.8125rem; color: var(--gray-900); }
-.contact-item a, .contact-item span { font-size: 0.875rem; color: var(--gray-600); }
+.contact-item strong { display: block; font-size: 0.8125rem; color: #f3f4f6; }
+.contact-item a, .contact-item span { font-size: 0.875rem; color: #9ca3af; }
 
-.business-hours { padding: 1.5rem; background: var(--gray-50); border-radius: var(--radius); }
-.business-hours h3 { font-size: 0.9375rem; font-weight: 600; color: var(--gray-900); margin-bottom: 0.5rem; }
-.business-hours p { font-size: 0.8125rem; color: var(--gray-600); margin-bottom: 0.25rem; }
+.business-hours { padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.06); }
+.business-hours h3 { font-size: 0.9375rem; font-weight: 600; color: #f3f4f6; margin-bottom: 0.5rem; }
+.business-hours p { font-size: 0.8125rem; color: #9ca3af; margin-bottom: 0.25rem; }
 
 .contact-form { padding: 2rem; }
-.contact-form h3 { font-size: 1.25rem; font-weight: 600; color: var(--gray-900); margin-bottom: 1.5rem; }
+.contact-form h3 { font-size: 1.25rem; font-weight: 600; color: #f3f4f6; margin-bottom: 1.5rem; }
 
 .form-row {
   display: grid;

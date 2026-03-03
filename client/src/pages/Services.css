@@ -1,13 +1,13 @@
 .services-page .page-hero {
-  background: linear-gradient(135deg, var(--gray-900), #1a2744);
+  background: radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.12) 0%, transparent 60%), #0a0a1a;
   color: white;
   padding: 4rem 0;
   text-align: center;
 }
 
-.page-hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.75rem; }
-.page-hero p { color: var(--gray-400); font-size: 1.0625rem; max-width: 600px; margin: 0 auto; }
-.page-loading { text-align: center; padding: 4rem; color: var(--gray-500); }
+.page-hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.75rem; color: #f3f4f6; }
+.page-hero p { color: #9ca3af; font-size: 1.0625rem; max-width: 600px; margin: 0 auto; }
+.page-loading { text-align: center; padding: 4rem; color: #9ca3af; }
 
 .services-detail-grid {
   display: grid;
@@ -29,17 +29,17 @@
   width: 56px;
   height: 56px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(6,182,212,0.1));
-  color: var(--primary);
+  background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(0,212,255,0.15));
+  color: #00d4ff;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.sdc-header h2 { font-size: 1.25rem; font-weight: 700; color: var(--gray-900); margin-bottom: 0.25rem; }
+.sdc-header h2 { font-size: 1.25rem; font-weight: 700; color: #f3f4f6; margin-bottom: 0.25rem; }
 
-.sdc-description { font-size: 0.9rem; color: var(--gray-600); line-height: 1.7; margin-bottom: 1.25rem; }
+.sdc-description { font-size: 0.9rem; color: #9ca3af; line-height: 1.7; margin-bottom: 1.25rem; }
 
 .sdc-features {
   list-style: none;
@@ -54,25 +54,25 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8125rem;
-  color: var(--gray-700);
+  color: #d1d5db;
 }
 
-.sdc-features li svg { color: var(--success); flex-shrink: 0; }
+.sdc-features li svg { color: #00ff88; flex-shrink: 0; }
 
 .sdc-pricing { margin-bottom: 1.25rem; }
-.price-label { font-size: 0.875rem; font-weight: 600; color: var(--primary); }
-.price-amount { font-size: 1.5rem; font-weight: 700; color: var(--gray-900); }
-.price-amount small { font-size: 0.8rem; font-weight: 400; color: var(--gray-500); }
+.price-label { font-size: 0.875rem; font-weight: 600; color: #8b5cf6; }
+.price-amount { font-size: 1.5rem; font-weight: 700; color: #f3f4f6; }
+.price-amount small { font-size: 0.8rem; font-weight: 400; color: #9ca3af; }
 
 /* Featured SocialAI card */
 .sdc-featured {
-  border: 2px solid #f59e0b;
+  border: 2px solid rgba(251,191,36,0.4);
   position: relative;
-  box-shadow: 0 8px 30px rgba(245,158,11,0.1);
+  box-shadow: 0 8px 30px rgba(251,191,36,0.08);
 }
 
 .sdc-featured:hover {
-  box-shadow: 0 12px 40px rgba(245,158,11,0.18);
+  box-shadow: 0 12px 40px rgba(251,191,36,0.15);
 }
 
 .sdc-featured-badge {
@@ -94,13 +94,13 @@
 
 /* Free Tool (AutoHue) card */
 .sdc-free {
-  border: 2px solid #06b6d4;
+  border: 2px solid rgba(0,212,255,0.4);
   position: relative;
-  box-shadow: 0 8px 30px rgba(6,182,212,0.1);
+  box-shadow: 0 8px 30px rgba(0,212,255,0.08);
 }
 
 .sdc-free:hover {
-  box-shadow: 0 12px 40px rgba(6,182,212,0.18);
+  box-shadow: 0 12px 40px rgba(0,212,255,0.15);
 }
 
 .sdc-free-badge {
@@ -123,7 +123,7 @@
 .price-free {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #06b6d4;
+  color: #00d4ff;
 }
 
 .services-cta { padding: 2rem 0 4rem; }

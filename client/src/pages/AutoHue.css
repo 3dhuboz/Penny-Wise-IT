@@ -1,7 +1,7 @@
 /* ═══ AutoHue Product Page ═══ */
 
 .autohue-page {
-  color: var(--gray-900);
+  color: #e2e8f0;
 }
 
 /* Hero */
@@ -79,7 +79,7 @@
 /* Features */
 .ah-features {
   padding: 5rem 1.5rem;
-  background: var(--gray-50);
+  background: #0d0d1a;
 }
 
 .ah-features-grid {
@@ -91,8 +91,8 @@
 }
 
 .ah-feature-card {
-  background: white;
-  border: 1px solid var(--gray-200);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 12px;
   padding: 2rem;
   transition: all 0.3s ease;
@@ -100,7 +100,8 @@
 
 .ah-feature-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 40px rgba(0,212,255,0.08);
+  border-color: rgba(0,212,255,0.2);
 }
 
 .ah-feature-icon {
@@ -113,13 +114,13 @@
   margin-bottom: 1.25rem;
 }
 
-.ah-feature-card h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
-.ah-feature-card p { color: var(--gray-500); font-size: 0.9rem; line-height: 1.6; }
+.ah-feature-card h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; color: #f3f4f6; }
+.ah-feature-card p { color: #9ca3af; font-size: 0.9rem; line-height: 1.6; }
 
 /* How It Works */
 .ah-how-it-works {
   padding: 5rem 1.5rem;
-  background: white;
+  background: #0a0a1a;
 }
 
 .ah-steps {
@@ -146,13 +147,13 @@
   margin: 0 auto 1rem;
 }
 
-.ah-step h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
-.ah-step p { color: var(--gray-500); font-size: 0.875rem; line-height: 1.6; }
+.ah-step h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: #f3f4f6; }
+.ah-step p { color: #9ca3af; font-size: 0.875rem; line-height: 1.6; }
 
 /* Color Categories */
 .ah-colors {
   padding: 5rem 1.5rem;
-  background: var(--gray-50);
+  background: #0d0d1a;
 }
 
 .ah-color-grid {
@@ -167,14 +168,14 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: white;
-  border: 1px solid var(--gray-200);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 10px;
   padding: 0.75rem 1rem;
   transition: all 0.2s;
 }
 
-.ah-color-chip:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.ah-color-chip:hover { box-shadow: 0 4px 12px rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.2); }
 
 .ah-color-swatch {
   width: 36px;
@@ -184,13 +185,13 @@
   border: 1px solid rgba(0,0,0,0.08);
 }
 
-.ah-color-chip strong { font-size: 0.875rem; display: block; color: var(--gray-900); }
-.ah-color-chip span { font-size: 0.75rem; color: var(--gray-500); }
+.ah-color-chip strong { font-size: 0.875rem; display: block; color: #f3f4f6; }
+.ah-color-chip span { font-size: 0.75rem; color: #9ca3af; }
 
 /* Use Cases */
 .ah-use-cases {
   padding: 5rem 1.5rem;
-  background: white;
+  background: #0a0a1a;
 }
 
 .ah-use-grid {
@@ -204,20 +205,21 @@
 .ah-use-card {
   text-align: center;
   padding: 2rem;
-  border: 1px solid var(--gray-200);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 12px;
   transition: all 0.3s;
+  background: rgba(255,255,255,0.02);
 }
 
-.ah-use-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.06); transform: translateY(-2px); }
-.ah-use-card svg { color: #06b6d4; margin-bottom: 1rem; }
-.ah-use-card h3 { font-size: 1.0625rem; font-weight: 700; margin-bottom: 0.5rem; }
-.ah-use-card p { font-size: 0.875rem; color: var(--gray-500); line-height: 1.6; }
+.ah-use-card:hover { box-shadow: 0 8px 30px rgba(0,212,255,0.08); transform: translateY(-2px); border-color: rgba(0,212,255,0.2); }
+.ah-use-card svg { color: #00d4ff; margin-bottom: 1rem; }
+.ah-use-card h3 { font-size: 1.0625rem; font-weight: 700; margin-bottom: 0.5rem; color: #f3f4f6; }
+.ah-use-card p { font-size: 0.875rem; color: #9ca3af; line-height: 1.6; }
 
 /* Tech Stack */
 .ah-tech {
   padding: 4rem 1.5rem;
-  background: var(--gray-50);
+  background: #0d0d1a;
 }
 
 .ah-tech-card {
@@ -251,7 +253,7 @@
 /* Pricing */
 .ah-pricing {
   padding: 5rem 1.5rem;
-  background: #f8fafc;
+  background: #0a0a1a;
 }
 
 .ah-pricing-grid {
@@ -263,8 +265,8 @@
 }
 
 .ah-pricing-card {
-  background: white;
-  border: 2px solid #e2e8f0;
+  background: rgba(255,255,255,0.03);
+  border: 2px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   padding: 2rem;
   text-align: center;
@@ -274,12 +276,12 @@
 
 .ah-pricing-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 40px rgba(0,212,255,0.1);
 }
 
 .ah-pricing-highlight {
-  border-color: #f59e0b;
-  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.15);
+  border-color: rgba(251,191,36,0.4);
+  box-shadow: 0 8px 30px rgba(251,191,36,0.1);
   transform: scale(1.03);
 }
 
@@ -300,7 +302,7 @@
 .ah-pricing-card h3 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--gray-900);
+  color: #f3f4f6;
   margin-bottom: 0.5rem;
 }
 
@@ -311,17 +313,17 @@
 .ah-pricing-amount {
   font-size: 2.5rem;
   font-weight: 800;
-  color: var(--gray-900);
+  color: #f3f4f6;
 }
 
 .ah-pricing-period {
   font-size: 1rem;
-  color: var(--gray-500);
+  color: #9ca3af;
 }
 
 .ah-pricing-desc {
   font-size: 0.875rem;
-  color: var(--gray-500);
+  color: #9ca3af;
   margin-bottom: 1.5rem;
   line-height: 1.5;
 }
@@ -339,11 +341,11 @@
   gap: 0.5rem;
   padding: 0.4rem 0;
   font-size: 0.875rem;
-  color: var(--gray-700);
+  color: #d1d5db;
 }
 
 .ah-pricing-features li svg {
-  color: #06b6d4;
+  color: #00d4ff;
   flex-shrink: 0;
 }
 

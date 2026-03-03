@@ -1,7 +1,7 @@
 /* ═══ FoodTruc Product Page ═══ */
 
 .ft-product-page {
-  color: var(--gray-900);
+  color: #e2e8f0;
 }
 
 /* Hero */
@@ -91,7 +91,7 @@
 /* Benefits */
 .ft-benefits {
   padding: 5rem 1.5rem;
-  background: white;
+  background: #0a0a1a;
 }
 
 .ft-benefits-grid {
@@ -111,15 +111,15 @@
   transition: all 0.2s;
 }
 
-.ft-benefit-item:hover { background: var(--gray-50); }
+.ft-benefit-item:hover { background: rgba(255,255,255,0.03); }
 
 .ft-benefit-icon {
   width: 48px;
   height: 48px;
   min-width: 48px;
   border-radius: 12px;
-  background: rgba(16,185,129,0.1);
-  color: #10b981;
+  background: rgba(0,255,136,0.1);
+  color: #00ff88;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,18 +129,19 @@
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
+  color: #f3f4f6;
 }
 
 .ft-benefit-item p {
   font-size: 0.875rem;
-  color: var(--gray-500);
+  color: #9ca3af;
   line-height: 1.5;
 }
 
 /* Features */
 .ft-features {
   padding: 5rem 1.5rem;
-  background: var(--gray-50);
+  background: #0d0d1a;
 }
 
 .ft-features-grid {
@@ -152,8 +153,8 @@
 }
 
 .ft-feature-card {
-  background: white;
-  border: 1px solid var(--gray-200);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 12px;
   padding: 1.75rem;
   transition: all 0.3s ease;
@@ -161,7 +162,8 @@
 
 .ft-feature-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 40px rgba(16,185,129,0.08);
+  border-color: rgba(16,185,129,0.2);
 }
 
 .ft-feature-icon {
@@ -178,10 +180,11 @@
   font-size: 1.0625rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  color: #f3f4f6;
 }
 
 .ft-feature-card p {
-  color: var(--gray-500);
+  color: #9ca3af;
   font-size: 0.875rem;
   line-height: 1.6;
 }
@@ -189,7 +192,7 @@
 /* How It Works */
 .ft-how-it-works {
   padding: 5rem 1.5rem;
-  background: white;
+  background: #0a0a1a;
 }
 
 .ft-steps {
@@ -223,10 +226,11 @@
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  color: #f3f4f6;
 }
 
 .ft-step p {
-  color: var(--gray-500);
+  color: #9ca3af;
   font-size: 0.875rem;
   line-height: 1.6;
 }
@@ -234,7 +238,7 @@
 /* Admin Highlight */
 .ft-admin-highlight {
   padding: 5rem 1.5rem;
-  background: var(--gray-50);
+  background: #0d0d1a;
 }
 
 .ft-admin-grid {
@@ -250,29 +254,29 @@
   align-items: center;
   gap: 0.625rem;
   padding: 0.875rem 1rem;
-  background: white;
-  border: 1px solid var(--gray-200);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 10px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--gray-700);
+  color: #d1d5db;
   transition: all 0.2s;
 }
 
 .ft-admin-item:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  border-color: #10b981;
+  box-shadow: 0 4px 12px rgba(0,255,136,0.08);
+  border-color: rgba(0,255,136,0.3);
 }
 
 .ft-admin-item svg {
-  color: #10b981;
+  color: #00ff88;
   flex-shrink: 0;
 }
 
 /* Pricing */
 .ft-pricing {
   padding: 5rem 1.5rem;
-  background: white;
+  background: #0a0a1a;
 }
 
 .ft-pricing-grid {
@@ -285,8 +289,8 @@
 }
 
 .ft-plan-card {
-  background: white;
-  border: 1px solid var(--gray-200);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   padding: 2rem;
   position: relative;
@@ -294,13 +298,13 @@
 }
 
 .ft-plan-card:hover {
-  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 40px rgba(0,255,136,0.08);
 }
 
 .ft-plan-card.featured {
-  border: 2px solid #10b981;
+  border: 2px solid rgba(0,255,136,0.4);
   transform: scale(1.04);
-  box-shadow: 0 20px 60px rgba(16,185,129,0.15);
+  box-shadow: 0 20px 60px rgba(0,255,136,0.1);
 }
 
 .ft-plan-badge {
@@ -325,6 +329,7 @@
   font-size: 1.25rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
+  color: #f3f4f6;
 }
 
 .ft-plan-price { margin-bottom: 0.75rem; }
@@ -332,16 +337,16 @@
 .ft-price-amount {
   font-size: 2.5rem;
   font-weight: 800;
-  color: var(--gray-900);
+  color: #f3f4f6;
 }
 
 .ft-price-period {
   font-size: 1rem;
-  color: var(--gray-500);
+  color: #9ca3af;
 }
 
 .ft-plan-desc {
-  color: var(--gray-500);
+  color: #9ca3af;
   font-size: 0.875rem;
   margin-bottom: 1.5rem;
   line-height: 1.5;
@@ -358,12 +363,12 @@
   align-items: flex-start;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: var(--gray-700);
+  color: #d1d5db;
   padding: 0.375rem 0;
 }
 
 .ft-plan-features li svg {
-  color: #10b981;
+  color: #00ff88;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -376,7 +381,7 @@
 /* Social Proof */
 .ft-social-proof {
   padding: 4rem 1.5rem;
-  background: var(--gray-50);
+  background: #0d0d1a;
 }
 
 .ft-proof-grid {
@@ -401,7 +406,7 @@
 
 .ft-proof-item span {
   font-size: 0.8125rem;
-  color: var(--gray-500);
+  color: #9ca3af;
 }
 
 /* Final CTA */

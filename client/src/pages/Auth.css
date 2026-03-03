@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
-  background: var(--gray-50);
+  background: radial-gradient(ellipse at 50% 30%, rgba(139,92,246,0.1) 0%, transparent 60%), #0a0a1a;
 }
 
 .auth-card {
@@ -33,13 +33,13 @@
 .auth-header h1 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--gray-900);
+  color: #f3f4f6;
   margin-bottom: 0.25rem;
 }
 
 .auth-header p {
   font-size: 0.875rem;
-  color: var(--gray-500);
+  color: #9ca3af;
 }
 
 .auth-submit {
@@ -76,7 +76,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--gray-200);
+  background: rgba(255,255,255,0.1);
 }
 
 .auth-divider span {
