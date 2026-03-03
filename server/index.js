@@ -13,7 +13,12 @@ const app = express();
 
 // Security middleware
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: process.env.NODE_ENV === 'production' ? 'https://pennywiseit.com.au' : 'http://localhost:3000', credentials: true }));
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://pennywiseit.com.au', 'https://www.pennywiseit.com.au']
+    : 'http://localhost:3000',
+  credentials: true
+}));
 
 // Rate limiting
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
@@ -126,9 +131,16 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!', error: process.env.NODE_ENV === 'development' ? err.message : undefined });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Penny Wise I.T server running on port ${PORT}`);
-});
+// In production on SiteGround, Phusion Passenger binds the port.
+// Only call listen() when running standalone (dev or non-Passenger).
+if (typeof(PhusionPassenger) === 'undefined') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Penny Wise I.T server running on port ${PORT}`);
+  });
+} else {
+  app.listen('passenger');
+  console.log('Penny Wise I.T running via Phusion Passenger');
+}
 
 module.exports = app;
