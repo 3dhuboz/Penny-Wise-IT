@@ -12,6 +12,8 @@ const portfolioSchema = new mongoose.Schema({
   technologies: [{ type: String }],
   images: [{ url: String, caption: String }],
   liveUrl: { type: String },
+  appUrl: { type: String, default: '' },
+  appLogoUrl: { type: String, default: '' },
   testimonial: { quote: String, author: String, role: String },
   isFeatured: { type: Boolean, default: false },
   isPublished: { type: Boolean, default: true },

@@ -234,6 +234,25 @@
   font-size: 0.8125rem;
   font-weight: 600;
   color: #00d4ff;
+  text-shadow: 0 0 8px rgba(0,212,255,0.4);
+  transition: all 0.3s;
+}
+
+.mp-card:hover .mp-card-cta {
+  text-shadow: 0 0 12px rgba(0,212,255,0.6), 0 0 24px rgba(139,92,246,0.3);
+}
+
+.mp-savings-badge {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #00ff88;
+  margin-top: 0.25rem;
+}
+
+.mp-app-logo {
+  width: 32px;
+  height: 32px;
 }
 
 .mp-empty {
@@ -404,6 +423,20 @@
   margin-bottom: 8px;
 }
 
+.mp-plan-vs-savings {
+  background: rgba(0,255,136,0.08);
+  border: 1px solid rgba(0,255,136,0.2);
+  color: #00ff88;
+  font-size: 0.6875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+}
+
+.mp-plan-vs-savings strong {
+  color: #00ff88;
+}
+
 .mp-modal-features h4,
 .mp-modal-plans h4,
 .mp-modal-tech h4 {
@@ -449,7 +482,16 @@
   background: rgba(255,255,255,0.02);
 }
 
-.mp-plan-card:hover { box-shadow: 0 4px 20px rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.2); }
+.mp-plan-card:hover { box-shadow: 0 4px 20px rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.3); }
+
+.mp-plan-card .btn {
+  box-shadow: 0 0 12px rgba(139,92,246,0.3), 0 0 24px rgba(0,212,255,0.15);
+  transition: all 0.3s;
+}
+
+.mp-plan-card .btn:hover {
+  box-shadow: 0 0 18px rgba(139,92,246,0.5), 0 0 36px rgba(0,212,255,0.25);
+}
 
 .mp-plan-popular { border-color: rgba(251,191,36,0.4); }
 .mp-plan-current { border-color: rgba(0,255,136,0.3); background: rgba(0,255,136,0.03); }

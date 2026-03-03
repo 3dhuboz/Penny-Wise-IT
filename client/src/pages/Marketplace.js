@@ -16,6 +16,46 @@ const ICON_MAP = {
   settings: Settings, code: Code, layers: Layers, star: Star
 };
 
+const APP_LOGOS = {
+  sparkles: () => (
+    <svg viewBox="0 0 48 48" className="mp-app-logo">
+      <defs><linearGradient id="g-spark" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#f59e0b"/><stop offset="100%" stopColor="#ea580c"/></linearGradient></defs>
+      <circle cx="24" cy="24" r="22" fill="none" stroke="url(#g-spark)" strokeWidth="2"/>
+      <path d="M24 10l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="url(#g-spark)"/>
+    </svg>
+  ),
+  palette: () => (
+    <svg viewBox="0 0 48 48" className="mp-app-logo">
+      <defs><linearGradient id="g-pal" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#00d4ff"/><stop offset="100%" stopColor="#06b6d4"/></linearGradient></defs>
+      <circle cx="24" cy="24" r="22" fill="none" stroke="url(#g-pal)" strokeWidth="2"/>
+      <circle cx="18" cy="18" r="3" fill="#ff006e"/><circle cx="30" cy="18" r="3" fill="#00d4ff"/>
+      <circle cx="18" cy="30" r="3" fill="#fbbf24"/><circle cx="30" cy="30" r="3" fill="#00ff88"/>
+    </svg>
+  ),
+  workflow: () => (
+    <svg viewBox="0 0 48 48" className="mp-app-logo">
+      <defs><linearGradient id="g-wf" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#8b5cf6"/><stop offset="100%" stopColor="#6366f1"/></linearGradient></defs>
+      <circle cx="24" cy="24" r="22" fill="none" stroke="url(#g-wf)" strokeWidth="2"/>
+      <rect x="12" y="14" width="10" height="6" rx="2" fill="url(#g-wf)"/>
+      <rect x="26" y="28" width="10" height="6" rx="2" fill="url(#g-wf)"/>
+      <path d="M22 20l4 8" stroke="url(#g-wf)" strokeWidth="2" fill="none"/>
+    </svg>
+  ),
+  zap: () => (
+    <svg viewBox="0 0 48 48" className="mp-app-logo">
+      <defs><linearGradient id="g-zap" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#00ff88"/><stop offset="100%" stopColor="#10b981"/></linearGradient></defs>
+      <circle cx="24" cy="24" r="22" fill="none" stroke="url(#g-zap)" strokeWidth="2"/>
+      <path d="M26 10L18 26h6l-2 12 10-16h-6z" fill="url(#g-zap)"/>
+    </svg>
+  ),
+};
+
+const SAVINGS_DATA = {
+  'social-ai': { alternative: 'Social media manager', altCost: 2000 },
+  'autohue': { alternative: 'Manual photo sorting', altCost: 1200 },
+  'foodtruc': { alternative: 'Third-party ordering platform fees', altCost: 800 },
+};
+
 const CATEGORY_LABELS = {
   ai: 'AI', automation: 'Automation', analytics: 'Analytics',
   productivity: 'Productivity', marketing: 'Marketing', 'food-service': 'Food & Hospitality',
@@ -122,12 +162,15 @@ const Marketplace = () => {
           <div className="mp-grid">
             {filteredApps.map(app => {
               const Icon = ICON_MAP[app.icon] || Sparkles;
+              const LogoSvg = APP_LOGOS[app.icon];
               const sub = getSubForApp(app._id);
               const isSubscribed = sub?.isActive;
+              const savingsInfo = SAVINGS_DATA[app.slug];
+              const lowestPrice = Math.min(...app.plans.map(p => p.price));
               return (
                 <div key={app._id} className="mp-card" onClick={() => setSelectedApp(app)}>
                   <div className="mp-card-header">
-                    <div className="mp-card-icon"><Icon size={24} /></div>
+                    <div className="mp-card-icon">{LogoSvg ? <LogoSvg /> : <Icon size={24} />}</div>
                     <div className="mp-card-meta">
                       <span className="mp-category-tag">{CATEGORY_LABELS[app.category] || app.category}</span>
                       {isSubscribed && (
@@ -145,7 +188,12 @@ const Marketplace = () => {
                   </div>
                   <div className="mp-card-footer">
                     <div className="mp-price">
-                      From <strong>${Math.min(...app.plans.map(p => p.price))}</strong>/mo
+                      <div>From <strong>${lowestPrice}</strong>/mo</div>
+                      {savingsInfo && lowestPrice > 0 && (
+                        <span className="mp-savings-badge">
+                          Save ${(savingsInfo.altCost - lowestPrice).toLocaleString()}/mo vs {savingsInfo.alternative.toLowerCase()}
+                        </span>
+                      )}
                     </div>
                     <span className="mp-card-cta">
                       {isSubscribed ? 'Manage' : 'View Plans'} <ArrowRight size={14} />
@@ -240,6 +288,11 @@ const Marketplace = () => {
                       </div>
                       {billingInterval === 'yearly' && plan.yearlyPrice > 0 && (
                         <div className="mp-plan-savings">Save ${(plan.price * 12) - plan.yearlyPrice}/yr</div>
+                      )}
+                      {SAVINGS_DATA[selectedApp.slug] && displayPrice > 0 && (
+                        <div className="mp-plan-vs-savings">
+                          You save <strong>${(SAVINGS_DATA[selectedApp.slug].altCost - displayPrice).toLocaleString()}{period}</strong> vs {SAVINGS_DATA[selectedApp.slug].alternative.toLowerCase()}
+                        </div>
                       )}
                       <ul className="mp-plan-features">
                         {plan.features.map((f, i) => (

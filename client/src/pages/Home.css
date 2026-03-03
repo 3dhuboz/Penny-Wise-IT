@@ -587,8 +587,30 @@
   font-size: 1.125rem;
   font-weight: 700;
   color: #f3f4f6;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   line-height: 1.4;
+}
+
+.example-savings {
+  margin-bottom: 0.75rem;
+}
+
+.savings-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(0,255,136,0.1);
+  border: 1px solid rgba(0,255,136,0.25);
+  color: #00ff88;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.examples-cta {
+  text-align: center;
+  margin-top: 2.5rem;
 }
 
 .example-card p {
@@ -670,14 +692,6 @@
 
   .value-grid {
     grid-template-columns: 1fr;
-  }
-
-  .video-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .video-grid.reverse {
-    direction: ltr;
   }
 
   .cta-actions {
