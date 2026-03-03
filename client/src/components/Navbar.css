@@ -27,6 +27,7 @@
   height: 38px;
   width: auto;
   object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(139,92,246,0.4)) drop-shadow(0 0 24px rgba(0,212,255,0.2));
 }
 
 .navbar-links {

@@ -32,7 +32,7 @@
   width: auto;
   object-fit: contain;
   margin-bottom: 1.5rem;
-  filter: drop-shadow(0 0 20px rgba(139,92,246,0.3));
+  filter: drop-shadow(0 0 12px rgba(139,92,246,0.5)) drop-shadow(0 0 40px rgba(0,212,255,0.3));
 }
 
 .hero-badge {
