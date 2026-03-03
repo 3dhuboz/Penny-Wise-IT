@@ -299,6 +299,12 @@
 .mp-modal-desc {
   color: var(--gray-500);
   line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.mp-modal-actions {
+  display: flex;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
 }
 

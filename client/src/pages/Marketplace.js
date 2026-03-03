@@ -180,6 +180,19 @@ const Marketplace = () => {
 
             <p className="mp-modal-desc">{selectedApp.fullDescription || selectedApp.shortDescription}</p>
 
+            <div className="mp-modal-actions">
+              {selectedApp.routePath && (
+                <Link to={selectedApp.routePath} className="btn btn-outline" onClick={() => setSelectedApp(null)}>
+                  <ArrowRight size={14} /> Learn More
+                </Link>
+              )}
+              {selectedApp.demoUrl && (
+                <a href={selectedApp.demoUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                  <ExternalLink size={14} /> Try Demo
+                </a>
+              )}
+            </div>
+
             {selectedApp.features?.length > 0 && (
               <div className="mp-modal-features">
                 <h4>Features</h4>
