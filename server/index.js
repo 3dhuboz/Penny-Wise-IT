@@ -105,12 +105,62 @@ async function connectDB() {
           { key: 'enterprise', name: 'Enterprise', price: 149, yearlyPrice: 1490, features: ['Everything in Professional', 'Custom Domain', 'Custom Colour Categories', 'Dedicated Support', 'SLA-Backed Uptime', 'Multi-User Access'], color: '#a855f7', whiteLabel: true, customDomain: true }
         ],
         isActive: true, isPublished: true, displayOrder: 3
+      },
+      {
+        slug: 'wirez',
+        name: 'Wirez',
+        shortDescription: 'End-to-end electrician workflow app. Job intake, dispatch, field capture, Xero invoicing — all under your brand.',
+        fullDescription: 'Wirez is a purpose-built operational workflow system for electricians and electrical contractors. Manage the entire job lifecycle from work order intake through tenant contact, scheduling, dispatch, on-site field capture (labour, materials, photos), and automatic Xero invoice generation. Features a Kanban jobs board, real-time status tracking, pre-departure checklists, and full admin oversight. Each subscriber gets their own isolated Firebase instance for complete data privacy. White-label it with your business name, colours, and branding — your customers will never know it\'s powered by Penny Wise I.T.',
+        icon: 'bolt',
+        category: 'trades',
+        routePath: '/wirez',
+        heroImage: '/app-previews/wirez-preview.svg',
+        setupFee: 399,
+        features: ['Job Intake & Work Orders', 'Tenant Contact Tracking', 'Entry Notice Management', 'Kanban Jobs Board', 'Electrician Dispatch', 'Field Capture (Labour, Materials, Photos)', 'Xero Invoice Generation', 'Admin Notes & Timeline', 'Pre-Departure Checklists', 'Firebase Per-Tenant Isolation', 'Full White-Label Branding', 'Web & Mobile Ready'],
+        techStack: ['React', 'Firebase', 'Firestore', 'Firebase Auth', 'Firebase Storage', 'Xero API', 'Vite'],
+        plans: [
+          { key: 'starter', name: 'Starter', price: 59, yearlyPrice: 590, features: ['Job Management', 'Kanban Board', 'Field Capture', 'Up to 50 Jobs/Month', 'Email Support'], color: '#f59e0b', whiteLabel: false, customDomain: false },
+          { key: 'professional', name: 'Professional', price: 119, yearlyPrice: 1190, features: ['Everything in Starter', 'Unlimited Jobs', 'Xero Integration', 'Photo Storage', 'White-Label Branding', 'Priority Support'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
+          { key: 'enterprise', name: 'Enterprise', price: 249, yearlyPrice: 2490, features: ['Everything in Professional', 'Custom Domain', 'Multi-User Access', 'Dedicated Firebase Instance', 'SLA-Backed Uptime', 'Dedicated Account Manager'], color: '#a855f7', whiteLabel: true, customDomain: true }
+        ],
+        isActive: true, isPublished: true, displayOrder: 4
       }
     ];
     for (const appData of seedApps) {
       await AppDefinition.findOneAndUpdate({ slug: appData.slug }, { $set: appData }, { upsert: true, new: true });
     }
     console.log('Marketplace apps synced (' + seedApps.length + ' apps)');
+
+    // Auto-seed admin user if none exists, or sync password from env
+    const User = require('./models/User');
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@pennywiseit.com.au';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    let adminUser = await User.findOne({ email: adminEmail });
+    if (!adminUser) {
+      adminUser = new User({
+        firstName: 'Admin',
+        lastName: 'PennyWise',
+        email: adminEmail,
+        password: adminPassword,
+        role: 'admin',
+        company: 'Penny Wise I.T',
+        isActive: true
+      });
+      await adminUser.save();
+      console.log('Admin user created:', adminUser.email);
+    } else {
+      // Sync role and password from env on every boot
+      let changed = false;
+      if (adminUser.role !== 'admin') { adminUser.role = 'admin'; changed = true; }
+      // Always reset password to env value so ADMIN_PASSWORD changes take effect
+      adminUser.password = adminPassword;
+      adminUser.isActive = true;
+      changed = true;
+      if (changed) {
+        await adminUser.save();
+        console.log('Admin user synced:', adminUser.email);
+      }
+    }
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
     dbConnected = false;

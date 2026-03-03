@@ -32,6 +32,7 @@ import AdminInvoices from './pages/AdminInvoices';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import PennyAgent from './components/PennyAgent';
+import WirezLauncher from './pages/WirezLauncher';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -66,6 +67,7 @@ const AppRoutes = () => {
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/my-apps" element={<ProtectedRoute><MyApps /></ProtectedRoute>} />
       <Route path="/social" element={<ProtectedRoute><SocialAI /></ProtectedRoute>} />
+      <Route path="/wirez" element={<ProtectedRoute><WirezLauncher /></ProtectedRoute>} />
 
       {/* Admin Routes */}
       <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />

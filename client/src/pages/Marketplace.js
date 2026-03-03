@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 import './Marketplace.css';
 
 const ICON_MAP = {
-  sparkles: Sparkles, zap: Zap, 'bar-chart': BarChart3, brain: Brain,
+  sparkles: Sparkles, zap: Zap, bolt: Zap, 'bar-chart': BarChart3, brain: Brain,
   wand: Wand2, palette: Palette, globe: Globe, workflow: Workflow,
   settings: Settings, code: Code, layers: Layers, star: Star
 };
@@ -48,6 +48,15 @@ const APP_LOGOS = {
       <path d="M26 10L18 26h6l-2 12 10-16h-6z" fill="url(#g-zap)"/>
     </svg>
   ),
+  bolt: () => (
+    <svg viewBox="0 0 48 48" className="mp-app-logo">
+      <defs><linearGradient id="g-bolt" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#f5a623"/><stop offset="100%" stopColor="#e8930d"/></linearGradient></defs>
+      <circle cx="24" cy="24" r="22" fill="none" stroke="url(#g-bolt)" strokeWidth="2"/>
+      <path d="M27 8L17 25h7l-3 15 13-18h-7z" fill="url(#g-bolt)"/>
+      <circle cx="12" cy="12" r="2" fill="#f5a623" opacity="0.5"/>
+      <circle cx="36" cy="36" r="1.5" fill="#f5a623" opacity="0.4"/>
+    </svg>
+  ),
 };
 
 const SAVINGS_DATA = {
@@ -56,6 +65,7 @@ const SAVINGS_DATA = {
   'autohue': { alternative: 'Manual photo sorting', altCost: 1200 },
   'foodtruc': { alternative: 'Third-party ordering platform fees', altCost: 800 },
   'food-truck': { alternative: 'Third-party ordering platform fees', altCost: 800 },
+  'wirez': { alternative: 'Manual job tracking + admin assistant', altCost: 1500 },
 };
 
 const APP_PREVIEWS = {
@@ -64,12 +74,13 @@ const APP_PREVIEWS = {
   'autohue': '/app-previews/autohue-preview.svg',
   'foodtruc': '/app-previews/foodtruck-preview.svg',
   'food-truck': '/app-previews/foodtruck-preview.svg',
+  'wirez': '/app-previews/wirez-preview.svg',
 };
 
 const CATEGORY_LABELS = {
   ai: 'AI', automation: 'Automation', analytics: 'Analytics',
   productivity: 'Productivity', marketing: 'Marketing', 'food-service': 'Food & Hospitality',
-  automotive: 'Automotive', utility: 'Utility', other: 'Other'
+  automotive: 'Automotive', trades: 'Trades & Services', utility: 'Utility', other: 'Other'
 };
 
 const Marketplace = () => {

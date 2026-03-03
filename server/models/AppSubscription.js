@@ -15,6 +15,15 @@ const appSubscriptionSchema = new mongoose.Schema({
   setupFeeAmount: { type: Number, default: 0 },
   currency: { type: String, default: 'AUD' },
   squareInvoiceId: { type: String, default: '' },
+  // Tenant-specific config (e.g. Firebase credentials for Wirez instances)
+  tenantConfig: {
+    apiKey: { type: String, default: '' },
+    authDomain: { type: String, default: '' },
+    projectId: { type: String, default: '' },
+    storageBucket: { type: String, default: '' },
+    messagingSenderId: { type: String, default: '' },
+    appId: { type: String, default: '' },
+  },
   // White-label branding (per user per app)
   whiteLabel: {
     brandName: { type: String, default: '' },

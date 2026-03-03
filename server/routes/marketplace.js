@@ -606,4 +606,52 @@ router.post('/admin/cancel', auth, adminOnly, async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════
+// TENANT CONFIG — Per-customer app instance config
+// ══════════════════════════════════════════════
+
+// Get my tenant config for an app (e.g. Firebase creds for Wirez)
+router.get('/tenant-config/:appSlug', auth, async (req, res) => {
+  try {
+    const appDef = await AppDefinition.findOne({ slug: req.params.appSlug });
+    if (!appDef) return res.status(404).json({ message: 'App not found' });
+
+    const sub = await AppSubscription.findOne({ user: req.user._id, app: appDef._id });
+    if (!sub) return res.status(404).json({ message: 'No subscription found' });
+    if (sub.status !== 'active' && sub.status !== 'trial') {
+      return res.status(403).json({ message: 'Subscription not active' });
+    }
+
+    res.json({
+      tenantConfig: sub.tenantConfig || {},
+      whiteLabel: sub.whiteLabel || {},
+      planKey: sub.planKey,
+      status: sub.status
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Admin: set tenant config for a user's subscription (provision Firebase project)
+router.put('/admin/tenant-config/:subscriptionId', auth, adminOnly, async (req, res) => {
+  try {
+    const { tenantConfig, whiteLabel } = req.body;
+    const update = {};
+    if (tenantConfig) update.tenantConfig = tenantConfig;
+    if (whiteLabel) update.whiteLabel = whiteLabel;
+
+    const sub = await AppSubscription.findByIdAndUpdate(
+      req.params.subscriptionId,
+      { $set: update },
+      { new: true }
+    ).populate('app').populate('user', 'firstName lastName email');
+
+    if (!sub) return res.status(404).json({ message: 'Subscription not found' });
+    res.json({ message: 'Tenant config updated', subscription: sub });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 module.exports = router;
