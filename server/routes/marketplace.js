@@ -606,6 +606,58 @@ router.post('/admin/cancel', auth, adminOnly, async (req, res) => {
   }
 });
 
+// Admin: update app definition (plans, prices, descriptions, etc.)
+router.put('/admin/apps/:appId', auth, adminOnly, async (req, res) => {
+  try {
+    const allowed = ['name', 'shortDescription', 'fullDescription', 'icon', 'category',
+      'heroImage', 'features', 'techStack', 'routePath', 'setupFee', 'plans',
+      'isActive', 'isPublished', 'displayOrder', 'demoUrl'];
+    const update = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) update[key] = req.body[key];
+    }
+    const app = await AppDefinition.findByIdAndUpdate(req.params.appId, { $set: update }, { new: true });
+    if (!app) return res.status(404).json({ message: 'App not found' });
+    res.json({ message: 'App updated', app });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Admin: grant free license (for self-testing or comps)
+router.post('/admin/grant-free', auth, adminOnly, async (req, res) => {
+  try {
+    const { userId, appSlug, planKey } = req.body;
+    const targetUserId = userId || req.user._id; // default to self
+    const appDef = await AppDefinition.findOne({ slug: appSlug });
+    if (!appDef) return res.status(404).json({ message: 'App not found' });
+
+    const plan = appDef.plans.find(p => p.key === planKey);
+    if (!plan) return res.status(400).json({ message: 'Invalid plan' });
+
+    const now = new Date();
+    const sub = await AppSubscription.findOneAndUpdate(
+      { user: targetUserId, app: appDef._id },
+      {
+        user: targetUserId,
+        app: appDef._id,
+        planKey: plan.key,
+        status: 'active',
+        startDate: now,
+        endDate: new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000), // 1 year
+        lastPayment: now,
+        amount: 0,
+        currency: 'AUD'
+      },
+      { new: true, upsert: true }
+    ).populate('app').populate('user', 'firstName lastName email');
+
+    res.json({ message: `Free ${plan.name} license granted for ${appDef.name}`, subscription: sub });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 // ══════════════════════════════════════════════
 // TENANT CONFIG — Per-customer app instance config
 // ══════════════════════════════════════════════

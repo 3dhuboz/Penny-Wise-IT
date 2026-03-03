@@ -32,6 +32,7 @@ const Navbar = () => {
           <Link to="/portfolio" className={isActive('/portfolio') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Portfolio</Link>
           <Link to="/contact" className={isActive('/contact') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Contact</Link>
           <Link to="/marketplace" className={isActive('/marketplace') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Marketplace</Link>
+          <Link to="/hosting" className={isActive('/hosting') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Hosting</Link>
 
           {user ? (
             <>

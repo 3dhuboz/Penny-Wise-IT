@@ -195,6 +195,8 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/social', require('./routes/social'));
 app.use('/api/marketplace', require('./routes/marketplace'));
 app.use('/api/invoices', require('./routes/invoices'));
+app.use('/api/settings', require('./routes/settings'));
+app.use('/api/hosting', require('./routes/hosting'));
 
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {

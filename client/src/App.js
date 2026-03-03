@@ -33,6 +33,8 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import PennyAgent from './components/PennyAgent';
 import WirezLauncher from './pages/WirezLauncher';
+import AdminSettings from './pages/AdminSettings';
+import Hosting from './pages/Hosting';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -54,6 +56,7 @@ const AppRoutes = () => {
       <Route path="/social-ai" element={<SocialAIProduct />} />
       <Route path="/autohue" element={<AutoHue />} />
       <Route path="/marketplace" element={<Marketplace />} />
+      <Route path="/hosting" element={<Hosting />} />
       <Route path="/foodtruc" element={<FoodTrucProduct />} />
       <Route path="/register" element={<Register />} />
       <Route path="/terms" element={<Terms />} />
@@ -78,6 +81,7 @@ const AppRoutes = () => {
       <Route path="/admin/social" element={<ProtectedRoute adminOnly><AdminSocial /></ProtectedRoute>} />
       <Route path="/admin/apps" element={<ProtectedRoute adminOnly><AdminApps /></ProtectedRoute>} />
       <Route path="/admin/invoices" element={<ProtectedRoute adminOnly><AdminInvoices /></ProtectedRoute>} />
+      <Route path="/admin/settings" element={<ProtectedRoute adminOnly><AdminSettings /></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

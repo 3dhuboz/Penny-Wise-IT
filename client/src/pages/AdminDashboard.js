@@ -78,10 +78,10 @@ const AdminDashboard = () => {
             <h3>All Tickets</h3>
             <p>View & manage support tickets</p>
           </Link>
-          <Link to="/profile" className="admin-nav-card card">
+          <Link to="/admin/settings" className="admin-nav-card card">
             <Settings size={24} />
             <h3>Settings</h3>
-            <p>Account & app settings</p>
+            <p>Payment, email, hosting & config</p>
           </Link>
         </div>
 
