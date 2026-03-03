@@ -24,38 +24,10 @@
   color: var(--gray-900);
 }
 
-.brand-icon {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  color: white;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 0.8rem;
-  letter-spacing: -0.5px;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
-
-.brand-name {
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--gray-900);
-}
-
-.brand-tagline {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--primary);
-  letter-spacing: 1px;
-  text-transform: uppercase;
+.navbar-logo {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
 }
 
 .navbar-links {

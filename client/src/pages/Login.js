@@ -42,7 +42,7 @@ const Login = () => {
     <div className="auth-page">
       <div className="auth-card card">
         <div className="auth-header">
-          <div className="auth-logo"><span className="brand-icon">PW</span></div>
+          <div className="auth-logo"><img src="/logo.png" alt="Penny Wise I.T" className="auth-logo-img" /></div>
           <h1>Welcome Back</h1>
           <p>Sign in to your Penny Wise I.T account</p>
         </div>

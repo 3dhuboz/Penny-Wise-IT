@@ -177,7 +177,7 @@ const PennyAgent = () => {
         <div className="pa-window">
           <div className="pa-header">
             <div className="pa-header-left">
-              <div className="pa-avatar"><Bot size={18} /></div>
+              <img src="/logo.png" alt="Penny Wise I.T" className="pa-header-logo" />
               <div>
                 <strong>Penny</strong>
                 <span className="pa-status">AI Assistant</span>

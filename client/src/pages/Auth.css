@@ -24,17 +24,10 @@
   margin-bottom: 1rem;
 }
 
-.auth-logo .brand-icon {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  color: white;
-  width: 48px;
+.auth-logo-img {
   height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 1rem;
+  width: auto;
+  object-fit: contain;
 }
 
 .auth-header h1 {

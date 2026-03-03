@@ -25,6 +25,7 @@ const Home = () => {
       <section className="hero">
         <div className="container">
           <div className="hero-content fade-in">
+            <img src="/logo.png" alt="Penny Wise I.T" className="hero-logo" />
             <div className="hero-badge">
               <Wrench size={14} /> Australian I.T Problem Solvers
             </div>

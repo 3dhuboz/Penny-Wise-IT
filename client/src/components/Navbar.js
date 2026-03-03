@@ -23,11 +23,7 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="container navbar-inner">
         <Link to="/" className="navbar-brand">
-          <span className="brand-icon">PW</span>
-          <div className="brand-text">
-            <span className="brand-name">Penny Wise</span>
-            <span className="brand-tagline">I.T</span>
-          </div>
+          <img src="/logo.png" alt="Penny Wise I.T" className="navbar-logo" />
         </Link>
 
         <div className={`navbar-links ${mobileOpen ? 'open' : ''}`}>

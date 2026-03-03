@@ -10,11 +10,8 @@ const Footer = () => {
         <div className="footer-grid">
           <div className="footer-brand">
             <div className="footer-logo">
-              <span className="brand-icon">PW</span>
-              <div>
-                <div className="brand-name">Penny Wise I.T</div>
-                <div className="brand-sub">Smart Solutions, Wise Investment</div>
-              </div>
+              <img src="/logo.png" alt="Penny Wise I.T" className="footer-logo-img" />
+              <div className="brand-sub">Smart Solutions, Wise Investment</div>
             </div>
             <p>Professional web hosting, custom app development, and workflow automation solutions for businesses of all sizes.</p>
           </div>

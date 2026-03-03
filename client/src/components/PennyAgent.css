@@ -95,6 +95,13 @@
   justify-content: center;
 }
 
+.pa-header-logo {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
 .pa-header-left strong {
   display: block;
   font-size: 0.9rem;

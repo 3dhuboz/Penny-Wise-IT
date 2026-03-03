@@ -13,6 +13,14 @@
   align-items: center;
 }
 
+.hero-logo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 1.5rem;
+  filter: brightness(0) invert(1);
+}
+
 .hero-badge {
   display: inline-flex;
   align-items: center;

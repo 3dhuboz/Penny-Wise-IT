@@ -49,7 +49,7 @@ const Register = () => {
     <div className="auth-page">
       <div className="auth-card card" style={{ maxWidth: '480px' }}>
         <div className="auth-header">
-          <div className="auth-logo"><span className="brand-icon">PW</span></div>
+          <div className="auth-logo"><img src="/logo.png" alt="Penny Wise I.T" className="auth-logo-img" /></div>
           <h1>Get Started</h1>
           <p>Create your Penny Wise I.T account</p>
         </div>
