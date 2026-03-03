@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import {
   Sparkles, Settings, Calendar, BarChart3, Wand2, Image as ImageIcon,
   Loader2, Trash2, Clock, CheckCircle, Zap, Save, Brain, Instagram, Facebook,
-  Palette, Crown, ArrowRight, Star, Shield, ExternalLink, X
+  Palette, Crown, ArrowRight, Star, Shield, ExternalLink, X, RefreshCw,
+  HelpCircle, Users, Eye, ThumbsUp, MessageCircle, Share2, Link2,
+  ChevronRight, AlertCircle, Info, BookOpen, Key, Globe, Monitor
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
@@ -16,7 +18,7 @@ const PLAN_DETAILS = {
 };
 
 const SocialAI = () => {
-  const [activeTab, setActiveTab] = useState('create');
+  const [activeTab, setActiveTab] = useState('command');
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,6 +51,18 @@ const SocialAI = () => {
 
   // Marketplace subscription state (generic system)
   const [mpSub, setMpSub] = useState(null);
+
+  // Facebook / Instagram integration state
+  const [fbStats, setFbStats] = useState(null);
+  const [fbPosts, setFbPosts] = useState([]);
+  const [igPosts, setIgPosts] = useState([]);
+  const [refreshingStats, setRefreshingStats] = useState(false);
+  const [connectingFb, setConnectingFb] = useState(false);
+  const [fbPageIdInput, setFbPageIdInput] = useState('');
+  const [fbTokenInput, setFbTokenInput] = useState('');
+
+  // Help system state
+  const [showHelpTip, setShowHelpTip] = useState(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -279,13 +293,99 @@ const SocialAI = () => {
     setProfile(prev => ({ ...prev, stats: { ...prev.stats, [key]: Number(value) } }));
   };
 
+  // ── Facebook Integration ──
+  const handleConnectFacebook = async () => {
+    if (!fbPageIdInput.trim() || !fbTokenInput.trim()) return toast.error('Enter both Page ID and Page Access Token.');
+    setConnectingFb(true);
+    try {
+      const res = await api.post('/social/facebook/connect', { pageId: fbPageIdInput.trim(), pageAccessToken: fbTokenInput.trim() });
+      toast.success(res.data.message);
+      setFbPageIdInput('');
+      setFbTokenInput('');
+      loadData();
+      handleRefreshStats();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to connect Facebook page');
+    }
+    setConnectingFb(false);
+  };
+
+  const handleDisconnectFacebook = async () => {
+    if (!window.confirm('Disconnect your Facebook page? Stats will revert to manual entry.')) return;
+    try {
+      await api.post('/social/facebook/disconnect');
+      setFbStats(null);
+      setFbPosts([]);
+      setIgPosts([]);
+      toast.success('Facebook disconnected');
+      loadData();
+    } catch (err) {
+      toast.error('Disconnect failed');
+    }
+  };
+
+  const handleRefreshStats = async () => {
+    setRefreshingStats(true);
+    try {
+      const [statsRes, fbPostsRes, igPostsRes] = await Promise.all([
+        api.get('/social/facebook/stats').catch(() => ({ data: null })),
+        api.get('/social/facebook/posts?limit=5').catch(() => ({ data: [] })),
+        api.get('/social/instagram/posts?limit=5').catch(() => ({ data: [] }))
+      ]);
+      if (statsRes.data) setFbStats(statsRes.data);
+      if (Array.isArray(fbPostsRes.data)) setFbPosts(fbPostsRes.data);
+      if (Array.isArray(igPostsRes.data)) setIgPosts(igPostsRes.data);
+      toast.success('Stats refreshed from Facebook');
+      loadData();
+    } catch (err) {
+      toast.error('Could not fetch live stats');
+    }
+    setRefreshingStats(false);
+  };
+
+  // Auto-load FB stats on mount if connected
+  const fbConnected = profile?.facebookConnected;
+  useEffect(() => {
+    if (fbConnected) {
+      handleRefreshStats();
+    }
+  }, [fbConnected]); // eslint-disable-line
+
+  // Help tooltip component
+  const HelpTip = ({ id, title, children }) => (
+    <div style={{ position: 'relative', display: 'inline-flex' }}>
+      <button
+        onClick={() => setShowHelpTip(showHelpTip === id ? null : id)}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: 2, display: 'flex' }}
+        title={title}
+      >
+        <HelpCircle size={14} />
+      </button>
+      {showHelpTip === id && (
+        <div style={{
+          position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
+          background: '#1e1b4b', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 10, padding: '0.75rem 1rem',
+          width: 280, zIndex: 100, boxShadow: '0 8px 30px rgba(0,0,0,0.5)', fontSize: '0.75rem', color: '#d1d5db', lineHeight: 1.5
+        }}>
+          <div style={{ fontWeight: 700, color: '#fcd34d', marginBottom: '0.375rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <Info size={12} /> {title}
+          </div>
+          {children}
+          <div style={{ position: 'absolute', bottom: -6, left: '50%', transform: 'translateX(-50%) rotate(45deg)', width: 10, height: 10, background: '#1e1b4b', borderRight: '1px solid rgba(139,92,246,0.3)', borderBottom: '1px solid rgba(139,92,246,0.3)' }} />
+        </div>
+      )}
+    </div>
+  );
+
   const tabs = [
+    { id: 'command', label: 'Command Center', icon: Monitor },
     { id: 'create', label: 'Create', icon: Wand2 },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
     { id: 'smart', label: 'Smart AI', icon: Brain, requirePlan: ['professional', 'enterprise'] },
     { id: 'insights', label: 'Insights', icon: BarChart3 },
     { id: 'branding', label: 'Branding', icon: Palette, requirePlan: ['professional', 'enterprise'] },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'help', label: 'Help', icon: BookOpen }
   ];
 
   if (loading) return <div className="page-loading">Loading Social AI...</div>;
@@ -410,7 +510,294 @@ const SocialAI = () => {
       </div>
 
       {/* Content */}
-      <div className="container" style={{ padding: '2rem 1.5rem', maxWidth: '900px' }}>
+      <div className="container" style={{ padding: '2rem 1.5rem', maxWidth: (activeTab === 'command' || activeTab === 'help') ? '1100px' : '900px' }}>
+
+        {/* ═══ COMMAND CENTER TAB ═══ */}
+        {activeTab === 'command' && (
+          <div className="sai-section">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div>
+                <h2 className="sai-title" style={{ marginBottom: '0.25rem' }}>
+                  <Monitor size={22} style={{ color: '#f59e0b' }} /> Social Command Center
+                </h2>
+                <p style={{ color: '#9ca3af', fontSize: '0.8125rem' }}>
+                  Manage content, schedule posts, and track growth.
+                  {!profile?.facebookConnected && (
+                    <button onClick={() => setActiveTab('settings')} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer', fontSize: '0.8125rem', marginLeft: 4 }}>
+                      Connect Facebook to see live data →
+                    </button>
+                  )}
+                </p>
+              </div>
+              {profile?.facebookConnected && (
+                <button onClick={handleRefreshStats} disabled={refreshingStats} className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                  <RefreshCw size={14} className={refreshingStats ? 'spin' : ''} /> Refresh Stats
+                </button>
+              )}
+            </div>
+
+            {/* Stats Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div className="sai-card" style={{ borderColor: 'rgba(139,92,246,0.2)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <div style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9ca3af', marginBottom: '0.5rem' }}>Followers</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: 'white' }}>
+                      {(fbStats?.page?.followers || profile?.stats?.followers || 0).toLocaleString()}
+                    </div>
+                    {fbStats?.instagram && (
+                      <div style={{ fontSize: '0.6875rem', color: '#e1306c', marginTop: '0.25rem' }}>
+                        <Instagram size={10} style={{ display: 'inline', marginRight: 3 }} />
+                        +{fbStats.instagram.followers?.toLocaleString()} on IG
+                      </div>
+                    )}
+                  </div>
+                  <Users size={20} style={{ color: '#8b5cf6' }} />
+                </div>
+                {profile?.facebookConnected && (
+                  <div style={{ fontSize: '0.6875rem', color: '#34d399', marginTop: '0.375rem' }}>
+                    <CheckCircle size={10} style={{ display: 'inline', marginRight: 3 }} /> Live from Facebook
+                  </div>
+                )}
+              </div>
+
+              <div className="sai-card" style={{ borderColor: 'rgba(16,185,129,0.2)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <div style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9ca3af', marginBottom: '0.5rem' }}>Reach</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: 'white' }}>
+                      {(fbStats?.page?.reach || profile?.stats?.reach || 0).toLocaleString()}
+                    </div>
+                    <div style={{ fontSize: '0.6875rem', color: '#34d399', marginTop: '0.25rem' }}>
+                      {fbStats?.page?.reach ? `${((fbStats.page.reach / Math.max(fbStats.page.followers || 1, 1)) * 100).toFixed(0)}% of followers` : 'Last 30 days'}
+                    </div>
+                  </div>
+                  <Eye size={20} style={{ color: '#10b981' }} />
+                </div>
+              </div>
+
+              <div className="sai-card" style={{ borderColor: 'rgba(245,158,11,0.2)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <div style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9ca3af', marginBottom: '0.5rem' }}>Engagement</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 800, color: 'white' }}>
+                      {fbStats?.page?.engagementRate || profile?.stats?.engagement || 0}%
+                    </div>
+                    <div style={{ fontSize: '0.6875rem', color: '#f59e0b', marginTop: '0.25rem' }}>Avg. per post</div>
+                  </div>
+                  <BarChart3 size={20} style={{ color: '#f59e0b' }} />
+                </div>
+              </div>
+            </div>
+
+            {/* AI Content Generator + AI Strategist Side by Side */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+              {/* AI Content Generator */}
+              <div className="sai-card" style={{ borderColor: 'rgba(245,158,11,0.15)' }}>
+                <h3 style={{ fontWeight: 700, color: '#fcd34d', fontSize: '0.9375rem', marginBottom: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                  <Wand2 size={16} /> AI Content Generator
+                  <HelpTip id="ai-gen" title="AI Content Generator">
+                    <p>Type a topic or prompt and our AI will create a ready-to-post caption with hashtags. Works for Instagram and Facebook.</p>
+                    <p style={{ marginTop: '0.375rem' }}>Requires a <strong style={{ color: '#fcd34d' }}>Gemini API key</strong> — set it up in Settings.</p>
+                  </HelpTip>
+                </h3>
+                <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                  <label style={{ fontSize: '0.6875rem' }}>Topic / Prompt</label>
+                  <textarea
+                    value={topic}
+                    onChange={e => setTopic(e.target.value)}
+                    placeholder={`e.g. New ${profile?.businessType || 'product'} special available this weekend...`}
+                    rows={3}
+                    style={{ fontSize: '0.8125rem' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+                  <select value={platform} onChange={e => setPlatform(e.target.value)} className="sai-select" style={{ fontSize: '0.8125rem' }}>
+                    <option value="Instagram">Instagram</option>
+                    <option value="Facebook">Facebook</option>
+                  </select>
+                  <button onClick={handleGenerate} disabled={isGenerating} className="btn btn-primary btn-sm">
+                    {isGenerating ? <Loader2 size={14} className="spin" /> : <Wand2 size={14} />}
+                    Generate Text
+                  </button>
+                  <button onClick={handleGenerateImage} disabled={isGeneratingImage} className="btn sai-btn-image btn-sm">
+                    {isGeneratingImage ? <Loader2 size={14} className="spin" /> : <ImageIcon size={14} />}
+                    Image
+                  </button>
+                </div>
+
+                {generatedContent && (
+                  <div style={{ marginTop: '0.875rem', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.5rem' }}>
+                      <PlatformIcon p={platform} size={14} />
+                      <strong style={{ color: 'white', fontSize: '0.8125rem' }}>Generated Post</strong>
+                    </div>
+                    <div style={{ fontSize: '0.8125rem', color: '#d1d5db', marginBottom: '0.5rem', lineHeight: 1.6 }}>{generatedContent}</div>
+                    {generatedHashtags.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginBottom: '0.5rem' }}>
+                        {generatedHashtags.map((tag, i) => <span key={i} className="sai-hashtag">{tag.startsWith('#') ? tag : `#${tag}`}</span>)}
+                      </div>
+                    )}
+                    {generatedImage && <img src={generatedImage} alt="Generated" style={{ maxWidth: '100%', borderRadius: 6, marginBottom: '0.5rem' }} />}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'flex-end' }}>
+                      <div className="form-group" style={{ marginBottom: 0, flex: 1, minWidth: 120 }}>
+                        <label style={{ fontSize: '0.625rem' }}>Schedule (optional)</label>
+                        <input type="datetime-local" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} style={{ fontSize: '0.75rem' }} />
+                      </div>
+                      <button onClick={handleSavePost} className="btn sai-btn-save btn-sm">
+                        <Save size={14} /> {scheduleDate ? 'Schedule' : 'Save Draft'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* AI Strategist */}
+              <div className="sai-card" style={{ borderColor: 'rgba(168,85,247,0.15)' }}>
+                <h3 style={{ fontWeight: 700, color: '#c4b5fd', fontSize: '0.9375rem', marginBottom: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                  <Brain size={16} /> AI Strategist
+                  <HelpTip id="ai-strat" title="AI Strategist">
+                    <p>Analyses your performance metrics and gives actionable advice on how to grow your <strong style={{ color: '#fcd34d' }}>{profile?.businessType || 'business'}</strong> brand.</p>
+                    <p style={{ marginTop: '0.375rem' }}>For best results, connect your Facebook page so stats are real.</p>
+                  </HelpTip>
+                </h3>
+                <p style={{ fontSize: '0.8125rem', color: '#9ca3af', marginBottom: '1rem', lineHeight: 1.5 }}>
+                  Analyze your performance metrics and get actionable advice on how to grow your {profile?.businessType || 'business'} brand.
+                </p>
+
+                {recommendations ? (
+                  <div style={{ fontSize: '0.8125rem', color: '#d1d5db', whiteSpace: 'pre-wrap', lineHeight: 1.6, maxHeight: 250, overflowY: 'auto', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 8 }}>
+                    {recommendations}
+                  </div>
+                ) : (
+                  <p style={{ color: '#6b7280', fontStyle: 'italic', fontSize: '0.8125rem', marginBottom: '1rem' }}>No analysis generated yet.</p>
+                )}
+
+                <button onClick={handleAnalyze} disabled={isAnalyzing} className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', background: 'linear-gradient(135deg, #a855f7, #6366f1)' }}>
+                  {isAnalyzing ? <Loader2 size={16} className="spin" /> : <BarChart3 size={16} />}
+                  Analyze & Recommend
+                </button>
+              </div>
+            </div>
+
+            {/* Recent Posts Feed — from Facebook */}
+            {(fbPosts.length > 0 || igPosts.length > 0) && (
+              <div>
+                <h3 style={{ fontWeight: 700, color: 'white', fontSize: '1rem', marginBottom: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                  <Globe size={16} /> Recent Posts from Your Pages
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  {/* Facebook Posts */}
+                  {fbPosts.length > 0 && (
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.625rem' }}>
+                        <Facebook size={14} style={{ color: '#1877f2' }} />
+                        <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#1877f2' }}>Facebook</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {fbPosts.map((p, i) => (
+                          <a key={i} href={p.permalink} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                            <div className="sai-card" style={{ padding: '0.75rem', cursor: 'pointer', transition: 'all 0.2s' }}>
+                              <p style={{ fontSize: '0.75rem', color: '#d1d5db', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '0.5rem', lineHeight: 1.5 }}>
+                                {p.message || '(No text)'}
+                              </p>
+                              {p.image && <img src={p.image} alt="" style={{ width: '100%', maxHeight: 120, objectFit: 'cover', borderRadius: 6, marginBottom: '0.5rem' }} />}
+                              <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.6875rem', color: '#9ca3af' }}>
+                                <span><ThumbsUp size={10} style={{ display: 'inline', marginRight: 2 }} />{p.likes}</span>
+                                <span><MessageCircle size={10} style={{ display: 'inline', marginRight: 2 }} />{p.comments}</span>
+                                <span><Share2 size={10} style={{ display: 'inline', marginRight: 2 }} />{p.shares}</span>
+                                <span style={{ marginLeft: 'auto' }}>{new Date(p.createdTime).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</span>
+                              </div>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Instagram Posts */}
+                  {igPosts.length > 0 && (
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.625rem' }}>
+                        <Instagram size={14} style={{ color: '#e1306c' }} />
+                        <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#e1306c' }}>Instagram{fbStats?.instagram?.username ? ` @${fbStats.instagram.username}` : ''}</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {igPosts.map((p, i) => (
+                          <a key={i} href={p.permalink} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                            <div className="sai-card" style={{ padding: '0.75rem', cursor: 'pointer', transition: 'all 0.2s' }}>
+                              {p.mediaUrl && <img src={p.mediaUrl} alt="" style={{ width: '100%', maxHeight: 120, objectFit: 'cover', borderRadius: 6, marginBottom: '0.5rem' }} />}
+                              <p style={{ fontSize: '0.75rem', color: '#d1d5db', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '0.5rem', lineHeight: 1.5 }}>
+                                {p.caption || '(No caption)'}
+                              </p>
+                              <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.6875rem', color: '#9ca3af' }}>
+                                <span><ThumbsUp size={10} style={{ display: 'inline', marginRight: 2 }} />{p.likes}</span>
+                                <span><MessageCircle size={10} style={{ display: 'inline', marginRight: 2 }} />{p.comments}</span>
+                                <span style={{ marginLeft: 'auto' }}>{new Date(p.timestamp).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</span>
+                              </div>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Schedule Calendar Preview */}
+            <div style={{ marginTop: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.875rem' }}>
+                <h3 style={{ fontWeight: 700, color: 'white', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                  <Calendar size={16} /> Schedule Calendar
+                  <span style={{ background: 'rgba(139,92,246,0.2)', color: '#a78bfa', fontSize: '0.6875rem', fontWeight: 700, padding: '0.125rem 0.5rem', borderRadius: 9999 }}>
+                    {posts.filter(p => p.status === 'Scheduled').length} scheduled
+                  </span>
+                </h3>
+                <button onClick={() => setActiveTab('calendar')} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  View Full Calendar <ChevronRight size={14} />
+                </button>
+              </div>
+              {posts.filter(p => p.status === 'Scheduled').length === 0 ? (
+                <div className="sai-card" style={{ textAlign: 'center', padding: '2rem' }}>
+                  <Calendar size={32} style={{ color: '#4b5563', marginBottom: '0.75rem' }} />
+                  <p style={{ color: '#6b7280', fontSize: '0.8125rem' }}>No scheduled posts yet.</p>
+                  <p style={{ color: '#4b5563', fontSize: '0.75rem', marginTop: '0.25rem' }}>Use the AI Content Generator above or <button onClick={() => setActiveTab('smart')} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer' }}>Smart AI Scheduler</button> to create posts.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {posts.filter(p => p.status === 'Scheduled').slice(0, 5).map(post => (
+                    <div key={post._id} className="sai-card" style={{ padding: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <PlatformIcon p={post.platform} size={16} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: '0.8125rem', color: '#d1d5db', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.content}</p>
+                      </div>
+                      <span style={{ fontSize: '0.6875rem', color: '#9ca3af', whiteSpace: 'nowrap' }}>
+                        {new Date(post.scheduledFor).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })}
+                      </span>
+                      {post.pillar && <span className="sai-pillar">{post.pillar}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Not connected? Show setup prompt */}
+            {!profile?.facebookConnected && !hasApiKey && (
+              <div className="sai-card" style={{ marginTop: '1.5rem', background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(239,68,68,0.08))', borderColor: 'rgba(245,158,11,0.2)', textAlign: 'center', padding: '2rem' }}>
+                <AlertCircle size={32} style={{ color: '#fbbf24', marginBottom: '0.75rem' }} />
+                <h3 style={{ fontWeight: 700, color: 'white', marginBottom: '0.5rem' }}>Get Started</h3>
+                <p style={{ color: '#9ca3af', fontSize: '0.8125rem', maxWidth: 400, margin: '0 auto 1rem' }}>
+                  Set up your Gemini API key and connect your Facebook Business Page to unlock the full power of Social AI.
+                </p>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button onClick={() => setActiveTab('settings')} className="btn btn-primary btn-sm"><Key size={14} /> Set Up API Key</button>
+                  <button onClick={() => setActiveTab('help')} className="btn btn-secondary btn-sm"><BookOpen size={14} /> Read the Guide</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ═══ CREATE TAB ═══ */}
         {activeTab === 'create' && (
@@ -985,6 +1372,92 @@ const SocialAI = () => {
               )}
             </div>
 
+            {/* Facebook / Instagram Connection */}
+            <div className="sai-card" style={{ marginTop: '1.5rem' }}>
+              <h3 style={{ fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <Facebook size={18} style={{ color: '#1877f2' }} /> Facebook & Instagram
+                <HelpTip id="fb-connect" title="Connect Facebook Page">
+                  <p>Linking your Facebook Business Page lets us pull live stats, recent posts, and detect your linked Instagram account.</p>
+                  <p style={{ marginTop: '0.375rem' }}>You need a <strong style={{ color: '#fcd34d' }}>Page Access Token</strong> from Meta's developer tools. See the Help tab for a step-by-step guide.</p>
+                </HelpTip>
+              </h3>
+              <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '1rem' }}>
+                Connect your Facebook Business Page to pull live stats and recent posts. Instagram will auto-link if connected to your FB page.
+              </p>
+
+              {profile?.facebookConnected ? (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: 'rgba(16,185,129,0.08)', borderRadius: 8, border: '1px solid rgba(16,185,129,0.2)', marginBottom: '0.75rem' }}>
+                    <Facebook size={20} style={{ color: '#1877f2' }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#34d399' }}>
+                        <CheckCircle size={12} style={{ display: 'inline', marginRight: 4 }} />
+                        Facebook Page Connected
+                      </div>
+                      <div style={{ fontSize: '0.6875rem', color: '#9ca3af' }}>Page ID: {profile.facebookPageId}</div>
+                    </div>
+                    <button onClick={handleDisconnectFacebook} className="btn btn-danger btn-sm" style={{ fontSize: '0.75rem' }}>
+                      <X size={12} /> Disconnect
+                    </button>
+                  </div>
+
+                  {profile?.instagramBusinessAccountId ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: 'rgba(225,48,108,0.08)', borderRadius: 8, border: '1px solid rgba(225,48,108,0.2)' }}>
+                      <Instagram size={20} style={{ color: '#e1306c' }} />
+                      <div>
+                        <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#e1306c' }}>
+                          <CheckCircle size={12} style={{ display: 'inline', marginRight: 4 }} />
+                          Instagram Business Linked
+                          {fbStats?.instagram?.username && <span style={{ fontWeight: 400, color: '#9ca3af' }}> — @{fbStats.instagram.username}</span>}
+                        </div>
+                        <div style={{ fontSize: '0.6875rem', color: '#9ca3af' }}>Automatically detected via Facebook Page</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0.75rem', background: 'rgba(245,158,11,0.06)', borderRadius: 8, border: '1px solid rgba(245,158,11,0.15)' }}>
+                      <AlertCircle size={14} style={{ color: '#fbbf24' }} />
+                      <span style={{ fontSize: '0.75rem', color: '#fbbf24' }}>
+                        No Instagram Business Account linked to this Facebook page. <a href="https://help.instagram.com/502981923235522" target="_blank" rel="noopener noreferrer" style={{ color: '#f59e0b', textDecoration: 'underline' }}>Learn how to link</a>
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.6875rem' }}>Facebook Page ID</label>
+                      <input
+                        value={fbPageIdInput}
+                        onChange={e => setFbPageIdInput(e.target.value)}
+                        placeholder="e.g. 123456789012345"
+                        style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.6875rem' }}>Page Access Token</label>
+                      <input
+                        type="password"
+                        value={fbTokenInput}
+                        onChange={e => setFbTokenInput(e.target.value)}
+                        placeholder="Paste token from Meta developer tools..."
+                        style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <button onClick={handleConnectFacebook} disabled={connectingFb} className="btn btn-primary btn-sm" style={{ background: '#1877f2', borderColor: '#1877f2' }}>
+                      {connectingFb ? <Loader2 size={14} className="spin" /> : <Facebook size={14} />}
+                      Connect Facebook Page
+                    </button>
+                    <button onClick={() => setActiveTab('help')} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <BookOpen size={12} /> How to get these?
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Business Profile */}
             <div className="sai-card" style={{ marginTop: '1.5rem' }}>
               <h3 style={{ fontWeight: 600, color: 'white', marginBottom: '0.5rem' }}>Business Profile</h3>
@@ -1052,6 +1525,184 @@ const SocialAI = () => {
                 Powered by <strong>Penny Wise I.T</strong>
               </div>
             )}
+          </div>
+        )}
+
+        {/* ═══ HELP TAB ═══ */}
+        {activeTab === 'help' && (
+          <div className="sai-section">
+            <h2 className="sai-title"><BookOpen size={22} style={{ color: '#f59e0b' }} /> Getting Started Guide</h2>
+            <p style={{ color: '#9ca3af', marginBottom: '1.5rem', lineHeight: 1.7 }}>
+              Welcome to SocialAI Studio! This guide will walk you through setting everything up so you can manage your social media like a pro.
+            </p>
+
+            {/* Quick Status */}
+            <div className="sai-card" style={{ marginBottom: '1.5rem', background: 'linear-gradient(135deg, rgba(139,92,246,0.06), rgba(245,158,11,0.06))' }}>
+              <h3 style={{ fontWeight: 700, color: 'white', marginBottom: '0.75rem', fontSize: '0.9375rem' }}>Your Setup Status</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {hasApiKey ? <CheckCircle size={16} style={{ color: '#34d399' }} /> : <AlertCircle size={16} style={{ color: '#fbbf24' }} />}
+                  <span style={{ fontSize: '0.8125rem', color: hasApiKey ? '#34d399' : '#fbbf24' }}>
+                    Gemini API Key — {hasApiKey ? 'Configured ✓' : 'Not set up yet'}
+                  </span>
+                  {!hasApiKey && <button onClick={() => setActiveTab('settings')} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer', fontSize: '0.75rem' }}>Set up →</button>}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {profile?.facebookConnected ? <CheckCircle size={16} style={{ color: '#34d399' }} /> : <AlertCircle size={16} style={{ color: '#fbbf24' }} />}
+                  <span style={{ fontSize: '0.8125rem', color: profile?.facebookConnected ? '#34d399' : '#fbbf24' }}>
+                    Facebook Page — {profile?.facebookConnected ? 'Connected ✓' : 'Not connected'}
+                  </span>
+                  {!profile?.facebookConnected && <button onClick={() => setActiveTab('settings')} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer', fontSize: '0.75rem' }}>Connect →</button>}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {profile?.instagramBusinessAccountId ? <CheckCircle size={16} style={{ color: '#34d399' }} /> : <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid #4b5563' }} />}
+                  <span style={{ fontSize: '0.8125rem', color: profile?.instagramBusinessAccountId ? '#34d399' : '#6b7280' }}>
+                    Instagram — {profile?.instagramBusinessAccountId ? 'Linked via Facebook ✓' : 'Links automatically when FB is connected'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 1: Gemini API Key */}
+            <div className="sai-card" style={{ marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.75rem' }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8125rem', fontWeight: 800, color: '#000', flexShrink: 0 }}>1</div>
+                <h3 style={{ fontWeight: 700, color: 'white', fontSize: '1rem' }}>Get Your Gemini API Key (Free)</h3>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.7, marginBottom: '0.75rem' }}>
+                The Gemini API key powers all AI features — content generation, image creation, smart scheduling, and strategic recommendations. Google offers a generous free tier.
+              </p>
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '1rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <ol style={{ margin: 0, paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.6 }}>
+                  <li>Go to <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style={{ color: '#f59e0b', fontWeight: 600 }}>Google AI Studio — API Keys <ExternalLink size={10} style={{ display: 'inline' }} /></a></li>
+                  <li>Sign in with your Google account (any Gmail works)</li>
+                  <li>Click <strong style={{ color: 'white' }}>"Create API key"</strong></li>
+                  <li>Select any Google Cloud project (or create one — it's free)</li>
+                  <li>Copy the generated key (starts with <code style={{ background: 'rgba(255,255,255,0.08)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.75rem' }}>AIza...</code>)</li>
+                  <li>Paste it into <button onClick={() => setActiveTab('settings')} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer', fontWeight: 600 }}>Settings → Gemini API Key</button></li>
+                </ol>
+              </div>
+              <div style={{ marginTop: '0.75rem', padding: '0.625rem 0.75rem', background: 'rgba(16,185,129,0.06)', borderRadius: 8, border: '1px solid rgba(16,185,129,0.15)' }}>
+                <p style={{ fontSize: '0.75rem', color: '#34d399', display: 'flex', alignItems: 'flex-start', gap: '0.375rem' }}>
+                  <Info size={14} style={{ marginTop: 1, flexShrink: 0 }} />
+                  <span><strong>Free tier:</strong> Gemini offers 60 requests/minute for free, which is more than enough for most small businesses. No credit card needed.</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2: Connect Facebook */}
+            <div className="sai-card" style={{ marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.75rem' }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #1877f2, #0a5dc2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8125rem', fontWeight: 800, color: 'white', flexShrink: 0 }}>2</div>
+                <h3 style={{ fontWeight: 700, color: 'white', fontSize: '1rem' }}>Connect Your Facebook Business Page</h3>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.7, marginBottom: '0.75rem' }}>
+                Connecting your Facebook page lets SocialAI pull live follower counts, reach, engagement stats, and your recent posts directly into the Command Center.
+              </p>
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '1rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#fcd34d', marginBottom: '0.5rem' }}>How to get your Page ID:</h4>
+                <ol style={{ margin: '0 0 1rem 0', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.6 }}>
+                  <li>Open your Facebook Business Page</li>
+                  <li>Go to <strong style={{ color: 'white' }}>Settings → Page transparency</strong> or check the page's URL</li>
+                  <li>The Page ID is the number in the URL (e.g. <code style={{ background: 'rgba(255,255,255,0.08)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.75rem' }}>facebook.com/123456789</code>)</li>
+                  <li>Or use the <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" style={{ color: '#1877f2', fontWeight: 600 }}>Graph API Explorer <ExternalLink size={10} style={{ display: 'inline' }} /></a> — query <code style={{ background: 'rgba(255,255,255,0.08)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.75rem' }}>me/accounts</code> to list your pages with their IDs</li>
+                </ol>
+
+                <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#fcd34d', marginBottom: '0.5rem' }}>How to get your Page Access Token:</h4>
+                <ol style={{ margin: 0, paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.6 }}>
+                  <li>Go to <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener noreferrer" style={{ color: '#1877f2', fontWeight: 600 }}>Meta for Developers <ExternalLink size={10} style={{ display: 'inline' }} /></a> and create a developer account (free)</li>
+                  <li>Create a new app (type: <strong style={{ color: 'white' }}>Business</strong>)</li>
+                  <li>Add the <strong style={{ color: 'white' }}>Facebook Login</strong> product to your app</li>
+                  <li>Go to <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" style={{ color: '#1877f2', fontWeight: 600 }}>Graph API Explorer <ExternalLink size={10} style={{ display: 'inline' }} /></a></li>
+                  <li>Select your app, then click <strong style={{ color: 'white' }}>"Get User Access Token"</strong></li>
+                  <li>Enable permissions: <code style={{ background: 'rgba(255,255,255,0.08)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.75rem' }}>pages_show_list</code>, <code style={{ background: 'rgba(255,255,255,0.08)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.75rem' }}>pages_read_engagement</code>, <code style={{ background: 'rgba(255,255,255,0.08)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.75rem' }}>pages_read_user_content</code>, <code style={{ background: 'rgba(255,255,255,0.08)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.75rem' }}>read_insights</code></li>
+                  <li>Generate the token, then query <code style={{ background: 'rgba(255,255,255,0.08)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.75rem' }}>me/accounts</code></li>
+                  <li>Copy the <strong style={{ color: 'white' }}>Page Access Token</strong> (not the User token) from the response</li>
+                </ol>
+              </div>
+              <div style={{ marginTop: '0.75rem', padding: '0.625rem 0.75rem', background: 'rgba(245,158,11,0.06)', borderRadius: 8, border: '1px solid rgba(245,158,11,0.15)' }}>
+                <p style={{ fontSize: '0.75rem', color: '#fbbf24', display: 'flex', alignItems: 'flex-start', gap: '0.375rem' }}>
+                  <AlertCircle size={14} style={{ marginTop: 1, flexShrink: 0 }} />
+                  <span><strong>Tip:</strong> For a long-lived token (60 days+), use the <a href="https://developers.facebook.com/tools/accesstoken/" target="_blank" rel="noopener noreferrer" style={{ color: '#f59e0b' }}>Access Token Debugger</a> to extend your token. Short-lived tokens expire in ~1 hour.</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3: Instagram */}
+            <div className="sai-card" style={{ marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.75rem' }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #e1306c, #833ab4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8125rem', fontWeight: 800, color: 'white', flexShrink: 0 }}>3</div>
+                <h3 style={{ fontWeight: 700, color: 'white', fontSize: '1rem' }}>Instagram (Auto-Linked)</h3>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.7, marginBottom: '0.75rem' }}>
+                Instagram Business/Creator accounts that are linked to a Facebook Page are <strong style={{ color: 'white' }}>automatically detected</strong> when you connect Facebook. No extra setup needed!
+              </p>
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '1rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#fcd34d', marginBottom: '0.5rem' }}>If Instagram isn't linking:</h4>
+                <ol style={{ margin: 0, paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.6 }}>
+                  <li>Make sure you have an <strong style={{ color: 'white' }}>Instagram Business</strong> or <strong style={{ color: 'white' }}>Creator</strong> account (not Personal)</li>
+                  <li>Go to Instagram → Settings → Account → <strong style={{ color: 'white' }}>Linked Accounts</strong> → Facebook</li>
+                  <li>Link your Instagram account to your Facebook Page</li>
+                  <li>Come back here and re-connect your Facebook Page — Instagram will be detected automatically</li>
+                </ol>
+              </div>
+              <div style={{ marginTop: '0.75rem' }}>
+                <a href="https://help.instagram.com/502981923235522" target="_blank" rel="noopener noreferrer" style={{ color: '#e1306c', fontSize: '0.8125rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  Instagram Business Account setup guide <ExternalLink size={12} />
+                </a>
+              </div>
+            </div>
+
+            {/* Step 4: Using the App */}
+            <div className="sai-card" style={{ marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.75rem' }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #34d399, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8125rem', fontWeight: 800, color: '#000', flexShrink: 0 }}>4</div>
+                <h3 style={{ fontWeight: 700, color: 'white', fontSize: '1rem' }}>How to Use SocialAI Studio</h3>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                {[
+                  { icon: Monitor, title: 'Command Center', desc: 'Your dashboard — see live stats, generate content, get AI strategy recommendations, and view recent posts from your pages.', color: '#f59e0b' },
+                  { icon: Wand2, title: 'Create', desc: 'Generate AI-powered social media posts. Pick a platform, enter a topic, and let AI write captions with hashtags.', color: '#fcd34d' },
+                  { icon: Calendar, title: 'Calendar', desc: 'View and manage all your scheduled posts. Delete or edit posts before they go live.', color: '#8b5cf6' },
+                  { icon: Brain, title: 'Smart AI', desc: 'Auto-generate a full content plan for the next 2 weeks. AI picks the best platforms, times, and topics.', color: '#a855f7' },
+                  { icon: BarChart3, title: 'Insights', desc: 'Get AI-powered recommendations on how to improve your social media strategy based on your current metrics.', color: '#10b981' },
+                  { icon: Palette, title: 'Branding', desc: 'White-label your SocialAI dashboard with your own brand name, logo, colours, and tagline.', color: '#ec4899' }
+                ].map((item, i) => (
+                  <div key={i} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.375rem' }}>
+                      <item.icon size={14} style={{ color: item.color }} />
+                      <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'white' }}>{item.title}</span>
+                    </div>
+                    <p style={{ fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.5, margin: 0 }}>{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* FAQ */}
+            <div className="sai-card">
+              <h3 style={{ fontWeight: 700, color: 'white', marginBottom: '0.75rem', fontSize: '0.9375rem' }}>Frequently Asked Questions</h3>
+              {[
+                { q: 'Is the Gemini API key really free?', a: 'Yes! Google provides a generous free tier for Gemini. For most small businesses, you\'ll never need to pay. You get 60 requests per minute and 1,500 requests per day for free.' },
+                { q: 'Will SocialAI post directly to Facebook/Instagram?', a: 'Currently SocialAI helps you create, schedule, and plan content. Direct posting via the Facebook API requires app review by Meta. For now, you can copy and paste generated content to your pages.' },
+                { q: 'Why do I need a Facebook Developer account?', a: 'The Page Access Token is needed to read your page\'s stats and posts. It\'s free to create a developer account and app on Meta for Developers.' },
+                { q: 'What if I don\'t connect Facebook?', a: 'You can still use all AI features! The Command Center will show manual stats instead. You can enter follower/reach numbers manually in the Insights tab.' },
+                { q: 'How do I upgrade my plan?', a: 'Go to Settings → Subscription and click "Upgrade Plan". The Professional plan unlocks Smart AI and Branding. Enterprise adds custom domains and priority support.' }
+              ].map((faq, i) => (
+                <div key={i} style={{ padding: '0.75rem 0', borderBottom: i < 4 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                  <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#fcd34d', marginBottom: '0.25rem' }}>{faq.q}</h4>
+                  <p style={{ fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.5, margin: 0 }}>{faq.a}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Support link */}
+            <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+              <p style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.5rem' }}>Still need help?</p>
+              <Link to="/tickets" style={{ color: '#f59e0b', fontSize: '0.8125rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                Open a Support Ticket <ChevronRight size={14} />
+              </Link>
+            </div>
           </div>
         )}
       </div>

@@ -1,4 +1,5 @@
 const express = require('express');
+const fetch = require('node-fetch');
 const SocialPost = require('../models/SocialPost');
 const SocialProfile = require('../models/SocialProfile');
 const { auth, staffOrAdmin, adminOnly } = require('../middleware/auth');
@@ -412,6 +413,238 @@ router.put('/admin/profile/:userId', auth, adminOnly, async (req, res) => {
     res.json(profile);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// ── Facebook / Instagram Integration ──
+
+const FB_GRAPH = 'https://graph.facebook.com/v19.0';
+
+// Connect Facebook Page — save page access token + page ID
+router.post('/facebook/connect', auth, async (req, res) => {
+  try {
+    const { pageId, pageAccessToken } = req.body;
+    if (!pageId || !pageAccessToken) {
+      return res.status(400).json({ message: 'Page ID and Page Access Token are required.' });
+    }
+
+    // Verify the token works by calling the page endpoint
+    const verifyRes = await fetch(`${FB_GRAPH}/${pageId}?fields=name,fan_count,picture&access_token=${pageAccessToken}`);
+    const pageData = await verifyRes.json();
+    if (pageData.error) {
+      return res.status(400).json({ message: `Facebook error: ${pageData.error.message}` });
+    }
+
+    // Check for linked Instagram Business Account
+    const igRes = await fetch(`${FB_GRAPH}/${pageId}?fields=instagram_business_account&access_token=${pageAccessToken}`);
+    const igData = await igRes.json();
+    const igId = igData?.instagram_business_account?.id || '';
+
+    const profile = await SocialProfile.findOneAndUpdate(
+      { user: req.user._id },
+      {
+        facebookPageId: pageId,
+        facebookPageAccessToken: pageAccessToken,
+        facebookConnected: true,
+        instagramBusinessAccountId: igId
+      },
+      { new: true, upsert: true }
+    );
+
+    res.json({
+      message: `Connected to "${pageData.name}"${igId ? ' + Instagram Business linked' : ''}`,
+      pageName: pageData.name,
+      pageFollowers: pageData.fan_count,
+      pagePicture: pageData.picture?.data?.url,
+      instagramConnected: !!igId,
+      instagramId: igId,
+      profile
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to connect Facebook page', error: err.message });
+  }
+});
+
+// Disconnect Facebook Page
+router.post('/facebook/disconnect', auth, async (req, res) => {
+  try {
+    const profile = await SocialProfile.findOneAndUpdate(
+      { user: req.user._id },
+      {
+        facebookPageId: '',
+        facebookPageAccessToken: '',
+        facebookConnected: false,
+        instagramBusinessAccountId: ''
+      },
+      { new: true }
+    );
+    res.json({ message: 'Facebook page disconnected', profile });
+  } catch (err) {
+    res.status(500).json({ message: 'Disconnect failed', error: err.message });
+  }
+});
+
+// Fetch live stats from Facebook Page + Instagram
+router.get('/facebook/stats', auth, async (req, res) => {
+  try {
+    const profile = await SocialProfile.findOne({ user: req.user._id });
+    if (!profile?.facebookConnected || !profile?.facebookPageAccessToken) {
+      return res.status(400).json({ message: 'Facebook not connected' });
+    }
+
+    const token = profile.facebookPageAccessToken;
+    const pageId = profile.facebookPageId;
+
+    // Page info + fan count
+    const pageRes = await fetch(`${FB_GRAPH}/${pageId}?fields=name,fan_count,picture,followers_count&access_token=${token}`);
+    const pageData = await pageRes.json();
+    if (pageData.error) return res.status(400).json({ message: pageData.error.message });
+
+    // Page insights (28-day reach + engagement)
+    let reach = 0, engagement = 0, impressions = 0;
+    try {
+      const insightsRes = await fetch(
+        `${FB_GRAPH}/${pageId}/insights?metric=page_impressions_unique,page_post_engagements,page_impressions&period=days_28&access_token=${token}`
+      );
+      const insightsData = await insightsRes.json();
+      if (insightsData.data) {
+        for (const metric of insightsData.data) {
+          const val = metric.values?.[metric.values.length - 1]?.value || 0;
+          if (metric.name === 'page_impressions_unique') reach = val;
+          if (metric.name === 'page_post_engagements') engagement = val;
+          if (metric.name === 'page_impressions') impressions = val;
+        }
+      }
+    } catch (e) { /* insights may not be available for all pages */ }
+
+    // Recent posts count (last 30 days)
+    let recentPostCount = 0;
+    try {
+      const postsRes = await fetch(
+        `${FB_GRAPH}/${pageId}/posts?fields=id&since=${Math.floor(Date.now() / 1000) - 30 * 86400}&access_token=${token}`
+      );
+      const postsData = await postsRes.json();
+      recentPostCount = postsData.data?.length || 0;
+    } catch (e) {}
+
+    // Instagram stats if linked
+    let igStats = null;
+    if (profile.instagramBusinessAccountId) {
+      try {
+        const igRes = await fetch(
+          `${FB_GRAPH}/${profile.instagramBusinessAccountId}?fields=followers_count,media_count,username,profile_picture_url&access_token=${token}`
+        );
+        const igData = await igRes.json();
+        if (!igData.error) {
+          igStats = {
+            followers: igData.followers_count,
+            mediaCount: igData.media_count,
+            username: igData.username,
+            profilePicture: igData.profile_picture_url
+          };
+        }
+      } catch (e) {}
+    }
+
+    const followers = pageData.fan_count || pageData.followers_count || 0;
+    const engagementRate = impressions > 0 ? ((engagement / impressions) * 100).toFixed(1) : 0;
+
+    // Update stored stats
+    await SocialProfile.findOneAndUpdate(
+      { user: req.user._id },
+      {
+        'stats.followers': followers,
+        'stats.reach': reach,
+        'stats.engagement': parseFloat(engagementRate),
+        'stats.postsLast30Days': recentPostCount
+      }
+    );
+
+    res.json({
+      page: {
+        name: pageData.name,
+        picture: pageData.picture?.data?.url,
+        followers,
+        reach,
+        engagement,
+        engagementRate: parseFloat(engagementRate),
+        impressions,
+        postsLast30Days: recentPostCount
+      },
+      instagram: igStats
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch stats', error: err.message });
+  }
+});
+
+// Fetch recent Facebook Page posts
+router.get('/facebook/posts', auth, async (req, res) => {
+  try {
+    const profile = await SocialProfile.findOne({ user: req.user._id });
+    if (!profile?.facebookConnected || !profile?.facebookPageAccessToken) {
+      return res.status(400).json({ message: 'Facebook not connected' });
+    }
+
+    const token = profile.facebookPageAccessToken;
+    const pageId = profile.facebookPageId;
+    const limit = req.query.limit || 10;
+
+    const postsRes = await fetch(
+      `${FB_GRAPH}/${pageId}/posts?fields=id,message,created_time,full_picture,permalink_url,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=${limit}&access_token=${token}`
+    );
+    const postsData = await postsRes.json();
+    if (postsData.error) return res.status(400).json({ message: postsData.error.message });
+
+    const posts = (postsData.data || []).map(p => ({
+      id: p.id,
+      message: p.message || '',
+      createdTime: p.created_time,
+      image: p.full_picture || null,
+      permalink: p.permalink_url,
+      likes: p.likes?.summary?.total_count || 0,
+      comments: p.comments?.summary?.total_count || 0,
+      shares: p.shares?.count || 0
+    }));
+
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch posts', error: err.message });
+  }
+});
+
+// Fetch recent Instagram posts (if linked)
+router.get('/instagram/posts', auth, async (req, res) => {
+  try {
+    const profile = await SocialProfile.findOne({ user: req.user._id });
+    if (!profile?.instagramBusinessAccountId || !profile?.facebookPageAccessToken) {
+      return res.status(400).json({ message: 'Instagram not connected' });
+    }
+
+    const token = profile.facebookPageAccessToken;
+    const igId = profile.instagramBusinessAccountId;
+    const limit = req.query.limit || 10;
+
+    const mediaRes = await fetch(
+      `${FB_GRAPH}/${igId}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=${limit}&access_token=${token}`
+    );
+    const mediaData = await mediaRes.json();
+    if (mediaData.error) return res.status(400).json({ message: mediaData.error.message });
+
+    const posts = (mediaData.data || []).map(p => ({
+      id: p.id,
+      caption: p.caption || '',
+      mediaType: p.media_type,
+      mediaUrl: p.media_url || p.thumbnail_url,
+      permalink: p.permalink,
+      timestamp: p.timestamp,
+      likes: p.like_count || 0,
+      comments: p.comments_count || 0
+    }));
+
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch Instagram posts', error: err.message });
   }
 });
 
