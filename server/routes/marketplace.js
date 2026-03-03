@@ -343,6 +343,48 @@ router.post('/admin/seed', auth, adminOnly, async (req, res) => {
           }
         ],
         displayOrder: 2
+      },
+      {
+        slug: 'autohue',
+        name: 'AutoHue',
+        shortDescription: 'AI-powered car photo colour sorter. Upload vehicle photos and let AI detect cars, identify colours, and sort them into organised folders instantly.',
+        fullDescription: 'AutoHue uses YOLOv8 neural networks and K-means colour clustering to automatically detect vehicles in photos, extract the dominant colour, and sort images into 11 colour-coded folders. Perfect for car dealerships, automotive photographers, and auction houses who need to organise thousands of vehicle photos quickly. Upload in bulk, download sorted results as a ZIP. White-label it with your own branding for your business or clients.',
+        icon: 'palette',
+        category: 'automotive',
+        routePath: '/autohue',
+        features: ['AI Car Detection (YOLOv8)', 'Dominant Colour Extraction', '11 Colour Categories', 'Bulk Photo Upload', 'Automatic Folder Sorting', 'ZIP Download Export', 'Real-Time Processing Status', 'White-Label Branding', 'API Access'],
+        techStack: ['YOLOv8', 'PyTorch', 'OpenCV', 'K-Means Clustering', 'React', 'Vercel'],
+        plans: [
+          {
+            key: 'starter',
+            name: 'Starter',
+            price: 29,
+            features: ['Up to 500 Photos/Month', 'AI Car Detection', '11 Colour Categories', 'ZIP Export', 'Email Support'],
+            color: '#06b6d4',
+            whiteLabel: false,
+            customDomain: false
+          },
+          {
+            key: 'professional',
+            name: 'Professional',
+            price: 69,
+            features: ['Everything in Starter', 'Unlimited Photos', 'API Access', 'Batch Processing', 'White-Label Branding', 'Priority Processing'],
+            popular: true,
+            color: '#f59e0b',
+            whiteLabel: true,
+            customDomain: false
+          },
+          {
+            key: 'enterprise',
+            name: 'Enterprise',
+            price: 149,
+            features: ['Everything in Professional', 'Custom Domain', 'Custom Colour Categories', 'Dedicated Support', 'SLA-Backed Uptime', 'Multi-User Access'],
+            color: '#a855f7',
+            whiteLabel: true,
+            customDomain: true
+          }
+        ],
+        displayOrder: 3
       }
     ];
 

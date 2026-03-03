@@ -1,12 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
   Palette, Camera, Cpu, Download, Upload, FolderOpen,
-  CheckCircle, ArrowRight, Zap, ExternalLink, Car, Eye, Layers
+  CheckCircle, ArrowRight, Zap, ExternalLink, Car, Eye, Layers, Star, Shield
 } from 'lucide-react';
 import './AutoHue.css';
 
 const AutoHue = () => {
+  const { user } = useAuth();
+
   const colorCategories = [
     { name: 'Red', colors: 'Maroon, Burgundy, Crimson', hex: '#dc2626' },
     { name: 'Blue', colors: 'Navy, Royal, Sky', hex: '#2563eb' },
@@ -21,31 +24,95 @@ const AutoHue = () => {
     { name: 'Metallic', colors: 'Chrome, Steel, Aluminum', hex: '#94a3b8' }
   ];
 
+  const plans = [
+    {
+      name: 'Starter',
+      price: 29,
+      period: '/mo',
+      description: 'Perfect for small dealerships and individual photographers getting started.',
+      features: [
+        'Up to 500 Photos/Month',
+        'AI Car Detection (YOLOv8)',
+        '11 Colour Categories',
+        'ZIP Export',
+        'Real-Time Processing',
+        'Email Support'
+      ],
+      cta: 'Start Free Trial',
+      highlight: false
+    },
+    {
+      name: 'Professional',
+      price: 69,
+      period: '/mo',
+      description: 'For busy dealerships and photographers who need unlimited processing and branding.',
+      features: [
+        'Everything in Starter',
+        'Unlimited Photos',
+        'API Access',
+        'Batch Processing',
+        'White-Label Branding',
+        'Priority Processing Queue',
+        'Custom Export Formats',
+        'Priority Support'
+      ],
+      cta: 'Get Started',
+      highlight: true
+    },
+    {
+      name: 'Enterprise',
+      price: 149,
+      period: '/mo',
+      description: 'For auction houses and large operations with custom requirements.',
+      features: [
+        'Everything in Professional',
+        'Custom Domain',
+        'Custom Colour Categories',
+        'Multi-User Access',
+        'Dedicated Support',
+        'SLA-Backed Uptime',
+        'Advanced Analytics',
+        'Dedicated Account Manager'
+      ],
+      cta: 'Contact Sales',
+      highlight: false
+    }
+  ];
+
   return (
     <div className="autohue-page">
       {/* Hero */}
       <section className="ah-hero">
         <div className="container">
           <div className="ah-hero-badge">
-            <Palette size={14} /> FREE TOOL
+            <Palette size={14} /> WHITE-LABEL PLATFORM
           </div>
           <h1>AutoHue</h1>
           <p className="ah-hero-sub">
-            AI-powered car photo color sorter. Upload your vehicle photos and let AI automatically
-            detect cars, identify colours, and sort them into organised folders.
+            AI-powered car photo colour sorter. Upload vehicle photos and let AI automatically
+            detect cars, identify colours, and sort them into organised folders — branded as yours.
           </p>
           <div className="ah-hero-actions">
-            <a href="https://autohue.vercel.app" target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-lg">
-              Launch AutoHue <ExternalLink size={18} />
-            </a>
-            <a href="#how-it-works" className="btn btn-outline btn-lg" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>
-              How It Works
-            </a>
+            {user ? (
+              <Link to="/marketplace" className="btn btn-primary btn-lg">
+                <Palette size={18} /> Subscribe in Marketplace
+              </Link>
+            ) : (
+              <>
+                <Link to="/register" className="btn btn-primary btn-lg">
+                  Start Free Trial <ArrowRight size={18} />
+                </Link>
+                <a href="#pricing" className="btn btn-outline btn-lg" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>
+                  View Pricing
+                </a>
+              </>
+            )}
           </div>
           <div className="ah-hero-stats">
             <div><strong>YOLOv8 AI</strong><span>Car Detection</span></div>
             <div><strong>11 Colours</strong><span>Auto-Sorted</span></div>
-            <div><strong>100% Free</strong><span>No Account Needed</span></div>
+            <div><strong>Bulk Upload</strong><span>Unlimited on Pro</span></div>
+            <div><strong>White-Label</strong><span>Your Brand</span></div>
           </div>
         </div>
       </section>
@@ -53,8 +120,8 @@ const AutoHue = () => {
       {/* Features */}
       <section className="ah-features">
         <div className="container">
-          <h2 className="section-heading">Powerful Features, Zero Cost</h2>
-          <p className="section-sub">Built with enterprise-grade AI, available for free.</p>
+          <h2 className="section-heading">Powerful Features</h2>
+          <p className="section-sub">Enterprise-grade AI for automotive photo management.</p>
 
           <div className="ah-features-grid">
             <div className="ah-feature-card">
@@ -166,6 +233,40 @@ const AutoHue = () => {
         </div>
       </section>
 
+      {/* Pricing */}
+      <section className="ah-pricing" id="pricing">
+        <div className="container">
+          <h2 className="section-heading">Simple, Transparent Pricing</h2>
+          <p className="section-sub">Choose the plan that fits your business. Upgrade or cancel anytime.</p>
+
+          <div className="ah-pricing-grid">
+            {plans.map((plan, i) => {
+              const PlanIcon = plan.highlight ? Star : i === 2 ? Shield : Zap;
+              return (
+                <div key={i} className={`ah-pricing-card ${plan.highlight ? 'ah-pricing-highlight' : ''}`}>
+                  {plan.highlight && <div className="ah-pricing-badge">MOST POPULAR</div>}
+                  <PlanIcon size={24} style={{ color: plan.highlight ? '#f59e0b' : i === 2 ? '#a855f7' : '#06b6d4', marginBottom: '0.5rem' }} />
+                  <h3>{plan.name}</h3>
+                  <div className="ah-pricing-price">
+                    <span className="ah-pricing-amount">${plan.price}</span>
+                    <span className="ah-pricing-period">{plan.period}</span>
+                  </div>
+                  <p className="ah-pricing-desc">{plan.description}</p>
+                  <ul className="ah-pricing-features">
+                    {plan.features.map((f, j) => (
+                      <li key={j}><CheckCircle size={14} /> {f}</li>
+                    ))}
+                  </ul>
+                  <Link to={user ? '/marketplace' : '/register'} className={`btn ${plan.highlight ? 'btn-primary' : 'btn-outline'} btn-lg`} style={{ width: '100%' }}>
+                    {plan.cta} <ArrowRight size={16} />
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* Tech Stack */}
       <section className="ah-tech">
         <div className="container">
@@ -189,12 +290,6 @@ const AutoHue = () => {
                 <span>Machine Learning</span>
               </div>
             </div>
-            <p style={{ color: '#c4b5fd', marginTop: '1.5rem', fontSize: '0.9rem' }}>
-              Open source under MIT License.
-              <a href="https://github.com/3dhuboz/autohue" target="_blank" rel="noopener noreferrer" style={{ color: '#fcd34d', marginLeft: '0.5rem' }}>
-                View on GitHub <ExternalLink size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />
-              </a>
-            </p>
           </div>
         </div>
       </section>
@@ -204,10 +299,10 @@ const AutoHue = () => {
         <div className="container">
           <Palette size={40} style={{ color: '#06b6d4', marginBottom: '1rem' }} />
           <h2>Ready to Sort Your Car Photos?</h2>
-          <p>Free to use. No sign-up required. Just upload and go.</p>
-          <a href="https://autohue.vercel.app" target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-lg">
-            Launch AutoHue <ExternalLink size={18} />
-          </a>
+          <p>Subscribe today and start organising your vehicle inventory in minutes, not hours.</p>
+          <Link to={user ? '/marketplace' : '/register'} className="btn btn-primary btn-lg">
+            {user ? 'Go to Marketplace' : 'Start Free Trial'} <ArrowRight size={18} />
+          </Link>
         </div>
       </section>
     </div>
