@@ -28,6 +28,7 @@ import Marketplace from './pages/Marketplace';
 import MyApps from './pages/MyApps';
 import AdminApps from './pages/AdminApps';
 import FoodTrucProduct from './pages/FoodTrucProduct';
+import AdminInvoices from './pages/AdminInvoices';
 import PennyAgent from './components/PennyAgent';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
@@ -70,6 +71,7 @@ const AppRoutes = () => {
       <Route path="/admin/siteground" element={<ProtectedRoute adminOnly><AdminSiteGround /></ProtectedRoute>} />
       <Route path="/admin/social" element={<ProtectedRoute adminOnly><AdminSocial /></ProtectedRoute>} />
       <Route path="/admin/apps" element={<ProtectedRoute adminOnly><AdminApps /></ProtectedRoute>} />
+      <Route path="/admin/invoices" element={<ProtectedRoute adminOnly><AdminInvoices /></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

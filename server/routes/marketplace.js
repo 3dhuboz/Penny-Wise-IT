@@ -465,10 +465,11 @@ router.get('/admin/subscriptions', auth, adminOnly, async (req, res) => {
     const query = {};
     if (req.query.status) query.status = req.query.status;
     if (req.query.appId) query.app = req.query.appId;
+    if (req.query.userId) query.user = req.query.userId;
 
     const subs = await AppSubscription.find(query)
       .populate('user', 'firstName lastName email company')
-      .populate('app', 'name slug icon')
+      .populate('app', 'name slug icon setupFee')
       .sort('-createdAt');
     res.json(subs);
   } catch (err) {

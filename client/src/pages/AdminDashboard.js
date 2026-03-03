@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Ticket, Workflow, Globe, Server, Settings, AlertCircle, TrendingUp, ArrowRight, Sparkles, Store } from 'lucide-react';
+import { Users, Ticket, Workflow, Globe, Server, Settings, AlertCircle, TrendingUp, ArrowRight, Sparkles, Store, FileText } from 'lucide-react';
 import api from '../api';
 import './Admin.css';
 
@@ -67,6 +67,11 @@ const AdminDashboard = () => {
             <Store size={24} />
             <h3>App Marketplace</h3>
             <p>Apps, subscriptions & white-label</p>
+          </Link>
+          <Link to="/admin/invoices" className="admin-nav-card card">
+            <FileText size={24} />
+            <h3>Invoicing</h3>
+            <p>Create & send invoices via Square</p>
           </Link>
           <Link to="/tickets" className="admin-nav-card card">
             <Ticket size={24} />

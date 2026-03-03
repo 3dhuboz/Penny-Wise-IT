@@ -144,6 +144,7 @@ app.use('/api/siteground', require('./routes/siteground'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/social', require('./routes/social'));
 app.use('/api/marketplace', require('./routes/marketplace'));
+app.use('/api/invoices', require('./routes/invoices'));
 
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {
