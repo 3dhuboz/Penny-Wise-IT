@@ -15,7 +15,7 @@ const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://pennywiseit.com.au', 'https://www.pennywiseit.com.au']
+    ? ['https://pennywiseit.com.au', 'https://www.pennywiseit.com.au', /\.vercel\.app$/]
     : 'http://localhost:3000',
   credentials: true
 }));
@@ -131,16 +131,17 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!', error: process.env.NODE_ENV === 'development' ? err.message : undefined });
 });
 
-// In production on SiteGround, Phusion Passenger binds the port.
-// Only call listen() when running standalone (dev or non-Passenger).
-if (typeof(PhusionPassenger) === 'undefined') {
+// Vercel: export only, no listen(). Passenger: use passenger socket. Otherwise: normal listen.
+if (process.env.VERCEL) {
+  // Vercel serverless — do not call listen()
+} else if (typeof(PhusionPassenger) !== 'undefined') {
+  app.listen('passenger');
+  console.log('Penny Wise I.T running via Phusion Passenger');
+} else {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Penny Wise I.T server running on port ${PORT}`);
   });
-} else {
-  app.listen('passenger');
-  console.log('Penny Wise I.T running via Phusion Passenger');
 }
 
 module.exports = app;
