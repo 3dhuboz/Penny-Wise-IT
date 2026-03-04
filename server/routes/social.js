@@ -201,14 +201,13 @@ router.post('/ai/smart-schedule', auth, async (req, res) => {
   }
 });
 
-// Insights - recommendations
+// Insights - recommendations (with 25s timeout to avoid Render's 30s limit)
 router.post('/ai/recommendations', auth, async (req, res) => {
   try {
     const profile = await SocialProfile.findOne({ user: req.user._id });
     if (!profile?.geminiApiKey) {
       return res.status(400).json({ message: 'Gemini API key not configured.' });
     }
-    // Ensure stats is a plain object with safe defaults
     const stats = {
       followers: profile.stats?.followers ?? 500,
       reach: profile.stats?.reach ?? 2000,
@@ -216,13 +215,19 @@ router.post('/ai/recommendations', auth, async (req, res) => {
       postsLast30Days: profile.stats?.postsLast30Days ?? 8
     };
     console.log('[Insights] Analyzing for:', profile.businessName, '| stats:', stats);
-    const [recs, times] = await Promise.all([
-      generateRecommendations(profile.geminiApiKey, profile.businessName, profile.businessType, stats),
-      analyzePostTimes(profile.geminiApiKey, profile.businessType, profile.location || 'Australia')
+
+    // Run with 25s timeout to stay under Render's 30s request limit
+    const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Analysis timed out — Gemini API was too slow. Please try again.')), ms));
+    const [recs, times] = await Promise.race([
+      Promise.all([
+        generateRecommendations(profile.geminiApiKey, profile.businessName, profile.businessType, stats),
+        analyzePostTimes(profile.geminiApiKey, profile.businessType, profile.location || 'Australia')
+      ]),
+      timeout(25000)
     ]);
     res.json({ recommendations: recs, bestTimes: times });
   } catch (err) {
-    console.error('[Insights] Route error:', err);
+    console.error('[Insights] Route error:', err?.message || err);
     res.status(500).json({ message: 'Analysis failed', error: err.message });
   }
 });
