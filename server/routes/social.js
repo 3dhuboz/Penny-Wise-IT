@@ -201,8 +201,9 @@ router.post('/ai/image', auth, async (req, res) => {
   }
 });
 
-// Smart schedule — research-driven AI engine
+// Smart schedule — research-driven AI engine (25s timeout to stay under Render's 30s limit)
 router.post('/ai/smart-schedule', auth, async (req, res) => {
+  let timer;
   try {
     const { count } = req.body;
     const profile = await SocialProfile.findOne({ user: req.user._id });
@@ -216,88 +217,82 @@ router.post('/ai/smart-schedule', auth, async (req, res) => {
       postsLast30Days: profile.stats?.postsLast30Days ?? 0
     };
 
-    // ── RESEARCH PHASE: Gather real data for the AI ──
-    let pastFbPosts = [], pastIgPosts = [], scheduledPosts = [];
+    // 25s timeout for the entire operation (research + AI)
+    const timeoutPromise = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error('Smart schedule timed out — the AI took too long. Please try again.')), 25000);
+    });
 
-    // 1. Fetch real Facebook post history with engagement metrics
-    if (profile.facebookConnected && profile.facebookPageAccessToken) {
-      try {
+    const work = async () => {
+      // ── RESEARCH PHASE: Gather real data in PARALLEL ──
+      let pastFbPosts = [], pastIgPosts = [], scheduledPosts = [];
+      const researchPromises = [];
+
+      if (profile.facebookConnected && profile.facebookPageAccessToken) {
         const token = profile.facebookPageAccessToken;
-        const pageId = profile.facebookPageId;
-        const fbRes = await fetch(
-          `${FB_GRAPH}/${pageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=25&access_token=${token}`
+        // FB posts
+        researchPromises.push(
+          fetch(`${FB_GRAPH}/${profile.facebookPageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=25&access_token=${token}`)
+            .then(r => r.json())
+            .then(d => { if (d.data) pastFbPosts = d.data.map(p => ({
+              message: (p.message || '').substring(0, 200), date: p.created_time,
+              day: new Date(p.created_time).toLocaleDateString('en-AU', { weekday: 'long' }),
+              time: new Date(p.created_time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
+              likes: p.likes?.summary?.total_count || 0, comments: p.comments?.summary?.total_count || 0,
+              shares: p.shares?.count || 0,
+              engagement: (p.likes?.summary?.total_count || 0) + (p.comments?.summary?.total_count || 0) * 3 + (p.shares?.count || 0) * 5
+            })); })
+            .catch(() => {})
         );
-        const fbData = await fbRes.json();
-        if (fbData.data) {
-          pastFbPosts = fbData.data.map(p => ({
-            message: (p.message || '').substring(0, 200),
-            date: p.created_time,
-            day: new Date(p.created_time).toLocaleDateString('en-AU', { weekday: 'long' }),
-            time: new Date(p.created_time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
-            likes: p.likes?.summary?.total_count || 0,
-            comments: p.comments?.summary?.total_count || 0,
-            shares: p.shares?.count || 0,
-            engagement: (p.likes?.summary?.total_count || 0) + (p.comments?.summary?.total_count || 0) * 3 + (p.shares?.count || 0) * 5
-          }));
-        }
-      } catch (e) { console.log('[Research] FB posts fetch failed:', e.message); }
-
-      // 2. Fetch real Instagram post history with engagement
-      if (profile.instagramBusinessAccountId) {
-        try {
-          const token = profile.facebookPageAccessToken;
-          const igRes = await fetch(
-            `${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count,media_type&limit=25&access_token=${token}`
+        // IG posts
+        if (profile.instagramBusinessAccountId) {
+          researchPromises.push(
+            fetch(`${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count,media_type&limit=25&access_token=${token}`)
+              .then(r => r.json())
+              .then(d => { if (d.data) pastIgPosts = d.data.map(p => ({
+                caption: (p.caption || '').substring(0, 200), date: p.timestamp,
+                day: new Date(p.timestamp).toLocaleDateString('en-AU', { weekday: 'long' }),
+                time: new Date(p.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                likes: p.like_count || 0, comments: p.comments_count || 0, mediaType: p.media_type,
+                engagement: (p.like_count || 0) + (p.comments_count || 0) * 3
+              })); })
+              .catch(() => {})
           );
-          const igData = await igRes.json();
-          if (igData.data) {
-            pastIgPosts = igData.data.map(p => ({
-              caption: (p.caption || '').substring(0, 200),
-              date: p.timestamp,
-              day: new Date(p.timestamp).toLocaleDateString('en-AU', { weekday: 'long' }),
-              time: new Date(p.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
-              likes: p.like_count || 0,
-              comments: p.comments_count || 0,
-              mediaType: p.media_type,
-              engagement: (p.like_count || 0) + (p.comments_count || 0) * 3
-            }));
-          }
-        } catch (e) { console.log('[Research] IG posts fetch failed:', e.message); }
+        }
       }
-    }
+      // Scheduled posts from DB
+      researchPromises.push(
+        SocialPost.find({ user: req.user._id, scheduledFor: { $gte: new Date() } }).sort('scheduledFor').lean()
+          .then(posts => { scheduledPosts = posts.map(p => ({
+            platform: p.platform, topic: p.topic || '', pillar: p.pillar || '',
+            scheduledFor: p.scheduledFor,
+            day: new Date(p.scheduledFor).toLocaleDateString('en-AU', { weekday: 'long' }),
+            status: p.status
+          })); })
+          .catch(() => {})
+      );
 
-    // 3. Fetch existing scheduled/draft posts from our DB
-    try {
-      scheduledPosts = await SocialPost.find({
-        user: req.user._id,
-        scheduledFor: { $gte: new Date() }
-      }).sort('scheduledFor').lean();
-      scheduledPosts = scheduledPosts.map(p => ({
-        platform: p.platform,
-        topic: p.topic || '',
-        pillar: p.pillar || '',
-        scheduledFor: p.scheduledFor,
-        day: new Date(p.scheduledFor).toLocaleDateString('en-AU', { weekday: 'long' }),
-        status: p.status
-      }));
-    } catch (e) { console.log('[Research] Scheduled posts fetch failed:', e.message); }
+      await Promise.all(researchPromises);
+      console.log('[Smart Schedule] Research:', pastFbPosts.length, 'FB,', pastIgPosts.length, 'IG,', scheduledPosts.length, 'scheduled');
 
-    const researchData = { pastFbPosts, pastIgPosts, scheduledPosts };
-    console.log('[Smart Schedule] Research:', pastFbPosts.length, 'FB posts,', pastIgPosts.length, 'IG posts,', scheduledPosts.length, 'scheduled');
+      return generateSmartSchedule(
+        profile.geminiApiKey, profile.businessName, profile.businessType,
+        profile.tone, stats, count || 7, { pastFbPosts, pastIgPosts, scheduledPosts }
+      );
+    };
 
-    const result = await generateSmartSchedule(
-      profile.geminiApiKey, profile.businessName, profile.businessType,
-      profile.tone, stats, count || 7, researchData
-    );
+    const result = await Promise.race([work(), timeoutPromise]);
+    clearTimeout(timer);
     res.json(result);
   } catch (err) {
-    console.error('[Smart Schedule] Route error:', err);
+    clearTimeout(timer);
+    console.error('[Smart Schedule] Route error:', err?.message || err);
     res.status(500).json({ message: 'Smart schedule failed', error: err.message });
   }
 });
 
-// Insights - research-driven recommendations (with 25s timeout)
+// Insights - research-driven recommendations (25s timeout covers research + AI)
 router.post('/ai/recommendations', auth, async (req, res) => {
+  let timer;
   try {
     const profile = await SocialProfile.findOne({ user: req.user._id });
     if (!profile?.geminiApiKey) {
@@ -310,73 +305,63 @@ router.post('/ai/recommendations', auth, async (req, res) => {
       postsLast30Days: profile.stats?.postsLast30Days ?? 0
     };
 
-    // ── RESEARCH PHASE: Gather real post data for analysis ──
-    let pastFbPosts = [], pastIgPosts = [];
-    if (profile.facebookConnected && profile.facebookPageAccessToken) {
-      try {
-        const token = profile.facebookPageAccessToken;
-        const pageId = profile.facebookPageId;
-        const fbRes = await fetch(
-          `${FB_GRAPH}/${pageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=25&access_token=${token}`
-        );
-        const fbData = await fbRes.json();
-        if (fbData.data) {
-          pastFbPosts = fbData.data.map(p => ({
-            message: (p.message || '').substring(0, 200),
-            day: new Date(p.created_time).toLocaleDateString('en-AU', { weekday: 'long' }),
-            time: new Date(p.created_time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
-            likes: p.likes?.summary?.total_count || 0,
-            comments: p.comments?.summary?.total_count || 0,
-            shares: p.shares?.count || 0,
-            engagement: (p.likes?.summary?.total_count || 0) + (p.comments?.summary?.total_count || 0) * 3 + (p.shares?.count || 0) * 5
-          }));
-        }
-      } catch (e) { console.log('[Insights Research] FB posts failed:', e.message); }
-
-      if (profile.instagramBusinessAccountId) {
-        try {
-          const token = profile.facebookPageAccessToken;
-          const igRes = await fetch(
-            `${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count&limit=25&access_token=${token}`
-          );
-          const igData = await igRes.json();
-          if (igData.data) {
-            pastIgPosts = igData.data.map(p => ({
-              caption: (p.caption || '').substring(0, 200),
-              day: new Date(p.timestamp).toLocaleDateString('en-AU', { weekday: 'long' }),
-              time: new Date(p.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
-              likes: p.like_count || 0,
-              comments: p.comments_count || 0,
-              engagement: (p.like_count || 0) + (p.comments_count || 0) * 3
-            }));
-          }
-        } catch (e) { console.log('[Insights Research] IG posts failed:', e.message); }
-      }
-    }
-
-    const postData = { pastFbPosts, pastIgPosts };
-    console.log('[Insights] Research:', pastFbPosts.length, 'FB posts,', pastIgPosts.length, 'IG posts for', profile.businessName);
-
-    // Run with 25s timeout to stay under Render's 30s request limit
-    let timer;
+    // 25s timeout wrapping EVERYTHING (research + AI) to stay under Render's 30s limit
     const timeoutPromise = new Promise((_, reject) => {
       timer = setTimeout(() => reject(new Error('Analysis timed out — the AI took too long. Please try again.')), 25000);
     });
-    try {
-      const [recs, times] = await Promise.race([
-        Promise.all([
-          generateRecommendations(profile.geminiApiKey, profile.businessName, profile.businessType, stats, postData),
-          analyzePostTimes(profile.geminiApiKey, profile.businessType, profile.location || 'Australia', postData)
-        ]),
-        timeoutPromise
+
+    const work = async () => {
+      // ── RESEARCH PHASE: Gather real post data in PARALLEL ──
+      let pastFbPosts = [], pastIgPosts = [];
+      const researchPromises = [];
+
+      if (profile.facebookConnected && profile.facebookPageAccessToken) {
+        const token = profile.facebookPageAccessToken;
+        researchPromises.push(
+          fetch(`${FB_GRAPH}/${profile.facebookPageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=25&access_token=${token}`)
+            .then(r => r.json())
+            .then(d => { if (d.data) pastFbPosts = d.data.map(p => ({
+              message: (p.message || '').substring(0, 200),
+              day: new Date(p.created_time).toLocaleDateString('en-AU', { weekday: 'long' }),
+              time: new Date(p.created_time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
+              likes: p.likes?.summary?.total_count || 0, comments: p.comments?.summary?.total_count || 0,
+              shares: p.shares?.count || 0,
+              engagement: (p.likes?.summary?.total_count || 0) + (p.comments?.summary?.total_count || 0) * 3 + (p.shares?.count || 0) * 5
+            })); })
+            .catch(() => {})
+        );
+        if (profile.instagramBusinessAccountId) {
+          researchPromises.push(
+            fetch(`${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count&limit=25&access_token=${token}`)
+              .then(r => r.json())
+              .then(d => { if (d.data) pastIgPosts = d.data.map(p => ({
+                caption: (p.caption || '').substring(0, 200),
+                day: new Date(p.timestamp).toLocaleDateString('en-AU', { weekday: 'long' }),
+                time: new Date(p.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                likes: p.like_count || 0, comments: p.comments_count || 0,
+                engagement: (p.like_count || 0) + (p.comments_count || 0) * 3
+              })); })
+              .catch(() => {})
+          );
+        }
+      }
+
+      await Promise.all(researchPromises);
+      const postData = { pastFbPosts, pastIgPosts };
+      console.log('[Insights] Research:', pastFbPosts.length, 'FB,', pastIgPosts.length, 'IG for', profile.businessName);
+
+      const [recs, times] = await Promise.all([
+        generateRecommendations(profile.geminiApiKey, profile.businessName, profile.businessType, stats, postData),
+        analyzePostTimes(profile.geminiApiKey, profile.businessType, profile.location || 'Australia', postData)
       ]);
-      clearTimeout(timer);
-      res.json({ recommendations: recs, bestTimes: times });
-    } catch (innerErr) {
-      clearTimeout(timer);
-      throw innerErr;
-    }
+      return { recommendations: recs, bestTimes: times };
+    };
+
+    const result = await Promise.race([work(), timeoutPromise]);
+    clearTimeout(timer);
+    res.json(result);
   } catch (err) {
+    clearTimeout(timer);
     console.error('[Insights] Route error:', err?.message || err);
     res.status(500).json({ message: 'Analysis failed', error: err.message });
   }
