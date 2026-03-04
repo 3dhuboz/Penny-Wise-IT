@@ -17,6 +17,9 @@ const PLAN_DETAILS = {
   enterprise: { name: 'Enterprise', price: 199, color: '#a855f7', icon: Shield, features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Unlimited Brand Profiles', 'Dedicated Account Manager'] }
 };
 
+// Ensure a value is always a string — prevents React error #31 when API returns error objects
+const safeStr = (v) => (typeof v === 'string' ? v : (v?.message || (v && typeof v === 'object' ? JSON.stringify(v) : String(v || ''))));
+
 const SocialAI = () => {
   const [activeTab, setActiveTab] = useState('command');
   const [profile, setProfile] = useState(null);
@@ -169,8 +172,8 @@ const SocialAI = () => {
     setIsGenerating(true);
     try {
       const res = await api.post('/social/ai/generate', { topic, platform });
-      setGeneratedContent(res.data.content);
-      setGeneratedHashtags(res.data.hashtags || []);
+      setGeneratedContent(safeStr(res.data.content));
+      setGeneratedHashtags(Array.isArray(res.data.hashtags) ? res.data.hashtags.filter(h => typeof h === 'string') : []);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Generation failed');
     }
@@ -222,9 +225,10 @@ const SocialAI = () => {
     try {
       const res = await api.post('/social/ai/smart-schedule', { count: smartCount });
       setSmartPosts(res.data.posts || []);
-      setSmartStrategy(res.data.strategy || '');
-      if (res.data.strategy && res.data.strategy.startsWith('Error:')) {
-        toast.error(res.data.strategy);
+      const strat = safeStr(res.data.strategy);
+      setSmartStrategy(strat);
+      if (strat.startsWith('Error:')) {
+        toast.error(strat);
       }
     } catch (err) {
       toast.error(err.response?.data?.error || err.response?.data?.message || 'Smart schedule failed');
@@ -261,8 +265,8 @@ const SocialAI = () => {
     setIsAnalyzing(true);
     try {
       const res = await api.post('/social/ai/recommendations');
-      setRecommendations(res.data.recommendations || '');
-      setBestTimes(res.data.bestTimes || '');
+      setRecommendations(safeStr(res.data.recommendations));
+      setBestTimes(safeStr(res.data.bestTimes));
     } catch (err) {
       toast.error(err.response?.data?.error || err.response?.data?.message || 'Analysis failed');
     }

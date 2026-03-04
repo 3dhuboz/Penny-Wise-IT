@@ -78,9 +78,23 @@ Return JSON with:
       }
     });
 
-    return response.text ? JSON.parse(response.text) : { content: 'Error generating content.', hashtags: [] };
+    // Safely extract text — response.text can throw on blocked/empty responses
+    let rawText;
+    try { rawText = response.text; } catch (e) {
+      console.error('[Generate Post] response.text threw:', e.message);
+      return { content: 'Content generation was blocked. Try a different topic.', hashtags: [] };
+    }
+
+    if (!rawText) return { content: 'Empty response from AI. Try again.', hashtags: [] };
+
+    const parsed = JSON.parse(rawText);
+    // Ensure content is always a string (Gemini may return error objects)
+    return {
+      content: typeof parsed.content === 'string' ? parsed.content : (parsed.content?.message || JSON.stringify(parsed.content) || 'Generation failed.'),
+      hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags.filter(h => typeof h === 'string') : []
+    };
   } catch (error) {
-    console.error('Gemini Text Error:', error);
+    console.error('[Generate Post] Error:', error?.message || error);
     const msg = error?.message || String(error);
     if (msg.includes('API_KEY_INVALID') || msg.includes('401')) {
       return { content: 'Invalid API Key. Check your key in Settings.', hashtags: [] };
