@@ -8,6 +8,7 @@ const socialPostSchema = new mongoose.Schema({
   scheduledFor: { type: Date, required: true },
   status: { type: String, enum: ['Draft', 'Scheduled', 'Posted'], default: 'Draft' },
   image: { type: String },
+  mediaType: { type: String, enum: ['image', 'video'], default: 'image' },
   imagePrompt: { type: String },
   reasoning: { type: String },
   pillar: { type: String },

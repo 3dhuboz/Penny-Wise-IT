@@ -521,6 +521,8 @@ const SocialAI = () => {
         scheduledFor: sp.scheduledFor,
         status: 'Scheduled',
         imagePrompt: sp.imagePrompt,
+        image: sp.generatedImage || null,
+        mediaType: sp.mediaType || 'image',
         reasoning: sp.reasoning,
         pillar: sp.pillar,
         topic: sp.topic
@@ -1093,7 +1095,7 @@ const SocialAI = () => {
             </div>
 
             {/* Not connected? Show setup prompt */}
-            {!profile?.facebookConnected && !hasApiKey && (
+            {!profile?.facebookConnected && !hasApiKey && !aiAdminManaged && (
               <div className="sai-card" style={{ marginTop: '1.5rem', background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(239,68,68,0.08))', borderColor: 'rgba(245,158,11,0.2)', textAlign: 'center', padding: '2rem' }}>
                 <AlertCircle size={32} style={{ color: '#fbbf24', marginBottom: '0.75rem' }} />
                 <h3 style={{ fontWeight: 700, color: 'white', marginBottom: '0.5rem' }}>Get Started</h3>
@@ -1138,6 +1140,17 @@ const SocialAI = () => {
                   {isGeneratingImage ? <Loader2 size={16} className="spin" /> : <ImageIcon size={16} />}
                   Image
                 </button>
+                {videoAvailable && (
+                  <button
+                    onClick={() => generatedImage ? handleGenerateVideo(-1, generatedImage, topic || 'Professional promotional video') : toast.error('Generate an image first, then convert it to video.')}
+                    disabled={videoStatus && videoStatus !== 'SUCCEEDED' && videoStatus !== 'FAILED'}
+                    className="btn"
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', fontWeight: 700 }}
+                  >
+                    {videoPostIndex === -1 && videoStatus && videoStatus !== 'SUCCEEDED' && videoStatus !== 'FAILED' ? <Loader2 size={16} className="spin" /> : <Video size={16} />}
+                    Video
+                  </button>
+                )}
               </div>
             </div>
 
@@ -1163,6 +1176,43 @@ const SocialAI = () => {
                 )}
                 {generatedImage && (
                   <img src={generatedImage} alt="Generated" style={{ maxWidth: '300px', borderRadius: '8px', margin: '0.75rem 0' }} />
+                )}
+                {/* Video generation progress/preview in Create tab */}
+                {videoPostIndex === -1 && videoStatus && (
+                  <div style={{ margin: '0.75rem 0', padding: '0.75rem', background: 'rgba(139,92,246,0.06)', borderRadius: 8, border: '1px solid rgba(139,92,246,0.15)' }}>
+                    {videoStatus === 'SUCCEEDED' && videoUrl ? (
+                      <div>
+                        <video src={videoUrl} controls style={{ width: '100%', maxWidth: 400, borderRadius: 8 }} />
+                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                          <a href={videoUrl} target="_blank" rel="noreferrer" className="btn btn-sm btn-secondary" style={{ fontSize: '0.6875rem' }}>
+                            <ExternalLink size={12} /> Download Video
+                          </a>
+                          <button onClick={cancelVideo} className="btn btn-sm btn-secondary" style={{ fontSize: '0.6875rem' }}>
+                            <X size={12} /> Close
+                          </button>
+                        </div>
+                      </div>
+                    ) : videoStatus === 'FAILED' ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <AlertCircle size={14} style={{ color: '#ef4444' }} />
+                        <span style={{ fontSize: '0.75rem', color: '#ef4444' }}>Video generation failed</span>
+                        <button onClick={cancelVideo} className="btn btn-sm btn-secondary" style={{ fontSize: '0.6875rem', marginLeft: 'auto' }}>Dismiss</button>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
+                          <Loader2 size={14} className="spin" style={{ color: '#a855f7' }} />
+                          <span style={{ fontSize: '0.75rem', color: '#d1d5db' }}>
+                            {videoStatus === 'starting' ? 'Starting video generation...' : `Generating video... ${Math.round(videoProgress * 100)}%`}
+                          </span>
+                          <button onClick={cancelVideo} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '0.6875rem' }}>Cancel</button>
+                        </div>
+                        <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${Math.max(videoProgress * 100, 5)}%`, background: 'linear-gradient(90deg, #a855f7, #6366f1)', borderRadius: 2, transition: 'width 0.5s ease' }} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end', marginTop: '0.75rem' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -1858,9 +1908,16 @@ const SocialAI = () => {
               <h3 style={{ fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <Sparkles size={18} style={{ color: brandColor }} /> Gemini API Key
               </h3>
-              <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '1rem' }}>
-                Powers all AI features. Get a free key from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style={{ color: brandColor }}>Google AI Studio</a>.
-              </p>
+              {aiAdminManaged ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0.875rem', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 8, marginBottom: '1rem' }}>
+                  <CheckCircle size={14} style={{ color: '#34d399' }} />
+                  <span style={{ fontSize: '0.8125rem', color: '#34d399', fontWeight: 600 }}>AI is managed by your admin — no key needed</span>
+                </div>
+              ) : (
+                <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '1rem' }}>
+                  Powers all AI features. Get a free key from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style={{ color: brandColor }}>Google AI Studio</a>.
+                </p>
+              )}
               <div style={{ display: 'flex', gap: '0.5rem', maxWidth: '500px' }}>
                 <input
                   type="password"
