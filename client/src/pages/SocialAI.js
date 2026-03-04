@@ -174,6 +174,7 @@ const SocialAI = () => {
   // Determine plan from marketplace first, then legacy
   const currentPlan = (mpSubscribed ? mpSub.planKey : profile?.subscription?.plan) || 'none';
   const canWhiteLabel = isSubscribed && (currentPlan === 'professional' || currentPlan === 'enterprise');
+  const canSmartSchedule = currentPlan === 'professional' || currentPlan === 'enterprise';
 
   // White-label derived styles (use branding state which is sourced from marketplace or legacy)
   const brandColor = branding.primaryColor || '#f59e0b';
@@ -773,10 +774,33 @@ const SocialAI = () => {
                 )}
 
                 {!isAnalyzing && (
-                <button onClick={handleAnalyze} disabled={isAnalyzing} className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', background: 'linear-gradient(135deg, #a855f7, #6366f1)' }}>
-                  <BarChart3 size={16} />
-                  {recommendations ? 'Re-Analyze' : 'Analyze & Recommend'}
-                </button>
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                  <button onClick={handleAnalyze} disabled={isAnalyzing} className="btn btn-primary" style={{ flex: 1, background: 'linear-gradient(135deg, #a855f7, #6366f1)' }}>
+                    <BarChart3 size={16} />
+                    {recommendations ? 'Re-Analyze' : 'Analyze & Recommend'}
+                  </button>
+                  {recommendations && canSmartSchedule && (
+                    <button
+                      onClick={() => { setActiveTab('smart'); setTimeout(() => handleSmartSchedule(), 100); }}
+                      disabled={isSmartGenerating}
+                      className="btn sai-btn-smart"
+                      style={{ flex: 1 }}
+                    >
+                      <Zap size={16} />
+                      Schedule from Analysis
+                    </button>
+                  )}
+                  {recommendations && !canSmartSchedule && (
+                    <button
+                      onClick={() => toast.error('Smart Scheduling requires Professional or Enterprise plan.')}
+                      className="btn btn-secondary"
+                      style={{ flex: 1, opacity: 0.7 }}
+                    >
+                      <Crown size={16} />
+                      Upgrade to Schedule
+                    </button>
+                  )}
+                </div>
                 )}
               </div>
             </div>
@@ -1306,6 +1330,54 @@ const SocialAI = () => {
               <div className="sai-card" style={{ marginTop: '1rem' }}>
                 <h3 style={{ fontWeight: 600, color: '#fcd34d', marginBottom: '0.75rem' }}>Best Posting Times</h3>
                 <div style={{ fontSize: '0.875rem', color: '#d1d5db', whiteSpace: 'pre-wrap' }}>{bestTimes}</div>
+              </div>
+            )}
+
+            {!isAnalyzing && recommendations && (
+              <div className="sai-card" style={{ marginTop: '1.5rem', background: 'linear-gradient(135deg, rgba(168,85,247,0.08), rgba(99,102,241,0.08))', border: '1px solid rgba(139,92,246,0.2)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                  <Zap size={18} style={{ color: '#a855f7' }} />
+                  <h3 style={{ fontWeight: 700, color: 'white', fontSize: '1rem' }}>Ready to Act on This?</h3>
+                </div>
+                <p style={{ fontSize: '0.8125rem', color: '#9ca3af', marginBottom: '1rem' }}>
+                  Let AI build a full content schedule based on the insights above — optimized for your best days, times, and content style.
+                </p>
+                {canSmartSchedule ? (
+                  isSmartGenerating ? (
+                    <AILoadingOverlay type="schedule" title="Building Schedule from Your Insights" />
+                  ) : smartPosts.length > 0 ? (
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                        <strong style={{ color: '#34d399' }}><CheckCircle size={14} style={{ display: 'inline', marginRight: 4 }} />{smartPosts.length} posts generated!</strong>
+                        <button onClick={() => setActiveTab('smart')} className="btn btn-primary btn-sm">
+                          <Calendar size={14} /> View & Schedule
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                      <select value={smartCount} onChange={e => setSmartCount(Number(e.target.value))} className="sai-select" style={{ width: 'auto' }}>
+                        <option value={5}>5 posts</option>
+                        <option value={7}>7 posts (1 week)</option>
+                        <option value={10}>10 posts</option>
+                        <option value={14}>14 posts (2 weeks)</option>
+                      </select>
+                      <button onClick={handleSmartSchedule} className="btn sai-btn-smart" style={{ flex: 1, padding: '0.75rem 1.5rem' }}>
+                        <Zap size={16} /> Generate Schedule from Insights
+                      </button>
+                    </div>
+                  )
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '0.75rem' }}>
+                    <p style={{ fontSize: '0.8125rem', color: '#9ca3af', marginBottom: '0.75rem' }}>
+                      <Crown size={14} style={{ display: 'inline', marginRight: 4, color: '#f59e0b' }} />
+                      Smart Scheduling is available on Professional and Enterprise plans.
+                    </p>
+                    <button onClick={() => handlePurchase('professional')} className="btn btn-primary btn-sm" style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)' }}>
+                      <Zap size={14} /> Upgrade to Professional
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
