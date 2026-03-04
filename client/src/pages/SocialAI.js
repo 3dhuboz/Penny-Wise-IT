@@ -75,7 +75,16 @@ const SocialAI = () => {
         api.get('/marketplace/my-apps/social-ai-studio').catch(() => ({ data: null }))
       ]);
       setProfile(profileRes.data);
-      setPosts(postsRes.data);
+      // Sanitize posts to prevent React error #31 from object fields
+      const rawPosts = Array.isArray(postsRes.data) ? postsRes.data : [];
+      setPosts(rawPosts.map(p => ({
+        ...p,
+        content: typeof p.content === 'string' ? p.content : safeStr(p.content),
+        platform: typeof p.platform === 'string' ? p.platform : 'Instagram',
+        pillar: typeof p.pillar === 'string' ? p.pillar : '',
+        status: typeof p.status === 'string' ? p.status : 'Draft',
+        hashtags: Array.isArray(p.hashtags) ? p.hashtags.filter(h => typeof h === 'string') : []
+      })));
       if (mpRes.data && mpRes.data.planKey) setMpSub(mpRes.data);
       // Use marketplace white-label if available, else fall back to legacy
       if (mpRes.data?.whiteLabel?.brandName) {
@@ -224,7 +233,19 @@ const SocialAI = () => {
     setIsSmartGenerating(true);
     try {
       const res = await api.post('/social/ai/smart-schedule', { count: smartCount });
-      setSmartPosts(res.data.posts || []);
+      // Sanitize every post field to prevent React error #31 (objects as JSX children)
+      const safePosts = (res.data.posts || []).map(p => ({
+        ...p,
+        platform: safeStr(p.platform) || 'Instagram',
+        content: safeStr(p.content),
+        topic: safeStr(p.topic),
+        reasoning: safeStr(p.reasoning),
+        pillar: safeStr(p.pillar),
+        imagePrompt: safeStr(p.imagePrompt),
+        hashtags: Array.isArray(p.hashtags) ? p.hashtags.filter(h => typeof h === 'string') : [],
+        scheduledFor: typeof p.scheduledFor === 'string' ? p.scheduledFor : new Date().toISOString()
+      }));
+      setSmartPosts(safePosts);
       const strat = safeStr(res.data.strategy);
       setSmartStrategy(strat);
       if (strat.startsWith('Error:')) {

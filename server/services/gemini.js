@@ -351,7 +351,19 @@ Return JSON with:
     }
 
     const data = JSON.parse(rawText);
-    return { posts: data.posts || [], strategy: data.strategy || '' };
+    // Sanitize every post field — Gemini may return objects instead of strings
+    const safePosts = (Array.isArray(data.posts) ? data.posts : []).map(p => ({
+      platform: typeof p.platform === 'string' ? p.platform : String(p.platform || 'Instagram'),
+      scheduledFor: typeof p.scheduledFor === 'string' ? p.scheduledFor : new Date().toISOString(),
+      topic: typeof p.topic === 'string' ? p.topic : (p.topic?.message || JSON.stringify(p.topic) || ''),
+      content: typeof p.content === 'string' ? p.content : (p.content?.message || JSON.stringify(p.content) || ''),
+      hashtags: Array.isArray(p.hashtags) ? p.hashtags.filter(h => typeof h === 'string') : [],
+      imagePrompt: typeof p.imagePrompt === 'string' ? p.imagePrompt : '',
+      reasoning: typeof p.reasoning === 'string' ? p.reasoning : (p.reasoning?.message || ''),
+      pillar: typeof p.pillar === 'string' ? p.pillar : (p.pillar?.message || 'Value')
+    }));
+    const safeStrategy = typeof data.strategy === 'string' ? data.strategy : (data.strategy?.message || JSON.stringify(data.strategy) || '');
+    return { posts: safePosts, strategy: safeStrategy };
   } catch (error) {
     console.error('[Smart Schedule] Error:', error?.message || error);
     return { posts: [], strategy: `Error: ${error?.message || 'Unknown error — check your Gemini API key and try again.'}` };
