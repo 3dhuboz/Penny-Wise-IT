@@ -217,15 +217,24 @@ router.post('/ai/recommendations', auth, async (req, res) => {
     console.log('[Insights] Analyzing for:', profile.businessName, '| stats:', stats);
 
     // Run with 25s timeout to stay under Render's 30s request limit
-    const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Analysis timed out — Gemini API was too slow. Please try again.')), ms));
-    const [recs, times] = await Promise.race([
-      Promise.all([
-        generateRecommendations(profile.geminiApiKey, profile.businessName, profile.businessType, stats),
-        analyzePostTimes(profile.geminiApiKey, profile.businessType, profile.location || 'Australia')
-      ]),
-      timeout(25000)
-    ]);
-    res.json({ recommendations: recs, bestTimes: times });
+    let timer;
+    const timeoutPromise = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error('Analysis timed out — the AI took too long. Please try again.')), 25000);
+    });
+    try {
+      const [recs, times] = await Promise.race([
+        Promise.all([
+          generateRecommendations(profile.geminiApiKey, profile.businessName, profile.businessType, stats),
+          analyzePostTimes(profile.geminiApiKey, profile.businessType, profile.location || 'Australia')
+        ]),
+        timeoutPromise
+      ]);
+      clearTimeout(timer);
+      res.json({ recommendations: recs, bestTimes: times });
+    } catch (innerErr) {
+      clearTimeout(timer);
+      throw innerErr;
+    }
   } catch (err) {
     console.error('[Insights] Route error:', err?.message || err);
     res.status(500).json({ message: 'Analysis failed', error: err.message });
