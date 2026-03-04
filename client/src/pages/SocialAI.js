@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Sparkles, Settings, Calendar, BarChart3, Wand2, Image as ImageIcon,
@@ -172,12 +172,12 @@ const SocialAI = () => {
   const [purchasing, setPurchasing] = useState(false);
 
   // Evolving tips — randomly selected on each mount so users see different advice
-  const randomTips = useMemo(() => ({
+  const [randomTips] = useState(() => ({
     quickStats: shuffle(QUICK_STATS_POOL).slice(0, 4),
     igTips: shuffle(IG_TIPS_POOL).slice(0, 7),
     fbTips: shuffle(FB_TIPS_POOL).slice(0, 7),
     facts: shuffle(STRATEGY_FACTS_POOL).slice(0, 8)
-  }), []); // eslint-disable-line react-hooks/exhaustive-deps
+  }));
 
   // Content generator state
   const [topic, setTopic] = useState('');

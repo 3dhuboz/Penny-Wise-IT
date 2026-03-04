@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Sparkles, Wand2, Brain, Calendar, BarChart3, Image as ImageIcon,
-  CheckCircle, ArrowRight, Zap, Star, Users, Clock, Shield,
+  Sparkles, Wand2, Brain, Image as ImageIcon,
+  CheckCircle, ArrowRight, Zap, Star, Clock,
   TrendingUp, Target, Search, Palette
 } from 'lucide-react';
 import './SocialAIProduct.css';
