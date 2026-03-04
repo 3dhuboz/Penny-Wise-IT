@@ -152,39 +152,46 @@ async function connectDB() {
     console.log('Marketplace apps synced (' + seedApps.length + ' apps)');
 
     // Auto-seed admin user if none exists, or sync password from env
+    // IMPORTANT: We hash manually and use updateOne to BYPASS the pre-save hook
+    // This prevents any possibility of double-hashing the password
     const User = require('./models/User');
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@pennywiseit.com.au';
+    const bcrypt = require('bcryptjs');
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@pennywiseit.com.au').toLowerCase().trim();
     const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    console.log('[Admin Sync] Checking admin:', adminEmail, '| pw length:', adminPassword.length);
+
+    // Hash the admin password once, manually
+    const salt = await bcrypt.genSalt(10);
+    const hashedPw = await bcrypt.hash(adminPassword, salt);
+    // Verify our own hash is correct before writing
+    const selfCheck = await bcrypt.compare(adminPassword, hashedPw);
+    console.log('[Admin Sync] Hash self-check:', selfCheck, '| email:', adminEmail);
+
     let adminUser = await User.findOne({ email: adminEmail });
     if (!adminUser) {
-      adminUser = new User({
+      // First-time: use collection.insertOne to COMPLETELY bypass Mongoose middleware
+      const result = await User.collection.insertOne({
         firstName: 'Admin',
         lastName: 'PennyWise',
         email: adminEmail,
-        password: adminPassword,
+        password: hashedPw,
         role: 'admin',
         company: 'Penny Wise I.T',
-        isActive: true
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
-      await adminUser.save();
-      console.log('Admin user created:', adminUser.email);
+      console.log('[Admin Sync] Admin CREATED via raw insert:', adminEmail, '| id:', result.insertedId);
     } else {
-      // Sync role from env on every boot
-      let changed = false;
-      if (adminUser.role !== 'admin') { adminUser.role = 'admin'; changed = true; }
-      if (!adminUser.isActive) { adminUser.isActive = true; changed = true; }
-      // Only reset password if env value changed (compare against hash to avoid double-hashing)
-      const bcrypt = require('bcryptjs');
-      const passwordMatches = adminUser.password ? await bcrypt.compare(adminPassword, adminUser.password) : false;
-      if (!passwordMatches) {
-        adminUser.password = adminPassword;
-        changed = true;
-        console.log('Admin password updated from env');
-      }
-      if (changed) {
-        await adminUser.save();
-        console.log('Admin user synced:', adminUser.email);
-      }
+      // Existing: use updateOne to COMPLETELY bypass Mongoose pre-save hook
+      await User.updateOne(
+        { _id: adminUser._id },
+        { $set: { password: hashedPw, role: 'admin', isActive: true, updatedAt: new Date() } }
+      );
+      // Verify the write actually worked
+      const verify = await User.findOne({ email: adminEmail });
+      const loginCheck = await bcrypt.compare(adminPassword, verify.password);
+      console.log('[Admin Sync] Admin FORCE-SYNCED:', adminEmail, '| login will work:', loginCheck);
     }
   } catch (err) {
     console.error('MongoDB connection error:', err.message);

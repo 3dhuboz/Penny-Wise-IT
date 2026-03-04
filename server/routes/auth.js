@@ -31,13 +31,23 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('[Login] Attempt for:', email);
 
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('[Login] FAIL — no user found for:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    console.log('[Login] User found:', user.email, '| role:', user.role, '| has password:', !!user.password, '| pw length:', (user.password || '').length, '| provider:', user.authProvider || 'local');
+
+    if (!user.password) {
+      console.log('[Login] FAIL — no password set (likely Google-only account)');
+      return res.status(400).json({ message: 'This account uses Google sign-in. Please use the Google login button.' });
+    }
+
     const isMatch = await user.comparePassword(password);
+    console.log('[Login] Password match:', isMatch);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -46,12 +56,14 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ message: 'Account is deactivated. Please contact support.' });
     }
 
-    user.lastLogin = new Date();
-    await user.save();
+    // Use updateOne to set lastLogin WITHOUT triggering pre-save hook
+    await User.updateOne({ _id: user._id }, { $set: { lastLogin: new Date() } });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    console.log('[Login] SUCCESS for:', user.email);
     res.json({ token, user });
   } catch (err) {
+    console.error('[Login] ERROR:', err.message);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
@@ -117,14 +129,16 @@ router.post('/google', async (req, res) => {
     let user = await User.findOne({ $or: [{ googleId }, { email }] });
 
     if (user) {
-      // Link Google if not already linked
+      // Link Google if not already linked — use updateOne to avoid pre-save hook
+      const updates = { lastLogin: new Date() };
       if (!user.googleId) {
-        user.googleId = googleId;
-        user.authProvider = 'google';
-        if (picture && !user.avatar) user.avatar = picture;
+        updates.googleId = googleId;
+        updates.authProvider = 'google';
+        if (picture && !user.avatar) updates.avatar = picture;
       }
-      user.lastLogin = new Date();
-      await user.save();
+      await User.updateOne({ _id: user._id }, { $set: updates });
+      // Refresh user object for response
+      user = await User.findById(user._id);
     } else {
       // Create new user from Google profile
       user = new User({
