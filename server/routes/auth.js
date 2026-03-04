@@ -4,8 +4,44 @@ const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
 
+const bcrypt = require('bcryptjs');
 const router = express.Router();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// Public diagnostic — check admin account health (no sensitive data)
+router.get('/diagnostic', async (req, res) => {
+  try {
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@pennywiseit.com.au').toLowerCase().trim();
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const user = await User.findOne({ email: adminEmail });
+    if (!user) {
+      return res.json({ status: 'NO_USER', email: adminEmail, message: 'Admin user does not exist in database' });
+    }
+    const hasPw = !!user.password;
+    const pwLen = (user.password || '').length;
+    const envPwLen = adminPassword.length;
+    let hashValid = false;
+    if (hasPw) {
+      hashValid = await bcrypt.compare(adminPassword, user.password);
+    }
+    res.json({
+      status: hashValid ? 'OK' : 'PASSWORD_MISMATCH',
+      email: adminEmail,
+      userExists: true,
+      hasPassword: hasPw,
+      storedHashLength: pwLen,
+      envPasswordLength: envPwLen,
+      passwordMatchesEnv: hashValid,
+      role: user.role,
+      isActive: user.isActive,
+      authProvider: user.authProvider || 'local',
+      lastLogin: user.lastLogin,
+      message: hashValid ? 'Admin password is correct — login should work' : 'Stored hash does NOT match ADMIN_PASSWORD env var'
+    });
+  } catch (err) {
+    res.json({ status: 'ERROR', error: err.message });
+  }
+});
 
 // Register new customer
 router.post('/register', async (req, res) => {
