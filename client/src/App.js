@@ -33,6 +33,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import PennyAgent from './components/PennyAgent';
 import WirezLauncher from './pages/WirezLauncher';
+import SimpleWebsiteProduct from './pages/SimpleWebsiteProduct';
 import AdminSettings from './pages/AdminSettings';
 import Hosting from './pages/Hosting';
 
@@ -58,6 +59,7 @@ const AppRoutes = () => {
       <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/hosting" element={<Hosting />} />
       <Route path="/foodtruc" element={<FoodTrucProduct />} />
+      <Route path="/simple-website" element={<SimpleWebsiteProduct />} />
       <Route path="/register" element={<Register />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />

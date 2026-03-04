@@ -476,6 +476,67 @@ router.post('/admin/seed', auth, adminOnly, async (req, res) => {
           }
         ],
         displayOrder: 3
+      },
+      {
+        slug: 'simple-website',
+        name: 'SimpleWebsite',
+        shortDescription: 'White-label e-commerce website template with storefront, shopping cart, admin dashboard, and optional SocialAI add-on. Deploy a fully branded online store in minutes.',
+        fullDescription: 'SimpleWebsite is a complete, production-ready e-commerce website template built with React 19, TypeScript, Firebase, and Vite. It includes a beautiful storefront with hero section, product grid, category browsing, and product detail pages. Customers can sign in with Google, add items to a cart, and checkout via Square payments. The admin dashboard provides full control over inventory, orders, customers, CMS content, inbox, and site-wide branding. Every element — colours, logos, images, text — is white-label configurable through the built-in CMS. The optional SocialAI Studio add-on (Professional plan and above) unlocks AI-powered social media content generation, image creation, smart scheduling, and engagement insights — all powered by Google Gemini 2.5.',
+        icon: 'globe',
+        category: 'ecommerce',
+        routePath: '/simple-website',
+        demoUrl: 'https://github.com/3dhuboz/SimpleWebsite',
+        heroImage: '/app-previews/simplewebsite-preview.svg',
+        setupFee: 199,
+        features: [
+          'Beautiful Storefront & Product Pages',
+          'Shopping Cart & Square Checkout',
+          'Customer Accounts (Google Sign-In)',
+          'Admin Dashboard & Order Management',
+          'Full CMS — Edit All Content & Branding',
+          'Inventory & Category Management',
+          'Contact Form & Admin Inbox',
+          'GST/Tax Configuration',
+          'Email Notifications',
+          'PWA — Installable as Native App',
+          'Responsive Mobile-First Design',
+          'Full White-Label Branding'
+        ],
+        techStack: ['React 19', 'TypeScript', 'Firebase', 'Firestore', 'Firebase Auth', 'Square Payments', 'Vite', 'TailwindCSS'],
+        plans: [
+          {
+            key: 'starter',
+            name: 'Starter',
+            price: 39,
+            yearlyPrice: 390,
+            features: ['Full E-Commerce Storefront', 'Shopping Cart & Checkout', 'Admin Dashboard', 'CMS Content Editor', 'Order Management', 'Customer Accounts', 'Email Notifications', '1 Store'],
+            color: '#10b981',
+            whiteLabel: false,
+            customDomain: false
+          },
+          {
+            key: 'professional',
+            name: 'Professional',
+            price: 79,
+            yearlyPrice: 790,
+            features: ['Everything in Starter', 'SocialAI Studio Add-On', 'AI Content Generation', 'AI Image Creation', 'Smart Post Scheduler', 'Engagement Insights', 'Full White-Label Branding', '3 Stores'],
+            popular: true,
+            color: '#f59e0b',
+            whiteLabel: true,
+            customDomain: false
+          },
+          {
+            key: 'enterprise',
+            name: 'Enterprise',
+            price: 159,
+            yearlyPrice: 1590,
+            features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Multi-Store Management', 'Dedicated Account Manager', 'SLA-Backed Uptime', 'Unlimited Stores'],
+            color: '#a855f7',
+            whiteLabel: true,
+            customDomain: true
+          }
+        ],
+        displayOrder: 5
       }
     ];
 
@@ -655,6 +716,50 @@ router.post('/admin/grant-free', auth, adminOnly, async (req, res) => {
     res.json({ message: `Free ${plan.name} license granted for ${appDef.name}`, subscription: sub });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════
+// LICENSE VALIDATION — External license key check
+// ══════════════════════════════════════════════
+
+// Validate a SocialAI license key from the SimpleWebsite template
+// Called by the deployed template instances to verify add-on access
+router.post('/validate-license', async (req, res) => {
+  try {
+    const { licenseKey } = req.body;
+    if (!licenseKey) return res.status(400).json({ valid: false, message: 'License key required' });
+
+    // License key format: PWIT-SAI-<subscriptionId>
+    const prefix = 'PWIT-SAI-';
+    if (!licenseKey.startsWith(prefix)) {
+      return res.json({ valid: false, message: 'Invalid license key format' });
+    }
+
+    const subId = licenseKey.slice(prefix.length);
+    const sub = await AppSubscription.findById(subId).populate('app');
+    if (!sub) return res.json({ valid: false, message: 'License not found' });
+
+    // Must be a simple-website subscription on professional or enterprise plan
+    if (sub.app?.slug !== 'simple-website') {
+      return res.json({ valid: false, message: 'License not valid for this product' });
+    }
+
+    if (sub.status !== 'active' && sub.status !== 'trial') {
+      return res.json({ valid: false, message: 'Subscription is not active' });
+    }
+
+    if (sub.planKey !== 'professional' && sub.planKey !== 'enterprise') {
+      return res.json({ valid: false, message: 'SocialAI requires Professional or Enterprise plan' });
+    }
+
+    res.json({
+      valid: true,
+      plan: sub.planKey,
+      message: 'License valid — SocialAI Studio activated'
+    });
+  } catch (err) {
+    res.status(500).json({ valid: false, message: 'Validation error' });
   }
 });
 

@@ -57,6 +57,16 @@ const APP_LOGOS = {
       <circle cx="36" cy="36" r="1.5" fill="#f5a623" opacity="0.4"/>
     </svg>
   ),
+  globe: () => (
+    <svg viewBox="0 0 48 48" className="mp-app-logo">
+      <defs><linearGradient id="g-globe" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#10b981"/><stop offset="100%" stopColor="#059669"/></linearGradient></defs>
+      <circle cx="24" cy="24" r="22" fill="none" stroke="url(#g-globe)" strokeWidth="2"/>
+      <circle cx="24" cy="24" r="14" fill="none" stroke="url(#g-globe)" strokeWidth="1.5"/>
+      <ellipse cx="24" cy="24" rx="8" ry="14" fill="none" stroke="url(#g-globe)" strokeWidth="1.5"/>
+      <line x1="10" y1="24" x2="38" y2="24" stroke="url(#g-globe)" strokeWidth="1.5"/>
+      <line x1="24" y1="10" x2="24" y2="38" stroke="url(#g-globe)" strokeWidth="1.5"/>
+    </svg>
+  ),
 };
 
 const SAVINGS_DATA = {
@@ -66,6 +76,7 @@ const SAVINGS_DATA = {
   'foodtruc': { alternative: 'Third-party ordering platform fees', altCost: 800 },
   'food-truck': { alternative: 'Third-party ordering platform fees', altCost: 800 },
   'wirez': { alternative: 'Manual job tracking + admin assistant', altCost: 1500 },
+  'simple-website': { alternative: 'Custom website development', altCost: 3000 },
 };
 
 const APP_PREVIEWS = {
@@ -75,12 +86,13 @@ const APP_PREVIEWS = {
   'foodtruc': '/app-previews/foodtruck-preview.svg',
   'food-truck': '/app-previews/foodtruck-preview.svg',
   'wirez': '/app-previews/wirez-preview.svg',
+  'simple-website': '/app-previews/simplewebsite-preview.svg',
 };
 
 const CATEGORY_LABELS = {
   ai: 'AI', automation: 'Automation', analytics: 'Analytics',
   productivity: 'Productivity', marketing: 'Marketing', 'food-service': 'Food & Hospitality',
-  automotive: 'Automotive', trades: 'Trades & Services', utility: 'Utility', other: 'Other'
+  automotive: 'Automotive', trades: 'Trades & Services', ecommerce: 'E-Commerce', utility: 'Utility', other: 'Other'
 };
 
 const Marketplace = () => {

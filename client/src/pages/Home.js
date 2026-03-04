@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight, Zap, Sparkles, Palette, Workflow, ExternalLink,
-  DollarSign, Timer, Rocket
+  DollarSign, Timer, Rocket, Globe
 } from 'lucide-react';
 import './Home.css';
 
@@ -131,6 +131,20 @@ const Home = () => {
               <p>AI generates on-brand content, images, and a full posting schedule in minutes. A fraction of the cost of hiring.</p>
               <div className="example-actions">
                 <Link to="/social-ai" className="service-link">See Plans <ArrowRight size={14} /></Link>
+              </div>
+            </div>
+            <div className="example-card">
+              <div className="example-header">
+                <Globe size={20} style={{ color: '#10b981' }} />
+                <span className="example-label">SimpleWebsite</span>
+              </div>
+              <h3>$3,000 Custom Site → $39/mo App</h3>
+              <div className="example-savings">
+                <span className="savings-tag"><DollarSign size={14} /> Saves ~$2,961/mo vs custom dev</span>
+              </div>
+              <p>Full e-commerce storefront with admin dashboard, CMS, and optional AI-powered social media marketing. White-label and deploy in minutes.</p>
+              <div className="example-actions">
+                <Link to="/simple-website" className="service-link">See Plans <ArrowRight size={14} /></Link>
               </div>
             </div>
             <div className="example-card">

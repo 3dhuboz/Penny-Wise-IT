@@ -418,9 +418,11 @@ router.put('/admin/profile/:userId', auth, adminOnly, async (req, res) => {
 
 // ── Facebook / Instagram Integration ──
 
-const FB_GRAPH = 'https://graph.facebook.com/v19.0';
+const FB_GRAPH = 'https://graph.facebook.com/v21.0';
 
 // Connect Facebook Page — save page access token + page ID
+// Accepts either a Page Access Token OR a User Access Token.
+// If a User token is provided, we auto-exchange it for the correct Page token.
 router.post('/facebook/connect', auth, async (req, res) => {
   try {
     const { pageId, pageAccessToken } = req.body;
@@ -428,15 +430,57 @@ router.post('/facebook/connect', auth, async (req, res) => {
       return res.status(400).json({ message: 'Page ID and Page Access Token are required.' });
     }
 
-    // Verify the token works by calling the page endpoint
-    const verifyRes = await fetch(`${FB_GRAPH}/${pageId}?fields=name,fan_count,picture&access_token=${pageAccessToken}`);
-    const pageData = await verifyRes.json();
+    let finalPageToken = pageAccessToken;
+
+    // Step 1: Try the token directly against the page
+    let verifyRes = await fetch(`${FB_GRAPH}/${pageId}?fields=name,fan_count,picture&access_token=${finalPageToken}`);
+    let pageData = await verifyRes.json();
+
+    // Step 2: If it failed, the token might be a User Access Token — try auto-exchanging
     if (pageData.error) {
-      return res.status(400).json({ message: `Facebook error: ${pageData.error.message}` });
+      console.log(`[FB Connect] Direct page query failed: ${pageData.error.message}. Trying me/accounts...`);
+
+      // Query me/accounts to list pages the user manages and get the correct Page token
+      const accountsRes = await fetch(`${FB_GRAPH}/me/accounts?fields=id,name,access_token&access_token=${pageAccessToken}`);
+      const accountsData = await accountsRes.json();
+
+      if (accountsData.error) {
+        // Token is completely invalid
+        return res.status(400).json({
+          message: `Facebook error: ${accountsData.error.message}. Make sure your token has pages_show_list, pages_read_engagement, and pages_read_user_content permissions.`
+        });
+      }
+
+      if (!accountsData.data || accountsData.data.length === 0) {
+        return res.status(400).json({
+          message: 'No Facebook Pages found for this token. Make sure the token belongs to an account that manages at least one Facebook Page, and that pages_show_list permission is granted.'
+        });
+      }
+
+      // Find the matching page by ID
+      const matchedPage = accountsData.data.find(p => p.id === pageId);
+      if (!matchedPage) {
+        const availablePages = accountsData.data.map(p => `"${p.name}" (${p.id})`).join(', ');
+        return res.status(400).json({
+          message: `Page ID ${pageId} not found in your managed pages. Available pages: ${availablePages}. Use one of these Page IDs instead.`
+        });
+      }
+
+      // Use the Page Access Token from me/accounts
+      finalPageToken = matchedPage.access_token;
+      console.log(`[FB Connect] Auto-exchanged user token for page token for "${matchedPage.name}"`);
+
+      // Re-verify with the correct Page token
+      verifyRes = await fetch(`${FB_GRAPH}/${pageId}?fields=name,fan_count,picture&access_token=${finalPageToken}`);
+      pageData = await verifyRes.json();
+
+      if (pageData.error) {
+        return res.status(400).json({ message: `Facebook error after token exchange: ${pageData.error.message}` });
+      }
     }
 
     // Check for linked Instagram Business Account
-    const igRes = await fetch(`${FB_GRAPH}/${pageId}?fields=instagram_business_account&access_token=${pageAccessToken}`);
+    const igRes = await fetch(`${FB_GRAPH}/${pageId}?fields=instagram_business_account&access_token=${finalPageToken}`);
     const igData = await igRes.json();
     const igId = igData?.instagram_business_account?.id || '';
 
@@ -444,7 +488,7 @@ router.post('/facebook/connect', auth, async (req, res) => {
       { user: req.user._id },
       {
         facebookPageId: pageId,
-        facebookPageAccessToken: pageAccessToken,
+        facebookPageAccessToken: finalPageToken,
         facebookConnected: true,
         instagramBusinessAccountId: igId
       },

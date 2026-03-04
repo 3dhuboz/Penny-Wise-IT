@@ -6,7 +6,7 @@ const appDefinitionSchema = new mongoose.Schema({
   shortDescription: { type: String, required: true },
   fullDescription: { type: String, default: '' },
   icon: { type: String, default: 'sparkles' },
-  category: { type: String, enum: ['ai', 'automation', 'analytics', 'productivity', 'marketing', 'food-service', 'automotive', 'trades', 'utility', 'other'], default: 'other' },
+  category: { type: String, enum: ['ai', 'automation', 'analytics', 'productivity', 'marketing', 'food-service', 'automotive', 'trades', 'ecommerce', 'utility', 'other'], default: 'other' },
   heroImage: { type: String, default: '' },
   features: [{ type: String }],
   techStack: [{ type: String }],
