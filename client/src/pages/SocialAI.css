@@ -306,3 +306,155 @@
 @media (max-width: 640px) {
   .social-ai-page .sai-card { padding: 0.75rem; }
 }
+
+/* ═══ Premium AI Loading Overlay ═══ */
+.ai-loading-overlay {
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.12), rgba(236,72,153,0.08));
+  border: 1px solid rgba(139,92,246,0.25);
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-loading-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(139,92,246,0.08), transparent);
+  animation: ai-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes ai-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.ai-loading-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: ai-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 30px rgba(139,92,246,0.3);
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes ai-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(139,92,246,0.3); }
+  50% { transform: scale(1.08); box-shadow: 0 0 50px rgba(139,92,246,0.5); }
+}
+
+.ai-loading-status {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.ai-loading-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.ai-loading-step {
+  font-size: 0.875rem;
+  color: #c4b5fd;
+  min-height: 1.25rem;
+  animation: ai-fade 0.4s ease-in-out;
+}
+
+@keyframes ai-fade {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.ai-loading-progress {
+  width: 100%;
+  max-width: 280px;
+  height: 4px;
+  background: rgba(139,92,246,0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.ai-loading-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7c3aed, #a855f7, #c084fc);
+  transition: width 0.8s ease-out;
+}
+
+.ai-loading-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  position: relative;
+  z-index: 1;
+}
+
+.ai-loading-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 320px;
+  position: relative;
+  z-index: 1;
+}
+
+.ai-step-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
+  transition: all 0.3s;
+}
+
+.ai-step-item.done {
+  color: #34d399;
+}
+
+.ai-step-item.active {
+  color: #c4b5fd;
+  font-weight: 600;
+}
+
+.ai-step-item.pending {
+  color: #4b5563;
+}
+
+.ai-step-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.625rem;
+}
+
+.ai-step-item.done .ai-step-check {
+  background: rgba(52,211,153,0.2);
+  color: #34d399;
+}
+
+.ai-step-item.active .ai-step-check {
+  background: rgba(139,92,246,0.3);
+  animation: ai-pulse 1.5s ease-in-out infinite;
+}
+
+.ai-step-item.pending .ai-step-check {
+  background: rgba(75,85,99,0.3);
+}

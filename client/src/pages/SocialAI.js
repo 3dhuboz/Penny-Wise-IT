@@ -20,6 +20,72 @@ const PLAN_DETAILS = {
 // Ensure a value is always a string — prevents React error #31 when API returns error objects
 const safeStr = (v) => (typeof v === 'string' ? v : (v?.message || (v && typeof v === 'object' ? JSON.stringify(v) : String(v || ''))));
 
+// Premium AI Loading Overlay — shows animated research steps while AI works
+const AI_STEPS = {
+  schedule: [
+    'Researching your past posts & engagement...',
+    'Analyzing top-performing content patterns...',
+    'Identifying your best days & times...',
+    'Checking existing schedule for gaps...',
+    'Crafting your data-driven content strategy...',
+    'Generating optimized posts...',
+    'Finalizing your content calendar...'
+  ],
+  insights: [
+    'Pulling your latest post performance data...',
+    'Analyzing engagement patterns & trends...',
+    'Comparing against industry benchmarks...',
+    'Identifying growth opportunities...',
+    'Building your strategic recommendations...'
+  ],
+  generate: [
+    'Studying your top-performing content style...',
+    'Crafting platform-optimized copy...',
+    'Engineering scroll-stopping hooks...',
+    'Finalizing your post...'
+  ]
+};
+
+const AILoadingOverlay = ({ type = 'schedule', title }) => {
+  const [currentStep, setCurrentStep] = React.useState(0);
+  const steps = AI_STEPS[type] || AI_STEPS.schedule;
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentStep(prev => (prev < steps.length - 1 ? prev + 1 : prev));
+    }, type === 'generate' ? 2500 : 3500);
+    return () => clearInterval(interval);
+  }, [steps.length, type]);
+
+  const progress = Math.min(((currentStep + 1) / steps.length) * 90, 90);
+
+  return (
+    <div className="ai-loading-overlay">
+      <div className="ai-loading-icon">
+        <Brain size={28} color="white" />
+      </div>
+      <div className="ai-loading-status">
+        <div className="ai-loading-title">{title || 'AI is Working'}</div>
+        <div className="ai-loading-step" key={currentStep}>{steps[currentStep]}</div>
+      </div>
+      <div className="ai-loading-progress">
+        <div className="ai-loading-progress-bar" style={{ width: `${progress}%` }} />
+      </div>
+      <div className="ai-loading-steps-list">
+        {steps.map((step, i) => (
+          <div key={i} className={`ai-step-item ${i < currentStep ? 'done' : i === currentStep ? 'active' : 'pending'}`}>
+            <span className="ai-step-check">
+              {i < currentStep ? <CheckCircle size={14} /> : i === currentStep ? <Loader2 size={14} className="spin" /> : <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor', display: 'block' }} />}
+            </span>
+            {step}
+          </div>
+        ))}
+      </div>
+      <div className="ai-loading-hint">This usually takes 10–20 seconds</div>
+    </div>
+  );
+};
+
 const SocialAI = () => {
   const [activeTab, setActiveTab] = useState('command');
   const [profile, setProfile] = useState(null);
@@ -693,7 +759,9 @@ const SocialAI = () => {
                   Analyze your performance metrics and get actionable advice on how to grow your {profile?.businessType || 'business'} brand.
                 </p>
 
-                {recommendations ? (
+                {isAnalyzing ? (
+                  <AILoadingOverlay type="insights" title="Analyzing Your Performance" />
+                ) : recommendations ? (
                   <div style={{ fontSize: '0.8125rem', color: '#d1d5db', whiteSpace: 'pre-wrap', lineHeight: 1.6, maxHeight: 250, overflowY: 'auto', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 8 }}>
                     {recommendations}
                   </div>
@@ -701,10 +769,12 @@ const SocialAI = () => {
                   <p style={{ color: '#6b7280', fontStyle: 'italic', fontSize: '0.8125rem', marginBottom: '1rem' }}>No analysis generated yet.</p>
                 )}
 
+                {!isAnalyzing && (
                 <button onClick={handleAnalyze} disabled={isAnalyzing} className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', background: 'linear-gradient(135deg, #a855f7, #6366f1)' }}>
-                  {isAnalyzing ? <Loader2 size={16} className="spin" /> : <BarChart3 size={16} />}
-                  Analyze & Recommend
+                  <BarChart3 size={16} />
+                  {recommendations ? 'Re-Analyze' : 'Analyze & Recommend'}
                 </button>
+                )}
               </div>
             </div>
 
@@ -859,7 +929,13 @@ const SocialAI = () => {
               </div>
             </div>
 
-            {generatedContent && (
+            {isGenerating && (
+              <div style={{ marginTop: '1.5rem' }}>
+                <AILoadingOverlay type="generate" title="Crafting Your Post" />
+              </div>
+            )}
+
+            {!isGenerating && generatedContent && (
               <div className="sai-card" style={{ marginTop: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                   <PlatformIcon p={platform} size={18} />
@@ -970,7 +1046,13 @@ const SocialAI = () => {
                 </button>
               </div>
 
-              {smartStrategy && (
+              {isSmartGenerating && (
+                <div style={{ marginTop: '1.25rem' }}>
+                  <AILoadingOverlay type="schedule" title="Building Your Content Strategy" />
+                </div>
+              )}
+
+              {!isSmartGenerating && smartStrategy && (
                 <div className="sai-strategy" style={{ marginTop: '1.25rem' }}>
                   <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}><Brain size={14} /> AI Strategy</h4>
                   <p>{smartStrategy}</p>
@@ -979,7 +1061,7 @@ const SocialAI = () => {
             </div>
 
             {/* Best Practices Knowledge Hub */}
-            {smartPosts.length === 0 && (
+            {smartPosts.length === 0 && !isSmartGenerating && (
               <div style={{ marginTop: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
                   <Star size={18} style={{ color: '#fcd34d' }} />
@@ -1198,20 +1280,26 @@ const SocialAI = () => {
               <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <button onClick={handleAnalyze} disabled={isAnalyzing} className="btn btn-primary">
                   {isAnalyzing ? <Loader2 size={16} className="spin" /> : <BarChart3 size={16} />}
-                  Analyze & Recommend
+                  {recommendations ? 'Re-Analyze' : 'Analyze & Recommend'}
                 </button>
                 <button onClick={saveProfile} className="btn btn-secondary"><Save size={16} /> Save Stats</button>
               </div>
             </div>
 
-            {recommendations && (
+            {isAnalyzing && (
+              <div style={{ marginTop: '1.5rem' }}>
+                <AILoadingOverlay type="insights" title="Analyzing Your Performance" />
+              </div>
+            )}
+
+            {!isAnalyzing && recommendations && (
               <div className="sai-card" style={{ marginTop: '1.5rem' }}>
                 <h3 style={{ fontWeight: 600, color: '#fcd34d', marginBottom: '0.75rem' }}>Recommendations</h3>
                 <div style={{ fontSize: '0.875rem', color: '#d1d5db', whiteSpace: 'pre-wrap' }}>{recommendations}</div>
               </div>
             )}
 
-            {bestTimes && (
+            {!isAnalyzing && bestTimes && (
               <div className="sai-card" style={{ marginTop: '1rem' }}>
                 <h3 style={{ fontWeight: 600, color: '#fcd34d', marginBottom: '0.75rem' }}>Best Posting Times</h3>
                 <div style={{ fontSize: '0.875rem', color: '#d1d5db', whiteSpace: 'pre-wrap' }}>{bestTimes}</div>
