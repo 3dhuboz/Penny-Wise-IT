@@ -93,14 +93,13 @@ const AppRoutes = () => {
 
 function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <Router>
         <div className="app">
           <Navbar />
           <main className="main-content">
-            <ErrorBoundary>
               <AppRoutes />
-            </ErrorBoundary>
           </main>
           <Footer />
           <PennyAgent />
@@ -111,6 +110,7 @@ function App() {
         }} />
       </Router>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -220,8 +220,17 @@ app.use('/api/hosting', require('./routes/hosting'));
 
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
+  // Cache static assets (JS/CSS use content hashing) but NOT index.html
+  app.use(express.static(path.join(__dirname, '../client/build'), {
+    maxAge: '1y',
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      }
+    }
+  }));
   app.get('*', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
   });
 }

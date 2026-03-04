@@ -116,15 +116,15 @@ const SocialAI = () => {
       const mpRes = await api.post('/marketplace/subscribe', { appSlug: 'social-ai-studio', planKey: plan }).catch(() => null);
       if (mpRes?.data) {
         setMpSub(mpRes.data.subscription);
-        toast.success(mpRes.data.message);
+        toast.success(safeStr(mpRes.data.message));
       } else {
         const res = await api.post('/social/subscribe', { plan });
         setProfile(res.data.profile);
-        toast.success(res.data.message);
+        toast.success(safeStr(res.data.message));
       }
       loadData();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Purchase failed');
+      toast.error(safeStr(err.response?.data?.message) || 'Purchase failed');
     }
     setPurchasing(false);
   };
@@ -160,7 +160,7 @@ const SocialAI = () => {
       }
       loadData();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to save branding');
+      toast.error(safeStr(err.response?.data?.message) || 'Failed to save branding');
     }
     setSavingBranding(false);
   };
@@ -175,7 +175,7 @@ const SocialAI = () => {
       setGeneratedContent(safeStr(res.data.content));
       setGeneratedHashtags(Array.isArray(res.data.hashtags) ? res.data.hashtags.filter(h => typeof h === 'string') : []);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Generation failed');
+      toast.error(safeStr(err.response?.data?.message) || 'Generation failed');
     }
     setIsGenerating(false);
   };
@@ -231,7 +231,7 @@ const SocialAI = () => {
         toast.error(strat);
       }
     } catch (err) {
-      toast.error(err.response?.data?.error || err.response?.data?.message || 'Smart schedule failed');
+      toast.error(safeStr(err.response?.data?.error || err.response?.data?.message) || 'Smart schedule failed');
     }
     setIsSmartGenerating(false);
   };
@@ -268,7 +268,7 @@ const SocialAI = () => {
       setRecommendations(safeStr(res.data.recommendations));
       setBestTimes(safeStr(res.data.bestTimes));
     } catch (err) {
-      toast.error(err.response?.data?.error || err.response?.data?.message || 'Analysis failed');
+      toast.error(safeStr(err.response?.data?.error || err.response?.data?.message) || 'Analysis failed');
     }
     setIsAnalyzing(false);
   };
@@ -306,13 +306,13 @@ const SocialAI = () => {
     setConnectingFb(true);
     try {
       const res = await api.post('/social/facebook/connect', { pageId: fbPageIdInput.trim(), pageAccessToken: fbTokenInput.trim() });
-      toast.success(res.data.message);
+      toast.success(safeStr(res.data.message));
       setFbPageIdInput('');
       setFbTokenInput('');
       loadData();
       handleRefreshStats();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to connect Facebook page');
+      toast.error(safeStr(err.response?.data?.message) || 'Failed to connect Facebook page');
     }
     setConnectingFb(false);
   };
