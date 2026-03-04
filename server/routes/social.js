@@ -182,12 +182,21 @@ router.post('/ai/smart-schedule', auth, async (req, res) => {
     if (!profile?.geminiApiKey) {
       return res.status(400).json({ message: 'Gemini API key not configured.' });
     }
+    // Ensure stats is a plain object with safe defaults
+    const stats = {
+      followers: profile.stats?.followers ?? 500,
+      reach: profile.stats?.reach ?? 2000,
+      engagement: profile.stats?.engagement ?? 4.5,
+      postsLast30Days: profile.stats?.postsLast30Days ?? 8
+    };
+    console.log('[Smart Schedule] Generating for:', profile.businessName, '| count:', count || 7, '| stats:', stats);
     const result = await generateSmartSchedule(
       profile.geminiApiKey, profile.businessName, profile.businessType,
-      profile.tone, profile.stats, count || 7
+      profile.tone, stats, count || 7
     );
     res.json(result);
   } catch (err) {
+    console.error('[Smart Schedule] Route error:', err);
     res.status(500).json({ message: 'Smart schedule failed', error: err.message });
   }
 });

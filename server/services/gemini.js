@@ -278,6 +278,7 @@ Return JSON with:
   - reasoning (string: why this post at this time on this platform — reference algorithm science)
   - pillar (string: one of "Value", "Engagement", "Community", "Promotional")`;
 
+    console.log('[Smart Schedule] Calling Gemini API with model:', TEXT_MODEL);
     const response = await ai.models.generateContent({
       model: TEXT_MODEL,
       contents: prompt,
@@ -308,11 +309,26 @@ Return JSON with:
       }
     });
 
-    const data = response.text ? JSON.parse(response.text) : { posts: [], strategy: '' };
+    // Safely extract text — response.text can throw on blocked/empty responses
+    let rawText;
+    try {
+      rawText = response.text;
+    } catch (textErr) {
+      console.error('[Smart Schedule] response.text threw:', textErr.message);
+      const blockReason = response.candidates?.[0]?.finishReason || 'unknown';
+      return { posts: [], strategy: `Content generation was blocked (reason: ${blockReason}). Try again.` };
+    }
+
+    if (!rawText) {
+      console.error('[Smart Schedule] Empty response from Gemini');
+      return { posts: [], strategy: 'Gemini returned an empty response. Try again.' };
+    }
+
+    const data = JSON.parse(rawText);
     return { posts: data.posts || [], strategy: data.strategy || '' };
   } catch (error) {
-    console.error('Smart Schedule Error:', error);
-    return { posts: [], strategy: `Error: ${error?.message || 'Unknown'}` };
+    console.error('[Smart Schedule] Error:', error?.message || error);
+    return { posts: [], strategy: `Error: ${error?.message || 'Unknown error — check your Gemini API key and try again.'}` };
   }
 };
 

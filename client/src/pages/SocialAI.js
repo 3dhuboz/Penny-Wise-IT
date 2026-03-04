@@ -223,8 +223,11 @@ const SocialAI = () => {
       const res = await api.post('/social/ai/smart-schedule', { count: smartCount });
       setSmartPosts(res.data.posts || []);
       setSmartStrategy(res.data.strategy || '');
+      if (res.data.strategy && res.data.strategy.startsWith('Error:')) {
+        toast.error(res.data.strategy);
+      }
     } catch (err) {
-      toast.error('Smart schedule failed');
+      toast.error(err.response?.data?.error || err.response?.data?.message || 'Smart schedule failed');
     }
     setIsSmartGenerating(false);
   };
