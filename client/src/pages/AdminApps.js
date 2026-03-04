@@ -443,12 +443,25 @@ const AdminApps = () => {
               </div>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, marginBottom: '0.75rem' }}>Plans & Pricing</h3>
               {(editForm.plans || []).map((plan, idx) => (
-                <div key={idx} className="card" style={{ padding: '0.75rem', marginBottom: '0.5rem', borderLeft: `3px solid ${plan.color || '#3b82f6'}` }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                <div key={idx} className="card" style={{ padding: '0.75rem', marginBottom: '0.75rem', borderLeft: `3px solid ${plan.color || '#3b82f6'}` }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
                       <label style={{ fontSize: '0.6875rem' }}>Plan Name</label>
                       <input value={plan.name} onChange={e => updatePlan(idx, 'name', e.target.value)} style={{ fontSize: '0.8125rem' }} />
                     </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.6875rem' }}>Plan Key</label>
+                      <input value={plan.key || ''} onChange={e => updatePlan(idx, 'key', e.target.value)} style={{ fontSize: '0.8125rem' }} placeholder="e.g. starter" />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.6875rem' }}>Color</label>
+                      <div style={{ display: 'flex', gap: '0.25rem' }}>
+                        <input type="color" value={plan.color || '#3b82f6'} onChange={e => updatePlan(idx, 'color', e.target.value)} style={{ width: 32, height: 32, padding: 0, border: 'none', cursor: 'pointer' }} />
+                        <input value={plan.color || ''} onChange={e => updatePlan(idx, 'color', e.target.value)} style={{ fontSize: '0.8125rem', flex: 1 }} placeholder="#hex" />
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
                       <label style={{ fontSize: '0.6875rem' }}>Monthly ($)</label>
                       <input type="number" value={plan.price} onChange={e => updatePlan(idx, 'price', parseFloat(e.target.value))} style={{ fontSize: '0.8125rem' }} />
@@ -457,6 +470,27 @@ const AdminApps = () => {
                       <label style={{ fontSize: '0.6875rem' }}>Yearly ($)</label>
                       <input type="number" value={plan.yearlyPrice || 0} onChange={e => updatePlan(idx, 'yearlyPrice', parseFloat(e.target.value))} style={{ fontSize: '0.8125rem' }} />
                     </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.6875rem' }}>Popular?</label>
+                      <select value={plan.popular ? 'true' : 'false'} onChange={e => updatePlan(idx, 'popular', e.target.value === 'true')} style={{ fontSize: '0.8125rem' }}>
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '0.375rem' }}>
+                    <label style={{ fontSize: '0.6875rem' }}>Description</label>
+                    <input value={plan.description || ''} onChange={e => updatePlan(idx, 'description', e.target.value)} style={{ fontSize: '0.8125rem' }} placeholder="Plan description..." />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: '0.6875rem' }}>Features (one per line)</label>
+                    <textarea
+                      rows={4}
+                      value={(plan.features || []).join('\n')}
+                      onChange={e => updatePlan(idx, 'features', e.target.value.split('\n'))}
+                      style={{ fontSize: '0.75rem', lineHeight: 1.5 }}
+                      placeholder="AI Content Generation&#10;Content Calendar&#10;Smart Scheduler"
+                    />
                   </div>
                 </div>
               ))}

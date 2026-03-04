@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Sparkles, Settings, Calendar, BarChart3, Wand2, Image as ImageIcon,
@@ -19,6 +19,84 @@ const PLAN_DETAILS = {
 
 // Ensure a value is always a string — prevents React error #31 when API returns error objects
 const safeStr = (v) => (typeof v === 'string' ? v : (v?.message || (v && typeof v === 'object' ? JSON.stringify(v) : String(v || ''))));
+
+// Shuffle helper for evolving content
+const shuffle = (arr) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+};
+
+// Large tip pools — users see different advice each visit
+const QUICK_STATS_POOL = [
+  { stat: '3–5x', label: 'More engagement with video content vs static images', color: '#f59e0b' },
+  { stat: '10am–1pm', label: 'Peak engagement window for Facebook in Australia', color: '#1877f2' },
+  { stat: '11am & 7pm', label: 'Best posting times for Instagram engagement', color: '#e1306c' },
+  { stat: '3–7', label: 'Hashtags per Instagram post for optimal reach', color: '#a855f7' },
+  { stat: '38%', label: 'More likes on posts featuring faces vs no faces', color: '#10b981' },
+  { stat: '25.4%', label: 'More engagement on posts using emojis', color: '#f59e0b' },
+  { stat: '6x', label: 'More interactions from Facebook Live vs regular video', color: '#1877f2' },
+  { stat: '83%', label: 'More Story views when using polls, questions & stickers', color: '#e1306c' },
+  { stat: '4.5x', label: 'Higher conversion from user-generated content vs brand content', color: '#34d399' },
+  { stat: '23%', label: 'Follower growth boost from posting 4–7 Reels per week', color: '#a855f7' },
+  { stat: '40–80', label: 'Ideal Facebook post character length for max engagement', color: '#1877f2' },
+  { stat: '12%', label: 'Engagement increase from replying to comments within 60 min', color: '#10b981' }
+];
+
+const IG_TIPS_POOL = [
+  { tip: 'Reels get 2x more reach than static posts — use them for tips and behind-the-scenes content', icon: '🎥' },
+  { tip: 'Use 3–7 targeted hashtags instead of 30 generic ones — quality beats quantity since the 2024 algorithm update', icon: '#️⃣' },
+  { tip: 'Post consistently 3–5 times per week. Instagram rewards accounts that show up regularly', icon: '📅' },
+  { tip: 'Write captions that start with a hook — the first line decides if people read more or scroll past', icon: '🪝' },
+  { tip: 'Carousel posts get 3x more engagement than single images — tell a story across slides', icon: '📸' },
+  { tip: 'Reply to every comment within 1 hour to boost your post in the algorithm', icon: '⚡' },
+  { tip: 'Use Stories daily with polls, questions, and quizzes to keep your audience engaged between posts', icon: '📊' },
+  { tip: 'Collaborate with micro-influencers in your niche — they have 60% higher engagement than mega-influencers', icon: '🤝' },
+  { tip: 'Save your best content as Highlights so new followers can browse your value immediately', icon: '⭐' },
+  { tip: 'Post Reels at peak hours (7–8AM, 12–1PM, 7–9PM AEST) for maximum initial velocity', icon: '🕐' },
+  { tip: 'Use trending audio in your Reels — the algorithm pushes content using popular sounds', icon: '🎵' },
+  { tip: 'Geotag your posts to appear in local searches and increase discoverability', icon: '📍' },
+  { tip: 'Alt text on images helps accessibility AND helps Instagram understand your content for search', icon: '♿' },
+  { tip: 'Create "save-worthy" content (tips, how-tos, checklists) — saves signal value to the algorithm', icon: '🔖' },
+  { tip: 'Engage with accounts in your niche 15 min before and after posting — this boosts your reach', icon: '💬' }
+];
+
+const FB_TIPS_POOL = [
+  { tip: 'Video posts get 6x more engagement than text or link posts — even short clips outperform images', icon: '🎬' },
+  { tip: 'Post 1–2 times per day max. Over-posting causes unfollows and algorithm penalties', icon: '⏰' },
+  { tip: 'Ask questions in your posts — Facebook prioritises content that sparks conversations', icon: '❓' },
+  { tip: 'Go Live at least once a month — Facebook Live gets 6x more interactions than regular video', icon: '🔴' },
+  { tip: 'Share user-generated content and tag customers — social proof drives 4x more conversions', icon: '🏷️' },
+  { tip: 'Use Facebook Groups to build community — group posts get 5x more organic reach than page posts', icon: '👥' },
+  { tip: 'Pin your best-performing or most important post to the top of your page for new visitors', icon: '📌' },
+  { tip: 'Native videos (uploaded directly) get 10x more reach than shared YouTube links', icon: '📹' },
+  { tip: 'Posts with images get 2.3x more engagement than text-only posts', icon: '🖼️' },
+  { tip: 'Schedule posts for Wed-Fri 9–10AM and 1–2PM AEST for peak Australian engagement', icon: '📅' },
+  { tip: 'Use Facebook Events for promotions — they get free organic distribution in News Feed', icon: '🎉' },
+  { tip: 'Reply to every comment to boost the post in the algorithm and build trust', icon: '💬' },
+  { tip: 'Cross-post your best Instagram Reels to Facebook Reels — Meta rewards multi-platform creators', icon: '🔄' },
+  { tip: 'Add a clear CTA in every post — "Comment below", "Share with a friend", "Tag someone who needs this"', icon: '📢' },
+  { tip: 'Create a content series (e.g., "Tip Tuesday") to build anticipation and habitual engagement', icon: '🗓️' }
+];
+
+const STRATEGY_FACTS_POOL = [
+  { fact: 'Posts with emojis get 25.4% more engagement than those without', source: 'Hootsuite 2024' },
+  { fact: 'The ideal Facebook post length is 40–80 characters for maximum engagement', source: 'Buffer Research' },
+  { fact: 'Content with faces gets 38% more likes and 32% more comments on Instagram', source: 'Georgia Tech Study' },
+  { fact: 'Posting at consistent times trains your audience to expect and look for your content', source: 'Sprout Social' },
+  { fact: 'User-generated content has a 4.5% higher conversion rate than brand-created content', source: 'Nosto Research' },
+  { fact: 'Responding to comments within 60 minutes increases engagement by 12% on average', source: 'Socialinsider 2024' },
+  { fact: 'Stories with stickers (polls, questions) get up to 83% more views than plain stories', source: 'Instagram Insights' },
+  { fact: 'Brands that post 4–7 Reels per week see an average 23% increase in follower growth', source: 'Later 2024' },
+  { fact: 'Videos under 60 seconds have the highest completion rate and engagement on both platforms', source: 'Wistia 2024' },
+  { fact: 'Posts published on Wednesday see the highest overall engagement across platforms', source: 'Sprout Social 2024' },
+  { fact: 'Brands that use storytelling in posts see 22x more memorability than facts alone', source: 'Stanford Research' },
+  { fact: '90% of consumers say authenticity is important when deciding which brands to support', source: 'Stackla Report' },
+  { fact: 'Posts asking a question receive 100% more comments than statements on Facebook', source: 'Buzzsumo Study' },
+  { fact: 'Carousel posts on Instagram have the highest engagement rate of any format at 1.92%', source: 'Social Insider 2024' },
+  { fact: 'Accounts that engage with others for 15 min before posting see 40% more reach', source: 'Later Research' },
+  { fact: 'Branded hashtags generate 12.6% more engagement than generic industry hashtags', source: 'TrackMaven' }
+];
 
 // Premium AI Loading Overlay — shows animated research steps while AI works
 const AI_STEPS = {
@@ -92,6 +170,14 @@ const SocialAI = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
+
+  // Evolving tips — randomly selected on each mount so users see different advice
+  const randomTips = useMemo(() => ({
+    quickStats: shuffle(QUICK_STATS_POOL).slice(0, 4),
+    igTips: shuffle(IG_TIPS_POOL).slice(0, 7),
+    fbTips: shuffle(FB_TIPS_POOL).slice(0, 7),
+    facts: shuffle(STRATEGY_FACTS_POOL).slice(0, 8)
+  }), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Content generator state
   const [topic, setTopic] = useState('');
@@ -1097,12 +1183,7 @@ const SocialAI = () => {
 
                 {/* Quick Stats Banner */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                  {[
-                    { stat: '3–5x', label: 'More engagement with video content vs static images', color: '#f59e0b' },
-                    { stat: '10am–1pm', label: 'Peak engagement window for Facebook in Australia', color: '#1877f2' },
-                    { stat: '11am & 7pm', label: 'Best posting times for Instagram engagement', color: '#e1306c' },
-                    { stat: '3–7', label: 'Hashtags per Instagram post for optimal reach', color: '#a855f7' }
-                  ].map((item, i) => (
+                  {randomTips.quickStats.map((item, i) => (
                     <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
                       <div style={{ fontSize: '1.375rem', fontWeight: 800, color: item.color, marginBottom: '0.25rem' }}>{item.stat}</div>
                       <div style={{ fontSize: '0.6875rem', color: '#9ca3af', lineHeight: 1.4 }}>{item.label}</div>
@@ -1143,15 +1224,7 @@ const SocialAI = () => {
                       <h4 style={{ fontWeight: 700, color: '#e1306c', fontSize: '0.9375rem' }}>Instagram Best Practices</h4>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      {[
-                        { tip: 'Reels get 2x more reach than static posts — use them for tips and behind-the-scenes content', icon: '🎥' },
-                        { tip: 'Use 3–7 targeted hashtags instead of 30 generic ones — quality beats quantity since the 2024 algorithm update', icon: '#️⃣' },
-                        { tip: 'Post consistently 3–5 times per week. Instagram rewards accounts that show up regularly', icon: '📅' },
-                        { tip: 'Write captions that start with a hook — the first line decides if people read more or scroll past', icon: '🪝' },
-                        { tip: 'Carousel posts get 3x more engagement than single images — tell a story across slides', icon: '📸' },
-                        { tip: 'Reply to every comment within 1 hour to boost your post in the algorithm', icon: '⚡' },
-                        { tip: 'Use Stories daily with polls, questions, and quizzes to keep your audience engaged between posts', icon: '📊' }
-                      ].map((item, i) => (
+                      {randomTips.igTips.map((item, i) => (
                         <div key={i} style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', color: '#d1d5db', lineHeight: 1.5 }}>
                           <span style={{ flexShrink: 0 }}>{item.icon}</span>
                           <span>{item.tip}</span>
@@ -1166,15 +1239,7 @@ const SocialAI = () => {
                       <h4 style={{ fontWeight: 700, color: '#1877f2', fontSize: '0.9375rem' }}>Facebook Best Practices</h4>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      {[
-                        { tip: 'Video posts get 6x more engagement than text or link posts — even short clips outperform images', icon: '🎬' },
-                        { tip: 'Post 1–2 times per day max. Over-posting causes unfollows and algorithm penalties', icon: '⏰' },
-                        { tip: 'Ask questions in your posts — Facebook prioritises content that sparks conversations', icon: '❓' },
-                        { tip: 'Go Live at least once a month — Facebook Live gets 6x more interactions than regular video', icon: '🔴' },
-                        { tip: 'Share user-generated content and tag customers — social proof drives 4x more conversions', icon: '🏷️' },
-                        { tip: 'Use Facebook Groups to build community — group posts get 5x more organic reach than page posts', icon: '👥' },
-                        { tip: 'Pin your best-performing or most important post to the top of your page for new visitors', icon: '📌' }
-                      ].map((item, i) => (
+                      {randomTips.fbTips.map((item, i) => (
                         <div key={i} style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', color: '#d1d5db', lineHeight: 1.5 }}>
                           <span style={{ flexShrink: 0 }}>{item.icon}</span>
                           <span>{item.tip}</span>
@@ -1190,16 +1255,7 @@ const SocialAI = () => {
                     <BarChart3 size={16} /> Engagement Strategy Facts
                   </h4>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                    {[
-                      { fact: 'Posts with emojis get 25.4% more engagement than those without', source: 'Hootsuite 2024' },
-                      { fact: 'The ideal Facebook post length is 40–80 characters for maximum engagement', source: 'Buffer Research' },
-                      { fact: 'Content with faces gets 38% more likes and 32% more comments on Instagram', source: 'Georgia Tech Study' },
-                      { fact: 'Posting at consistent times trains your audience to expect and look for your content', source: 'Sprout Social' },
-                      { fact: 'User-generated content has a 4.5% higher conversion rate than brand-created content', source: 'Nosto Research' },
-                      { fact: 'Responding to comments within 60 minutes increases engagement by 12% on average', source: 'Socialinsider 2024' },
-                      { fact: 'Stories with stickers (polls, questions) get up to 83% more views than plain stories', source: 'Instagram Insights' },
-                      { fact: 'Brands that post 4–7 Reels per week see an average 23% increase in follower growth', source: 'Later 2024' }
-                    ].map((item, i) => (
+                    {randomTips.facts.map((item, i) => (
                       <div key={i} style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', lineHeight: 1.5 }}>
                         <CheckCircle size={13} style={{ color: '#34d399', flexShrink: 0, marginTop: 2 }} />
                         <div>

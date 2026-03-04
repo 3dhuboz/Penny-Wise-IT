@@ -231,10 +231,10 @@ router.post('/ai/smart-schedule', auth, async (req, res) => {
         const token = profile.facebookPageAccessToken;
         // FB posts
         researchPromises.push(
-          fetch(`${FB_GRAPH}/${profile.facebookPageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=25&access_token=${token}`)
+          fetch(`${FB_GRAPH}/${profile.facebookPageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=15&access_token=${token}`)
             .then(r => r.json())
             .then(d => { if (d.data) pastFbPosts = d.data.map(p => ({
-              message: (p.message || '').substring(0, 200), date: p.created_time,
+              message: (p.message || '').substring(0, 120), date: p.created_time,
               day: new Date(p.created_time).toLocaleDateString('en-AU', { weekday: 'long' }),
               time: new Date(p.created_time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
               likes: p.likes?.summary?.total_count || 0, comments: p.comments?.summary?.total_count || 0,
@@ -243,16 +243,15 @@ router.post('/ai/smart-schedule', auth, async (req, res) => {
             })); })
             .catch(() => {})
         );
-        // IG posts
         if (profile.instagramBusinessAccountId) {
           researchPromises.push(
-            fetch(`${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count,media_type&limit=25&access_token=${token}`)
+            fetch(`${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count&limit=15&access_token=${token}`)
               .then(r => r.json())
               .then(d => { if (d.data) pastIgPosts = d.data.map(p => ({
-                caption: (p.caption || '').substring(0, 200), date: p.timestamp,
+                caption: (p.caption || '').substring(0, 120), date: p.timestamp,
                 day: new Date(p.timestamp).toLocaleDateString('en-AU', { weekday: 'long' }),
                 time: new Date(p.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
-                likes: p.like_count || 0, comments: p.comments_count || 0, mediaType: p.media_type,
+                likes: p.like_count || 0, comments: p.comments_count || 0,
                 engagement: (p.like_count || 0) + (p.comments_count || 0) * 3
               })); })
               .catch(() => {})
@@ -318,10 +317,10 @@ router.post('/ai/recommendations', auth, async (req, res) => {
       if (profile.facebookConnected && profile.facebookPageAccessToken) {
         const token = profile.facebookPageAccessToken;
         researchPromises.push(
-          fetch(`${FB_GRAPH}/${profile.facebookPageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=25&access_token=${token}`)
+          fetch(`${FB_GRAPH}/${profile.facebookPageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=15&access_token=${token}`)
             .then(r => r.json())
             .then(d => { if (d.data) pastFbPosts = d.data.map(p => ({
-              message: (p.message || '').substring(0, 200),
+              message: (p.message || '').substring(0, 120),
               day: new Date(p.created_time).toLocaleDateString('en-AU', { weekday: 'long' }),
               time: new Date(p.created_time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
               likes: p.likes?.summary?.total_count || 0, comments: p.comments?.summary?.total_count || 0,
@@ -332,10 +331,10 @@ router.post('/ai/recommendations', auth, async (req, res) => {
         );
         if (profile.instagramBusinessAccountId) {
           researchPromises.push(
-            fetch(`${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count&limit=25&access_token=${token}`)
+            fetch(`${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count&limit=15&access_token=${token}`)
               .then(r => r.json())
               .then(d => { if (d.data) pastIgPosts = d.data.map(p => ({
-                caption: (p.caption || '').substring(0, 200),
+                caption: (p.caption || '').substring(0, 120),
                 day: new Date(p.timestamp).toLocaleDateString('en-AU', { weekday: 'long' }),
                 time: new Date(p.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
                 likes: p.like_count || 0, comments: p.comments_count || 0,
