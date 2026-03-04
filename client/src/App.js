@@ -1,4 +1,5 @@
 import React from 'react';
+import ErrorBoundary from './components/ErrorBoundary';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -97,7 +98,9 @@ function App() {
         <div className="app">
           <Navbar />
           <main className="main-content">
-            <AppRoutes />
+            <ErrorBoundary>
+              <AppRoutes />
+            </ErrorBoundary>
           </main>
           <Footer />
           <PennyAgent />
