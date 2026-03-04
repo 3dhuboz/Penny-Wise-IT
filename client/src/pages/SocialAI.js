@@ -5,7 +5,7 @@ import {
   Loader2, Trash2, Clock, CheckCircle, Zap, Save, Brain, Instagram, Facebook,
   Palette, Crown, ArrowRight, Star, Shield, ExternalLink, X, RefreshCw,
   HelpCircle, Users, Eye, ThumbsUp, MessageCircle, Share2, Link2,
-  ChevronRight, AlertCircle, Info, BookOpen, Key, Globe, Monitor
+  ChevronRight, AlertCircle, Info, BookOpen, Key, Globe, Monitor, Video
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
@@ -13,7 +13,7 @@ import './SocialAI.css';
 
 const PLAN_DETAILS = {
   starter: { name: 'Starter', price: 49, color: '#3b82f6', icon: Star, features: ['AI Content Generation', 'Content Calendar & Scheduling', 'AI-Powered Insights', 'Best Practices Knowledge Hub', '1 Brand Profile'] },
-  professional: { name: 'Professional', price: 99, color: '#f59e0b', icon: Crown, popular: true, features: ['Everything in Starter', 'Research-Driven Smart Scheduler', 'AI Analyses Your Post Performance', 'Schedule Directly from Insights', 'AI Image Generation', 'White-Label Branding', '3 Brand Profiles'] },
+  professional: { name: 'Professional', price: 99, color: '#f59e0b', icon: Crown, popular: true, features: ['Everything in Starter', 'Research-Driven Smart Scheduler', 'AI Analyses Your Post Performance', 'Schedule Directly from Insights', 'AI Image Generation', 'AI Promotional Video Creation', 'White-Label Branding', '3 Brand Profiles'] },
   enterprise: { name: 'Enterprise', price: 199, color: '#a855f7', icon: Shield, features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Unlimited Brand Profiles', 'Dedicated Account Manager'] }
 };
 
@@ -219,6 +219,14 @@ const SocialAI = () => {
   // Help system state
   const [showHelpTip, setShowHelpTip] = useState(null);
 
+  // AI Video generation state
+  const [videoTaskId, setVideoTaskId] = useState(null);
+  const [videoStatus, setVideoStatus] = useState(null); // null | 'starting' | 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED'
+  const [videoProgress, setVideoProgress] = useState(0);
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [videoPostIndex, setVideoPostIndex] = useState(null);
+  const [videoAvailable, setVideoAvailable] = useState(false);
+
   const loadData = useCallback(async () => {
     try {
       const [profileRes, postsRes, mpRes] = await Promise.all([
@@ -244,6 +252,8 @@ const SocialAI = () => {
       } else if (profileRes.data?.whiteLabel) {
         setBranding(profileRes.data.whiteLabel);
       }
+      // Check if AI video generation is available
+      api.get('/social/ai/video/status').then(r => setVideoAvailable(r.data?.available)).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -411,6 +421,65 @@ const SocialAI = () => {
       toast.error(safeStr(err.response?.data?.error || err.response?.data?.message) || 'Smart schedule failed');
     }
     setIsSmartGenerating(false);
+  };
+
+  // ── AI Video Generation ──
+  const handleGenerateVideo = async (postIndex, imageUrl, prompt) => {
+    if (!imageUrl) return toast.error('Generate an AI image first, then create a video from it.');
+    setVideoPostIndex(postIndex);
+    setVideoStatus('starting');
+    setVideoUrl(null);
+    setVideoProgress(0);
+    try {
+      const res = await api.post('/social/ai/video/generate', {
+        imageUrl,
+        prompt: prompt || 'Smooth professional promotional video with subtle cinematic motion',
+        duration: 5,
+        ratio: '16:9'
+      });
+      setVideoTaskId(res.data.taskId);
+      toast.success('Video generation started — this takes 30-90 seconds.');
+      // Start polling
+      pollVideoTask(res.data.taskId);
+    } catch (err) {
+      setVideoStatus('FAILED');
+      toast.error(safeStr(err.response?.data?.message) || 'Video generation failed');
+    }
+  };
+
+  const pollVideoTask = (taskId) => {
+    const poll = async () => {
+      try {
+        const res = await api.get(`/social/ai/video/task/${taskId}`);
+        setVideoStatus(res.data.status);
+        setVideoProgress(res.data.progress || 0);
+        if (res.data.status === 'SUCCEEDED' && res.data.videoUrl) {
+          setVideoUrl(res.data.videoUrl);
+          toast.success('AI video generated successfully!');
+          return; // Stop polling
+        }
+        if (res.data.status === 'FAILED') {
+          toast.error('Video generation failed. Try again.');
+          return;
+        }
+        // Continue polling (PENDING or RUNNING)
+        setTimeout(poll, 3000);
+      } catch {
+        setVideoStatus('FAILED');
+      }
+    };
+    setTimeout(poll, 3000); // First poll after 3s
+  };
+
+  const cancelVideo = async () => {
+    if (videoTaskId) {
+      await api.post(`/social/ai/video/cancel/${videoTaskId}`).catch(() => {});
+    }
+    setVideoTaskId(null);
+    setVideoStatus(null);
+    setVideoProgress(0);
+    setVideoUrl(null);
+    setVideoPostIndex(null);
   };
 
   const handleAcceptSmartPosts = async () => {
@@ -1328,6 +1397,56 @@ const SocialAI = () => {
                           {sp.reasoning}
                         </div>
                       )}
+                      {/* AI Video Generation */}
+                      {videoAvailable && (
+                        <div style={{ marginTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '0.75rem' }}>
+                          {videoPostIndex === i && videoStatus ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              {videoStatus === 'SUCCEEDED' && videoUrl ? (
+                                <div style={{ width: '100%' }}>
+                                  <video src={videoUrl} controls style={{ width: '100%', borderRadius: 8, maxHeight: 240 }} />
+                                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                                    <a href={videoUrl} target="_blank" rel="noreferrer" className="btn btn-sm btn-secondary" style={{ fontSize: '0.6875rem' }}>
+                                      <ExternalLink size={12} /> Download
+                                    </a>
+                                    <button onClick={cancelVideo} className="btn btn-sm btn-secondary" style={{ fontSize: '0.6875rem' }}>
+                                      <X size={12} /> Close
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : videoStatus === 'FAILED' ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%' }}>
+                                  <AlertCircle size={14} style={{ color: '#ef4444' }} />
+                                  <span style={{ fontSize: '0.75rem', color: '#ef4444' }}>Video generation failed</span>
+                                  <button onClick={cancelVideo} className="btn btn-sm btn-secondary" style={{ fontSize: '0.6875rem', marginLeft: 'auto' }}>Dismiss</button>
+                                </div>
+                              ) : (
+                                <div style={{ width: '100%' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
+                                    <Loader2 size={14} className="spin" style={{ color: '#a855f7' }} />
+                                    <span style={{ fontSize: '0.75rem', color: '#d1d5db' }}>
+                                      {videoStatus === 'starting' ? 'Starting video generation...' : `Generating video... ${Math.round(videoProgress * 100)}%`}
+                                    </span>
+                                    <button onClick={cancelVideo} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '0.6875rem' }}>Cancel</button>
+                                  </div>
+                                  <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${Math.max(videoProgress * 100, 5)}%`, background: 'linear-gradient(90deg, #a855f7, #6366f1)', borderRadius: 2, transition: 'width 0.5s ease' }} />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleGenerateVideo(i, sp.imageUrl || sp.image, sp.imagePrompt || sp.content?.substring(0, 100))}
+                              className="btn btn-sm btn-secondary"
+                              style={{ fontSize: '0.6875rem', display: 'flex', alignItems: 'center', gap: '0.375rem', color: '#a855f7', borderColor: 'rgba(168,85,247,0.3)' }}
+                              disabled={videoStatus && videoStatus !== 'SUCCEEDED' && videoStatus !== 'FAILED'}
+                            >
+                              <Video size={13} /> Generate AI Video
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -1923,6 +2042,50 @@ const SocialAI = () => {
                     <p style={{ fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.5, margin: 0 }}>{item.desc}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* AI Video Generation Guide */}
+            <div className="sai-card" style={{ marginBottom: '1rem', borderLeft: '3px solid #a855f7' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.75rem' }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #a855f7, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8125rem', fontWeight: 800, color: 'white', flexShrink: 0 }}>5</div>
+                <h3 style={{ fontWeight: 700, color: 'white', fontSize: '1rem' }}>AI Video Generation (Pro & Enterprise)</h3>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.7, marginBottom: '0.75rem' }}>
+                Professional and Enterprise plans include AI-powered promotional video creation. The AI can transform any post's image into a short, cinematic video clip — perfect for Reels, Stories, and video posts that get 3-5x more engagement.
+              </p>
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '1rem', border: '1px solid rgba(255,255,255,0.06)', marginBottom: '0.75rem' }}>
+                <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#c084fc', marginBottom: '0.5rem' }}>How AI Video Works:</h4>
+                <ol style={{ margin: 0, paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.6 }}>
+                  <li>Generate a content schedule using <strong style={{ color: 'white' }}>Smart AI</strong></li>
+                  <li>Each post has a <strong style={{ color: '#c084fc' }}>"Generate AI Video"</strong> button</li>
+                  <li>Click it — the AI creates a 5-second promotional video from the post's image prompt</li>
+                  <li>Video generates in 30-90 seconds with a live progress bar</li>
+                  <li>Preview the video inline, then download it for posting</li>
+                </ol>
+              </div>
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '1rem', border: '1px solid rgba(255,255,255,0.06)', marginBottom: '0.75rem' }}>
+                <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#c084fc', marginBottom: '0.5rem' }}>Powered by Runway ML (Gen-3 Alpha Turbo):</h4>
+                <ul style={{ margin: 0, paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.6 }}>
+                  <li><strong style={{ color: 'white' }}>Image-to-Video</strong> — transforms AI-generated images into smooth, cinematic motion clips</li>
+                  <li><strong style={{ color: 'white' }}>5 or 10 second</strong> durations — perfect for Reels, Stories, and short-form video</li>
+                  <li><strong style={{ color: 'white' }}>Multiple ratios</strong> — 16:9 (landscape), 9:16 (Stories/Reels), 1:1 (square)</li>
+                  <li><strong style={{ color: 'white' }}>Professional quality</strong> — used by major brands and agencies worldwide</li>
+                </ul>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div style={{ padding: '0.75rem', background: 'rgba(168,85,247,0.06)', borderRadius: 8, border: '1px solid rgba(168,85,247,0.15)' }}>
+                  <p style={{ fontSize: '0.75rem', color: '#c084fc', display: 'flex', alignItems: 'flex-start', gap: '0.375rem', margin: 0 }}>
+                    <Info size={14} style={{ marginTop: 1, flexShrink: 0 }} />
+                    <span><strong>For Admins:</strong> Add your Runway ML API key as <code style={{ background: 'rgba(255,255,255,0.08)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.6875rem' }}>RUNWAY_API_KEY</code> in your environment variables. Get one at <a href="https://app.runwayml.com/settings/api-keys" target="_blank" rel="noopener noreferrer" style={{ color: '#a855f7' }}>runwayml.com</a></span>
+                  </p>
+                </div>
+                <div style={{ padding: '0.75rem', background: 'rgba(16,185,129,0.06)', borderRadius: 8, border: '1px solid rgba(16,185,129,0.15)' }}>
+                  <p style={{ fontSize: '0.75rem', color: '#34d399', display: 'flex', alignItems: 'flex-start', gap: '0.375rem', margin: 0 }}>
+                    <CheckCircle size={14} style={{ marginTop: 1, flexShrink: 0 }} />
+                    <span><strong>For Users:</strong> No setup needed! Video generation is included with Professional and Enterprise plans. Just click the video button on any generated post.</span>
+                  </p>
+                </div>
               </div>
             </div>
 

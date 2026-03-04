@@ -60,11 +60,11 @@ async function connectDB() {
         category: 'marketing',
         routePath: '/social',
         setupFee: 299,
-        features: ['Research-Driven AI Engine', 'AI Content Generation', 'AI Image Generation', 'Data-Backed Smart Scheduler', 'Insights-to-Schedule Workflow', 'Performance Intelligence', 'Evolving Best Practices Hub', 'Multi-Platform (Facebook & Instagram)', 'White-Label Branding'],
+        features: ['Research-Driven AI Engine', 'AI Content Generation', 'AI Image Generation', 'AI Video Generation (Runway ML)', 'Data-Backed Smart Scheduler', 'Insights-to-Schedule Workflow', 'Performance Intelligence', 'Evolving Best Practices Hub', 'Multi-Platform (Facebook & Instagram)', 'White-Label Branding'],
         techStack: ['Google Gemini 2.5 AI', 'React', 'Node.js', 'MongoDB', 'Facebook Graph API'],
         plans: [
           { key: 'starter', name: 'Starter', price: 49, yearlyPrice: 490, features: ['AI Content Generation', 'Content Calendar & Scheduling', 'AI-Powered Insights', 'Best Practices Knowledge Hub', 'Brand Profile & Voice Setup', '1 Brand Profile'], color: '#3b82f6', whiteLabel: false, customDomain: false },
-          { key: 'professional', name: 'Professional', price: 99, yearlyPrice: 990, features: ['Everything in Starter', 'Research-Driven Smart Scheduler', 'AI Analyses Past Post Performance', 'Data-Backed Best Days & Times', 'Schedule Directly from Insights', 'AI Marketing Image Generation', 'Full White-Label Branding', '3 Brand Profiles'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
+          { key: 'professional', name: 'Professional', price: 99, yearlyPrice: 990, features: ['Everything in Starter', 'Research-Driven Smart Scheduler', 'AI Analyses Past Post Performance', 'Data-Backed Best Days & Times', 'Schedule Directly from Insights', 'AI Marketing Image Generation', 'AI Promotional Video Creation', 'Full White-Label Branding', '3 Brand Profiles'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
           { key: 'enterprise', name: 'Enterprise', price: 199, yearlyPrice: 1990, features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Unlimited Brand Profiles', 'Dedicated Account Manager'], color: '#a855f7', whiteLabel: true, customDomain: true }
         ],
         isActive: true, isPublished: true, displayOrder: 1

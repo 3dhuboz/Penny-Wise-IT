@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   Sparkles, Wand2, Brain, Image as ImageIcon,
   CheckCircle, ArrowRight, Zap, Star, Clock,
-  TrendingUp, Target, Search, Palette
+  TrendingUp, Target, Search, Palette, Video
 } from 'lucide-react';
 import './SocialAIProduct.css';
 
@@ -41,6 +41,7 @@ const SocialAIProduct = () => {
         'Data-Backed Best Days & Times',
         'Schedule Directly from Insights',
         'AI Marketing Image Generation',
+        'AI Promotional Video Creation',
         'Full White-Label Branding',
         'Priority Support'
       ],
@@ -135,6 +136,11 @@ const SocialAIProduct = () => {
               <div className="sai-feature-icon" style={{ background: 'rgba(37,99,235,0.1)', color: '#2563eb' }}><Target size={28} /></div>
               <h3>Insights-to-Schedule</h3>
               <p>Analyse your performance, then generate a full content schedule directly from the insights — all in one flow. The AI fills gaps in your calendar based on real data patterns.</p>
+            </div>
+            <div className="sai-feature-card">
+              <div className="sai-feature-icon" style={{ background: 'rgba(139,92,246,0.1)', color: '#8b5cf6' }}><Video size={28} /></div>
+              <h3>AI Video Generation</h3>
+              <p>Transform any post into a short promotional video clip using Runway ML. Create Reels-ready content in seconds — video posts get 3-5x more engagement than static images.</p>
             </div>
             <div className="sai-feature-card">
               <div className="sai-feature-icon" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><Palette size={28} /></div>

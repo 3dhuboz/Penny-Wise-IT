@@ -10,6 +10,7 @@ const {
   generateRecommendations,
   generateSmartSchedule
 } = require('../services/gemini');
+const { generateVideoFromImage, getTaskStatus, cancelTask } = require('../services/runway');
 
 const router = express.Router();
 
@@ -846,6 +847,78 @@ router.get('/instagram/posts', auth, async (req, res) => {
     res.json(posts);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch Instagram posts', error: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  AI VIDEO GENERATION (Runway ML)
+//  Admin provides RUNWAY_API_KEY in env — premium users access it
+// ═══════════════════════════════════════════════════════════════
+
+const RUNWAY_KEY = process.env.RUNWAY_API_KEY;
+
+// Check if video generation is available
+router.get('/ai/video/status', auth, async (req, res) => {
+  const profile = await SocialProfile.findOne({ user: req.user._id });
+  const plan = profile?.subscription?.plan || 'none';
+  const canVideo = plan === 'professional' || plan === 'enterprise';
+  res.json({
+    available: !!RUNWAY_KEY && canVideo,
+    configured: !!RUNWAY_KEY,
+    planRequired: !canVideo,
+    plan
+  });
+});
+
+// Start video generation from an image URL + prompt
+router.post('/ai/video/generate', auth, async (req, res) => {
+  try {
+    if (!RUNWAY_KEY) return res.status(503).json({ message: 'AI video generation is not configured. Contact admin.' });
+
+    const profile = await SocialProfile.findOne({ user: req.user._id });
+    if (!profile) return res.status(404).json({ message: 'Profile not found' });
+
+    const plan = profile.subscription?.plan || 'none';
+    if (plan !== 'professional' && plan !== 'enterprise') {
+      return res.status(403).json({ message: 'AI Video requires Professional or Enterprise plan.' });
+    }
+
+    const { imageUrl, prompt, duration, ratio } = req.body;
+    if (!imageUrl) return res.status(400).json({ message: 'Image URL is required. Generate an AI image first.' });
+
+    const result = await generateVideoFromImage(RUNWAY_KEY, imageUrl, prompt || 'Smooth professional promotional video with subtle cinematic motion', {
+      duration: duration || 5,
+      ratio: ratio || '16:9'
+    });
+
+    res.json({ taskId: result.taskId, message: 'Video generation started. This takes 30-90 seconds.' });
+  } catch (err) {
+    console.error('[Video Generate] Error:', err.message);
+    res.status(500).json({ message: err.message || 'Video generation failed' });
+  }
+});
+
+// Poll video task status
+router.get('/ai/video/task/:taskId', auth, async (req, res) => {
+  try {
+    if (!RUNWAY_KEY) return res.status(503).json({ message: 'Video service not configured.' });
+
+    const status = await getTaskStatus(RUNWAY_KEY, req.params.taskId);
+    res.json(status);
+  } catch (err) {
+    console.error('[Video Status] Error:', err.message);
+    res.status(500).json({ message: err.message || 'Failed to check video status' });
+  }
+});
+
+// Cancel a running video task
+router.post('/ai/video/cancel/:taskId', auth, async (req, res) => {
+  try {
+    if (!RUNWAY_KEY) return res.status(503).json({ message: 'Video service not configured.' });
+    await cancelTask(RUNWAY_KEY, req.params.taskId);
+    res.json({ message: 'Task cancelled' });
+  } catch (err) {
+    res.status(500).json({ message: err.message || 'Failed to cancel' });
   }
 });
 
