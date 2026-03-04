@@ -300,6 +300,7 @@ const SocialAI = () => {
     try {
       const res = await api.post('/social/ai/smart-schedule', { count: smartCount });
       // Sanitize every post field to prevent React error #31 (objects as JSX children)
+      console.log('[Smart Schedule] Response:', { postsCount: (res.data.posts || []).length, strategyLength: (res.data.strategy || '').length });
       const safePosts = (res.data.posts || []).map(p => ({
         ...p,
         platform: safeStr(p.platform) || 'Instagram',
@@ -316,6 +317,8 @@ const SocialAI = () => {
       setSmartStrategy(strat);
       if (strat.startsWith('Error:')) {
         toast.error(strat);
+      } else if (safePosts.length === 0 && strat) {
+        toast.error('AI generated strategy but no posts. Trying again may help.');
       }
     } catch (err) {
       toast.error(safeStr(err.response?.data?.error || err.response?.data?.message) || 'Smart schedule failed');

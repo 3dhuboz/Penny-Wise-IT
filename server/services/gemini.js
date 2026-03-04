@@ -429,8 +429,8 @@ RESEARCH-DRIVEN RULES:
 7. NO GENERIC CONTENT — Every post must be specific to ${businessType}. Reference real industry topics, trends, and pain points.
 
 Return JSON with:
-- "strategy": A 3-5 sentence strategy summary that ${hasRealData ? 'REFERENCES the actual data patterns found (e.g. "Your Tuesday posts average 3x more engagement than weekends...")' : 'explains the strategic approach for a new account'}
-- "posts": array of ${postsToGenerate} objects, each with:
+IMPORTANT: Generate the "posts" array FIRST, then the "strategy" field.
+- "posts": array of EXACTLY ${postsToGenerate} post objects, each with:
   - platform (string: "Instagram" or "Facebook")
   - scheduledFor (ISO datetime string in AEST, e.g. "2025-03-15T07:30:00+10:00")
   - topic (string: brief topic)
@@ -438,7 +438,8 @@ Return JSON with:
   - hashtags (array of strings — for Instagram only, 0 for Facebook)
   - imagePrompt (string: detailed AI image generation prompt)
   - reasoning (string: ${hasRealData ? 'explain WHY this post at this time, referencing actual data patterns' : 'explain the strategic reasoning'})
-  - pillar (string: "Value", "Engagement", "Community", or "Promotional")`;
+  - pillar (string: "Value", "Engagement", "Community", or "Promotional")
+- "strategy": A brief 2-3 sentence strategy summary ${hasRealData ? 'referencing actual data patterns' : 'explaining the approach'}. Keep this SHORT.`;
 
     console.log('[Smart Schedule] Calling Gemini API with model:', TEXT_MODEL);
     const response = await ai.models.generateContent({
@@ -449,7 +450,6 @@ Return JSON with:
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            strategy: { type: Type.STRING },
             posts: {
               type: Type.ARRAY,
               items: {
@@ -465,7 +465,8 @@ Return JSON with:
                   pillar: { type: Type.STRING }
                 }
               }
-            }
+            },
+            strategy: { type: Type.STRING }
           }
         }
       }
@@ -487,6 +488,7 @@ Return JSON with:
     }
 
     const data = JSON.parse(rawText);
+    console.log('[Smart Schedule] Response parsed — posts:', Array.isArray(data.posts) ? data.posts.length : 'NOT ARRAY', '| strategy length:', (data.strategy || '').length);
     // Sanitize every post field — Gemini may return objects instead of strings
     const safePosts = (Array.isArray(data.posts) ? data.posts : []).map(p => ({
       platform: typeof p.platform === 'string' ? p.platform : String(p.platform || 'Instagram'),
