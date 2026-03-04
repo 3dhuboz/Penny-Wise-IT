@@ -219,6 +219,13 @@ const SocialAI = () => {
   // Help system state
   const [showHelpTip, setShowHelpTip] = useState(null);
 
+  // Calendar state
+  const [calMonth, setCalMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
+  const [calPopover, setCalPopover] = useState(null); // { date, posts, x, y }
+
+  // AI admin-key awareness
+  const [aiAdminManaged, setAiAdminManaged] = useState(false);
+
   // AI Video generation state
   const [videoTaskId, setVideoTaskId] = useState(null);
   const [videoStatus, setVideoStatus] = useState(null); // null | 'starting' | 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED'
@@ -252,7 +259,8 @@ const SocialAI = () => {
       } else if (profileRes.data?.whiteLabel) {
         setBranding(profileRes.data.whiteLabel);
       }
-      // Check if AI video generation is available
+      // Check AI availability (admin-managed key) and video status
+      api.get('/social/ai/status').then(r => setAiAdminManaged(!!r.data?.adminManaged)).catch(() => {});
       api.get('/social/ai/video/status').then(r => setVideoAvailable(r.data?.available)).catch(() => {});
     } catch (err) {
       console.error(err);
@@ -262,7 +270,7 @@ const SocialAI = () => {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  const hasApiKey = !!profile?.geminiApiKey;
+  const hasApiKey = !!profile?.geminiApiKey || aiAdminManaged;
   // Subscribed via legacy SocialProfile OR marketplace AppSubscription
   const legacySubscribed = profile?.isSubscribed;
   const mpSubscribed = mpSub?.isActive;
@@ -406,8 +414,11 @@ const SocialAI = () => {
         reasoning: safeStr(p.reasoning),
         pillar: safeStr(p.pillar),
         imagePrompt: safeStr(p.imagePrompt),
+        mediaType: safeStr(p.mediaType) || 'image',
         hashtags: Array.isArray(p.hashtags) ? p.hashtags.filter(h => typeof h === 'string') : [],
-        scheduledFor: typeof p.scheduledFor === 'string' ? p.scheduledFor : new Date().toISOString()
+        scheduledFor: typeof p.scheduledFor === 'string' ? p.scheduledFor : new Date().toISOString(),
+        generatedImage: null,
+        imageLoading: false
       }));
       setSmartPosts(safePosts);
       const strat = safeStr(res.data.strategy);
@@ -416,6 +427,25 @@ const SocialAI = () => {
         toast.error(strat);
       } else if (safePosts.length === 0 && strat) {
         toast.error('AI generated strategy but no posts. Trying again may help.');
+      }
+      // Auto-generate images for each post in parallel (non-blocking)
+      if (safePosts.length > 0) {
+        safePosts.forEach((post, idx) => {
+          if (post.imagePrompt) {
+            setSmartPosts(prev => prev.map((sp, i) => i === idx ? { ...sp, imageLoading: true } : sp));
+            api.post('/social/ai/image', { prompt: post.imagePrompt })
+              .then(imgRes => {
+                if (imgRes.data?.image) {
+                  setSmartPosts(prev => prev.map((sp, i) => i === idx ? { ...sp, generatedImage: imgRes.data.image, imageLoading: false } : sp));
+                } else {
+                  setSmartPosts(prev => prev.map((sp, i) => i === idx ? { ...sp, imageLoading: false } : sp));
+                }
+              })
+              .catch(() => {
+                setSmartPosts(prev => prev.map((sp, i) => i === idx ? { ...sp, imageLoading: false } : sp));
+              });
+          }
+        });
       }
     } catch (err) {
       toast.error(safeStr(err.response?.data?.error || err.response?.data?.message) || 'Smart schedule failed');
@@ -1148,50 +1178,136 @@ const SocialAI = () => {
           </div>
         )}
 
-        {/* ═══ CALENDAR TAB ═══ */}
-        {activeTab === 'calendar' && (
-          <div className="sai-section">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 className="sai-title"><Calendar size={22} style={{ color: '#f59e0b' }} /> Content Calendar</h2>
-              <span style={{ fontSize: '0.8125rem', color: '#9ca3af' }}>{posts.length} posts</span>
-            </div>
+        {/* ═══ CALENDAR TAB — Google-style month grid ═══ */}
+        {activeTab === 'calendar' && (() => {
+          const year = calMonth.getFullYear();
+          const month = calMonth.getMonth();
+          const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          const prevMonthDays = new Date(year, month, 0).getDate();
+          const today = new Date();
+          const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
 
-            {posts.length === 0 ? (
-              <div className="sai-empty">
-                <Calendar size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
-                <p>No posts yet. Create one in the Create tab or use Smart AI.</p>
+          // Group posts by date key
+          const postsByDate = {};
+          posts.forEach(p => {
+            const d = new Date(p.scheduledFor);
+            const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+            if (!postsByDate[key]) postsByDate[key] = [];
+            postsByDate[key].push(p);
+          });
+
+          // Build calendar cells
+          const cells = [];
+          // Previous month fill
+          for (let i = firstDay - 1; i >= 0; i--) {
+            cells.push({ day: prevMonthDays - i, outside: true, key: `prev-${i}` });
+          }
+          // Current month
+          for (let d = 1; d <= daysInMonth; d++) {
+            const key = `${year}-${month}-${d}`;
+            cells.push({ day: d, outside: false, key, dateKey: key, isToday: key === todayStr, posts: postsByDate[key] || [] });
+          }
+          // Next month fill
+          const remaining = 7 - (cells.length % 7);
+          if (remaining < 7) {
+            for (let i = 1; i <= remaining; i++) {
+              cells.push({ day: i, outside: true, key: `next-${i}` });
+            }
+          }
+
+          const prevMonth = () => setCalMonth(new Date(year, month - 1, 1));
+          const nextMonth = () => setCalMonth(new Date(year, month + 1, 1));
+          const goToday = () => setCalMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+
+          const handleTileClick = (e, dayPosts, day) => {
+            if (dayPosts.length === 0) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            setCalPopover({
+              date: new Date(year, month, day),
+              posts: dayPosts,
+              x: Math.min(rect.left, window.innerWidth - 340),
+              y: Math.min(rect.bottom + 4, window.innerHeight - 420)
+            });
+          };
+
+          return (
+            <div className="sai-section" onClick={() => calPopover && setCalPopover(null)}>
+              <h2 className="sai-title"><Calendar size={22} style={{ color: '#f59e0b' }} /> Content Calendar</h2>
+
+              {/* Month navigation */}
+              <div className="sai-cal-header">
+                <div className="sai-cal-nav">
+                  <button onClick={prevMonth}><ChevronRight size={14} style={{ transform: 'rotate(180deg)' }} /></button>
+                  <span className="sai-cal-month">{calMonth.toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })}</span>
+                  <button onClick={nextMonth}><ChevronRight size={14} /></button>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <div className="sai-cal-nav"><button onClick={goToday}>Today</button></div>
+                  <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{posts.length} posts total</span>
+                </div>
               </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {posts.map(post => (
-                  <div key={post._id} className="sai-post-card">
-                    {post.image && <img src={post.image} alt="" className="sai-post-thumb" />}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
-                        <PlatformIcon p={post.platform} />
-                        <span className={`sai-status ${post.status.toLowerCase()}`}>{post.status}</span>
-                        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                          <Clock size={10} style={{ display: 'inline', marginRight: 3 }} />
-                          {new Date(post.scheduledFor).toLocaleDateString()} {new Date(post.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+
+              {/* Day headers */}
+              <div className="sai-cal-grid">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+                  <div key={d} className="sai-cal-day-header">{d}</div>
+                ))}
+
+                {/* Calendar cells */}
+                {cells.map(cell => (
+                  <div
+                    key={cell.key}
+                    className={`sai-cal-cell${cell.outside ? ' outside' : ''}${cell.isToday ? ' today' : ''}`}
+                    onClick={(e) => !cell.outside && handleTileClick(e, cell.posts || [], cell.day)}
+                  >
+                    <div className="sai-cal-date">{cell.day}</div>
+                    {(cell.posts || []).slice(0, 3).map((p, pi) => (
+                      <div key={pi} className={`sai-cal-tile ${(p.platform || '').toLowerCase()}`} title={p.content?.substring(0, 80)}>
+                        {p.image && <img src={p.image} alt="" className="sai-cal-tile-img" />}
+                        {p.mediaType === 'video' && <Video size={9} />}
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {new Date(p.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} {p.topic || p.content?.substring(0, 20)}
                         </span>
-                        {post.pillar && <span className="sai-pillar">{post.pillar}</span>}
                       </div>
-                      <p style={{ fontSize: '0.875rem', color: '#d1d5db', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.content}</p>
-                      {post.hashtags?.length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginTop: '0.375rem' }}>
-                          {post.hashtags.slice(0, 5).map((t, i) => <span key={i} style={{ fontSize: '0.625rem', color: '#f59e0b' }}>{t}</span>)}
-                        </div>
-                      )}
-                    </div>
-                    <button onClick={() => deletePost(post._id)} className="sai-delete-btn" title="Delete">
-                      <Trash2 size={16} />
-                    </button>
+                    ))}
+                    {(cell.posts || []).length > 3 && (
+                      <div className="sai-cal-more">+{cell.posts.length - 3} more</div>
+                    )}
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-        )}
+
+              {/* Day detail popover */}
+              {calPopover && (
+                <div className="sai-cal-popover" style={{ left: calPopover.x, top: calPopover.y }} onClick={e => e.stopPropagation()}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    <strong style={{ color: 'white', fontSize: '0.875rem' }}>
+                      {calPopover.date.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    </strong>
+                    <button onClick={() => setCalPopover(null)} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer' }}><X size={14} /></button>
+                  </div>
+                  {calPopover.posts.map((p, i) => (
+                    <div key={i} className="sai-cal-popover-post">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
+                        <PlatformIcon p={p.platform} size={14} />
+                        <span className={`sai-status ${(p.status || 'draft').toLowerCase()}`}>{p.status}</span>
+                        <span style={{ fontSize: '0.6875rem', color: '#6b7280' }}>
+                          {new Date(p.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        {p.pillar && <span className="sai-pillar">{p.pillar}</span>}
+                        {p.mediaType === 'video' && <span style={{ fontSize: '0.5625rem', background: 'rgba(168,85,247,0.2)', color: '#c4b5fd', padding: '0.0625rem 0.375rem', borderRadius: 4 }}>Video</span>}
+                        <button onClick={() => deletePost(p._id)} className="sai-delete-btn" style={{ marginLeft: 'auto', padding: '0.25rem' }} title="Delete"><Trash2 size={12} /></button>
+                      </div>
+                      {p.image && <img src={p.image} alt="" style={{ width: '100%', borderRadius: 6, marginBottom: '0.375rem', maxHeight: 120, objectFit: 'cover' }} />}
+                      <p style={{ fontSize: '0.75rem', color: '#d1d5db', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.content}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* ═══ SMART AI TAB ═══ */}
         {activeTab === 'smart' && (
@@ -1381,12 +1497,36 @@ const SocialAI = () => {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
                         <PlatformIcon p={sp.platform} size={16} />
                         <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'white' }}>{sp.platform}</span>
+                        {sp.mediaType === 'video' && (
+                          <span style={{ fontSize: '0.5625rem', background: 'rgba(168,85,247,0.2)', color: '#c4b5fd', padding: '0.125rem 0.5rem', borderRadius: 9999, fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Video size={10} /> Video
+                          </span>
+                        )}
                         <span style={{ fontSize: '0.75rem', color: '#9ca3af', marginLeft: 'auto' }}>
                           <Clock size={11} style={{ display: 'inline', marginRight: 3 }} />
                           {new Date(sp.scheduledFor).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })} at {new Date(sp.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         {sp.pillar && <span className="sai-pillar">{sp.pillar}</span>}
                       </div>
+
+                      {/* Generated Image / Loading */}
+                      {sp.imageLoading && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem', background: 'rgba(99,102,241,0.06)', borderRadius: 8, marginBottom: '0.625rem' }}>
+                          <Loader2 size={16} className="spin" style={{ color: '#a855f7' }} />
+                          <span style={{ fontSize: '0.75rem', color: '#c4b5fd' }}>Generating AI {sp.mediaType === 'video' ? 'image for video' : 'image'}...</span>
+                        </div>
+                      )}
+                      {sp.generatedImage && !sp.imageLoading && (
+                        <div style={{ marginBottom: '0.75rem', borderRadius: 8, overflow: 'hidden', position: 'relative' }}>
+                          <img src={sp.generatedImage} alt="" style={{ width: '100%', maxHeight: 280, objectFit: 'cover', borderRadius: 8 }} />
+                          {sp.mediaType === 'video' && (
+                            <div style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,0.7)', borderRadius: 6, padding: '0.25rem 0.5rem', fontSize: '0.625rem', color: '#c4b5fd', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <Video size={10} /> AI will convert to video
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <p style={{ fontSize: '0.875rem', color: '#e5e7eb', marginBottom: '0.625rem', lineHeight: 1.6 }}>{sp.content}</p>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                         {sp.hashtags.map((t, j) => <span key={j} className="sai-hashtag">{t.startsWith('#') ? t : `#${t}`}</span>)}
@@ -1397,8 +1537,8 @@ const SocialAI = () => {
                           {sp.reasoning}
                         </div>
                       )}
-                      {/* AI Video Generation */}
-                      {videoAvailable && (
+                      {/* AI Video Generation — shown for video-type posts or all posts if video is available */}
+                      {videoAvailable && sp.generatedImage && (sp.mediaType === 'video' || canSmartSchedule) && (
                         <div style={{ marginTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '0.75rem' }}>
                           {videoPostIndex === i && videoStatus ? (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -1437,12 +1577,12 @@ const SocialAI = () => {
                             </div>
                           ) : (
                             <button
-                              onClick={() => handleGenerateVideo(i, sp.imageUrl || sp.image, sp.imagePrompt || sp.content?.substring(0, 100))}
+                              onClick={() => handleGenerateVideo(i, sp.generatedImage, sp.imagePrompt || sp.content?.substring(0, 100))}
                               className="btn btn-sm btn-secondary"
                               style={{ fontSize: '0.6875rem', display: 'flex', alignItems: 'center', gap: '0.375rem', color: '#a855f7', borderColor: 'rgba(168,85,247,0.3)' }}
                               disabled={videoStatus && videoStatus !== 'SUCCEEDED' && videoStatus !== 'FAILED'}
                             >
-                              <Video size={13} /> Generate AI Video
+                              <Video size={13} /> {sp.mediaType === 'video' ? 'Generate AI Video (Recommended)' : 'Generate AI Video'}
                             </button>
                           )}
                         </div>

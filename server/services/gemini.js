@@ -408,7 +408,7 @@ Generate EXACTLY ${postsToGenerate} posts. ${hasRealData ? 'Base timing/style on
 Rules: Mix FB+IG. Pillars: 40% Value, 25% Engage, 20% Community, 15% Promo. ${scheduledPosts.length > 0 ? `Avoid ${scheduledPosts.length} existing scheduled slots.` : ''} Content must be specific to ${businessType}.
 
 JSON: {"posts":[...], "strategy":"brief 1-2 sentence summary"}
-Each post: platform, scheduledFor (ISO+10:00), topic, content (full caption), hashtags (IG only), imagePrompt, reasoning, pillar.`;
+Each post: platform, scheduledFor (ISO+10:00), topic, content (full caption), hashtags (IG only), imagePrompt, mediaType ("image" or "video" — use "video" for posts that would perform best as Reels/short video, typically 20-30% of posts), reasoning, pillar.`;
 
     console.log('[Smart Schedule] Calling Gemini API with model:', TEXT_MODEL);
     const response = await ai.models.generateContent({
@@ -430,6 +430,7 @@ Each post: platform, scheduledFor (ISO+10:00), topic, content (full caption), ha
                   content: { type: Type.STRING },
                   hashtags: { type: Type.ARRAY, items: { type: Type.STRING } },
                   imagePrompt: { type: Type.STRING },
+                  mediaType: { type: Type.STRING },
                   reasoning: { type: Type.STRING },
                   pillar: { type: Type.STRING }
                 }
@@ -466,6 +467,7 @@ Each post: platform, scheduledFor (ISO+10:00), topic, content (full caption), ha
       content: typeof p.content === 'string' ? p.content : (p.content?.message || JSON.stringify(p.content) || ''),
       hashtags: Array.isArray(p.hashtags) ? p.hashtags.filter(h => typeof h === 'string') : [],
       imagePrompt: typeof p.imagePrompt === 'string' ? p.imagePrompt : '',
+      mediaType: typeof p.mediaType === 'string' ? p.mediaType : 'image',
       reasoning: typeof p.reasoning === 'string' ? p.reasoning : (p.reasoning?.message || ''),
       pillar: typeof p.pillar === 'string' ? p.pillar : (p.pillar?.message || 'Value')
     }));

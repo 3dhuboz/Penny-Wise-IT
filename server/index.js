@@ -169,13 +169,18 @@ async function connectDB() {
       await adminUser.save();
       console.log('Admin user created:', adminUser.email);
     } else {
-      // Sync role and password from env on every boot
+      // Sync role from env on every boot
       let changed = false;
       if (adminUser.role !== 'admin') { adminUser.role = 'admin'; changed = true; }
-      // Always reset password to env value so ADMIN_PASSWORD changes take effect
-      adminUser.password = adminPassword;
-      adminUser.isActive = true;
-      changed = true;
+      if (!adminUser.isActive) { adminUser.isActive = true; changed = true; }
+      // Only reset password if env value changed (compare against hash to avoid double-hashing)
+      const bcrypt = require('bcryptjs');
+      const passwordMatches = adminUser.password ? await bcrypt.compare(adminPassword, adminUser.password) : false;
+      if (!passwordMatches) {
+        adminUser.password = adminPassword;
+        changed = true;
+        console.log('Admin password updated from env');
+      }
       if (changed) {
         await adminUser.save();
         console.log('Admin user synced:', adminUser.email);

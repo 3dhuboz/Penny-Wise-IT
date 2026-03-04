@@ -132,19 +132,30 @@ router.delete('/posts', auth, async (req, res) => {
 
 // ── AI Generation ──
 
-// Helper to get user's API key
-const getUserApiKey = async (userId) => {
-  const profile = await SocialProfile.findOne({ user: userId });
-  return profile?.geminiApiKey || '';
-};
+// Admin-controlled Gemini API key fallback — customers don't need their own
+const ADMIN_GEMINI_KEY = process.env.GEMINI_API_KEY || '';
+const getGeminiKey = (profile) => profile?.geminiApiKey || ADMIN_GEMINI_KEY;
+
+// Check AI availability — admin key or user key
+router.get('/ai/status', auth, async (req, res) => {
+  const profile = await SocialProfile.findOne({ user: req.user._id });
+  const hasAdminKey = !!ADMIN_GEMINI_KEY;
+  const hasUserKey = !!profile?.geminiApiKey;
+  res.json({
+    aiAvailable: hasAdminKey || hasUserKey,
+    adminManaged: hasAdminKey,
+    userKeySet: hasUserKey
+  });
+});
 
 // Generate text post — context-aware with past performance data
 router.post('/ai/generate', auth, async (req, res) => {
   try {
     const { topic, platform } = req.body;
     const profile = await SocialProfile.findOne({ user: req.user._id });
-    if (!profile?.geminiApiKey) {
-      return res.status(400).json({ message: 'Gemini API key not configured. Go to Social AI Settings.' });
+    const geminiKey = getGeminiKey(profile);
+    if (!geminiKey) {
+      return res.status(400).json({ message: 'AI not configured. Contact admin or add your Gemini API key in Settings.' });
     }
 
     // Gather top-performing posts for context
@@ -173,7 +184,7 @@ router.post('/ai/generate', auth, async (req, res) => {
     }
 
     const result = await generateSocialPost(
-      profile.geminiApiKey, topic, platform,
+      geminiKey, topic, platform,
       profile.businessName, profile.businessType, profile.tone,
       topPostExamples
     );
@@ -188,10 +199,11 @@ router.post('/ai/image', auth, async (req, res) => {
   try {
     const { prompt } = req.body;
     const profile = await SocialProfile.findOne({ user: req.user._id });
-    if (!profile?.geminiApiKey) {
-      return res.status(400).json({ message: 'Gemini API key not configured.' });
+    const geminiKey = getGeminiKey(profile);
+    if (!geminiKey) {
+      return res.status(400).json({ message: 'AI not configured. Contact admin or add your Gemini API key in Settings.' });
     }
-    const image = await generateMarketingImage(profile.geminiApiKey, `${profile.businessType}: ${prompt}`);
+    const image = await generateMarketingImage(geminiKey, `${(profile?.businessType || 'business')}: ${prompt}`);
     if (image) {
       res.json({ image });
     } else {
@@ -208,8 +220,9 @@ router.post('/ai/smart-schedule', auth, async (req, res) => {
   try {
     const { count } = req.body;
     const profile = await SocialProfile.findOne({ user: req.user._id });
-    if (!profile?.geminiApiKey) {
-      return res.status(400).json({ message: 'Gemini API key not configured.' });
+    const geminiKey = getGeminiKey(profile);
+    if (!geminiKey) {
+      return res.status(400).json({ message: 'AI not configured. Contact admin or add your Gemini API key in Settings.' });
     }
     const stats = {
       followers: profile.stats?.followers ?? 0,
@@ -275,7 +288,7 @@ router.post('/ai/smart-schedule', auth, async (req, res) => {
       console.log('[Smart Schedule] Research:', pastFbPosts.length, 'FB,', pastIgPosts.length, 'IG,', scheduledPosts.length, 'scheduled');
 
       return generateSmartSchedule(
-        profile.geminiApiKey, profile.businessName, profile.businessType,
+        geminiKey, profile.businessName, profile.businessType,
         profile.tone, stats, count || 7, { pastFbPosts, pastIgPosts, scheduledPosts }
       );
     };
@@ -295,8 +308,9 @@ router.post('/ai/recommendations', auth, async (req, res) => {
   let timer;
   try {
     const profile = await SocialProfile.findOne({ user: req.user._id });
-    if (!profile?.geminiApiKey) {
-      return res.status(400).json({ message: 'Gemini API key not configured.' });
+    const geminiKey = getGeminiKey(profile);
+    if (!geminiKey) {
+      return res.status(400).json({ message: 'AI not configured. Contact admin or add your Gemini API key in Settings.' });
     }
     const stats = {
       followers: profile.stats?.followers ?? 0,
@@ -351,8 +365,8 @@ router.post('/ai/recommendations', auth, async (req, res) => {
       console.log('[Insights] Research:', pastFbPosts.length, 'FB,', pastIgPosts.length, 'IG for', profile.businessName);
 
       const [recs, times] = await Promise.all([
-        generateRecommendations(profile.geminiApiKey, profile.businessName, profile.businessType, stats, postData),
-        analyzePostTimes(profile.geminiApiKey, profile.businessType, profile.location || 'Australia', postData)
+        generateRecommendations(geminiKey, profile.businessName, profile.businessType, stats, postData),
+        analyzePostTimes(geminiKey, profile.businessType, profile.location || 'Australia', postData)
       ]);
       return { recommendations: recs, bestTimes: times };
     };
