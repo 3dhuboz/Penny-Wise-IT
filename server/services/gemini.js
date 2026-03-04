@@ -18,7 +18,7 @@ const getAI = (apiKey) => {
 //  - Optimal hashtag strategy per platform
 // ═══════════════════════════════════════════════════════════════
 
-const generateSocialPost = async (apiKey, topic, platform, businessName, businessType, tone) => {
+const generateSocialPost = async (apiKey, topic, platform, businessName, businessType, tone, topPostExamples = []) => {
   const ai = getAI(apiKey);
   if (!ai) return { content: 'API Key missing. Configure in Social AI Settings.', hashtags: [] };
 
@@ -43,11 +43,24 @@ FACEBOOK-SPECIFIC RULES (2025 Algorithm):
 - Controversy and opinion posts get 2-5x more reach than promotional content
 `;
 
+  // Build context from top-performing posts
+  let performanceContext = '';
+  if (topPostExamples.length > 0) {
+    performanceContext = `
+═══ THIS ACCOUNT'S TOP-PERFORMING POSTS ═══
+(Study the style, tone, length, and hooks that ACTUALLY work for this audience. Your post should match this proven voice.)
+
+${topPostExamples.map((p, i) => `${i + 1}. (engagement score: ${p.engagement}) "${p.text}"`).join('\n\n')}
+
+CRITICAL: Match the writing style, tone, and length patterns from these winning posts. If short punchy posts work, write short. If storytelling works, tell a story. Let the DATA guide your voice.
+`;
+  }
+
   try {
     const prompt = `You are a world-class social media strategist and copywriter working for "${businessName}", a ${businessType} business.
 
 VOICE & TONE: ${tone}
-
+${performanceContext}
 YOUR MISSION: Write a ${platform} post about "${topic}" that is engineered to maximise engagement, reach, and conversions.
 
 ${platformRules}
@@ -136,36 +149,64 @@ const generateMarketingImage = async (apiKey, prompt) => {
 //  BEST POSTING TIMES — Algorithm-aware, data-driven
 // ═══════════════════════════════════════════════════════════════
 
-const analyzePostTimes = async (apiKey, businessType, location) => {
+const analyzePostTimes = async (apiKey, businessType, location, postData = {}) => {
   const ai = getAI(apiKey);
   if (!ai) return 'API Key missing.';
+
+  const { pastFbPosts = [], pastIgPosts = [] } = postData;
+  const hasRealData = pastFbPosts.length > 0 || pastIgPosts.length > 0;
+
+  // Build real timing analysis if we have data
+  let realTimingBlock = '';
+  if (hasRealData) {
+    const allPosts = [
+      ...pastFbPosts.map(p => ({ ...p, platform: 'Facebook' })),
+      ...pastIgPosts.map(p => ({ ...p, platform: 'Instagram' }))
+    ];
+    const dayTime = {};
+    for (const p of allPosts) {
+      const key = `${p.platform}|${p.day}|${p.time}`;
+      dayTime[key] = (dayTime[key] || { total: 0, count: 0 });
+      dayTime[key].total += p.engagement;
+      dayTime[key].count += 1;
+    }
+    const ranked = Object.entries(dayTime)
+      .map(([k, v]) => ({ key: k, avg: Math.round(v.total / v.count) }))
+      .sort((a, b) => b.avg - a.avg)
+      .slice(0, 10);
+
+    realTimingBlock = `
+═══ ACTUAL POSTING DATA FROM THIS ACCOUNT ═══
+Total posts analyzed: ${allPosts.length} (${pastFbPosts.length} FB, ${pastIgPosts.length} IG)
+
+TOP PERFORMING TIME SLOTS (by avg engagement score):
+${ranked.map((r, i) => { const [plat, day, time] = r.key.split('|'); return `${i + 1}. ${plat} — ${day} ${time} (avg score: ${r.avg})`; }).join('\n')}
+
+IMPORTANT: Your analysis MUST reference this actual data. Tell the user EXACTLY which days/times work best for THEM based on their real engagement numbers.
+`;
+  }
 
   try {
     const response = await ai.models.generateContent({
       model: TEXT_MODEL,
-      contents: `You are a social media data scientist. Based on the latest 2024-2025 research from Hootsuite, Sprout Social, Later, and Buffer's annual reports:
+      contents: `You are a social media data scientist. ${hasRealData ? 'You have REAL engagement data from this specific account — use it as the PRIMARY basis for your analysis.' : 'Based on 2024-2025 research from Hootsuite, Sprout Social, Later, and Buffer:'}
 
 BUSINESS: ${businessType} located in ${location}
-
-Provide a detailed, data-backed analysis of the BEST times to post on each platform. Consider:
-- Platform algorithm behaviour (Instagram prioritises recency + early engagement velocity; Facebook rewards posts that generate discussion within the first hour)
-- Industry-specific audience behaviour for ${businessType}
-- ${location} timezone and cultural patterns (e.g. commute times, lunch breaks, evening wind-down)
-- Weekday vs weekend differences
-- The "golden hours" where competition is lower but engagement is high
+${realTimingBlock}
+Provide a detailed analysis of the BEST times to post on each platform.${hasRealData ? ' Lead with the ACTUAL data from this account, then supplement with industry research.' : ''}
 
 FORMAT YOUR RESPONSE AS:
 
-📱 INSTAGRAM — Best Times:
-• [Day]: [Time] — [Why this works]
+${hasRealData ? '📊 YOUR DATA SAYS:\n• [Reference actual top-performing slots from the data above]\n\n' : ''}📱 INSTAGRAM — Best Times:
+• [Day]: [Time] — [Why this works${hasRealData ? ' — reference actual data' : ''}]
 (3-5 time slots)
 
 📘 FACEBOOK — Best Times:
-• [Day]: [Time] — [Why this works]
+• [Day]: [Time] — [Why this works${hasRealData ? ' — reference actual data' : ''}]
 (3-5 time slots)
 
 ⚡ PRO TIPS:
-• [2-3 algorithm-specific tips for timing]
+• [2-3 tips${hasRealData ? ' based on patterns in this account\'s data' : ''}]
 
 Be specific with times (e.g. "Tuesday 7:15 AM" not "mornings"). Use the ${location} local timezone.`
     });
@@ -185,7 +226,7 @@ Be specific with times (e.g. "Tuesday 7:15 AM" not "mornings"). Use the ${locati
 //  AI STRATEGIST — Deep competitive analysis & growth hacking
 // ═══════════════════════════════════════════════════════════════
 
-const generateRecommendations = async (apiKey, businessName, businessType, stats) => {
+const generateRecommendations = async (apiKey, businessName, businessType, stats, postData = {}) => {
   const ai = getAI(apiKey);
   if (!ai) return 'API Key missing.';
 
@@ -193,41 +234,75 @@ const generateRecommendations = async (apiKey, businessName, businessType, stats
   const reachToFollowerRatio = stats.followers > 0 ? ((stats.reach / stats.followers) * 100).toFixed(0) : 0;
   const postFrequency = stats.postsLast30Days > 20 ? 'high' : stats.postsLast30Days > 8 ? 'moderate' : 'low';
 
+  const { pastFbPosts = [], pastIgPosts = [] } = postData;
+  const hasRealData = pastFbPosts.length > 0 || pastIgPosts.length > 0;
+
+  // Build real post analysis if available
+  let postAnalysisBlock = '';
+  if (hasRealData) {
+    const allPosts = [
+      ...pastFbPosts.map(p => ({ ...p, platform: 'Facebook' })),
+      ...pastIgPosts.map(p => ({ ...p, platform: 'Instagram', message: p.caption }))
+    ].sort((a, b) => b.engagement - a.engagement);
+
+    const topPosts = allPosts.slice(0, 5);
+    const worstPosts = allPosts.slice(-3);
+    const avgEngagement = allPosts.length > 0 ? Math.round(allPosts.reduce((s, p) => s + p.engagement, 0) / allPosts.length) : 0;
+
+    // Content length analysis
+    const avgLength = Math.round(allPosts.reduce((s, p) => s + (p.message || '').length, 0) / allPosts.length);
+    const topAvgLength = Math.round(topPosts.reduce((s, p) => s + (p.message || '').length, 0) / topPosts.length);
+
+    postAnalysisBlock = `
+═══ REAL POST PERFORMANCE DATA ═══
+(Base ALL recommendations on this actual data — not generic advice)
+
+${allPosts.length} POSTS ANALYZED (${pastFbPosts.length} Facebook, ${pastIgPosts.length} Instagram)
+Average engagement score: ${avgEngagement}
+Average post length: ${avgLength} chars | Top posts avg: ${topAvgLength} chars
+
+TOP 5 POSTS (highest engagement):
+${topPosts.map((p, i) => `${i + 1}. [${p.platform}] ${p.day} ${p.time} | Score: ${p.engagement} (👍${p.likes} 💬${p.comments} 🔁${p.shares || 0}) | "${(p.message || '').substring(0, 120)}"`).join('\n')}
+
+WORST 3 POSTS (lowest engagement):
+${worstPosts.map((p, i) => `${i + 1}. [${p.platform}] ${p.day} ${p.time} | Score: ${p.engagement} | "${(p.message || '').substring(0, 80)}"`).join('\n')}
+
+YOUR AUDIT MUST: Reference specific posts from the data above. Explain WHY the top posts worked and WHY the worst ones failed. Base every recommendation on observable patterns.
+`;
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: TEXT_MODEL,
-      contents: `You are an elite social media growth strategist hired to audit and supercharge the social media presence of "${businessName}", a ${businessType} business.
+      contents: `You are an elite social media growth strategist hired to audit "${businessName}", a ${businessType} business.
+${hasRealData ? 'You have ACTUAL post performance data — your analysis MUST reference this real data, not generic advice.' : ''}
 
 CURRENT PERFORMANCE DATA:
 - Followers: ${stats.followers.toLocaleString()}
 - Monthly Reach: ${stats.reach.toLocaleString()} (${reachToFollowerRatio}% of followers — ${reachToFollowerRatio > 80 ? 'excellent' : reachToFollowerRatio > 30 ? 'decent' : 'needs improvement'})
 - Engagement Rate: ${stats.engagement}% (${engagementBenchmark} for ${businessType} industry)
 - Post Frequency: ${stats.postsLast30Days} posts/month (${postFrequency} frequency)
-
-Perform a COMPREHENSIVE STRATEGIC AUDIT. Your analysis must include:
+${postAnalysisBlock}
+Perform a COMPREHENSIVE STRATEGIC AUDIT:
 
 📊 PERFORMANCE DIAGNOSIS
-- What the numbers tell us about content-audience fit
-- Identify the biggest bottleneck (reach? engagement? conversion? frequency?)
+- ${hasRealData ? 'Analyze what the TOP performing posts have in common (timing, length, tone, topic, format)' : 'What the numbers tell us about content-audience fit'}
+- ${hasRealData ? 'Identify patterns in the WORST performing posts — what to stop doing' : 'Identify the biggest bottleneck'}
 
 🚀 TOP 5 HIGH-IMPACT ACTIONS (ranked by expected ROI)
-For each action:
-- What to do (specific, not vague)
-- Why it works (cite algorithm mechanics or psychology)
-- Expected impact (e.g. "+20-40% reach within 2 weeks")
+For each: What to do, why it works, expected impact
+${hasRealData ? '- MUST reference actual patterns from the data above (e.g. "Your Tuesday morning posts get 3x more engagement — double down on this slot")' : ''}
 
 📈 CONTENT MIX RECOMMENDATION
-- Ideal ratio of content pillars (educational / entertaining / promotional / community / behind-the-scenes)
-- Which formats to prioritise (Reels, carousels, Stories, lives, static posts)
-- Posting frequency recommendation
+- Ideal pillar ratio, formats to prioritise, posting frequency
 
-🎯 QUICK WINS (things they can do THIS WEEK)
-- 3 immediate actions that require minimal effort but high impact
+🎯 QUICK WINS (THIS WEEK)
+- 3 immediate high-impact actions
 
 💡 ADVANCED GROWTH TACTICS
-- 2 cutting-edge strategies most businesses aren't using yet (e.g. collaborative posts, AI-assisted engagement pods, story interaction stacking, comment-to-DM funnels, SEO-optimised captions)
+- 2 cutting-edge strategies most businesses aren't using
 
-Be specific to ${businessType} businesses. Give actual examples, not generic advice. Reference current platform algorithm behaviour.`
+Be specific to ${businessType}. ${hasRealData ? 'Reference actual post examples from the data.' : 'Give examples, not generic advice.'}`
     });
     let text;
     try { text = response.text; } catch (e) {
@@ -245,7 +320,7 @@ Be specific to ${businessType} businesses. Give actual examples, not generic adv
 //  SMART AI SCHEDULER — Full content calendar with viral science
 // ═══════════════════════════════════════════════════════════════
 
-const generateSmartSchedule = async (apiKey, businessName, businessType, tone, stats, postsToGenerate = 7) => {
+const generateSmartSchedule = async (apiKey, businessName, businessType, tone, stats, postsToGenerate = 7, researchData = {}) => {
   const ai = getAI(apiKey);
   if (!ai) return { posts: [], strategy: 'API Key missing.' };
 
@@ -253,56 +328,117 @@ const generateSmartSchedule = async (apiKey, businessName, businessType, tone, s
     const now = new Date();
     const windowEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
 
-    const prompt = `You are an elite social media strategist and content creator for "${businessName}", a ${businessType} business.
+    // ── BUILD RESEARCH ANALYSIS BLOCK ──
+    const { pastFbPosts = [], pastIgPosts = [], scheduledPosts = [] } = researchData;
+    const hasRealData = pastFbPosts.length > 0 || pastIgPosts.length > 0;
+
+    // Analyze top-performing posts
+    let performanceBlock = '';
+    if (hasRealData) {
+      const allPosts = [
+        ...pastFbPosts.map(p => ({ ...p, platform: 'Facebook' })),
+        ...pastIgPosts.map(p => ({ ...p, platform: 'Instagram', message: p.caption }))
+      ].sort((a, b) => b.engagement - a.engagement);
+
+      const topPosts = allPosts.slice(0, 5);
+      const worstPosts = allPosts.slice(-3);
+
+      // Analyze best days/times from real data
+      const dayEngagement = {};
+      const hourEngagement = {};
+      for (const p of allPosts) {
+        dayEngagement[p.day] = (dayEngagement[p.day] || { total: 0, count: 0 });
+        dayEngagement[p.day].total += p.engagement;
+        dayEngagement[p.day].count += 1;
+        const hour = p.time;
+        hourEngagement[hour] = (hourEngagement[hour] || { total: 0, count: 0 });
+        hourEngagement[hour].total += p.engagement;
+        hourEngagement[hour].count += 1;
+      }
+
+      const bestDays = Object.entries(dayEngagement)
+        .map(([day, d]) => ({ day, avg: Math.round(d.total / d.count) }))
+        .sort((a, b) => b.avg - a.avg);
+
+      // Extract hashtags from top IG posts
+      const topHashtags = {};
+      for (const p of pastIgPosts.filter(p => p.engagement > 0)) {
+        const tags = (p.caption || '').match(/#\w+/g) || [];
+        for (const tag of tags) {
+          topHashtags[tag.toLowerCase()] = (topHashtags[tag.toLowerCase()] || 0) + p.engagement;
+        }
+      }
+      const bestHashtags = Object.entries(topHashtags)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 15)
+        .map(([tag]) => tag);
+
+      performanceBlock = `
+═══ REAL PERFORMANCE DATA FROM THIS BUSINESS ═══
+(This is ACTUAL engagement data — your strategy MUST be based on these facts, not generic advice)
+
+TOP 5 BEST-PERFORMING POSTS (by weighted engagement: likes + comments×3 + shares×5):
+${topPosts.map((p, i) => `${i + 1}. [${p.platform}] ${p.day} ${p.time} | 👍${p.likes} 💬${p.comments} 🔁${p.shares || 0} (score: ${p.engagement}) | "${(p.message || '').substring(0, 100)}..."`).join('\n')}
+
+WORST 3 PERFORMING POSTS (learn what NOT to do):
+${worstPosts.map((p, i) => `${i + 1}. [${p.platform}] ${p.day} ${p.time} | 👍${p.likes} 💬${p.comments} (score: ${p.engagement}) | "${(p.message || '').substring(0, 80)}..."`).join('\n')}
+
+BEST DAYS BY AVERAGE ENGAGEMENT:
+${bestDays.map(d => `- ${d.day}: avg score ${d.avg}`).join('\n')}
+
+${bestHashtags.length > 0 ? `PROVEN HIGH-ENGAGEMENT HASHTAGS (from this account's best posts):\n${bestHashtags.join(' ')}\n` : ''}
+TOTAL POSTS ANALYZED: ${allPosts.length} (${pastFbPosts.length} Facebook, ${pastIgPosts.length} Instagram)
+`;
+    } else {
+      performanceBlock = `
+NOTE: No past post data available (Facebook not connected or no post history).
+Use general best practices for ${businessType} businesses, but acknowledge this in your strategy.
+`;
+    }
+
+    // Build scheduled posts awareness block
+    let scheduleBlock = '';
+    if (scheduledPosts.length > 0) {
+      scheduleBlock = `
+═══ ALREADY SCHEDULED POSTS (DO NOT overlap these dates/times) ═══
+${scheduledPosts.map(p => `- ${new Date(p.scheduledFor).toLocaleDateString('en-AU')} ${new Date(p.scheduledFor).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })} [${p.platform}] ${p.pillar ? `(${p.pillar})` : ''} ${p.topic}`).join('\n')}
+
+CRITICAL: Schedule new posts AROUND these existing posts. Do NOT create posts on the same day/time.
+If the schedule is getting dense, space new posts at least 1 day apart from existing ones.
+`;
+    }
+
+    const prompt = `You are an elite, DATA-DRIVEN social media strategist for "${businessName}", a ${businessType} business.
+Your decisions MUST be based on the ACTUAL performance data provided below — not generic advice.
 
 BRAND VOICE: ${tone}
 CURRENT DATE: ${now.toISOString().split('T')[0]}
 SCHEDULE WINDOW: ${now.toISOString().split('T')[0]} to ${windowEnd.toISOString().split('T')[0]}
-PERFORMANCE DATA: ${stats.followers.toLocaleString()} followers, ${stats.engagement}% engagement, ${stats.reach.toLocaleString()} monthly reach
+ACCOUNT METRICS: ${stats.followers.toLocaleString()} followers, ${stats.engagement}% engagement rate, ${stats.reach.toLocaleString()} monthly reach, ${stats.postsLast30Days} posts in last 30 days
+${performanceBlock}
+${scheduleBlock}
+YOUR MISSION: Generate exactly ${postsToGenerate} posts that form a RESEARCH-BACKED content strategy.
 
-Generate exactly ${postsToGenerate} social media posts that form a COHESIVE CONTENT STRATEGY for the next 2 weeks.
-
-STRATEGIC REQUIREMENTS:
-1. CONTENT PILLAR MIX — Follow the proven 4-1-1 rule adapted for 2025:
-   - 40% VALUE posts (educational, tips, how-tos, industry insights)
-   - 25% ENGAGEMENT posts (questions, polls, this-or-that, controversial takes, memes)
-   - 20% BEHIND-THE-SCENES / COMMUNITY posts (team, process, customer stories, UGC reposts)
-   - 15% PROMOTIONAL posts (offers, products, services — but disguised as value)
-
-2. PLATFORM OPTIMIZATION — Mix Facebook and Instagram. Each post MUST be optimised for its specific platform:
-   - Instagram: scroll-stopping hook in line 1, line breaks, 5-8 targeted hashtags, micro-CTA for comments
-   - Facebook: storytelling format, genuine question to drive discussion, minimal/no hashtags
-
-3. TIMING SCIENCE — Schedule at algorithm-optimal times for Australian audiences:
-   - Instagram: Tue/Wed/Thu 7-8AM, 12-1PM, 7-9PM AEST perform best
-   - Facebook: Wed/Thu/Fri 9-10AM, 1-2PM AEST for business pages
-   - Space posts 2-3 days apart (don't cluster)
-   - Vary the days and times for each post
-
-4. HOOK FORMULAS — Every post MUST open with a proven hook:
-   - Pattern Interrupt: "Stop scrolling if..."
-   - Open Loop: "Most ${businessType} businesses don't know this..."
-   - Contrarian: "Unpopular opinion about ${businessType}:"
-   - Social Proof: "Our customers keep telling us..."
-   - Direct Value: "Save this for later — here's how to..."
-
-5. HASHTAG STRATEGY (Instagram only):
-   - 5-8 per post, mix of broad (500K+), niche (10K-500K), and micro-niche (<10K)
-   - Industry-specific and trending tags for ${businessType}
-
-6. CONTENT VARIETY — No two consecutive posts should have the same format, pillar, or platform
+RESEARCH-DRIVEN RULES:
+1. TIMING — ${hasRealData ? 'Use the BEST DAYS data above to schedule on days/times that ACTUALLY perform well for THIS account. If Tuesday has the highest average engagement, prioritize Tuesday.' : 'Use algorithm-optimal times for Australian audiences (Instagram: Tue-Thu 7-8AM, 12-1PM, 7-9PM AEST; Facebook: Wed-Fri 9-10AM, 1-2PM AEST).'}
+2. CONTENT STYLE — ${hasRealData ? 'Analyze the TOP performing posts above. What style, tone, length, and hooks worked? REPLICATE what worked. AVOID what failed in the worst-performing posts.' : 'Use proven hook formulas (Pattern Interrupt, Open Loop, Social Proof).'}
+3. HASHTAGS — ${hasRealData && Object.keys(researchData).length > 0 ? 'Prioritise the PROVEN HIGH-ENGAGEMENT HASHTAGS listed above, and add complementary niche hashtags around them.' : 'Use 5-8 targeted hashtags for Instagram (mix broad, niche, micro-niche). 0-2 for Facebook.'}
+4. CONTENT PILLARS — 40% Value, 25% Engagement, 20% Community, 15% Promotional
+5. PLATFORM MIX — Mix Facebook and Instagram. Optimize each post for its platform.
+6. SCHEDULE AWARENESS — ${scheduledPosts.length > 0 ? `There are ${scheduledPosts.length} posts already scheduled. DO NOT create posts at the same time. Fill GAPS in the calendar.` : 'No existing posts scheduled — build a fresh 2-week calendar.'}
+7. NO GENERIC CONTENT — Every post must be specific to ${businessType}. Reference real industry topics, trends, and pain points.
 
 Return JSON with:
-- "strategy": A detailed 3-4 sentence strategy summary explaining the content calendar logic, expected outcomes, and key themes
+- "strategy": A 3-5 sentence strategy summary that ${hasRealData ? 'REFERENCES the actual data patterns found (e.g. "Your Tuesday posts average 3x more engagement than weekends...")' : 'explains the strategic approach for a new account'}
 - "posts": array of ${postsToGenerate} objects, each with:
   - platform (string: "Instagram" or "Facebook")
   - scheduledFor (ISO datetime string in AEST, e.g. "2025-03-15T07:30:00+10:00")
   - topic (string: brief topic)
-  - content (string: the FULL ready-to-post caption with \\n line breaks)
-  - hashtags (array of strings — 5-8 for Instagram, 0-2 for Facebook)
-  - imagePrompt (string: detailed prompt for an AI image generator to create the perfect visual)
-  - reasoning (string: why this post at this time on this platform — reference algorithm science)
-  - pillar (string: one of "Value", "Engagement", "Community", "Promotional")`;
+  - content (string: FULL ready-to-post caption with \\n line breaks)
+  - hashtags (array of strings — for Instagram only, 0 for Facebook)
+  - imagePrompt (string: detailed AI image generation prompt)
+  - reasoning (string: ${hasRealData ? 'explain WHY this post at this time, referencing actual data patterns' : 'explain the strategic reasoning'})
+  - pillar (string: "Value", "Engagement", "Community", or "Promotional")`;
 
     console.log('[Smart Schedule] Calling Gemini API with model:', TEXT_MODEL);
     const response = await ai.models.generateContent({

@@ -137,7 +137,7 @@ const getUserApiKey = async (userId) => {
   return profile?.geminiApiKey || '';
 };
 
-// Generate text post
+// Generate text post — context-aware with past performance data
 router.post('/ai/generate', auth, async (req, res) => {
   try {
     const { topic, platform } = req.body;
@@ -145,9 +145,36 @@ router.post('/ai/generate', auth, async (req, res) => {
     if (!profile?.geminiApiKey) {
       return res.status(400).json({ message: 'Gemini API key not configured. Go to Social AI Settings.' });
     }
+
+    // Gather top-performing posts for context
+    let topPostExamples = [];
+    if (profile.facebookConnected && profile.facebookPageAccessToken) {
+      try {
+        const token = profile.facebookPageAccessToken;
+        const source = platform === 'Instagram' && profile.instagramBusinessAccountId
+          ? `${profile.instagramBusinessAccountId}/media?fields=caption,like_count,comments_count`
+          : `${profile.facebookPageId}/posts?fields=message,likes.limit(0).summary(true),comments.limit(0).summary(true),shares`;
+        const fbRes = await fetch(`${FB_GRAPH}/${source}&limit=10&access_token=${token}`);
+        const fbData = await fbRes.json();
+        if (fbData.data) {
+          topPostExamples = fbData.data
+            .map(p => ({
+              text: (p.message || p.caption || '').substring(0, 150),
+              engagement: (p.likes?.summary?.total_count || p.like_count || 0) +
+                (p.comments?.summary?.total_count || p.comments_count || 0) * 3 +
+                (p.shares?.count || 0) * 5
+            }))
+            .filter(p => p.text.length > 20)
+            .sort((a, b) => b.engagement - a.engagement)
+            .slice(0, 3);
+        }
+      } catch (e) { /* research is optional */ }
+    }
+
     const result = await generateSocialPost(
       profile.geminiApiKey, topic, platform,
-      profile.businessName, profile.businessType, profile.tone
+      profile.businessName, profile.businessType, profile.tone,
+      topPostExamples
     );
     res.json(result);
   } catch (err) {
@@ -174,7 +201,7 @@ router.post('/ai/image', auth, async (req, res) => {
   }
 });
 
-// Smart schedule
+// Smart schedule — research-driven AI engine
 router.post('/ai/smart-schedule', auth, async (req, res) => {
   try {
     const { count } = req.body;
@@ -182,17 +209,85 @@ router.post('/ai/smart-schedule', auth, async (req, res) => {
     if (!profile?.geminiApiKey) {
       return res.status(400).json({ message: 'Gemini API key not configured.' });
     }
-    // Ensure stats is a plain object with safe defaults
     const stats = {
-      followers: profile.stats?.followers ?? 500,
-      reach: profile.stats?.reach ?? 2000,
-      engagement: profile.stats?.engagement ?? 4.5,
-      postsLast30Days: profile.stats?.postsLast30Days ?? 8
+      followers: profile.stats?.followers ?? 0,
+      reach: profile.stats?.reach ?? 0,
+      engagement: profile.stats?.engagement ?? 0,
+      postsLast30Days: profile.stats?.postsLast30Days ?? 0
     };
-    console.log('[Smart Schedule] Generating for:', profile.businessName, '| count:', count || 7, '| stats:', stats);
+
+    // ── RESEARCH PHASE: Gather real data for the AI ──
+    let pastFbPosts = [], pastIgPosts = [], scheduledPosts = [];
+
+    // 1. Fetch real Facebook post history with engagement metrics
+    if (profile.facebookConnected && profile.facebookPageAccessToken) {
+      try {
+        const token = profile.facebookPageAccessToken;
+        const pageId = profile.facebookPageId;
+        const fbRes = await fetch(
+          `${FB_GRAPH}/${pageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=25&access_token=${token}`
+        );
+        const fbData = await fbRes.json();
+        if (fbData.data) {
+          pastFbPosts = fbData.data.map(p => ({
+            message: (p.message || '').substring(0, 200),
+            date: p.created_time,
+            day: new Date(p.created_time).toLocaleDateString('en-AU', { weekday: 'long' }),
+            time: new Date(p.created_time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
+            likes: p.likes?.summary?.total_count || 0,
+            comments: p.comments?.summary?.total_count || 0,
+            shares: p.shares?.count || 0,
+            engagement: (p.likes?.summary?.total_count || 0) + (p.comments?.summary?.total_count || 0) * 3 + (p.shares?.count || 0) * 5
+          }));
+        }
+      } catch (e) { console.log('[Research] FB posts fetch failed:', e.message); }
+
+      // 2. Fetch real Instagram post history with engagement
+      if (profile.instagramBusinessAccountId) {
+        try {
+          const token = profile.facebookPageAccessToken;
+          const igRes = await fetch(
+            `${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count,media_type&limit=25&access_token=${token}`
+          );
+          const igData = await igRes.json();
+          if (igData.data) {
+            pastIgPosts = igData.data.map(p => ({
+              caption: (p.caption || '').substring(0, 200),
+              date: p.timestamp,
+              day: new Date(p.timestamp).toLocaleDateString('en-AU', { weekday: 'long' }),
+              time: new Date(p.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
+              likes: p.like_count || 0,
+              comments: p.comments_count || 0,
+              mediaType: p.media_type,
+              engagement: (p.like_count || 0) + (p.comments_count || 0) * 3
+            }));
+          }
+        } catch (e) { console.log('[Research] IG posts fetch failed:', e.message); }
+      }
+    }
+
+    // 3. Fetch existing scheduled/draft posts from our DB
+    try {
+      scheduledPosts = await SocialPost.find({
+        user: req.user._id,
+        scheduledFor: { $gte: new Date() }
+      }).sort('scheduledFor').lean();
+      scheduledPosts = scheduledPosts.map(p => ({
+        platform: p.platform,
+        topic: p.topic || '',
+        pillar: p.pillar || '',
+        scheduledFor: p.scheduledFor,
+        day: new Date(p.scheduledFor).toLocaleDateString('en-AU', { weekday: 'long' }),
+        status: p.status
+      }));
+    } catch (e) { console.log('[Research] Scheduled posts fetch failed:', e.message); }
+
+    const researchData = { pastFbPosts, pastIgPosts, scheduledPosts };
+    console.log('[Smart Schedule] Research:', pastFbPosts.length, 'FB posts,', pastIgPosts.length, 'IG posts,', scheduledPosts.length, 'scheduled');
+
     const result = await generateSmartSchedule(
       profile.geminiApiKey, profile.businessName, profile.businessType,
-      profile.tone, stats, count || 7
+      profile.tone, stats, count || 7, researchData
     );
     res.json(result);
   } catch (err) {
@@ -201,7 +296,7 @@ router.post('/ai/smart-schedule', auth, async (req, res) => {
   }
 });
 
-// Insights - recommendations (with 25s timeout to avoid Render's 30s limit)
+// Insights - research-driven recommendations (with 25s timeout)
 router.post('/ai/recommendations', auth, async (req, res) => {
   try {
     const profile = await SocialProfile.findOne({ user: req.user._id });
@@ -209,12 +304,58 @@ router.post('/ai/recommendations', auth, async (req, res) => {
       return res.status(400).json({ message: 'Gemini API key not configured.' });
     }
     const stats = {
-      followers: profile.stats?.followers ?? 500,
-      reach: profile.stats?.reach ?? 2000,
-      engagement: profile.stats?.engagement ?? 4.5,
-      postsLast30Days: profile.stats?.postsLast30Days ?? 8
+      followers: profile.stats?.followers ?? 0,
+      reach: profile.stats?.reach ?? 0,
+      engagement: profile.stats?.engagement ?? 0,
+      postsLast30Days: profile.stats?.postsLast30Days ?? 0
     };
-    console.log('[Insights] Analyzing for:', profile.businessName, '| stats:', stats);
+
+    // ── RESEARCH PHASE: Gather real post data for analysis ──
+    let pastFbPosts = [], pastIgPosts = [];
+    if (profile.facebookConnected && profile.facebookPageAccessToken) {
+      try {
+        const token = profile.facebookPageAccessToken;
+        const pageId = profile.facebookPageId;
+        const fbRes = await fetch(
+          `${FB_GRAPH}/${pageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=25&access_token=${token}`
+        );
+        const fbData = await fbRes.json();
+        if (fbData.data) {
+          pastFbPosts = fbData.data.map(p => ({
+            message: (p.message || '').substring(0, 200),
+            day: new Date(p.created_time).toLocaleDateString('en-AU', { weekday: 'long' }),
+            time: new Date(p.created_time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
+            likes: p.likes?.summary?.total_count || 0,
+            comments: p.comments?.summary?.total_count || 0,
+            shares: p.shares?.count || 0,
+            engagement: (p.likes?.summary?.total_count || 0) + (p.comments?.summary?.total_count || 0) * 3 + (p.shares?.count || 0) * 5
+          }));
+        }
+      } catch (e) { console.log('[Insights Research] FB posts failed:', e.message); }
+
+      if (profile.instagramBusinessAccountId) {
+        try {
+          const token = profile.facebookPageAccessToken;
+          const igRes = await fetch(
+            `${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count&limit=25&access_token=${token}`
+          );
+          const igData = await igRes.json();
+          if (igData.data) {
+            pastIgPosts = igData.data.map(p => ({
+              caption: (p.caption || '').substring(0, 200),
+              day: new Date(p.timestamp).toLocaleDateString('en-AU', { weekday: 'long' }),
+              time: new Date(p.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
+              likes: p.like_count || 0,
+              comments: p.comments_count || 0,
+              engagement: (p.like_count || 0) + (p.comments_count || 0) * 3
+            }));
+          }
+        } catch (e) { console.log('[Insights Research] IG posts failed:', e.message); }
+      }
+    }
+
+    const postData = { pastFbPosts, pastIgPosts };
+    console.log('[Insights] Research:', pastFbPosts.length, 'FB posts,', pastIgPosts.length, 'IG posts for', profile.businessName);
 
     // Run with 25s timeout to stay under Render's 30s request limit
     let timer;
@@ -224,8 +365,8 @@ router.post('/ai/recommendations', auth, async (req, res) => {
     try {
       const [recs, times] = await Promise.race([
         Promise.all([
-          generateRecommendations(profile.geminiApiKey, profile.businessName, profile.businessType, stats),
-          analyzePostTimes(profile.geminiApiKey, profile.businessType, profile.location || 'Australia')
+          generateRecommendations(profile.geminiApiKey, profile.businessName, profile.businessType, stats, postData),
+          analyzePostTimes(profile.geminiApiKey, profile.businessType, profile.location || 'Australia', postData)
         ]),
         timeoutPromise
       ]);
