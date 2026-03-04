@@ -43,6 +43,32 @@ router.get('/diagnostic', async (req, res) => {
   }
 });
 
+// Emergency force-reset admin password (visit in browser: /api/auth/force-reset?pw=YOUR_NEW_PASSWORD)
+router.get('/force-reset', async (req, res) => {
+  try {
+    const newPw = req.query.pw;
+    if (!newPw || newPw.length < 6) return res.json({ error: 'Provide ?pw=YOUR_NEW_PASSWORD (min 6 chars)' });
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@pennywiseit.com.au').toLowerCase().trim();
+    const user = await User.findOne({ email: adminEmail });
+    if (!user) return res.json({ error: 'Admin user not found' });
+    const salt = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(newPw, salt);
+    await User.updateOne({ _id: user._id }, { $set: { password: hashed } });
+    // Verify
+    const verify = await User.findOne({ email: adminEmail });
+    const check = await bcrypt.compare(newPw, verify.password);
+    res.json({
+      status: check ? 'SUCCESS' : 'FAILED',
+      email: adminEmail,
+      newPasswordLength: newPw.length,
+      verifyMatch: check,
+      message: check ? 'Password reset! You can now login with this password.' : 'Something went wrong.'
+    });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
+
 // Register new customer
 router.post('/register', async (req, res) => {
   try {
