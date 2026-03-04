@@ -80,44 +80,16 @@ const Navbar = () => {
             <Link to="/contact" className={isActive('/contact') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Contact</Link>
           </div>
 
-          {/* App Hub — purchased apps as quick-launch icons */}
-          {user && myApps.length > 0 && (
-            <div className="nav-group nav-app-hub">
-              <span className="nav-hub-divider" />
-              <Link to="/my-apps" className={`nav-hub-label ${isActive('/my-apps') ? 'active' : ''}`} onClick={() => setMobileOpen(false)} title="My App Hub">
-                <Layers size={14} /> Hub
-              </Link>
-              {myApps.map(sub => {
-                const app = sub.app || {};
-                const Icon = APP_ICON_MAP[app.icon] || Sparkles;
-                const wl = sub.whiteLabel || {};
-                const plan = app.plans?.find(p => p.key === sub.planKey);
-                return (
-                  <Link
-                    key={sub._id}
-                    to={app.routePath || '/my-apps'}
-                    className={`nav-app-icon ${isActive(app.routePath) ? 'active' : ''}`}
-                    onClick={() => setMobileOpen(false)}
-                    title={wl.brandName || app.name}
-                  >
-                    {wl.logoUrl ? (
-                      <img src={wl.logoUrl} alt="" className="nav-app-icon-img" />
-                    ) : (
-                      <Icon size={16} />
-                    )}
-                    <span className="nav-app-icon-name">{(wl.brandName || app.name || '').split(' ')[0]}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-
-          {/* User links */}
+          {/* Logged-in user: compact links */}
           {user && (
             <div className="nav-group nav-user-links">
               <span className="nav-hub-divider" />
               <Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Dashboard</Link>
-              <Link to="/tickets" className={isActive('/tickets') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Tickets</Link>
+              {myApps.length > 0 && (
+                <Link to="/my-apps" className={`${isActive('/my-apps') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
+                  My Apps
+                </Link>
+              )}
               {user.role === 'admin' && (
                 <Link to="/admin" className={location.pathname.startsWith('/admin') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Admin</Link>
               )}

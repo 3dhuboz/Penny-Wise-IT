@@ -155,8 +155,14 @@ FORMAT YOUR RESPONSE AS:
 
 Be specific with times (e.g. "Tuesday 7:15 AM" not "mornings"). Use the ${location} local timezone.`
     });
-    return response.text;
+    let text;
+    try { text = response.text; } catch (e) {
+      console.error('[Post Times] response.text threw:', e.message);
+      return 'Could not analyze times — response was blocked.';
+    }
+    return text || 'Could not analyze times.';
   } catch (error) {
+    console.error('[Post Times] Error:', error?.message || error);
     return 'Could not analyze times.';
   }
 };
@@ -209,9 +215,15 @@ For each action:
 
 Be specific to ${businessType} businesses. Give actual examples, not generic advice. Reference current platform algorithm behaviour.`
     });
-    return response.text || 'No recommendations generated.';
+    let text;
+    try { text = response.text; } catch (e) {
+      console.error('[Recommendations] response.text threw:', e.message);
+      return 'Unable to generate recommendations — response was blocked. Try again.';
+    }
+    return text || 'No recommendations generated.';
   } catch (error) {
-    return 'Unable to analyze stats at this time.';
+    console.error('[Recommendations] Error:', error?.message || error);
+    return `Unable to analyze stats: ${error?.message || 'Unknown error'}`;
   }
 };
 

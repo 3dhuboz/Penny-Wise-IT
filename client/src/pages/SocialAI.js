@@ -264,7 +264,7 @@ const SocialAI = () => {
       setRecommendations(res.data.recommendations || '');
       setBestTimes(res.data.bestTimes || '');
     } catch (err) {
-      toast.error('Analysis failed');
+      toast.error(err.response?.data?.error || err.response?.data?.message || 'Analysis failed');
     }
     setIsAnalyzing(false);
   };

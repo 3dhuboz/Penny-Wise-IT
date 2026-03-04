@@ -208,12 +208,21 @@ router.post('/ai/recommendations', auth, async (req, res) => {
     if (!profile?.geminiApiKey) {
       return res.status(400).json({ message: 'Gemini API key not configured.' });
     }
+    // Ensure stats is a plain object with safe defaults
+    const stats = {
+      followers: profile.stats?.followers ?? 500,
+      reach: profile.stats?.reach ?? 2000,
+      engagement: profile.stats?.engagement ?? 4.5,
+      postsLast30Days: profile.stats?.postsLast30Days ?? 8
+    };
+    console.log('[Insights] Analyzing for:', profile.businessName, '| stats:', stats);
     const [recs, times] = await Promise.all([
-      generateRecommendations(profile.geminiApiKey, profile.businessName, profile.businessType, profile.stats),
-      analyzePostTimes(profile.geminiApiKey, profile.businessType, profile.location)
+      generateRecommendations(profile.geminiApiKey, profile.businessName, profile.businessType, stats),
+      analyzePostTimes(profile.geminiApiKey, profile.businessType, profile.location || 'Australia')
     ]);
     res.json({ recommendations: recs, bestTimes: times });
   } catch (err) {
+    console.error('[Insights] Route error:', err);
     res.status(500).json({ message: 'Analysis failed', error: err.message });
   }
 });
