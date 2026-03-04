@@ -12,8 +12,8 @@ import toast from 'react-hot-toast';
 import './SocialAI.css';
 
 const PLAN_DETAILS = {
-  starter: { name: 'Starter', price: 49, color: '#3b82f6', icon: Star, features: ['AI Content Generation', 'Content Calendar', 'Basic Insights', '1 Brand Profile'] },
-  professional: { name: 'Professional', price: 99, color: '#f59e0b', icon: Crown, popular: true, features: ['Everything in Starter', 'Smart AI Scheduler', 'AI Image Generation', 'Advanced Insights', 'White-Label Branding', '3 Brand Profiles'] },
+  starter: { name: 'Starter', price: 49, color: '#3b82f6', icon: Star, features: ['AI Content Generation', 'Content Calendar & Scheduling', 'AI-Powered Insights', 'Best Practices Knowledge Hub', '1 Brand Profile'] },
+  professional: { name: 'Professional', price: 99, color: '#f59e0b', icon: Crown, popular: true, features: ['Everything in Starter', 'Research-Driven Smart Scheduler', 'AI Analyses Your Post Performance', 'Schedule Directly from Insights', 'AI Image Generation', 'White-Label Branding', '3 Brand Profiles'] },
   enterprise: { name: 'Enterprise', price: 199, color: '#a855f7', icon: Shield, features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Unlimited Brand Profiles', 'Dedicated Account Manager'] }
 };
 

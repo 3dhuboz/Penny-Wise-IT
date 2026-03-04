@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Sparkles, Wand2, Brain, Calendar, BarChart3, Image as ImageIcon,
-  CheckCircle, ArrowRight, Zap, Star, Users, Clock, Shield
+  CheckCircle, ArrowRight, Zap, Star, Users, Clock, Shield,
+  TrendingUp, Target, Search, Palette
 } from 'lucide-react';
 import './SocialAIProduct.css';
 
@@ -17,11 +18,12 @@ const SocialAIProduct = () => {
       period: '/mo',
       description: 'Perfect for solo businesses getting started with AI social media.',
       features: [
-        'AI Content Generation (50 posts/mo)',
+        'AI Content Generation',
         'Facebook & Instagram Optimised',
-        'Content Calendar',
-        'Brand Profile Setup',
-        'Data Export',
+        'Content Calendar & Scheduling',
+        'Brand Profile & Voice Setup',
+        'AI-Powered Insights & Analytics',
+        'Best Practices Knowledge Hub',
         'Email Support'
       ],
       cta: 'Start Free Trial',
@@ -31,15 +33,15 @@ const SocialAIProduct = () => {
       name: 'Professional',
       price: 99,
       period: '/mo',
-      description: 'For growing businesses that want full AI-powered social management.',
+      description: 'Data-driven AI that learns from your real engagement to maximise results.',
       features: [
-        'Unlimited AI Content Generation',
-        'AI Marketing Image Creation',
-        'Smart 2-Week Auto-Scheduler',
-        'Engagement Insights & Analytics',
-        'Best Posting Time Recommendations',
-        'Brand Voice Customisation',
-        'Content Calendar with Bulk Actions',
+        'Everything in Starter',
+        'Research-Driven Smart Scheduler',
+        'AI Analyses Your Past Post Performance',
+        'Data-Backed Best Days & Times',
+        'Schedule Directly from Insights',
+        'AI Marketing Image Generation',
+        'Full White-Label Branding',
         'Priority Support'
       ],
       cta: 'Get Started',
@@ -49,11 +51,11 @@ const SocialAIProduct = () => {
       name: 'Enterprise',
       price: 199,
       period: '/mo',
-      description: 'Full white-glove service with dedicated account management.',
+      description: 'Full white-glove service with dedicated account management and custom domain.',
       features: [
         'Everything in Professional',
+        'Custom Domain Branding',
         'Dedicated Account Manager',
-        'Custom AI Model Training',
         'Multi-Brand Management',
         'Advanced Analytics Dashboard',
         'API Access for Integrations',
@@ -71,12 +73,12 @@ const SocialAIProduct = () => {
       <section className="sai-hero">
         <div className="container">
           <div className="sai-hero-badge">
-            <Sparkles size={14} /> NEW PRODUCT
+            <Brain size={14} /> RESEARCH-DRIVEN AI
           </div>
           <h1>SocialAI Studio</h1>
           <p className="sai-hero-sub">
-            AI-powered social media content generation and scheduling for your business.
-            Create weeks of engaging content in minutes, not hours.
+            The only AI social media manager that analyses your real engagement data to build smarter strategies.
+            It studies what works for YOUR audience, then creates and schedules content that replicates your top-performing posts.
           </p>
           <div className="sai-hero-actions">
             {user ? (
@@ -96,8 +98,8 @@ const SocialAIProduct = () => {
           </div>
           <div className="sai-hero-stats">
             <div><strong>Google Gemini 2.5</strong><span>AI Engine</span></div>
-            <div><strong>Facebook & Instagram</strong><span>Platforms</span></div>
-            <div><strong>2-Week</strong><span>Smart Scheduling</span></div>
+            <div><strong>Facebook & Instagram</strong><span>Real Data Analysis</span></div>
+            <div><strong>Research-Driven</strong><span>Smart Scheduling</span></div>
           </div>
         </div>
       </section>
@@ -105,39 +107,39 @@ const SocialAIProduct = () => {
       {/* Features */}
       <section className="sai-features">
         <div className="container">
-          <h2 className="section-heading">Everything You Need for Social Media Success</h2>
-          <p className="section-sub">Powered by the latest Google Gemini AI, tailored to your brand.</p>
+          <h2 className="section-heading">AI That Actually Learns From Your Results</h2>
+          <p className="section-sub">Not generic advice — real data from your Facebook and Instagram, analysed by Google Gemini 2.5 AI.</p>
 
           <div className="sai-features-grid">
             <div className="sai-feature-card">
+              <div className="sai-feature-icon" style={{ background: 'rgba(168,85,247,0.1)', color: '#a855f7' }}><Brain size={28} /></div>
+              <h3>Research-Driven Scheduling</h3>
+              <p>AI analyses your past posts, identifies your top-performing days, times, and content styles, then builds a 2-week calendar that replicates what actually works for your audience.</p>
+            </div>
+            <div className="sai-feature-card">
+              <div className="sai-feature-icon" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981' }}><Search size={28} /></div>
+              <h3>Performance Intelligence</h3>
+              <p>Get deep AI analysis of your engagement patterns. See which posts resonated, what fell flat, and let AI turn those insights directly into a new content schedule with one click.</p>
+            </div>
+            <div className="sai-feature-card">
               <div className="sai-feature-icon" style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}><Wand2 size={28} /></div>
               <h3>AI Content Generator</h3>
-              <p>Write platform-optimised posts for Facebook and Instagram in seconds. AI adapts to your brand voice, industry, and audience.</p>
+              <p>Generate platform-optimised posts that mirror your best-performing content. AI studies your winning hooks, style, and tone — then creates new posts that follow the same patterns.</p>
             </div>
             <div className="sai-feature-card">
               <div className="sai-feature-icon" style={{ background: 'rgba(79,70,229,0.1)', color: '#4f46e5' }}><ImageIcon size={28} /></div>
               <h3>AI Image Generation</h3>
-              <p>Create stunning marketing visuals from text prompts. No design skills needed — AI generates professional images for your posts.</p>
+              <p>Create stunning marketing visuals from text prompts using Google Gemini. No design skills needed — AI generates professional images tailored to each post.</p>
             </div>
             <div className="sai-feature-card">
-              <div className="sai-feature-icon" style={{ background: 'rgba(168,85,247,0.1)', color: '#a855f7' }}><Brain size={28} /></div>
-              <h3>Smart AI Scheduler</h3>
-              <p>Auto-generate a full 2-week content calendar optimised for engagement. AI picks the best times, platforms, and content mix.</p>
+              <div className="sai-feature-icon" style={{ background: 'rgba(37,99,235,0.1)', color: '#2563eb' }}><Target size={28} /></div>
+              <h3>Insights-to-Schedule</h3>
+              <p>Analyse your performance, then generate a full content schedule directly from the insights — all in one flow. The AI fills gaps in your calendar based on real data patterns.</p>
             </div>
             <div className="sai-feature-card">
-              <div className="sai-feature-icon" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981' }}><BarChart3 size={28} /></div>
-              <h3>Engagement Insights</h3>
-              <p>Get AI-powered recommendations on posting strategy, best times, and content that resonates with your audience.</p>
-            </div>
-            <div className="sai-feature-card">
-              <div className="sai-feature-icon" style={{ background: 'rgba(37,99,235,0.1)', color: '#2563eb' }}><Calendar size={28} /></div>
-              <h3>Content Calendar</h3>
-              <p>Manage all your drafts, scheduled, and posted content in one place. Filter, edit, and organise with ease.</p>
-            </div>
-            <div className="sai-feature-card">
-              <div className="sai-feature-icon" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><Shield size={28} /></div>
-              <h3>Brand-Safe AI</h3>
-              <p>Configure your business profile and tone — AI ensures every post sounds authentically you. No generic content.</p>
+              <div className="sai-feature-icon" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><Palette size={28} /></div>
+              <h3>White-Label Ready</h3>
+              <p>Full branding control — custom logo, colours, fonts, and tagline. Your customers see your brand, not ours. Perfect for agencies and resellers.</p>
             </div>
           </div>
         </div>
@@ -150,23 +152,23 @@ const SocialAIProduct = () => {
           <div className="sai-steps">
             <div className="sai-step">
               <div className="sai-step-number">1</div>
-              <h3>Set Up Your Profile</h3>
-              <p>Tell AI about your business — name, type, tone, and location. This is used to tailor every piece of content.</p>
+              <h3>Connect Your Accounts</h3>
+              <p>Set up your brand profile, connect Facebook & Instagram, and add your free Google Gemini API key. The AI starts learning immediately.</p>
             </div>
             <div className="sai-step">
               <div className="sai-step-number">2</div>
-              <h3>Add Your API Key</h3>
-              <p>Paste your free Google Gemini API key. This powers all AI features at no additional cost to you.</p>
+              <h3>AI Researches Your Data</h3>
+              <p>The engine analyses your past posts, engagement patterns, best days, top hashtags, and what content your audience responds to most.</p>
             </div>
             <div className="sai-step">
               <div className="sai-step-number">3</div>
-              <h3>Generate & Schedule</h3>
-              <p>Create individual posts or let Smart AI generate your entire 2-week calendar automatically.</p>
+              <h3>Generate Data-Driven Content</h3>
+              <p>One click generates a full 2-week schedule based on real performance data — optimised timing, proven content pillars, and your brand voice.</p>
             </div>
             <div className="sai-step">
               <div className="sai-step-number">4</div>
-              <h3>Grow Your Audience</h3>
-              <p>Use AI Insights to optimise your strategy. Watch engagement grow with consistent, quality content.</p>
+              <h3>Iterate & Grow</h3>
+              <p>Use AI Insights to continuously refine your strategy. Each analysis makes the next schedule smarter. Watch engagement compound over time.</p>
             </div>
           </div>
         </div>
@@ -210,14 +212,19 @@ const SocialAIProduct = () => {
         <div className="container">
           <div className="sai-proof-grid">
             <div className="sai-proof-item">
+              <Brain size={32} style={{ color: '#f59e0b' }} />
+              <strong>Data-Driven</strong>
+              <span>AI learns from your real engagement</span>
+            </div>
+            <div className="sai-proof-item">
+              <TrendingUp size={32} style={{ color: '#f59e0b' }} />
+              <strong>Smarter Each Time</strong>
+              <span>strategies improve with every analysis</span>
+            </div>
+            <div className="sai-proof-item">
               <Zap size={32} style={{ color: '#f59e0b' }} />
               <strong>10x Faster</strong>
               <span>than manual content creation</span>
-            </div>
-            <div className="sai-proof-item">
-              <Users size={32} style={{ color: '#f59e0b' }} />
-              <strong>Small Business</strong>
-              <span>built for real businesses</span>
             </div>
             <div className="sai-proof-item">
               <Clock size={32} style={{ color: '#f59e0b' }} />
@@ -232,8 +239,8 @@ const SocialAIProduct = () => {
       <section className="sai-final-cta">
         <div className="container">
           <Sparkles size={40} style={{ color: '#f59e0b', marginBottom: '1rem' }} />
-          <h2>Ready to Transform Your Social Media?</h2>
-          <p>Start your 14-day free trial today. No credit card required.</p>
+          <h2>Your AI Social Media Strategist Awaits</h2>
+          <p>Stop guessing. Start posting content backed by real engagement data. 14-day free trial, no credit card required.</p>
           <Link to={user ? '/social' : '/register'} className="btn btn-primary btn-lg">
             {user ? 'Open SocialAI Studio' : 'Start Free Trial'} <ArrowRight size={18} />
           </Link>

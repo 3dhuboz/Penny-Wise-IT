@@ -54,17 +54,17 @@ async function connectDB() {
       {
         slug: 'social-ai-studio',
         name: 'SocialAI Studio',
-        shortDescription: 'AI-powered social media content generator and scheduler. Create weeks of engaging posts in minutes.',
-        fullDescription: 'SocialAI Studio uses Google Gemini AI to generate on-brand social media content, images, and full 2-week posting schedules for Facebook and Instagram. Each subscriber gets their own branded AI social media manager with full white-label control.',
+        shortDescription: 'Research-driven AI social media manager. Analyses your real engagement data to create smarter content strategies.',
+        fullDescription: 'SocialAI Studio uses Google Gemini 2.5 AI to analyse your real Facebook and Instagram engagement data — top-performing posts, best days, winning hashtags — then builds data-driven content schedules that replicate what actually works for your audience. Features include AI content generation, AI image creation, insights-to-schedule workflow, evolving best practices knowledge hub, and full white-label branding.',
         icon: 'sparkles',
         category: 'marketing',
         routePath: '/social',
         setupFee: 299,
-        features: ['AI Content Generation', 'AI Image Generation', 'Smart 2-Week Scheduler', 'Content Calendar', 'Engagement Insights', 'Multi-Platform (Facebook & Instagram)', 'White-Label Branding', 'Export Data'],
-        techStack: ['Google Gemini AI', 'React', 'Node.js', 'MongoDB'],
+        features: ['Research-Driven AI Engine', 'AI Content Generation', 'AI Image Generation', 'Data-Backed Smart Scheduler', 'Insights-to-Schedule Workflow', 'Performance Intelligence', 'Evolving Best Practices Hub', 'Multi-Platform (Facebook & Instagram)', 'White-Label Branding'],
+        techStack: ['Google Gemini 2.5 AI', 'React', 'Node.js', 'MongoDB', 'Facebook Graph API'],
         plans: [
-          { key: 'starter', name: 'Starter', price: 49, yearlyPrice: 490, features: ['AI Content Generation', 'Content Calendar', 'Basic Insights', '1 Brand Profile'], color: '#3b82f6', whiteLabel: false, customDomain: false },
-          { key: 'professional', name: 'Professional', price: 99, yearlyPrice: 990, features: ['Everything in Starter', 'Smart AI Scheduler', 'AI Image Generation', 'Advanced Insights', 'White-Label Branding', '3 Brand Profiles'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
+          { key: 'starter', name: 'Starter', price: 49, yearlyPrice: 490, features: ['AI Content Generation', 'Content Calendar & Scheduling', 'AI-Powered Insights', 'Best Practices Knowledge Hub', 'Brand Profile & Voice Setup', '1 Brand Profile'], color: '#3b82f6', whiteLabel: false, customDomain: false },
+          { key: 'professional', name: 'Professional', price: 99, yearlyPrice: 990, features: ['Everything in Starter', 'Research-Driven Smart Scheduler', 'AI Analyses Past Post Performance', 'Data-Backed Best Days & Times', 'Schedule Directly from Insights', 'AI Marketing Image Generation', 'Full White-Label Branding', '3 Brand Profiles'], popular: true, color: '#f59e0b', whiteLabel: true, customDomain: false },
           { key: 'enterprise', name: 'Enterprise', price: 199, yearlyPrice: 1990, features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Unlimited Brand Profiles', 'Dedicated Account Manager'], color: '#a855f7', whiteLabel: true, customDomain: true }
         ],
         isActive: true, isPublished: true, displayOrder: 1

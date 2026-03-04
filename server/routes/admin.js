@@ -119,19 +119,19 @@ router.post('/seed', auth, adminOnly, async (req, res) => {
       },
       {
         title: 'SocialAI Studio',
-        shortDescription: 'AI-powered social media content generator and scheduler for your business.',
-        fullDescription: 'Let AI handle your social media. SocialAI Studio uses Google Gemini to generate platform-optimized posts, create marketing images, plan content calendars, and provide engagement insights — all tailored to your brand voice and industry. Available as Starter, Professional, or Enterprise packages.',
+        shortDescription: 'Research-driven AI social media manager that analyses your real engagement data to build smarter strategies.',
+        fullDescription: 'SocialAI Studio uses Google Gemini 2.5 AI to analyse your real Facebook and Instagram engagement data — top-performing posts, best days, winning hashtags — then builds data-driven content schedules that replicate what works. Features include insights-to-schedule workflow, AI image generation, evolving best practices hub, and full white-label branding.',
         icon: 'sparkles',
         category: 'social-ai',
         features: [
-          'AI Content Generation for Facebook & Instagram',
-          'AI Marketing Image Creation',
-          'Smart 2-Week Content Calendar Scheduling',
-          'Engagement Insights & Best Posting Times',
-          'Brand-Tailored Content (Tone, Industry, Location)',
-          'Content Export & Analytics',
-          'Dedicated Business Profile',
-          'Powered by Google Gemini 2.5'
+          'Research-Driven AI Engine (Google Gemini 2.5)',
+          'AI Analyses Your Real Post Performance',
+          'Data-Backed Smart 2-Week Scheduler',
+          'Insights-to-Schedule Workflow',
+          'AI Marketing Image Generation',
+          'Evolving Best Practices Knowledge Hub',
+          'Performance Intelligence & Best Times',
+          'Full White-Label Branding'
         ],
         pricing: { type: 'monthly', amount: 49, currency: 'AUD' },
         displayOrder: 6
