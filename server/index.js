@@ -27,6 +27,19 @@ app.use(cors({
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 app.use('/api/', limiter);
 
+// Square webhook — bypass CORS (Square servers won't match our origins)
+app.options('/api/square/webhook', (req, res) => res.sendStatus(200));
+app.use('/api/square/webhook', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+});
+
+// Capture raw body for Square webhook signature verification (must come before JSON parser)
+app.use('/api/square/webhook', express.json({
+  limit: '1mb',
+  verify: (req, res, buf) => { req.rawBody = buf.toString('utf8'); }
+}));
+
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -240,6 +253,7 @@ app.use('/api/hosting', require('./routes/hosting'));
 app.use('/api/client-projects', require('./routes/clientProjects'));
 app.use('/api/foodtruck', require('./routes/foodtruck'));
 app.use('/api/simplewebsite', require('./routes/simplewebsite'));
+app.use('/api/square', require('./routes/squareWebhook'));
 
 // Public config endpoint — exposes client-mode settings for the React app
 app.get('/api/config', (req, res) => {

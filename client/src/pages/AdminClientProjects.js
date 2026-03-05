@@ -482,7 +482,8 @@ const AdminClientProjects = () => {
                               style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                               <FolderKanban size={12} /> Work Locally
                             </button>
-                            <a href="windsurf://open-folder?path=c%3A%5CUsers%5Csteve%5COneDrive%5CDesktop%5CBusiness%20Folders%5CPennywise%5CApp%5CCascadeProjects%5Cwindsurf-project"
+                            <a href="windsurf://file/C:/Users/steve/OneDrive/Desktop/Business%20Folders/Pennywise/App/CascadeProjects/windsurf-project"
+                              target="_blank" rel="noopener noreferrer"
                               style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer' }}>
                               <Edit size={12} /> Open in Windsurf
                             </a>
