@@ -36,6 +36,7 @@ import PennyAgent from './components/PennyAgent';
 import WirezLauncher from './pages/WirezLauncher';
 import SimpleWebsiteProduct from './pages/SimpleWebsiteProduct';
 import AdminSettings from './pages/AdminSettings';
+import AdminClientProjects from './pages/AdminClientProjects';
 import Hosting from './pages/Hosting';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
@@ -85,6 +86,7 @@ const AppRoutes = () => {
       <Route path="/admin/apps" element={<ProtectedRoute adminOnly><AdminApps /></ProtectedRoute>} />
       <Route path="/admin/invoices" element={<ProtectedRoute adminOnly><AdminInvoices /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute adminOnly><AdminSettings /></ProtectedRoute>} />
+      <Route path="/admin/projects" element={<ProtectedRoute adminOnly><AdminClientProjects /></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
