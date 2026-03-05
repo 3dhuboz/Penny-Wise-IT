@@ -34,6 +34,7 @@ const foodOrderSchema = new mongoose.Schema({
     method: { type: String, enum: ['square', 'cash', 'other'], default: 'square' },
     status: { type: String, enum: ['unpaid', 'paid', 'refunded'], default: 'unpaid' },
     squarePaymentId: String,
+    squareOrderId: String,
     squareCheckoutUrl: String,
     paidAt: Date,
   },

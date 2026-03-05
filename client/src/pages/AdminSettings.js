@@ -365,14 +365,51 @@ const AdminSettings = () => {
                 Webhooks let Square notify your app about payment events (completed, refunded, etc.)
               </p>
 
+              {/* Webhook Endpoint URL */}
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#d1d5db' }}>Your Webhook Endpoint URL</label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input
+                    readOnly
+                    value={`${window.location.origin}/api/square/webhook`}
+                    style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.8125rem', background: 'rgba(255,255,255,0.03)', color: '#6ee7b7' }}
+                    onClick={e => { e.target.select(); navigator.clipboard.writeText(e.target.value).then(() => toast.success('Webhook URL copied!')).catch(() => {}); }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-secondary"
+                    style={{ padding: '0.5rem 0.75rem', whiteSpace: 'nowrap' }}
+                    onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/api/square/webhook`).then(() => toast.success('Webhook URL copied!')).catch(() => {}); }}
+                  >
+                    Copy
+                  </button>
+                </div>
+                <span style={{ fontSize: '0.6875rem', color: '#6b7280' }}>
+                  Paste this URL into Square Developer Dashboard &rarr; Webhooks &rarr; Add Webhook
+                </span>
+              </div>
+
+              {/* Events to subscribe */}
+              <div className="card" style={{ padding: '0.75rem 1rem', marginBottom: '1rem', background: 'rgba(59,130,246,0.05)', border: '1px solid rgba(59,130,246,0.15)' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#93c5fd', marginBottom: '0.375rem' }}>Events to subscribe to in Square:</p>
+                <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+                  {['payment.completed', 'payment.updated', 'order.updated', 'refund.created', 'refund.updated'].map(evt => (
+                    <span key={evt} style={{ padding: '0.15rem 0.5rem', borderRadius: 4, fontSize: '0.6875rem', fontFamily: 'monospace', fontWeight: 600, background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.2)' }}>
+                      {evt}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* How to find signature key */}
               <div className="card" style={{ padding: '0.75rem 1rem', marginBottom: '1rem', background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.15)' }}>
                 <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fcd34d', marginBottom: '0.5rem' }}>How to find your Webhook Signature Key:</p>
                 <ol style={{ fontSize: '0.75rem', color: '#9ca3af', paddingLeft: '1.25rem', margin: 0, lineHeight: 1.8 }}>
                   <li>Go to <a href="https://developer.squareup.com/apps" target="_blank" rel="noopener noreferrer" style={{ color: '#818cf8', textDecoration: 'underline' }}>developer.squareup.com/apps</a></li>
                   <li>Select your application</li>
                   <li>Click the <strong style={{ color: '#e5e7eb' }}>Webhooks</strong> tab in the left sidebar</li>
-                  <li>If no webhook exists, click <strong style={{ color: '#e5e7eb' }}>Add Webhook</strong> and set the URL to your app's webhook endpoint</li>
-                  <li>The <strong style={{ color: '#e5e7eb' }}>Signature Key</strong> is shown on the webhook details page — copy it here</li>
+                  <li>Click <strong style={{ color: '#e5e7eb' }}>Add Webhook</strong>, paste the endpoint URL above, and select the events listed above</li>
+                  <li>Once saved, the <strong style={{ color: '#e5e7eb' }}>Signature Key</strong> is shown on the webhook details page — copy it below</li>
                 </ol>
               </div>
 
