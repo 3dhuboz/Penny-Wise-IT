@@ -3,19 +3,22 @@ import { Link } from 'react-router-dom';
 import {
   ArrowLeft, Settings, Save, CreditCard, Mail, Globe, Phone, Facebook,
   Building, Shield, Server, Eye, EyeOff, Loader2, CheckCircle, AlertTriangle,
-  DollarSign, Edit, Trash2, Plus, ChevronDown, ChevronUp
+  DollarSign, Edit, Trash2, Plus, ChevronDown, ChevronUp, Palette
 } from 'lucide-react';
 import api from '../api';
+import { useClientConfig } from '../context/ClientConfigContext';
 import toast from 'react-hot-toast';
 import './Admin.css';
 
 const AdminSettings = () => {
+  const { clientMode } = useClientConfig();
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSecrets, setShowSecrets] = useState({});
-  const [activeTab, setActiveTab] = useState('business');
+  const [activeTab, setActiveTab] = useState(clientMode ? 'branding' : 'business');
   const [editingPlan, setEditingPlan] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
 
   useEffect(() => {
     api.get('/settings').then(res => {
@@ -86,7 +89,10 @@ const AdminSettings = () => {
   if (loading) return <div className="page-loading">Loading settings...</div>;
   if (!settings) return <div className="page-loading">Failed to load settings</div>;
 
-  const tabs = [
+  const tabs = clientMode ? [
+    { key: 'branding', label: 'Branding', icon: Palette },
+    { key: 'business', label: 'Business Info', icon: Building },
+  ] : [
     { key: 'business', label: 'Business Info', icon: Building },
     { key: 'payment', label: 'Payment Gateway', icon: CreditCard },
     { key: 'email', label: 'Email Server', icon: Mail },
@@ -95,6 +101,25 @@ const AdminSettings = () => {
     { key: 'endpoints', label: 'API Endpoints', icon: Shield },
   ];
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error('Logo must be under 2MB'); return; }
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = reader.result;
+      setLogoPreview(base64);
+      try {
+        const res = await api.put('/settings', { brandLogoUrl: base64 });
+        setSettings(res.data.settings);
+        toast.success('Logo uploaded');
+      } catch (err) {
+        toast.error('Failed to upload logo');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="admin-page">
       <div className="container" style={{ padding: '2rem 1.5rem' }}>
@@ -102,10 +127,10 @@ const AdminSettings = () => {
         <div className="admin-header">
           <div>
             <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Settings size={24} style={{ color: 'var(--primary)' }} /> Admin Settings
+              <Settings size={24} style={{ color: 'var(--primary)' }} /> {clientMode ? 'App Settings' : 'Admin Settings'}
             </h1>
             <p style={{ color: 'var(--gray-500)', fontSize: '0.875rem' }}>
-              Payment gateway, email, hosting plans, and business configuration
+              {clientMode ? 'Customise your branding, business info, and app settings' : 'Payment gateway, email, hosting plans, and business configuration'}
             </p>
           </div>
         </div>
@@ -126,6 +151,75 @@ const AdminSettings = () => {
             );
           })}
         </div>
+
+        {/* Branding Tab — Client Mode */}
+        {activeTab === 'branding' && (
+          <div className="card" style={{ padding: '1.5rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Palette size={18} /> Branding & Appearance
+            </h3>
+            <p style={{ fontSize: '0.8125rem', color: '#9ca3af', marginBottom: '1.25rem' }}>
+              Customise how your app looks. Changes apply across your entire app.
+            </p>
+
+            {/* Logo Upload */}
+            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+              <div>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#d1d5db', display: 'block', marginBottom: '0.5rem' }}>Logo</label>
+                <div style={{ width: 100, height: 100, borderRadius: 12, border: '2px dashed rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: 'rgba(255,255,255,0.03)' }}>
+                  {(logoPreview || settings.brandLogoUrl) ? (
+                    <img src={logoPreview || settings.brandLogoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <Palette size={32} style={{ color: '#4b5563' }} />
+                  )}
+                </div>
+                <label className="btn btn-sm btn-secondary" style={{ marginTop: '0.5rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <Edit size={12} /> Upload
+                  <input type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'none' }} />
+                </label>
+              </div>
+              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="form-group">
+                  <label>Brand Name</label>
+                  <input value={settings.brandName || ''} onChange={e => updateField('brandName', e.target.value)} placeholder="Your Business Name" />
+                </div>
+                <div className="form-group">
+                  <label>Tagline</label>
+                  <input value={settings.brandTagline || ''} onChange={e => updateField('brandTagline', e.target.value)} placeholder="Your catchy tagline" />
+                </div>
+                <div className="form-group">
+                  <label>Primary Colour</label>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <input type="color" value={settings.brandPrimaryColor || '#7c3aed'} onChange={e => updateField('brandPrimaryColor', e.target.value)} style={{ width: 40, height: 38, border: 'none', borderRadius: 6, cursor: 'pointer' }} />
+                    <input value={settings.brandPrimaryColor || '#7c3aed'} onChange={e => updateField('brandPrimaryColor', e.target.value)} style={{ flex: 1 }} />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Accent Colour</label>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <input type="color" value={settings.brandAccentColor || '#f59e0b'} onChange={e => updateField('brandAccentColor', e.target.value)} style={{ width: 40, height: 38, border: 'none', borderRadius: 6, cursor: 'pointer' }} />
+                    <input value={settings.brandAccentColor || '#f59e0b'} onChange={e => updateField('brandAccentColor', e.target.value)} style={{ flex: 1 }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Hero Image */}
+            <div className="form-group">
+              <label>Hero / Banner Image URL</label>
+              <input value={settings.brandHeroImage || ''} onChange={e => updateField('brandHeroImage', e.target.value)} placeholder="https://... or leave blank for default" />
+              {settings.brandHeroImage && (
+                <img src={settings.brandHeroImage} alt="Hero preview" style={{ marginTop: '0.5rem', maxHeight: 120, borderRadius: 8, objectFit: 'cover' }} />
+              )}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <button onClick={() => saveSettings()} className="btn btn-primary" disabled={saving}>
+                {saving ? <Loader2 size={14} className="spin" /> : <Save size={14} />} Save Branding
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Business Info Tab */}
         {activeTab === 'business' && (

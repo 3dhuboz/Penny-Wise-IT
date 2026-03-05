@@ -363,6 +363,39 @@ const AdminClientProjects = () => {
                         </div>
                       </div>
 
+                      {/* Dev Quick Links */}
+                      {project.deployment?.serviceId && (
+                        <div style={{ marginTop: '1.25rem', padding: '1rem', background: 'rgba(59,130,246,0.06)', borderRadius: 8, border: '1px solid rgba(59,130,246,0.15)' }}>
+                          <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#93c5fd', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Globe size={16} style={{ color: '#3b82f6' }} /> Dev Quick Links
+                          </h4>
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            {project.deployment?.serviceUrl && (
+                              <a href={project.deployment.serviceUrl} target="_blank" rel="noopener noreferrer"
+                                style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                                <ExternalLink size={12} /> Live Site
+                              </a>
+                            )}
+                            <a href={`https://dashboard.render.com/web/${project.deployment.serviceId}`} target="_blank" rel="noopener noreferrer"
+                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(139,92,246,0.12)', color: '#c4b5fd', border: '1px solid rgba(139,92,246,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                              <Server size={12} /> Render Dashboard
+                            </a>
+                            <a href={`https://dashboard.render.com/web/${project.deployment.serviceId}/env`} target="_blank" rel="noopener noreferrer"
+                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(245,158,11,0.12)', color: '#fcd34d', border: '1px solid rgba(245,158,11,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                              <Edit size={12} /> Env Vars
+                            </a>
+                            <a href={`https://dashboard.render.com/web/${project.deployment.serviceId}/logs`} target="_blank" rel="noopener noreferrer"
+                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(6,182,212,0.12)', color: '#67e8f9', border: '1px solid rgba(6,182,212,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                              <ClipboardList size={12} /> Logs
+                            </a>
+                          </div>
+                          <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 6, fontSize: '0.6875rem', color: '#6b7280', fontFamily: 'monospace' }}>
+                            <span style={{ color: '#9ca3af', fontFamily: 'inherit', fontWeight: 600 }}>Local test:</span>{' '}
+                            CLIENT_MODE=true ENABLED_APPS={project.apps?.map(a => a.slug).join(',') || 'socialai'} BRAND_NAME="{project.businessName || project.projectName}" npm run dev
+                          </div>
+                        </div>
+                      )}
+
                       {/* Notes */}
                       {project.notes && (
                         <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: 6, border: '1px solid rgba(255,255,255,0.06)' }}>

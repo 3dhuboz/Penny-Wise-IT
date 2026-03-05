@@ -48,6 +48,14 @@ const siteSettingsSchema = new mongoose.Schema({
     color: { type: String, default: '#3b82f6' }
   }],
 
+  // Branding (client self-service)
+  brandName: { type: String, default: '' },
+  brandTagline: { type: String, default: '' },
+  brandLogoUrl: { type: String, default: '' },
+  brandPrimaryColor: { type: String, default: '#7c3aed' },
+  brandAccentColor: { type: String, default: '#f59e0b' },
+  brandHeroImage: { type: String, default: '' },
+
   // Domain Sales
   domainSalesEnabled: { type: Boolean, default: true },
   domainMarkup: { type: Number, default: 0 },
