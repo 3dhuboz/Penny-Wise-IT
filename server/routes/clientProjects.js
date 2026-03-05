@@ -234,8 +234,10 @@ router.post('/:id/deploy', auth, adminOnly, async (req, res) => {
       branch,
       serviceDetails: {
         env: 'node',
-        buildCommand: 'cd client && npm install && npm run build && cd ../server && npm install',
-        startCommand: 'node server/index.js',
+        envSpecificDetails: {
+          buildCommand: 'cd client && npm install && npm run build && cd ../server && npm install',
+          startCommand: 'node server/index.js'
+        },
         plan: req.body.plan || 'free',
         region: req.body.region || 'oregon',
         numInstances: 1
@@ -259,7 +261,7 @@ router.post('/:id/deploy', auth, adminOnly, async (req, res) => {
     if (!renderRes.ok) {
       console.error('[Deploy] Render API error:', renderData);
       return res.status(renderRes.status).json({
-        message: 'Render deployment failed',
+        message: 'Render deployment failed: ' + (renderData?.message || renderData?.error || JSON.stringify(renderData)),
         error: renderData?.message || renderData?.error || JSON.stringify(renderData)
       });
     }
