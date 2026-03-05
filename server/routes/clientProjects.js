@@ -267,7 +267,8 @@ router.post('/:id/deploy', auth, adminOnly, async (req, res) => {
     }
 
     const serviceId = renderData.service?.id || renderData.id;
-    const serviceUrl = `https://${renderData.service?.serviceDetails?.url || slugName + '.onrender.com'}`;
+    const rawUrl = renderData.service?.serviceDetails?.url || `${slugName}.onrender.com`;
+    const serviceUrl = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
 
     // Update project with deployment info
     project.deployment = {
