@@ -7,6 +7,7 @@ import {
   BarChart3, Brain, Wand2, Globe, Settings, Code, Star, DollarSign
 } from 'lucide-react';
 import api from '../api';
+import { useClientConfig } from '../context/ClientConfigContext';
 import './Dashboard.css';
 
 const ICON_MAP = {
@@ -17,6 +18,7 @@ const ICON_MAP = {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { clientMode, brandName } = useClientConfig();
   const [tickets, setTickets] = useState([]);
   const [workflows, setWorkflows] = useState([]);
   const [myApps, setMyApps] = useState([]);
@@ -60,7 +62,7 @@ const Dashboard = () => {
             <p>Manage your apps, tickets, and workflows</p>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Link to="/marketplace" className="btn btn-secondary"><Store size={16} /> Marketplace</Link>
+            {!clientMode && <Link to="/marketplace" className="btn btn-secondary"><Store size={16} /> Marketplace</Link>}
             <Link to="/tickets/new" className="btn btn-primary"><Plus size={16} /> New Ticket</Link>
           </div>
         </div>
@@ -96,8 +98,8 @@ const Dashboard = () => {
             <div className="empty-state card" style={{ textAlign: 'center', padding: '2.5rem 1.5rem' }}>
               <Store size={48} style={{ color: 'var(--gray-300)', marginBottom: '1rem' }} />
               <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem' }}>No Apps Yet</h3>
-              <p style={{ marginBottom: '1rem' }}>Browse our marketplace to subscribe to your first app. Each comes with its own white-label backend.</p>
-              <Link to="/marketplace" className="btn btn-primary"><Store size={16} /> Explore Marketplace</Link>
+              <p style={{ marginBottom: '1rem' }}>{clientMode ? 'Your apps will appear here once they are activated.' : 'Browse our marketplace to subscribe to your first app. Each comes with its own white-label backend.'}</p>
+              {!clientMode && <Link to="/marketplace" className="btn btn-primary"><Store size={16} /> Explore Marketplace</Link>}
             </div>
           ) : (
             <div className="dash-apps-grid">
@@ -152,12 +154,14 @@ const Dashboard = () => {
                 );
               })}
 
-              {/* Browse more card */}
-              <Link to="/marketplace" className="dash-app-card card dash-app-browse">
-                <Store size={32} style={{ color: 'var(--gray-300)' }} />
-                <span style={{ fontWeight: 600, color: 'var(--gray-500)', fontSize: '0.875rem' }}>Browse More Apps</span>
-                <ArrowRight size={16} style={{ color: 'var(--primary)' }} />
-              </Link>
+              {/* Browse more card — hidden in client mode */}
+              {!clientMode && (
+                <Link to="/marketplace" className="dash-app-card card dash-app-browse">
+                  <Store size={32} style={{ color: 'var(--gray-300)' }} />
+                  <span style={{ fontWeight: 600, color: 'var(--gray-500)', fontSize: '0.875rem' }}>Browse More Apps</span>
+                  <ArrowRight size={16} style={{ color: 'var(--primary)' }} />
+                </Link>
+              )}
             </div>
           )}
         </div>

@@ -388,7 +388,7 @@ router.post('/admin/seed', auth, adminOnly, async (req, res) => {
         fullDescription: 'Food Truck is a fully-featured, mobile-first ordering web app purpose-built for food trucks, BBQ vendors, caterers, and pop-up kitchens. Customers can browse your menu, place takeaway or catering orders, pay via Square, track deliveries, and earn loyalty stamps — all from a PWA that works offline. The admin dashboard gives you full control over orders, menu items, cook-day planner, customer database, email/SMS blasts, social content generation, and AI-powered chat assistance. Every element is white-label configurable.',
         icon: 'zap',
         category: 'food-service',
-        routePath: '/foodtruc',
+        routePath: '/foodtruck-app',
         features: [
           'Online Ordering (Takeaway & Catering)',
           'DIY Catering Builder',
