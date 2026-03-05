@@ -257,4 +257,82 @@ router.delete('/cookdays/:id', auth, async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════
+// SEED SAMPLE DATA
+// ═══════════════════════════════════════════
+
+router.post('/seed', auth, async (req, res) => {
+  try {
+    const existing = await MenuItem.countDocuments({ owner: req.user._id });
+    if (existing > 0) return res.json({ message: 'Menu already has items', seeded: false });
+
+    const sampleItems = [
+      // Mains
+      { category: 'Mains', name: 'Classic Smoked Brisket', description: 'Low & slow smoked beef brisket, 14-hour cook. Served sliced with house BBQ sauce.', price: 18.00, image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=400', available: true, preparationTime: 10, tags: ['popular', 'signature'], sortOrder: 1 },
+      { category: 'Mains', name: 'Pulled Pork Roll', description: 'Hickory smoked pulled pork on a brioche bun with slaw and pickles.', price: 14.00, image: 'https://images.unsplash.com/photo-1586816001966-79b736744398?w=400', available: true, preparationTime: 8, tags: ['popular'], sortOrder: 2 },
+      { category: 'Mains', name: 'Smoked Chicken Burger', description: 'Whole smoked chicken thigh, lettuce, tomato, and chipotle mayo on a toasted bun.', price: 15.00, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', available: true, preparationTime: 10, tags: [], sortOrder: 3 },
+      { category: 'Mains', name: 'BBQ Ribs (Half Rack)', description: 'St. Louis style pork ribs glazed with smoky bourbon sauce.', price: 22.00, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400', available: true, preparationTime: 12, tags: ['signature'], sortOrder: 4 },
+      { category: 'Mains', name: 'Loaded Brisket Fries', description: 'Seasoned fries topped with chopped brisket, cheese sauce, jalapeños, and sour cream.', price: 16.00, image: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=400', available: true, preparationTime: 10, tags: ['popular'], sortOrder: 5 },
+
+      // Sides
+      { category: 'Sides', name: 'Classic Coleslaw', description: 'Creamy house-made coleslaw with a tangy vinegar kick.', price: 5.00, image: 'https://images.unsplash.com/photo-1625938145744-e380515399bf?w=400', available: true, preparationTime: 2, tags: ['vegan-option'], sortOrder: 1 },
+      { category: 'Sides', name: 'Mac & Cheese', description: 'Creamy three-cheese mac baked until golden.', price: 7.00, image: 'https://images.unsplash.com/photo-1543339494-b4cd4f7ba686?w=400', available: true, preparationTime: 3, tags: ['vegetarian'], sortOrder: 2 },
+      { category: 'Sides', name: 'Corn on the Cob', description: 'Grilled corn with butter and smoked paprika.', price: 4.50, image: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400', available: true, preparationTime: 5, tags: ['vegan', 'gluten-free'], sortOrder: 3 },
+      { category: 'Sides', name: 'Seasoned Chips', description: 'Thick-cut chips with our secret seasoning blend.', price: 6.00, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400', available: true, preparationTime: 5, tags: ['vegan'], sortOrder: 4 },
+
+      // Drinks
+      { category: 'Drinks', name: 'House Lemonade', description: 'Fresh-squeezed lemonade with mint.', price: 5.00, image: 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400', available: true, preparationTime: 2, tags: ['vegan'], sortOrder: 1 },
+      { category: 'Drinks', name: 'Iced Tea', description: 'Peach iced tea, brewed in-house.', price: 4.50, image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400', available: true, preparationTime: 1, tags: ['vegan'], sortOrder: 2 },
+      { category: 'Drinks', name: 'Soft Drink (Can)', description: 'Coke, Sprite, or Fanta.', price: 3.50, image: 'https://images.unsplash.com/photo-1581636625402-29b2a704ef13?w=400', available: true, preparationTime: 1, tags: [], sortOrder: 3 },
+
+      // Desserts
+      { category: 'Desserts', name: 'Smoked Brownie', description: 'Rich chocolate brownie lightly smoked over cherry wood. Served warm.', price: 6.00, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400', available: true, preparationTime: 3, tags: ['vegetarian'], sortOrder: 1 },
+      { category: 'Desserts', name: 'Churros (6pc)', description: 'Cinnamon sugar churros with chocolate dipping sauce.', price: 8.00, image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400', available: true, preparationTime: 5, tags: ['vegetarian'], sortOrder: 2 },
+
+      // Catering
+      { category: 'Catering', name: 'Brisket Platter (per head)', description: 'Sliced brisket, two sides, bread roll, sauce. Minimum 10 guests.', price: 25.00, image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=400', available: true, preparationTime: 0, tags: [], sortOrder: 1, isCatering: true, cateringMinQty: 10, cateringPricePerHead: 25 },
+      { category: 'Catering', name: 'Mixed BBQ Platter (per head)', description: 'Brisket, pulled pork, ribs, three sides, bread rolls, sauces. Minimum 15 guests.', price: 35.00, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400', available: true, preparationTime: 0, tags: ['popular'], sortOrder: 2, isCatering: true, cateringMinQty: 15, cateringPricePerHead: 35 },
+    ];
+
+    const items = await MenuItem.insertMany(sampleItems.map(item => ({ ...item, owner: req.user._id })));
+    console.log('[FoodTruck Seed]', items.length, 'sample menu items created for', req.user.email);
+    res.json({ message: `${items.length} sample menu items created`, seeded: true, count: items.length });
+  } catch (err) {
+    console.error('[FoodTruck Seed] Error:', err);
+    res.status(500).json({ message: 'Failed to seed data', error: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════
+// DASHBOARD STATS
+// ═══════════════════════════════════════════
+
+router.get('/dashboard', auth, async (req, res) => {
+  try {
+    const [menuItems, totalOrders, pendingOrders, cookDays] = await Promise.all([
+      MenuItem.countDocuments({ owner: req.user._id }),
+      FoodOrder.countDocuments({ owner: req.user._id }),
+      FoodOrder.countDocuments({ owner: req.user._id, status: 'pending' }),
+      CookDay.countDocuments({ owner: req.user._id })
+    ]);
+
+    const revenueResult = await FoodOrder.aggregate([
+      { $match: { owner: req.user._id, status: { $nin: ['cancelled', 'refunded'] } } },
+      { $group: { _id: null, total: { $sum: '$total' } } }
+    ]);
+
+    const recentOrders = await FoodOrder.find({ owner: req.user._id })
+      .sort({ createdAt: -1 }).limit(5)
+      .select('orderNumber customerName total status createdAt');
+
+    res.json({
+      menuItems, totalOrders, pendingOrders, cookDays,
+      revenue: revenueResult[0]?.total || 0,
+      recentOrders
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch dashboard', error: err.message });
+  }
+});
+
 module.exports = router;

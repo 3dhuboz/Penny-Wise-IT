@@ -450,6 +450,16 @@ const AdminClientProjects = () => {
                               style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                               <RefreshCw size={12} /> Check Status
                             </button>
+                            <a href="windsurf://open-folder?path=c%3A%5CUsers%5Csteve%5COneDrive%5CDesktop%5CBusiness%20Folders%5CPennywise%5CApp%5CCascadeProjects%5Cwindsurf-project"
+                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer' }}>
+                              <Edit size={12} /> Open in Windsurf
+                            </a>
+                            {project.deployment?.serviceUrl && (
+                              <a href={`${project.deployment.serviceUrl}/login`} target="_blank" rel="noopener noreferrer"
+                                style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(251,191,36,0.12)', color: '#fcd34d', border: '1px solid rgba(251,191,36,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                                <ExternalLink size={12} /> Client Admin
+                              </a>
+                            )}
                           </div>
                           <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 6, fontSize: '0.6875rem', color: '#6b7280', fontFamily: 'monospace' }}>
                             <span style={{ color: '#9ca3af', fontFamily: 'inherit', fontWeight: 600 }}>Local test:</span>{' '}
