@@ -59,16 +59,21 @@ const AdminClientProjects = () => {
 
   useEffect(() => { loadAll(); }, [loadAll]);
 
-  // Auto-refresh deploy status for any projects stuck in 'deploying'
+  // Auto-refresh deploy status for any projects stuck in 'deploying' (poll every 30s)
   useEffect(() => {
     if (!projects.length) return;
     const deploying = projects.filter(p => p.deployment?.deployStatus === 'deploying');
     if (!deploying.length) return;
-    deploying.forEach(p => {
-      api.get(`/client-projects/${p._id}/deploy-status`).then(res => {
-        if (res.data.status !== 'deploying') loadAll();
-      }).catch(() => {});
-    });
+    const check = () => {
+      deploying.forEach(p => {
+        api.get(`/client-projects/${p._id}/deploy-status`).then(res => {
+          if (res.data.status !== 'deploying') loadAll();
+        }).catch(() => {});
+      });
+    };
+    check();
+    const interval = setInterval(check, 30000);
+    return () => clearInterval(interval);
   }, [projects.length]);
 
   const filtered = projects.filter(p =>
@@ -495,7 +500,20 @@ const AdminClientProjects = () => {
                               <FolderKanban size={12} /> Work Locally
                             </button>
                             <button
-                              onClick={() => { window.location.href = 'windsurf://file/C:/Users/steve/OneDrive/Desktop/Business%20Folders/Pennywise/App/CascadeProjects/windsurf-project'; }}
+                              onClick={() => {
+                                const projectPath = 'C:\\Users\\steve\\OneDrive\\Desktop\\Business Folders\\Pennywise\\App\\CascadeProjects\\windsurf-project';
+                                const uri = 'windsurf://file/' + projectPath.replace(/\\/g, '/');
+                                // Use hidden iframe to trigger protocol handler without navigating away
+                                const iframe = document.createElement('iframe');
+                                iframe.style.display = 'none';
+                                iframe.src = uri;
+                                document.body.appendChild(iframe);
+                                setTimeout(() => document.body.removeChild(iframe), 2000);
+                                // Also copy CLI command as fallback
+                                const cmd = `windsurf "${projectPath}"`;
+                                navigator.clipboard.writeText(cmd).catch(() => {});
+                                toast.success('Opening in Windsurf...\nIf it didn\'t open, paste the copied command in a terminal.', { duration: 5000 });
+                              }}
                               style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)', display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer' }}>
                               <Edit size={12} /> Open in Windsurf
                             </button>
