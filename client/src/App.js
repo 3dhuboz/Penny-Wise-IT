@@ -40,6 +40,7 @@ import AdminSettings from './pages/AdminSettings';
 import AdminClientProjects from './pages/AdminClientProjects';
 import Hosting from './pages/Hosting';
 import FoodTruck from './pages/FoodTruck';
+import SimpleWebsite from './pages/SimpleWebsite';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -71,12 +72,15 @@ const AppRoutes = () => {
         <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
 
         {/* Only show app routes the client has access to */}
-        {/* SocialAI standalone — only if NOT also paired with Food Truck (when paired, it's embedded as a tab) */}
-        {(enabledApps.length === 0 || enabledApps.includes('socialai')) && !enabledApps.includes('foodtruck') && (
+        {/* SocialAI standalone — only if NOT also paired with Food Truck or Simple Website (when paired, it's embedded as a tab) */}
+        {(enabledApps.length === 0 || enabledApps.includes('socialai')) && !enabledApps.includes('foodtruck') && !enabledApps.includes('simplewebsite') && (
           <Route path="/social" element={<ProtectedRoute><SocialAI /></ProtectedRoute>} />
         )}
         {(enabledApps.length === 0 || enabledApps.includes('foodtruck')) && (
           <Route path="/foodtruck-app" element={<ProtectedRoute><FoodTruck /></ProtectedRoute>} />
+        )}
+        {(enabledApps.length === 0 || enabledApps.includes('simplewebsite')) && (
+          <Route path="/simplewebsite-app" element={<ProtectedRoute><SimpleWebsite /></ProtectedRoute>} />
         )}
         {(enabledApps.length === 0 || enabledApps.includes('wirez')) && (
           <Route path="/wirez" element={<ProtectedRoute><WirezLauncher /></ProtectedRoute>} />
@@ -122,6 +126,7 @@ const AppRoutes = () => {
       <Route path="/my-apps" element={<ProtectedRoute><MyApps /></ProtectedRoute>} />
       <Route path="/social" element={<ProtectedRoute><SocialAI /></ProtectedRoute>} />
       <Route path="/foodtruck-app" element={<ProtectedRoute><FoodTruck /></ProtectedRoute>} />
+      <Route path="/simplewebsite-app" element={<ProtectedRoute><SimpleWebsite /></ProtectedRoute>} />
       <Route path="/wirez" element={<ProtectedRoute><WirezLauncher /></ProtectedRoute>} />
 
       {/* Admin Routes */}

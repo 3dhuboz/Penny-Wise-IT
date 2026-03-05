@@ -437,6 +437,61 @@ router.post('/admin/seed', auth, adminOnly, async (req, res) => {
         displayOrder: 2
       },
       {
+        slug: 'simplewebsite',
+        name: 'SimpleWebsite',
+        shortDescription: 'A complete, white-label e-commerce website with storefront, admin dashboard, CMS, and optional AI-powered social media marketing.',
+        fullDescription: 'SimpleWebsite is a fully-featured e-commerce platform built for small businesses. Includes product management, shopping cart, Square checkout, CMS content editor, customer accounts, order management, contact form inbox, and full white-label branding. Upgrade to Professional to unlock SocialAI Studio — AI-powered social media content generation, scheduling, and insights — all integrated directly into the app.',
+        icon: 'globe',
+        category: 'e-commerce',
+        routePath: '/simplewebsite-app',
+        features: [
+          'Full E-Commerce Storefront',
+          'Shopping Cart & Square Checkout',
+          'Product & Inventory Management',
+          'CMS Content Editor',
+          'Order Management Dashboard',
+          'Customer Accounts',
+          'Email Notifications',
+          'Contact Form & Inbox',
+          'Category System',
+          'PWA — Installable & Offline Ready',
+          'Full White-Label Branding',
+          'GST & Tax Configuration'
+        ],
+        techStack: ['React', 'Node.js', 'MongoDB', 'Square Payments', 'Express'],
+        plans: [
+          {
+            key: 'starter',
+            name: 'Starter',
+            price: 39,
+            features: ['Full E-Commerce Storefront', 'Shopping Cart & Checkout', 'Admin Dashboard', 'CMS Content Editor', 'Order Management', 'Customer Accounts', 'Email Notifications', '1 Store'],
+            color: '#10b981',
+            whiteLabel: false,
+            customDomain: false
+          },
+          {
+            key: 'professional',
+            name: 'Professional',
+            price: 79,
+            features: ['Everything in Starter', 'SocialAI Studio Add-On', 'AI Content Generation', 'AI Image Creation', 'Smart Post Scheduler', 'Engagement Insights', 'Full White-Label Branding', '3 Stores'],
+            popular: true,
+            color: '#f59e0b',
+            whiteLabel: true,
+            customDomain: false
+          },
+          {
+            key: 'enterprise',
+            name: 'Enterprise',
+            price: 159,
+            features: ['Everything in Professional', 'Custom Domain', 'Priority Support', 'API Access', 'Multi-Store Management', 'Dedicated Account Manager', 'SLA-Backed Uptime', 'Unlimited Stores'],
+            color: '#a855f7',
+            whiteLabel: true,
+            customDomain: true
+          }
+        ],
+        displayOrder: 3
+      },
+      {
         slug: 'autohue',
         name: 'AutoHue',
         shortDescription: 'AI-powered car photo colour sorter. Upload vehicle photos and let AI detect cars, identify colours, and sort them into organised folders instantly.',

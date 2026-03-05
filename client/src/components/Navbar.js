@@ -97,7 +97,10 @@ const Navbar = () => {
               {clientMode && enabledApps.includes('foodtruck') && (
                 <Link to="/foodtruck-app" className={isActive('/foodtruck-app') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Food Truck</Link>
               )}
-              {clientMode && enabledApps.includes('socialai') && !enabledApps.includes('foodtruck') && (
+              {clientMode && enabledApps.includes('simplewebsite') && (
+                <Link to="/simplewebsite-app" className={isActive('/simplewebsite-app') ? 'active' : ''} onClick={() => setMobileOpen(false)}>SimpleWebsite</Link>
+              )}
+              {clientMode && enabledApps.includes('socialai') && !enabledApps.includes('foodtruck') && !enabledApps.includes('simplewebsite') && (
                 <Link to="/social" className={isActive('/social') ? 'active' : ''} onClick={() => setMobileOpen(false)}>SocialAI</Link>
               )}
               {clientMode && enabledApps.includes('wirez') && (

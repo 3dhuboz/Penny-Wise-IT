@@ -71,7 +71,14 @@ const AdminDashboard = () => {
               <p>Manage orders, menu, cook days & more</p>
             </Link>
           )}
-          <Link to={clientMode && enabledApps.includes('foodtruck') ? '/foodtruck-app' : '/admin/social'} className="admin-nav-card card">
+          {clientMode && enabledApps.includes('simplewebsite') && (
+            <Link to="/simplewebsite-app" className="admin-nav-card card">
+              <Globe size={24} />
+              <h3>SimpleWebsite</h3>
+              <p>Manage products, orders, pages & more</p>
+            </Link>
+          )}
+          <Link to={clientMode && enabledApps.includes('foodtruck') ? '/foodtruck-app' : clientMode && enabledApps.includes('simplewebsite') ? '/simplewebsite-app' : '/admin/social'} className="admin-nav-card card">
             <Sparkles size={24} />
             <h3>Social AI</h3>
             <p>{clientMode ? 'Manage your social content' : 'Manage client social content'}</p>
