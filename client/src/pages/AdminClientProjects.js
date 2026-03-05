@@ -88,6 +88,37 @@ const AdminClientProjects = () => {
     }
   };
 
+  // One-click deploy state
+  const [showDeployModal, setShowDeployModal] = useState(false);
+  const [deployProject, setDeployProject] = useState(null);
+  const [deployPassword, setDeployPassword] = useState('');
+  const [deploying, setDeploying] = useState(false);
+  const [deployResult, setDeployResult] = useState(null);
+
+  const openDeploy = (project) => {
+    setDeployProject(project);
+    setDeployPassword('');
+    setDeployResult(null);
+    setShowDeployModal(true);
+  };
+
+  const handleDeploy = async () => {
+    if (!deployProject) return;
+    setDeploying(true);
+    try {
+      const res = await api.post(`/client-projects/${deployProject._id}/deploy`, {
+        adminPassword: deployPassword || undefined
+      });
+      setDeployResult(res.data);
+      toast.success('Deployment started on Render!');
+      loadAll();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Deployment failed');
+      setDeployResult({ error: err.response?.data?.message || err.message });
+    }
+    setDeploying(false);
+  };
+
   const updateDeployment = async (projectId, deployment) => {
     try {
       await api.put(`/client-projects/${projectId}`, { deployment });
@@ -289,6 +320,15 @@ const AdminClientProjects = () => {
                           <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#f3f4f6', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Server size={16} style={{ color: '#3b82f6' }} /> Deployment Info
                           </h4>
+                          {!project.deployment?.serviceId && (
+                            <button
+                              onClick={() => openDeploy(project)}
+                              className="btn btn-primary"
+                              style={{ marginBottom: '0.75rem', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', border: 'none', fontWeight: 700 }}
+                            >
+                              <Rocket size={14} /> One-Click Deploy to Render
+                            </button>
+                          )}
                           <DeploymentEditor project={project} onSave={updateDeployment} />
 
                           <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#f3f4f6', marginTop: '1.25rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -412,6 +452,93 @@ const AdminClientProjects = () => {
                   <button type="submit" className="btn btn-primary"><Rocket size={14} /> Create Project</button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+        {/* One-Click Deploy Modal */}
+        {showDeployModal && deployProject && (
+          <div className="modal-overlay" onClick={() => !deploying && setShowDeployModal(false)}>
+            <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Rocket size={20} style={{ color: '#8b5cf6' }} /> Deploy to Render
+              </h2>
+              <p style={{ color: '#64748b', fontSize: '0.8125rem', marginBottom: '1rem' }}>
+                This will automatically create a new Render web service for <strong>{deployProject.projectName}</strong> with its own database and environment.
+              </p>
+
+              {!deployResult ? (
+                <>
+                  <div style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 8, padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: '0.8125rem', color: '#93c5fd' }}>
+                    <strong>What happens automatically:</strong>
+                    <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      <li>New Render web service created from same GitHub repo</li>
+                      <li>Separate MongoDB database (same cluster, isolated data)</li>
+                      <li>Unique JWT secret generated</li>
+                      <li>Admin account configured with client email</li>
+                      <li>Shared API keys (Gemini, Runway) passed through</li>
+                    </ul>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Client Admin Password</label>
+                    <input
+                      type="text"
+                      placeholder="Leave blank to auto-generate"
+                      value={deployPassword}
+                      onChange={e => setDeployPassword(e.target.value)}
+                    />
+                    <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                      Login email will be: {deployProject.contactEmail || deployProject.client?.email || 'N/A'}
+                    </span>
+                  </div>
+
+                  <div className="modal-actions">
+                    <button onClick={() => setShowDeployModal(false)} className="btn btn-secondary" disabled={deploying}>Cancel</button>
+                    <button
+                      onClick={handleDeploy}
+                      className="btn btn-primary"
+                      disabled={deploying}
+                      style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', border: 'none' }}
+                    >
+                      {deploying ? (
+                        <><span className="spinner" style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 1s linear infinite', marginRight: 6 }}></span> Deploying...</>
+                      ) : (
+                        <><Rocket size={14} /> Deploy Now</>
+                      )}
+                    </button>
+                  </div>
+                </>
+              ) : deployResult.error ? (
+                <div>
+                  <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '1rem', color: '#fca5a5', fontSize: '0.875rem' }}>
+                    <AlertCircle size={16} style={{ verticalAlign: 'middle', marginRight: 6 }} />
+                    <strong>Deployment failed:</strong> {deployResult.error}
+                  </div>
+                  <div className="modal-actions" style={{ marginTop: '1rem' }}>
+                    <button onClick={() => setShowDeployModal(false)} className="btn btn-secondary">Close</button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 8, padding: '1rem', marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                      <CheckCircle size={20} style={{ color: '#10b981' }} />
+                      <strong style={{ color: '#6ee7b7', fontSize: '0.9375rem' }}>Deployment Started!</strong>
+                    </div>
+                    <div style={{ fontSize: '0.8125rem', color: '#d1d5db', display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                      <span><strong>Service URL:</strong> <a href={deployResult.serviceUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#00d4ff' }}>{deployResult.serviceUrl}</a></span>
+                      <span><strong>Admin Email:</strong> {deployResult.adminEmail}</span>
+                      <span><strong>Admin Password:</strong> <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: 4 }}>{deployResult.adminPassword}</code></span>
+                    </div>
+                  </div>
+                  <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8, padding: '0.75rem 1rem', fontSize: '0.8125rem', color: '#fbbf24' }}>
+                    <strong>Note:</strong> The service is building on Render (~5-10 min). Save the admin credentials above — you'll need them to login to the client's site.
+                  </div>
+                  <div className="modal-actions" style={{ marginTop: '1rem' }}>
+                    <button onClick={() => setShowDeployModal(false)} className="btn btn-primary">Done</button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
