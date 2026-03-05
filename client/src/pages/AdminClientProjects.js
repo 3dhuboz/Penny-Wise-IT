@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import {
   ArrowLeft, Plus, Search, FolderKanban, Globe, Rocket, CheckCircle,
   Circle, ChevronDown, ChevronUp, ExternalLink, Trash2, Save, Edit,
-  Users, DollarSign, Server, Palette, ClipboardList, XCircle, AlertCircle
+  Users, DollarSign, Server, Palette, ClipboardList, XCircle, AlertCircle,
+  RefreshCw, Loader2
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
@@ -85,6 +86,49 @@ const AdminClientProjects = () => {
       setProjects(prev => prev.map(p => p._id === projectId ? { ...p, setupChecklist: res.data.setupChecklist, status: res.data.status } : p));
     } catch (err) {
       toast.error('Failed to update checklist');
+    }
+  };
+
+  // Redeploy state
+  const [redeploying, setRedeploying] = useState({});
+  const [redeployingAll, setRedeployingAll] = useState(false);
+
+  const redeployProject = async (projectId, projectName) => {
+    if (!window.confirm(`Redeploy ${projectName}? This triggers a fresh build from the latest code.`)) return;
+    setRedeploying(prev => ({ ...prev, [projectId]: true }));
+    try {
+      const res = await api.post(`/client-projects/${projectId}/redeploy`);
+      toast.success(res.data.message || 'Redeployment triggered');
+      loadAll();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Redeploy failed');
+    }
+    setRedeploying(prev => ({ ...prev, [projectId]: false }));
+  };
+
+  const redeployAll = async () => {
+    if (!window.confirm('Redeploy ALL active client services? This will trigger a rebuild for every deployed project.')) return;
+    setRedeployingAll(true);
+    try {
+      const res = await api.post('/client-projects/actions/redeploy-all');
+      const { results } = res.data;
+      const ok = results?.filter(r => r.success).length || 0;
+      const fail = results?.filter(r => !r.success).length || 0;
+      toast.success(`Redeployed ${ok} service${ok !== 1 ? 's' : ''}${fail ? `, ${fail} failed` : ''}`);
+      loadAll();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Redeploy all failed');
+    }
+    setRedeployingAll(false);
+  };
+
+  const checkDeployStatus = async (projectId) => {
+    try {
+      const res = await api.get(`/client-projects/${projectId}/deploy-status`);
+      toast.success(`Status: ${res.data.status}`);
+      loadAll();
+    } catch (err) {
+      toast.error('Failed to check status');
     }
   };
 
@@ -187,9 +231,16 @@ const AdminClientProjects = () => {
               Track client deployments, onboarding progress, and white-label configs
             </p>
           </div>
-          <button onClick={() => setShowCreateModal(true)} className="btn btn-primary">
-            <Plus size={16} /> New Client Project
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={redeployAll} className="btn btn-secondary" disabled={redeployingAll}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              {redeployingAll ? <Loader2 size={14} className="spin" /> : <RefreshCw size={14} />}
+              {redeployingAll ? 'Deploying...' : 'Redeploy All'}
+            </button>
+            <button onClick={() => setShowCreateModal(true)} className="btn btn-primary">
+              <Plus size={16} /> New Client Project
+            </button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -388,6 +439,17 @@ const AdminClientProjects = () => {
                               style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(6,182,212,0.12)', color: '#67e8f9', border: '1px solid rgba(6,182,212,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                               <ClipboardList size={12} /> Logs
                             </a>
+                            <button
+                              onClick={() => redeployProject(project._id, project.projectName)}
+                              disabled={redeploying[project._id]}
+                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                              {redeploying[project._id] ? <Loader2 size={12} className="spin" /> : <Rocket size={12} />} Redeploy
+                            </button>
+                            <button
+                              onClick={() => checkDeployStatus(project._id)}
+                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                              <RefreshCw size={12} /> Check Status
+                            </button>
                           </div>
                           <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 6, fontSize: '0.6875rem', color: '#6b7280', fontFamily: 'monospace' }}>
                             <span style={{ color: '#9ca3af', fontFamily: 'inherit', fontWeight: 600 }}>Local test:</span>{' '}

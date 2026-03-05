@@ -323,6 +323,109 @@ router.post('/:id/deploy', auth, adminOnly, async (req, res) => {
   }
 });
 
+// REDEPLOY a single client's Render service (triggers rebuild from latest main)
+router.post('/:id/redeploy', auth, adminOnly, async (req, res) => {
+  try {
+    const RENDER_API_KEY = process.env.RENDER_API_KEY;
+    if (!RENDER_API_KEY) return res.status(400).json({ message: 'RENDER_API_KEY not set' });
+
+    const project = await ClientProject.findById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+    if (!project.deployment?.serviceId) return res.status(400).json({ message: 'No Render service linked to this project' });
+
+    const renderRes = await fetch(`https://api.render.com/v1/services/${project.deployment.serviceId}/deploys`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${RENDER_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clearCache: req.body.clearCache || false })
+    });
+
+    if (!renderRes.ok) {
+      const err = await renderRes.json().catch(() => ({}));
+      return res.status(renderRes.status).json({ message: 'Redeploy failed', error: err.message || JSON.stringify(err) });
+    }
+
+    const deployData = await renderRes.json();
+    project.deployment.lastDeployed = new Date();
+    project.deployment.deployStatus = 'deploying';
+    await project.save();
+
+    console.log('[Redeploy]', project.projectName, '→ deploy', deployData.id || deployData.deploy?.id);
+    res.json({ message: `Redeployment triggered for ${project.projectName}`, deployId: deployData.id || deployData.deploy?.id });
+  } catch (err) {
+    console.error('[Redeploy] Error:', err);
+    res.status(500).json({ message: 'Redeploy failed', error: err.message });
+  }
+});
+
+// REDEPLOY ALL live client services at once
+router.post('/actions/redeploy-all', auth, adminOnly, async (req, res) => {
+  try {
+    const RENDER_API_KEY = process.env.RENDER_API_KEY;
+    if (!RENDER_API_KEY) return res.status(400).json({ message: 'RENDER_API_KEY not set' });
+
+    const projects = await ClientProject.find({ 'deployment.serviceId': { $exists: true, $ne: '' }, status: { $in: ['active', 'setup'] } });
+    if (projects.length === 0) return res.json({ message: 'No deployed projects found', results: [] });
+
+    const results = [];
+    for (const project of projects) {
+      try {
+        const renderRes = await fetch(`https://api.render.com/v1/services/${project.deployment.serviceId}/deploys`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${RENDER_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clearCache: false })
+        });
+        const ok = renderRes.ok;
+        if (ok) {
+          project.deployment.lastDeployed = new Date();
+          project.deployment.deployStatus = 'deploying';
+          await project.save();
+        }
+        results.push({ project: project.projectName, success: ok, status: ok ? 'deploying' : 'failed' });
+      } catch (err) {
+        results.push({ project: project.projectName, success: false, error: err.message });
+      }
+    }
+
+    console.log('[Redeploy All]', results.length, 'services triggered');
+    res.json({ message: `Triggered redeployment for ${results.filter(r => r.success).length}/${results.length} services`, results });
+  } catch (err) {
+    console.error('[Redeploy All] Error:', err);
+    res.status(500).json({ message: 'Redeploy all failed', error: err.message });
+  }
+});
+
+// CHECK deploy status for a client's Render service
+router.get('/:id/deploy-status', auth, adminOnly, async (req, res) => {
+  try {
+    const RENDER_API_KEY = process.env.RENDER_API_KEY;
+    if (!RENDER_API_KEY) return res.status(400).json({ message: 'RENDER_API_KEY not set' });
+
+    const project = await ClientProject.findById(req.params.id);
+    if (!project?.deployment?.serviceId) return res.status(404).json({ message: 'No Render service linked' });
+
+    const renderRes = await fetch(`https://api.render.com/v1/services/${project.deployment.serviceId}/deploys?limit=1`, {
+      headers: { 'Authorization': `Bearer ${RENDER_API_KEY}` }
+    });
+
+    if (!renderRes.ok) return res.status(renderRes.status).json({ message: 'Failed to fetch deploy status' });
+
+    const deploys = await renderRes.json();
+    const latest = deploys[0]?.deploy || deploys[0] || {};
+    const status = latest.status || 'unknown';
+
+    // Update project status if changed
+    const mappedStatus = status === 'live' ? 'live' : status === 'build_in_progress' || status === 'update_in_progress' ? 'deploying' : status === 'deactivated' ? 'suspended' : status === 'build_failed' ? 'failed' : project.deployment.deployStatus;
+    if (mappedStatus !== project.deployment.deployStatus) {
+      project.deployment.deployStatus = mappedStatus;
+      await project.save();
+    }
+
+    res.json({ status: mappedStatus, renderStatus: status, createdAt: latest.createdAt, finishedAt: latest.finishedAt });
+  } catch (err) {
+    res.status(500).json({ message: 'Status check failed', error: err.message });
+  }
+});
+
 // DELETE project
 router.delete('/:id', auth, adminOnly, async (req, res) => {
   try {
