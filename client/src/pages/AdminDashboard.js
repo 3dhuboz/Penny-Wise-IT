@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Ticket, Workflow, Globe, Server, Settings, AlertCircle, TrendingUp, ArrowRight, Sparkles, Store, FileText, FolderKanban } from 'lucide-react';
 import api from '../api';
+import { useClientConfig } from '../context/ClientConfigContext';
 import './Admin.css';
 
 const AdminDashboard = () => {
+  const { clientMode, brandName } = useClientConfig();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,66 +33,74 @@ const AdminDashboard = () => {
       <div className="container" style={{ padding: '2rem 1.5rem' }}>
         <div className="admin-header">
           <div>
-            <h1>Admin Dashboard</h1>
-            <p>Manage your business, customers, and services</p>
+            <h1>{clientMode ? `${brandName || 'App'} Admin` : 'Admin Dashboard'}</h1>
+            <p>{clientMode ? 'Manage your app settings and content' : 'Manage your business, customers, and services'}</p>
           </div>
-          <button onClick={seedData} className="btn btn-secondary btn-sm">Seed Initial Data</button>
+          {!clientMode && <button onClick={seedData} className="btn btn-secondary btn-sm">Seed Initial Data</button>}
         </div>
 
         <div className="admin-nav-cards">
-          <Link to="/admin/customers" className="admin-nav-card card">
-            <Users size={24} />
-            <h3>Customers</h3>
-            <p>Manage customer accounts</p>
-          </Link>
-          <Link to="/admin/services" className="admin-nav-card card">
-            <Globe size={24} />
-            <h3>Services</h3>
-            <p>Edit service offerings</p>
-          </Link>
-          <Link to="/admin/workflows" className="admin-nav-card card">
-            <Workflow size={24} />
-            <h3>Workflows</h3>
-            <p>Manage workflow templates</p>
-          </Link>
-          <Link to="/admin/siteground" className="admin-nav-card card">
-            <Server size={24} />
-            <h3>SiteGround</h3>
-            <p>GoGeek hosting management</p>
-          </Link>
+          {!clientMode && (
+            <>
+              <Link to="/admin/customers" className="admin-nav-card card">
+                <Users size={24} />
+                <h3>Customers</h3>
+                <p>Manage customer accounts</p>
+              </Link>
+              <Link to="/admin/services" className="admin-nav-card card">
+                <Globe size={24} />
+                <h3>Services</h3>
+                <p>Edit service offerings</p>
+              </Link>
+              <Link to="/admin/workflows" className="admin-nav-card card">
+                <Workflow size={24} />
+                <h3>Workflows</h3>
+                <p>Manage workflow templates</p>
+              </Link>
+              <Link to="/admin/siteground" className="admin-nav-card card">
+                <Server size={24} />
+                <h3>SiteGround</h3>
+                <p>GoGeek hosting management</p>
+              </Link>
+            </>
+          )}
           <Link to="/admin/social" className="admin-nav-card card">
             <Sparkles size={24} />
             <h3>Social AI</h3>
-            <p>Manage client social content</p>
+            <p>{clientMode ? 'Manage your social content' : 'Manage client social content'}</p>
           </Link>
-          <Link to="/admin/projects" className="admin-nav-card card">
-            <FolderKanban size={24} />
-            <h3>Client Projects</h3>
-            <p>Deployments, onboarding & tracking</p>
-          </Link>
-          <Link to="/admin/apps" className="admin-nav-card card">
-            <Store size={24} />
-            <h3>App Marketplace</h3>
-            <p>Apps, subscriptions & white-label</p>
-          </Link>
-          <Link to="/admin/invoices" className="admin-nav-card card">
-            <FileText size={24} />
-            <h3>Invoicing</h3>
-            <p>Create & send invoices via Square</p>
-          </Link>
+          {!clientMode && (
+            <>
+              <Link to="/admin/projects" className="admin-nav-card card">
+                <FolderKanban size={24} />
+                <h3>Client Projects</h3>
+                <p>Deployments, onboarding & tracking</p>
+              </Link>
+              <Link to="/admin/apps" className="admin-nav-card card">
+                <Store size={24} />
+                <h3>App Marketplace</h3>
+                <p>Apps, subscriptions & white-label</p>
+              </Link>
+              <Link to="/admin/invoices" className="admin-nav-card card">
+                <FileText size={24} />
+                <h3>Invoicing</h3>
+                <p>Create & send invoices via Square</p>
+              </Link>
+            </>
+          )}
           <Link to="/tickets" className="admin-nav-card card">
             <Ticket size={24} />
-            <h3>All Tickets</h3>
-            <p>View & manage support tickets</p>
+            <h3>{clientMode ? 'Support' : 'All Tickets'}</h3>
+            <p>{clientMode ? 'Get help from Penny Wise I.T' : 'View & manage support tickets'}</p>
           </Link>
           <Link to="/admin/settings" className="admin-nav-card card">
             <Settings size={24} />
             <h3>Settings</h3>
-            <p>Payment, email, hosting & config</p>
+            <p>{clientMode ? 'App configuration' : 'Payment, email, hosting & config'}</p>
           </Link>
         </div>
 
-        <div className="admin-stats">
+        {!clientMode && <div className="admin-stats">
           <div className="stat-card card">
             <div className="stat-icon" style={{ background: 'rgba(37,99,235,0.1)', color: '#2563eb' }}><Users size={24} /></div>
             <div className="stat-info"><strong>{stats.totalCustomers || 0}</strong><span>Total Customers</span></div>
@@ -107,9 +117,9 @@ const AdminDashboard = () => {
             <div className="stat-icon" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4' }}><Workflow size={24} /></div>
             <div className="stat-info"><strong>{stats.activeWorkflows || 0}</strong><span>Active Workflows</span></div>
           </div>
-        </div>
+        </div>}
 
-        {data?.recentTickets && data.recentTickets.length > 0 && (
+        {!clientMode && data?.recentTickets && data.recentTickets.length > 0 && (
           <div className="admin-section">
             <div className="section-title">
               <h2>Recent Tickets</h2>
