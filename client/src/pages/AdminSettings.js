@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowLeft, Settings, Save, CreditCard, Mail, Globe, Phone, Facebook,
   Building, Shield, Server, Eye, EyeOff, Loader2, CheckCircle, AlertTriangle,
-  DollarSign, Edit, Trash2, Plus, ChevronDown, ChevronUp, Palette
+  DollarSign, Edit, Trash2, Plus, ChevronDown, ChevronUp, Palette, ExternalLink
 } from 'lucide-react';
 import api from '../api';
 import { useClientConfig } from '../context/ClientConfigContext';
@@ -271,35 +271,118 @@ const AdminSettings = () => {
 
         {/* Payment Gateway Tab */}
         {activeTab === 'payment' && (
-          <div className="card" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CreditCard size={18} /> Square Payment Gateway
-            </h3>
-            <div className="card" style={{ padding: '0.75rem 1rem', marginBottom: '1rem', background: settings.squareAccessToken ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)', border: 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
-                {settings.squareAccessToken ? <CheckCircle size={14} style={{ color: '#10b981' }} /> : <AlertTriangle size={14} style={{ color: '#f59e0b' }} />}
-                {settings.squareAccessToken ? 'Square API connected' : 'Square API not configured'}
-                <span style={{ marginLeft: 'auto', fontSize: '0.75rem', padding: '0.125rem 0.5rem', borderRadius: 4, background: settings.squareEnvironment === 'production' ? 'rgba(239,68,68,0.1)' : 'rgba(59,130,246,0.1)', color: settings.squareEnvironment === 'production' ? '#ef4444' : '#3b82f6', fontWeight: 600 }}>
-                  {settings.squareEnvironment || 'sandbox'}
+          <div>
+            {/* Status Banner */}
+            <div className="card" style={{ padding: '1rem 1.25rem', marginBottom: '1rem', background: settings.squareAccessToken ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)', border: 'none' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>
+                {settings.squareAccessToken ? <CheckCircle size={16} style={{ color: '#10b981' }} /> : <AlertTriangle size={16} style={{ color: '#f59e0b' }} />}
+                {settings.squareAccessToken ? 'Square API connected' : 'Square API not configured — payments will not process'}
+                <span style={{ marginLeft: 'auto', fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: 4, background: settings.squareEnvironment === 'production' ? 'rgba(239,68,68,0.12)' : 'rgba(59,130,246,0.12)', color: settings.squareEnvironment === 'production' ? '#ef4444' : '#3b82f6', fontWeight: 700 }}>
+                  {settings.squareEnvironment === 'production' ? 'LIVE' : 'SANDBOX'}
                 </span>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <SecretField label="Access Token" field="squareAccessToken" placeholder="sq0atp-..." />
-              <div className="form-group">
-                <label>Location ID</label>
-                <input value={settings.squareLocationId || ''} onChange={e => updateField('squareLocationId', e.target.value)} placeholder="LXXXXXXXXXXXXXXX" />
+
+            {/* Quick Links */}
+            <div className="card" style={{ padding: '1rem 1.25rem', marginBottom: '1rem', background: 'rgba(124,58,237,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, color: '#c4b5fd', marginBottom: '0.5rem' }}>
+                <ExternalLink size={14} /> Square Dashboard Links
               </div>
-              <div className="form-group">
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <a href="https://developer.squareup.com/apps" target="_blank" rel="noopener noreferrer"
+                  style={{ padding: '0.3rem 0.65rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(124,58,237,0.15)', color: '#c4b5fd', border: '1px solid rgba(124,58,237,0.25)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <Globe size={11} /> Developer Apps
+                </a>
+                <a href="https://developer.squareup.com/apps" target="_blank" rel="noopener noreferrer"
+                  style={{ padding: '0.3rem 0.65rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.15)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <CreditCard size={11} /> Credentials & API Keys
+                </a>
+                <a href="https://developer.squareup.com/apps" target="_blank" rel="noopener noreferrer"
+                  style={{ padding: '0.3rem 0.65rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(245,158,11,0.15)', color: '#fcd34d', border: '1px solid rgba(245,158,11,0.25)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <Shield size={11} /> Webhooks
+                </a>
+                <a href="https://squareup.com/dashboard/locations" target="_blank" rel="noopener noreferrer"
+                  style={{ padding: '0.3rem 0.65rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(16,185,129,0.15)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <Building size={11} /> Locations
+                </a>
+              </div>
+            </div>
+
+            {/* API Credentials */}
+            <div className="card" style={{ padding: '1.5rem', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e5e7eb' }}>
+                <CreditCard size={16} style={{ color: '#7c3aed' }} /> API Credentials
+              </h3>
+              <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '1rem' }}>
+                Found in <a href="https://developer.squareup.com/apps" target="_blank" rel="noopener noreferrer" style={{ color: '#818cf8', textDecoration: 'underline' }}>Square Developer Dashboard</a> &rarr; select your app &rarr; <strong>Credentials</strong> tab
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <SecretField label="Access Token" field="squareAccessToken" placeholder="sq0atp-..." />
+                  <span style={{ fontSize: '0.6875rem', color: '#6b7280' }}>
+                    Production: starts with <code style={{ color: '#818cf8' }}>EAAAl...</code> &nbsp;|&nbsp; Sandbox: starts with <code style={{ color: '#818cf8' }}>EAAAEq...</code>
+                  </span>
+                </div>
+                <div className="form-group">
+                  <label>Location ID</label>
+                  <input value={settings.squareLocationId || ''} onChange={e => updateField('squareLocationId', e.target.value)} placeholder="LXXXXXXXXXXXXXXX" />
+                  <span style={{ fontSize: '0.6875rem', color: '#6b7280' }}>
+                    Found in <a href="https://squareup.com/dashboard/locations" target="_blank" rel="noopener noreferrer" style={{ color: '#818cf8', textDecoration: 'underline' }}>Square Dashboard &rarr; Locations</a> or Developer &rarr; Locations tab
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Environment */}
+            <div className="card" style={{ padding: '1.5rem', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e5e7eb' }}>
+                <Server size={16} style={{ color: '#3b82f6' }} /> Environment
+              </h3>
+              <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '1rem' }}>
+                Use <strong>Sandbox</strong> for testing with fake payments. Switch to <strong>Production</strong> when ready to take real payments.
+              </p>
+              <div className="form-group" style={{ maxWidth: 320 }}>
                 <label>Environment</label>
                 <select value={settings.squareEnvironment || 'sandbox'} onChange={e => updateField('squareEnvironment', e.target.value)}>
                   <option value="sandbox">Sandbox (Testing)</option>
                   <option value="production">Production (Live)</option>
                 </select>
               </div>
-              <SecretField label="Webhook Signature Key" field="squareWebhookSecret" placeholder="Optional" />
+              {settings.squareEnvironment === 'production' && (
+                <div style={{ padding: '0.5rem 0.75rem', borderRadius: 6, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '0.75rem', color: '#fca5a5', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+                  <AlertTriangle size={14} style={{ color: '#ef4444', flexShrink: 0 }} />
+                  <span><strong>Live mode active</strong> — real payments will be processed. Make sure your Access Token is a production token.</span>
+                </div>
+              )}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+
+            {/* Webhook Configuration */}
+            <div className="card" style={{ padding: '1.5rem', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e5e7eb' }}>
+                <Shield size={16} style={{ color: '#f59e0b' }} /> Webhook Configuration
+              </h3>
+              <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.75rem' }}>
+                Webhooks let Square notify your app about payment events (completed, refunded, etc.)
+              </p>
+
+              <div className="card" style={{ padding: '0.75rem 1rem', marginBottom: '1rem', background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.15)' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fcd34d', marginBottom: '0.5rem' }}>How to find your Webhook Signature Key:</p>
+                <ol style={{ fontSize: '0.75rem', color: '#9ca3af', paddingLeft: '1.25rem', margin: 0, lineHeight: 1.8 }}>
+                  <li>Go to <a href="https://developer.squareup.com/apps" target="_blank" rel="noopener noreferrer" style={{ color: '#818cf8', textDecoration: 'underline' }}>developer.squareup.com/apps</a></li>
+                  <li>Select your application</li>
+                  <li>Click the <strong style={{ color: '#e5e7eb' }}>Webhooks</strong> tab in the left sidebar</li>
+                  <li>If no webhook exists, click <strong style={{ color: '#e5e7eb' }}>Add Webhook</strong> and set the URL to your app's webhook endpoint</li>
+                  <li>The <strong style={{ color: '#e5e7eb' }}>Signature Key</strong> is shown on the webhook details page — copy it here</li>
+                </ol>
+              </div>
+
+              <SecretField label="Webhook Signature Key" field="squareWebhookSecret" placeholder="e.g. abc123XYZ..." />
+              <span style={{ fontSize: '0.6875rem', color: '#6b7280' }}>
+                Used to verify that incoming webhook requests are genuinely from Square. Leave blank if you haven't set up webhooks yet.
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={() => saveSettings()} className="btn btn-primary" disabled={saving}>
                 {saving ? <Loader2 size={14} className="spin" /> : <Save size={14} />} Save Payment Settings
               </button>
