@@ -426,6 +426,60 @@ router.get('/:id/deploy-status', auth, adminOnly, async (req, res) => {
   }
 });
 
+// GET local env config for a client project (fetches Render env vars)
+router.get('/:id/local-env', auth, adminOnly, async (req, res) => {
+  try {
+    const RENDER_API_KEY = process.env.RENDER_API_KEY;
+    if (!RENDER_API_KEY) return res.status(400).json({ message: 'RENDER_API_KEY not set' });
+
+    const project = await ClientProject.findById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+    if (!project.deployment?.serviceId) return res.status(400).json({ message: 'No Render service linked' });
+
+    const renderRes = await fetch(`https://api.render.com/v1/services/${project.deployment.serviceId}/env-vars`, {
+      headers: { 'Authorization': `Bearer ${RENDER_API_KEY}`, 'Accept': 'application/json' }
+    });
+
+    if (!renderRes.ok) return res.status(renderRes.status).json({ message: 'Failed to fetch env vars from Render' });
+
+    const envVars = await renderRes.json();
+    const envLines = ['# Local dev config for: ' + (project.projectName || project.businessName || 'Client Project')];
+    envLines.push('# Generated: ' + new Date().toISOString());
+    envLines.push('# Service: ' + (project.deployment.serviceUrl || project.deployment.serviceId));
+    envLines.push('PORT=5000');
+
+    for (const item of envVars) {
+      const ev = item.envVar || item;
+      if (ev.key === 'NODE_ENV') {
+        envLines.push('NODE_ENV=development');
+      } else if (ev.key === 'PORT') {
+        // Skip — already set above
+      } else {
+        envLines.push(`${ev.key}=${ev.value}`);
+      }
+    }
+
+    // Ensure CLIENT_MODE is present
+    if (!envVars.find(v => (v.envVar || v).key === 'CLIENT_MODE')) {
+      envLines.push('CLIENT_MODE=true');
+    }
+
+    const slug = (project.projectName || project.businessName || 'client').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    res.json({
+      filename: `.env.client-${slug}`,
+      slug,
+      projectName: project.projectName || project.businessName,
+      serviceUrl: project.deployment.serviceUrl,
+      envContent: envLines.join('\n') + '\n',
+      runCommand: `$env:ENV_FILE='.env.client-${slug}'; npx nodemon server/index.js`
+    });
+  } catch (err) {
+    console.error('[Local Env] Error:', err);
+    res.status(500).json({ message: 'Failed to generate local config', error: err.message });
+  }
+});
+
 // DELETE project
 router.delete('/:id', auth, adminOnly, async (req, res) => {
   try {

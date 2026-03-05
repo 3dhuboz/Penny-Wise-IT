@@ -10,7 +10,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ path: process.env.ENV_FILE || '.env' });
 
 const app = express();
 

@@ -132,6 +132,33 @@ const AdminClientProjects = () => {
     }
   };
 
+  const workLocally = async (projectId, projectName) => {
+    try {
+      toast.loading('Fetching env config from Render...', { id: 'local-env' });
+      const res = await api.get(`/client-projects/${projectId}/local-env`);
+      const { filename, envContent, runCommand, serviceUrl } = res.data;
+
+      // Create downloadable file
+      const blob = new Blob([envContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      // Copy run command to clipboard
+      try { await navigator.clipboard.writeText(runCommand); } catch (e) { /* ignore */ }
+
+      toast.success(
+        `Config saved as ${filename}!\n\nRun command copied to clipboard:\n${runCommand}`,
+        { id: 'local-env', duration: 8000 }
+      );
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to generate local config', { id: 'local-env' });
+    }
+  };
+
   // One-click deploy state
   const [showDeployModal, setShowDeployModal] = useState(false);
   const [deployProject, setDeployProject] = useState(null);
@@ -450,8 +477,13 @@ const AdminClientProjects = () => {
                               style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                               <RefreshCw size={12} /> Check Status
                             </button>
+                            <button
+                              onClick={() => workLocally(project._id, project.projectName)}
+                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                              <FolderKanban size={12} /> Work Locally
+                            </button>
                             <a href="windsurf://open-folder?path=c%3A%5CUsers%5Csteve%5COneDrive%5CDesktop%5CBusiness%20Folders%5CPennywise%5CApp%5CCascadeProjects%5Cwindsurf-project"
-                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer' }}>
+                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer' }}>
                               <Edit size={12} /> Open in Windsurf
                             </a>
                             {project.deployment?.serviceUrl && (
