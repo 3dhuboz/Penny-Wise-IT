@@ -71,7 +71,8 @@ const AppRoutes = () => {
         <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
 
         {/* Only show app routes the client has access to */}
-        {(enabledApps.length === 0 || enabledApps.includes('socialai')) && (
+        {/* SocialAI standalone — only if NOT also paired with Food Truck (when paired, it's embedded as a tab) */}
+        {(enabledApps.length === 0 || enabledApps.includes('socialai')) && !enabledApps.includes('foodtruck') && (
           <Route path="/social" element={<ProtectedRoute><SocialAI /></ProtectedRoute>} />
         )}
         {(enabledApps.length === 0 || enabledApps.includes('foodtruck')) && (

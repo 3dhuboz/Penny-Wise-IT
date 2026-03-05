@@ -164,7 +164,7 @@ const AILoadingOverlay = ({ type = 'schedule', title }) => {
   );
 };
 
-const SocialAI = () => {
+const SocialAI = ({ embedded = false }) => {
   const [activeTab, setActiveTab] = useState('command');
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -678,8 +678,8 @@ const SocialAI = () => {
   const PlatformIcon = ({ p, size = 14 }) =>
     p === 'Instagram' ? <Instagram size={size} style={{ color: '#e1306c' }} /> : <Facebook size={size} style={{ color: '#1877f2' }} />;
 
-  // ── Purchase Gate ──
-  if (!isSubscribed) {
+  // ── Purchase Gate ── (skip when embedded inside another app)
+  if (!isSubscribed && !embedded) {
     return (
       <div className="social-ai-page">
         <div className="sai-header">
@@ -741,36 +741,8 @@ const SocialAI = () => {
   }
 
   // ── Subscribed: Full App ──
-  return (
-    <div className="social-ai-page">
-      {/* Header — branded */}
-      <div className="sai-header" style={{ background: headerBg }}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            {wl.logoUrl ? (
-              <img src={wl.logoUrl} alt="" style={{ height: 32, width: 32, borderRadius: 8, objectFit: 'cover' }} />
-            ) : (
-              <Sparkles size={28} style={{ color: brandColor }} />
-            )}
-            <div>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'white' }}>{displayName}</h1>
-              <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                {displayTagline || profile?.businessName || 'Configure in Settings'}
-              </p>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.75rem' }}>
-            <span style={{ color: brandColor, display: 'flex', alignItems: 'center', gap: '0.25rem', textTransform: 'capitalize' }}>
-              <Crown size={14} /> {currentPlan}
-            </span>
-            {hasApiKey ? (
-              <span style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><CheckCircle size={14} /> AI Active</span>
-            ) : (
-              <span style={{ color: '#fbbf24' }}>No API Key</span>
-            )}
-          </div>
-        </div>
-      </div>
+  const innerContent = (
+    <>
 
       {/* Tab Nav */}
       <div className="sai-tabs">
@@ -2313,6 +2285,46 @@ const SocialAI = () => {
           </div>
         )}
       </div>
+    </>
+  );
+
+  // When embedded inside another app (e.g. Food Truck), skip the page wrapper & header
+  if (embedded) {
+    return <div style={{ margin: '-1.5rem' }}>{innerContent}</div>;
+  }
+
+  // Standalone mode: full page with branded header
+  return (
+    <div className="social-ai-page">
+      {/* Header — branded */}
+      <div className="sai-header" style={{ background: headerBg }}>
+        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {wl.logoUrl ? (
+              <img src={wl.logoUrl} alt="" style={{ height: 32, width: 32, borderRadius: 8, objectFit: 'cover' }} />
+            ) : (
+              <Sparkles size={28} style={{ color: brandColor }} />
+            )}
+            <div>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'white' }}>{displayName}</h1>
+              <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                {displayTagline || profile?.businessName || 'Configure in Settings'}
+              </p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.75rem' }}>
+            <span style={{ color: brandColor, display: 'flex', alignItems: 'center', gap: '0.25rem', textTransform: 'capitalize' }}>
+              <Crown size={14} /> {currentPlan}
+            </span>
+            {hasApiKey ? (
+              <span style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><CheckCircle size={14} /> AI Active</span>
+            ) : (
+              <span style={{ color: '#fbbf24' }}>No API Key</span>
+            )}
+          </div>
+        </div>
+      </div>
+      {innerContent}
     </div>
   );
 };

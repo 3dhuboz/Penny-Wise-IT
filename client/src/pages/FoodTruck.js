@@ -8,6 +8,7 @@ import {
 import api from '../api';
 import toast from 'react-hot-toast';
 import { useClientConfig } from '../context/ClientConfigContext';
+import SocialAI from './SocialAI';
 import './Admin.css';
 
 const TABS = [
@@ -525,20 +526,8 @@ const FoodTruck = () => {
           </div>
         )}
 
-        {/* ═══ SOCIAL TAB ═══ */}
-        {tab === 'social' && (
-          <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#f3f4f6', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Sparkles size={22} /> Social & Marketing
-            </h2>
-            <div className="card" style={{ padding: '2rem', textAlign: 'center', color: '#9ca3af' }}>
-              <Sparkles size={40} style={{ margin: '0 auto 1rem', color: '#8b5cf6', opacity: 0.6 }} />
-              <h3 style={{ color: '#d1d5db', marginBottom: '0.5rem' }}>SocialAI Studio — Integrated</h3>
-              <p style={{ marginBottom: '1rem' }}>AI-powered social media content, scheduling, and analytics — built into your food business app.</p>
-              <a href="/social" className="btn btn-primary"><Sparkles size={14} /> Open SocialAI Studio</a>
-            </div>
-          </div>
-        )}
+        {/* ═══ SOCIAL TAB — Embedded SocialAI ═══ */}
+        {tab === 'social' && <SocialAI embedded />}
 
         {/* ═══ MENU MODAL ═══ */}
         {showMenuModal && (
