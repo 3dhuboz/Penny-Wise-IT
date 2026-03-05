@@ -220,6 +220,7 @@ app.use('/api/invoices', require('./routes/invoices'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/hosting', require('./routes/hosting'));
 app.use('/api/client-projects', require('./routes/clientProjects'));
+app.use('/api/foodtruck', require('./routes/foodtruck'));
 
 // Public config endpoint — exposes client-mode settings for the React app
 app.get('/api/config', (req, res) => {

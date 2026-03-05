@@ -39,6 +39,7 @@ import SimpleWebsiteProduct from './pages/SimpleWebsiteProduct';
 import AdminSettings from './pages/AdminSettings';
 import AdminClientProjects from './pages/AdminClientProjects';
 import Hosting from './pages/Hosting';
+import FoodTruck from './pages/FoodTruck';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -72,6 +73,9 @@ const AppRoutes = () => {
         {/* Only show app routes the client has access to */}
         {(enabledApps.length === 0 || enabledApps.includes('socialai')) && (
           <Route path="/social" element={<ProtectedRoute><SocialAI /></ProtectedRoute>} />
+        )}
+        {(enabledApps.length === 0 || enabledApps.includes('foodtruck')) && (
+          <Route path="/foodtruck-app" element={<ProtectedRoute><FoodTruck /></ProtectedRoute>} />
         )}
         {(enabledApps.length === 0 || enabledApps.includes('wirez')) && (
           <Route path="/wirez" element={<ProtectedRoute><WirezLauncher /></ProtectedRoute>} />
@@ -116,6 +120,7 @@ const AppRoutes = () => {
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/my-apps" element={<ProtectedRoute><MyApps /></ProtectedRoute>} />
       <Route path="/social" element={<ProtectedRoute><SocialAI /></ProtectedRoute>} />
+      <Route path="/foodtruck-app" element={<ProtectedRoute><FoodTruck /></ProtectedRoute>} />
       <Route path="/wirez" element={<ProtectedRoute><WirezLauncher /></ProtectedRoute>} />
 
       {/* Admin Routes */}
