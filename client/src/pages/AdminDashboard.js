@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Ticket, Workflow, Globe, Server, Settings, AlertCircle, TrendingUp, ArrowRight, Sparkles, Store, FileText, FolderKanban } from 'lucide-react';
+import { Users, Ticket, Workflow, Globe, Server, Settings, AlertCircle, TrendingUp, ArrowRight, Sparkles, Store, FileText, FolderKanban, Zap } from 'lucide-react';
 import api from '../api';
 import { useClientConfig } from '../context/ClientConfigContext';
 import './Admin.css';
 
 const AdminDashboard = () => {
-  const { clientMode, brandName } = useClientConfig();
+  const { clientMode, brandName, enabledApps } = useClientConfig();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,7 +64,14 @@ const AdminDashboard = () => {
               </Link>
             </>
           )}
-          <Link to="/admin/social" className="admin-nav-card card">
+          {clientMode && enabledApps.includes('foodtruck') && (
+            <Link to="/foodtruck-app" className="admin-nav-card card">
+              <Zap size={24} />
+              <h3>Food Truck</h3>
+              <p>Manage orders, menu, cook days & more</p>
+            </Link>
+          )}
+          <Link to={clientMode && enabledApps.includes('foodtruck') ? '/foodtruck-app' : '/admin/social'} className="admin-nav-card card">
             <Sparkles size={24} />
             <h3>Social AI</h3>
             <p>{clientMode ? 'Manage your social content' : 'Manage client social content'}</p>

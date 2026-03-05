@@ -18,7 +18,7 @@ const APP_ICON_MAP = {
 
 const Navbar = () => {
   const { user, logout } = useAuth();
-  const { clientMode, brandName, primaryColor } = useClientConfig();
+  const { clientMode, brandName, primaryColor, enabledApps } = useClientConfig();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -93,7 +93,17 @@ const Navbar = () => {
             <div className="nav-group nav-user-links">
               {!clientMode && <span className="nav-hub-divider" />}
               <Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Dashboard</Link>
-              {myApps.length > 0 && (
+              {/* Client mode: direct app links based on ENABLED_APPS */}
+              {clientMode && enabledApps.includes('foodtruck') && (
+                <Link to="/foodtruck-app" className={isActive('/foodtruck-app') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Food Truck</Link>
+              )}
+              {clientMode && enabledApps.includes('socialai') && !enabledApps.includes('foodtruck') && (
+                <Link to="/social" className={isActive('/social') ? 'active' : ''} onClick={() => setMobileOpen(false)}>SocialAI</Link>
+              )}
+              {clientMode && enabledApps.includes('wirez') && (
+                <Link to="/wirez" className={isActive('/wirez') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Wirez</Link>
+              )}
+              {!clientMode && myApps.length > 0 && (
                 <Link to="/my-apps" className={`${isActive('/my-apps') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
                   My Apps
                 </Link>
