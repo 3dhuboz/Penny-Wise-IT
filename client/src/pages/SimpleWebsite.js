@@ -3,7 +3,8 @@ import {
   LayoutDashboard, ShoppingCart, Package, FileText, Mail, Sparkles,
   Plus, Edit, Trash2, DollarSign, Clock, Eye, EyeOff,
   CheckCircle, XCircle, Search, TrendingUp, AlertCircle, Image,
-  ChevronDown, ChevronUp, Star, Layers, Globe, Save, Loader2
+  ChevronDown, ChevronUp, Star, Layers, Globe, Save, Loader2,
+  Settings, Palette
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
@@ -18,6 +19,7 @@ const TABS = [
   { key: 'pages', label: 'Pages (CMS)', icon: FileText },
   { key: 'inbox', label: 'Inbox', icon: Mail },
   { key: 'social', label: 'Social & Marketing', icon: Sparkles },
+  { key: 'settings', label: 'Settings', icon: Settings },
 ];
 
 const STATUS_COLORS = {
@@ -64,6 +66,11 @@ const SimpleWebsite = () => {
   const [msgLoading, setMsgLoading] = useState(false);
   const [expandedMsg, setExpandedMsg] = useState(null);
 
+  // Settings
+  const [siteSettings, setSiteSettings] = useState(null);
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
+
   const loadDashboard = useCallback(async () => {
     try {
       const res = await api.get('/simplewebsite/dashboard');
@@ -96,13 +103,32 @@ const SimpleWebsite = () => {
     setMsgLoading(false);
   }, []);
 
+  const loadSettings = useCallback(async () => {
+    setSettingsLoading(true);
+    try { const res = await api.get('/settings'); setSiteSettings(res.data); } catch (err) { console.error(err); }
+    setSettingsLoading(false);
+  }, []);
+
+  const saveSettings = async () => {
+    setSavingSettings(true);
+    try {
+      const res = await api.put('/settings', siteSettings);
+      setSiteSettings(res.data.settings || res.data);
+      toast.success('Settings saved');
+    } catch (err) { toast.error('Failed to save settings'); }
+    setSavingSettings(false);
+  };
+
+  const updateSetting = (key, value) => setSiteSettings(prev => ({ ...prev, [key]: value }));
+
   useEffect(() => {
     if (tab === 'dashboard') loadDashboard();
     if (tab === 'products') loadProducts();
     if (tab === 'orders') loadOrders();
     if (tab === 'pages') loadPages();
     if (tab === 'inbox') loadMessages();
-  }, [tab, loadDashboard, loadProducts, loadOrders, loadPages, loadMessages]);
+    if (tab === 'settings' && !siteSettings) loadSettings();
+  }, [tab, loadDashboard, loadProducts, loadOrders, loadPages, loadMessages, loadSettings, siteSettings]);
 
   // ── Product CRUD ──
   const openAddProduct = () => { setEditProd(null); setProdForm({ name: '', description: '', price: '', category: 'General', stock: '', isActive: true, isFeatured: false, images: [] }); setShowProdModal(true); };
@@ -514,6 +540,94 @@ const SimpleWebsite = () => {
 
         {/* ═══ SOCIAL TAB — Embedded SocialAI ═══ */}
         {tab === 'social' && hasSocialAI && <SocialAI embedded />}
+
+        {/* ═══ SETTINGS TAB ═══ */}
+        {tab === 'settings' && (
+          <div>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f3f4f6', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Settings size={22} /> App Settings
+            </h2>
+            {settingsLoading ? <div className="page-loading">Loading settings...</div> : siteSettings && (
+              <>
+                <div className="card" style={{ padding: '1.25rem', marginBottom: '1rem' }}>
+                  <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#d1d5db', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Palette size={16} style={{ color: '#f59e0b' }} /> Branding & Appearance
+                  </h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <div className="form-group">
+                      <label>Business Name</label>
+                      <input value={siteSettings.brandName || siteSettings.businessName || ''} onChange={e => { updateSetting('brandName', e.target.value); updateSetting('businessName', e.target.value); }} placeholder="Your Business Name" />
+                    </div>
+                    <div className="form-group">
+                      <label>Tagline</label>
+                      <input value={siteSettings.brandTagline || ''} onChange={e => updateSetting('brandTagline', e.target.value)} placeholder="e.g. Quality Products, Delivered" />
+                    </div>
+                    <div className="form-group">
+                      <label>Primary Colour</label>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input type="color" value={siteSettings.brandPrimaryColor || '#10b981'} onChange={e => updateSetting('brandPrimaryColor', e.target.value)} style={{ width: 40, height: 38, border: 'none', borderRadius: 6, cursor: 'pointer' }} />
+                        <input value={siteSettings.brandPrimaryColor || '#10b981'} onChange={e => updateSetting('brandPrimaryColor', e.target.value)} style={{ flex: 1 }} />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label>Accent Colour</label>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input type="color" value={siteSettings.brandAccentColor || '#f59e0b'} onChange={e => updateSetting('brandAccentColor', e.target.value)} style={{ width: 40, height: 38, border: 'none', borderRadius: 6, cursor: 'pointer' }} />
+                        <input value={siteSettings.brandAccentColor || '#f59e0b'} onChange={e => updateSetting('brandAccentColor', e.target.value)} style={{ flex: 1 }} />
+                      </div>
+                    </div>
+                    <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                      <label>Logo URL</label>
+                      <input value={siteSettings.brandLogoUrl || ''} onChange={e => updateSetting('brandLogoUrl', e.target.value)} placeholder="https://..." />
+                      {siteSettings.brandLogoUrl && <img src={siteSettings.brandLogoUrl} alt="Logo" style={{ marginTop: '0.5rem', maxHeight: 60, borderRadius: 8, objectFit: 'contain' }} />}
+                    </div>
+                    <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                      <label>Hero / Banner Image URL</label>
+                      <input value={siteSettings.brandHeroImage || ''} onChange={e => updateSetting('brandHeroImage', e.target.value)} placeholder="https://..." />
+                      {siteSettings.brandHeroImage && <img src={siteSettings.brandHeroImage} alt="Hero" style={{ marginTop: '0.5rem', maxHeight: 100, borderRadius: 8, objectFit: 'cover', width: '100%' }} />}
+                    </div>
+                  </div>
+                </div>
+                <div className="card" style={{ padding: '1.25rem', marginBottom: '1rem' }}>
+                  <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#d1d5db', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Globe size={16} style={{ color: '#3b82f6' }} /> Business Info & Contact
+                  </h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <div className="form-group">
+                      <label>Email</label>
+                      <input value={siteSettings.businessEmail || ''} onChange={e => updateSetting('businessEmail', e.target.value)} placeholder="hello@yourbusiness.com" />
+                    </div>
+                    <div className="form-group">
+                      <label>Phone</label>
+                      <input value={siteSettings.businessPhone || ''} onChange={e => updateSetting('businessPhone', e.target.value)} placeholder="0400 000 000" />
+                    </div>
+                    <div className="form-group">
+                      <label>Facebook</label>
+                      <input value={siteSettings.businessFacebook || ''} onChange={e => updateSetting('businessFacebook', e.target.value)} placeholder="https://facebook.com/..." />
+                    </div>
+                    <div className="form-group">
+                      <label>Instagram</label>
+                      <input value={siteSettings.businessInstagram || ''} onChange={e => updateSetting('businessInstagram', e.target.value)} placeholder="https://instagram.com/..." />
+                    </div>
+                    <div className="form-group">
+                      <label>Website</label>
+                      <input value={siteSettings.businessWebsite || ''} onChange={e => updateSetting('businessWebsite', e.target.value)} placeholder="https://yourbusiness.com.au" />
+                    </div>
+                    <div className="form-group">
+                      <label>ABN</label>
+                      <input value={siteSettings.businessABN || ''} onChange={e => updateSetting('businessABN', e.target.value)} placeholder="12 345 678 901" />
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <button onClick={saveSettings} className="btn btn-primary" disabled={savingSettings}>
+                    {savingSettings ? <Loader2 size={14} className="spin" /> : <Save size={14} />} Save All Settings
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         {/* ═══ PRODUCT MODAL ═══ */}
         {showProdModal && (

@@ -21,6 +21,7 @@ router.put('/', auth, adminOnly, async (req, res) => {
     const allowed = [
       'businessName', 'businessEmail', 'businessPhone', 'businessFacebook',
       'businessInstagram', 'businessLinkedin', 'businessWebsite', 'businessABN',
+      'brandName', 'brandTagline', 'brandLogoUrl', 'brandPrimaryColor', 'brandAccentColor', 'brandHeroImage',
       'squareAccessToken', 'squareLocationId', 'squareEnvironment', 'squareWebhookSecret',
       'smtpHost', 'smtpPort', 'smtpUser', 'smtpPass', 'smtpFromName', 'smtpFromEmail', 'smtpSecure',
       'sitegroundApiUrl', 'sitegroundApiToken',
