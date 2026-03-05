@@ -1,9 +1,30 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import { useClientConfig } from '../context/ClientConfigContext';
 import './Footer.css';
 
 const Footer = () => {
+  const { clientMode, brandName } = useClientConfig();
+
+  // Client mode: minimal branded footer
+  if (clientMode) {
+    return (
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-bottom">
+            <p>&copy; {new Date().getFullYear()} {brandName || 'App'} — Powered by <a href="https://pennywiseit.com.au" target="_blank" rel="noopener noreferrer" style={{ color: '#7c3aed' }}>Penny Wise I.T</a></p>
+            <div className="footer-legal">
+              <Link to="/terms">Terms</Link>
+              <span className="footer-divider">|</span>
+              <Link to="/privacy">Privacy</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="footer">
       <div className="container">

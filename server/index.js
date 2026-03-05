@@ -221,6 +221,17 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/hosting', require('./routes/hosting'));
 app.use('/api/client-projects', require('./routes/clientProjects'));
 
+// Public config endpoint — exposes client-mode settings for the React app
+app.get('/api/config', (req, res) => {
+  res.json({
+    clientMode: process.env.CLIENT_MODE === 'true',
+    enabledApps: process.env.ENABLED_APPS ? process.env.ENABLED_APPS.split(',').map(s => s.trim()) : [],
+    brandName: process.env.BRAND_NAME || '',
+    brandTagline: process.env.BRAND_TAGLINE || '',
+    primaryColor: process.env.PRIMARY_COLOR || '#7c3aed',
+  });
+});
+
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {
   // Cache static assets (JS/CSS use content hashing) but NOT index.html

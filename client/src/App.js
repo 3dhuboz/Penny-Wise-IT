@@ -3,6 +3,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ClientConfigProvider, useClientConfig } from './context/ClientConfigContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -48,6 +49,47 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 };
 
 const AppRoutes = () => {
+  const { clientMode, enabledApps, loading: configLoading } = useClientConfig();
+
+  if (configLoading) return <div className="loading-screen">Loading...</div>;
+
+  // CLIENT MODE: Only show login, dashboard, and enabled apps
+  if (clientMode) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Navigate to="/dashboard" />} />
+
+        {/* Client dashboard & profile */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/my-apps" element={<ProtectedRoute><MyApps /></ProtectedRoute>} />
+        <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
+        <Route path="/tickets/new" element={<ProtectedRoute><NewTicket /></ProtectedRoute>} />
+        <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
+
+        {/* Only show app routes the client has access to */}
+        {(enabledApps.length === 0 || enabledApps.includes('socialai')) && (
+          <Route path="/social" element={<ProtectedRoute><SocialAI /></ProtectedRoute>} />
+        )}
+        {(enabledApps.length === 0 || enabledApps.includes('wirez')) && (
+          <Route path="/wirez" element={<ProtectedRoute><WirezLauncher /></ProtectedRoute>} />
+        )}
+
+        {/* Client admin — limited to settings & social management */}
+        <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/social" element={<ProtectedRoute adminOnly><AdminSocial /></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute adminOnly><AdminSettings /></ProtectedRoute>} />
+
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="*" element={<Navigate to="/dashboard" />} />
+      </Routes>
+    );
+  }
+
+  // NORMAL MODE: Full pennywiseit.com.au site
   return (
     <Routes>
       {/* Public Routes */}
@@ -96,6 +138,7 @@ const AppRoutes = () => {
 function App() {
   return (
     <ErrorBoundary>
+    <ClientConfigProvider>
     <AuthProvider>
       <Router>
         <div className="app">
@@ -112,6 +155,7 @@ function App() {
         }} />
       </Router>
     </AuthProvider>
+    </ClientConfigProvider>
     </ErrorBoundary>
   );
 }

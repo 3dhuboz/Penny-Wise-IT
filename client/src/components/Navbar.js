@@ -7,6 +7,7 @@ import {
   Palette, Globe, Workflow, Code, Star
 } from 'lucide-react';
 import api from '../api';
+import { useClientConfig } from '../context/ClientConfigContext';
 import './Navbar.css';
 
 const APP_ICON_MAP = {
@@ -17,6 +18,7 @@ const APP_ICON_MAP = {
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { clientMode, brandName, primaryColor } = useClientConfig();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -66,24 +68,30 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="container navbar-inner">
-        <Link to="/" className="navbar-brand">
-          <img src="/logo.png" alt="Penny Wise I.T" className="navbar-logo" />
+        <Link to={clientMode ? '/dashboard' : '/'} className="navbar-brand">
+          {clientMode && brandName ? (
+            <span style={{ fontSize: '1.25rem', fontWeight: 800, color: primaryColor || '#7c3aed' }}>{brandName}</span>
+          ) : (
+            <img src="/logo.png" alt="Penny Wise I.T" className="navbar-logo" />
+          )}
         </Link>
 
         <div className={`navbar-links ${mobileOpen ? 'open' : ''}`}>
-          {/* Site Links */}
-          <div className="nav-group nav-site-links">
-            <Link to="/" className={isActive('/') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Home</Link>
-            <Link to="/services" className={isActive('/services') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Services</Link>
-            <Link to="/marketplace" className={isActive('/marketplace') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Marketplace</Link>
-            <Link to="/hosting" className={isActive('/hosting') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Hosting</Link>
-            <Link to="/contact" className={isActive('/contact') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Contact</Link>
-          </div>
+          {/* Site Links — hidden in client mode */}
+          {!clientMode && (
+            <div className="nav-group nav-site-links">
+              <Link to="/" className={isActive('/') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Home</Link>
+              <Link to="/services" className={isActive('/services') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Services</Link>
+              <Link to="/marketplace" className={isActive('/marketplace') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Marketplace</Link>
+              <Link to="/hosting" className={isActive('/hosting') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Hosting</Link>
+              <Link to="/contact" className={isActive('/contact') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Contact</Link>
+            </div>
+          )}
 
           {/* Logged-in user: compact links */}
           {user && (
             <div className="nav-group nav-user-links">
-              <span className="nav-hub-divider" />
+              {!clientMode && <span className="nav-hub-divider" />}
               <Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''} onClick={() => setMobileOpen(false)}>Dashboard</Link>
               {myApps.length > 0 && (
                 <Link to="/my-apps" className={`${isActive('/my-apps') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>

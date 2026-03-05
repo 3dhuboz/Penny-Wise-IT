@@ -213,12 +213,20 @@ router.post('/:id/deploy', auth, adminOnly, async (req, res) => {
     const repoUrl = req.body.repoUrl || 'https://github.com/3dhuboz/Penny-Wise-IT';
     const branch = req.body.branch || 'main';
 
+    // Build app slug list from project apps
+    const appSlugs = (project.apps || []).map(a => a.appSlug || a).join(',');
+    const brandName = project.whiteLabel?.brandName || project.businessName || project.projectName;
+
     const envVars = [
       { key: 'NODE_ENV', value: 'production' },
       { key: 'MONGODB_URI', value: clientMongoUri },
       { key: 'JWT_SECRET', value: jwtSecret },
       { key: 'ADMIN_EMAIL', value: adminEmail },
       { key: 'ADMIN_PASSWORD', value: adminPassword },
+      // Client mode gating
+      { key: 'CLIENT_MODE', value: 'true' },
+      { key: 'ENABLED_APPS', value: appSlugs || 'socialai' },
+      { key: 'BRAND_NAME', value: brandName },
     ];
     // Pass through shared API keys if set
     if (process.env.GEMINI_API_KEY) envVars.push({ key: 'GEMINI_API_KEY', value: process.env.GEMINI_API_KEY });
