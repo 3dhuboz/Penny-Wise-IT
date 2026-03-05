@@ -1,28 +1,69 @@
 const { Client, Environment } = require('square');
+const SiteSettings = require('../models/SiteSettings');
 
 let squareClient = null;
+let cachedSettings = null;
+let settingsCacheTime = 0;
+const CACHE_TTL = 60000; // Re-read DB settings every 60s
 
-function getSquareClient() {
-  if (squareClient) return squareClient;
+async function loadSquareSettings() {
+  const now = Date.now();
+  if (cachedSettings && (now - settingsCacheTime) < CACHE_TTL) return cachedSettings;
+  try {
+    const settings = await SiteSettings.getSettings();
+    cachedSettings = {
+      accessToken: settings.squareAccessToken || process.env.SQUARE_ACCESS_TOKEN || '',
+      locationId: settings.squareLocationId || process.env.SQUARE_LOCATION_ID || '',
+      environment: settings.squareEnvironment || process.env.SQUARE_ENVIRONMENT || 'sandbox'
+    };
+    settingsCacheTime = now;
+  } catch (err) {
+    console.error('[Square] Failed to load settings from DB:', err.message);
+    cachedSettings = {
+      accessToken: process.env.SQUARE_ACCESS_TOKEN || '',
+      locationId: process.env.SQUARE_LOCATION_ID || '',
+      environment: process.env.SQUARE_ENVIRONMENT || 'sandbox'
+    };
+  }
+  return cachedSettings;
+}
+
+// Call this to force re-read from DB (e.g. after saving settings)
+function invalidateSquareCache() {
+  squareClient = null;
+  cachedSettings = null;
+  settingsCacheTime = 0;
+}
+
+async function getSquareClient() {
+  const settings = await loadSquareSettings();
   
-  const accessToken = process.env.SQUARE_ACCESS_TOKEN;
-  if (!accessToken) {
-    console.warn('[Square] No SQUARE_ACCESS_TOKEN configured — Square features disabled');
+  if (!settings.accessToken) {
+    console.warn('[Square] No Square Access Token configured — Square features disabled');
     return null;
   }
 
+  // Rebuild client if token or environment changed
+  if (squareClient && squareClient._accessToken === settings.accessToken && squareClient._env === settings.environment) {
+    return squareClient;
+  }
+
   squareClient = new Client({
-    accessToken,
-    environment: process.env.SQUARE_ENVIRONMENT === 'production' 
+    accessToken: settings.accessToken,
+    environment: settings.environment === 'production' 
       ? Environment.Production 
       : Environment.Sandbox
   });
+  // Tag for change detection
+  squareClient._accessToken = settings.accessToken;
+  squareClient._env = settings.environment;
 
   return squareClient;
 }
 
-function getLocationId() {
-  return process.env.SQUARE_LOCATION_ID || '';
+async function getLocationId() {
+  const settings = await loadSquareSettings();
+  return settings.locationId;
 }
 
 // ══════════════════════════════════════════════
@@ -30,7 +71,7 @@ function getLocationId() {
 // ══════════════════════════════════════════════
 
 async function findOrCreateSquareCustomer({ email, firstName, lastName, company, phone }) {
-  const client = getSquareClient();
+  const client = await getSquareClient();
   if (!client) return null;
 
   try {
@@ -70,10 +111,10 @@ async function findOrCreateSquareCustomer({ email, firstName, lastName, company,
 // ══════════════════════════════════════════════
 
 async function createSquareInvoice({ squareCustomerId, lineItems, dueDate, title, invoiceNumber, branding }) {
-  const client = getSquareClient();
+  const client = await getSquareClient();
   if (!client) return null;
 
-  const locationId = getLocationId();
+  const locationId = await getLocationId();
   if (!locationId) {
     console.error('[Square] No SQUARE_LOCATION_ID configured');
     return null;
@@ -145,7 +186,7 @@ async function createSquareInvoice({ squareCustomerId, lineItems, dueDate, title
 }
 
 async function publishSquareInvoice(squareInvoiceId, version) {
-  const client = getSquareClient();
+  const client = await getSquareClient();
   if (!client) return null;
 
   try {
@@ -161,7 +202,7 @@ async function publishSquareInvoice(squareInvoiceId, version) {
 }
 
 async function cancelSquareInvoice(squareInvoiceId, version) {
-  const client = getSquareClient();
+  const client = await getSquareClient();
   if (!client) return null;
 
   try {
@@ -176,7 +217,7 @@ async function cancelSquareInvoice(squareInvoiceId, version) {
 }
 
 async function getSquareInvoice(squareInvoiceId) {
-  const client = getSquareClient();
+  const client = await getSquareClient();
   if (!client) return null;
 
   try {
@@ -191,6 +232,7 @@ async function getSquareInvoice(squareInvoiceId) {
 module.exports = {
   getSquareClient,
   getLocationId,
+  invalidateSquareCache,
   findOrCreateSquareCustomer,
   createSquareInvoice,
   publishSquareInvoice,

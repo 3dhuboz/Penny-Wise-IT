@@ -419,7 +419,22 @@ const AdminSettings = () => {
               </span>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button
+                onClick={async () => {
+                  try {
+                    toast.loading('Testing Square connection...', { id: 'sq-test' });
+                    const res = await api.post('/settings/test-square');
+                    toast.success(`${res.data.message}\n${res.data.locationMatch}`, { id: 'sq-test', duration: 6000 });
+                  } catch (err) {
+                    toast.error(err.response?.data?.message || 'Connection test failed', { id: 'sq-test', duration: 6000 });
+                  }
+                }}
+                className="btn btn-secondary"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}
+              >
+                <CheckCircle size={14} /> Test Connection
+              </button>
               <button onClick={() => saveSettings()} className="btn btn-primary" disabled={saving}>
                 {saving ? <Loader2 size={14} className="spin" /> : <Save size={14} />} Save Payment Settings
               </button>
