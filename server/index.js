@@ -151,26 +151,19 @@ async function connectDB() {
     }
     console.log('Marketplace apps synced (' + seedApps.length + ' apps)');
 
-    // Auto-seed admin user if none exists, or sync password from env
-    // IMPORTANT: We hash manually and use updateOne to BYPASS the pre-save hook
-    // This prevents any possibility of double-hashing the password
+    // Auto-seed admin user ONLY if none exists
+    // For existing admin, only sync role/isActive — NEVER touch password on boot
     const User = require('./models/User');
     const bcrypt = require('bcryptjs');
     const adminEmail = (process.env.ADMIN_EMAIL || 'admin@pennywiseit.com.au').toLowerCase().trim();
     const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-    console.log('[Admin Sync] Checking admin:', adminEmail, '| pw length:', adminPassword.length);
-
-    // Hash the admin password once, manually
-    const salt = await bcrypt.genSalt(10);
-    const hashedPw = await bcrypt.hash(adminPassword, salt);
-    // Verify our own hash is correct before writing
-    const selfCheck = await bcrypt.compare(adminPassword, hashedPw);
-    console.log('[Admin Sync] Hash self-check:', selfCheck, '| email:', adminEmail);
 
     let adminUser = await User.findOne({ email: adminEmail });
     if (!adminUser) {
-      // First-time: use collection.insertOne to COMPLETELY bypass Mongoose middleware
-      const result = await User.collection.insertOne({
+      // First-time only: hash password and insert directly (bypass Mongoose pre-save)
+      const salt = await bcrypt.genSalt(10);
+      const hashedPw = await bcrypt.hash(adminPassword, salt);
+      await User.collection.insertOne({
         firstName: 'Admin',
         lastName: 'PennyWise',
         email: adminEmail,
@@ -181,17 +174,14 @@ async function connectDB() {
         createdAt: new Date(),
         updatedAt: new Date()
       });
-      console.log('[Admin Sync] Admin CREATED via raw insert:', adminEmail, '| id:', result.insertedId);
+      console.log('[Admin Sync] Admin CREATED:', adminEmail);
     } else {
-      // Existing: use updateOne to COMPLETELY bypass Mongoose pre-save hook
+      // Existing admin: only ensure role + active status, do NOT touch password
       await User.updateOne(
         { _id: adminUser._id },
-        { $set: { password: hashedPw, role: 'admin', isActive: true, updatedAt: new Date() } }
+        { $set: { role: 'admin', isActive: true } }
       );
-      // Verify the write actually worked
-      const verify = await User.findOne({ email: adminEmail });
-      const loginCheck = await bcrypt.compare(adminPassword, verify.password);
-      console.log('[Admin Sync] Admin FORCE-SYNCED:', adminEmail, '| login will work:', loginCheck);
+      console.log('[Admin Sync] Admin exists:', adminEmail, '| role/active synced (password untouched)');
     }
   } catch (err) {
     console.error('MongoDB connection error:', err.message);

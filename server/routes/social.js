@@ -303,7 +303,7 @@ router.post('/ai/smart-schedule', auth, async (req, res) => {
   }
 });
 
-// Insights - research-driven recommendations (25s timeout covers research + AI)
+// Insights - research-driven recommendations (55s timeout covers research + AI)
 router.post('/ai/recommendations', auth, async (req, res) => {
   let timer;
   try {
@@ -319,9 +319,9 @@ router.post('/ai/recommendations', auth, async (req, res) => {
       postsLast30Days: profile.stats?.postsLast30Days ?? 0
     };
 
-    // 25s timeout wrapping EVERYTHING (research + AI) to stay under Render's 30s limit
+    // 55s timeout — gives Gemini plenty of time
     const timeoutPromise = new Promise((_, reject) => {
-      timer = setTimeout(() => reject(new Error('Analysis timed out — the AI took too long. Please try again.')), 25000);
+      timer = setTimeout(() => reject(new Error('Analysis timed out — the AI took too long. Please try again.')), 55000);
     });
 
     const work = async () => {
@@ -332,10 +332,10 @@ router.post('/ai/recommendations', auth, async (req, res) => {
       if (profile.facebookConnected && profile.facebookPageAccessToken) {
         const token = profile.facebookPageAccessToken;
         researchPromises.push(
-          fetch(`${FB_GRAPH}/${profile.facebookPageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=15&access_token=${token}`)
+          fetch(`${FB_GRAPH}/${profile.facebookPageId}/posts?fields=id,message,created_time,shares,likes.limit(0).summary(true),comments.limit(0).summary(true)&limit=10&access_token=${token}`)
             .then(r => r.json())
             .then(d => { if (d.data) pastFbPosts = d.data.map(p => ({
-              message: (p.message || '').substring(0, 120),
+              message: (p.message || '').substring(0, 100),
               day: new Date(p.created_time).toLocaleDateString('en-AU', { weekday: 'long' }),
               time: new Date(p.created_time).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
               likes: p.likes?.summary?.total_count || 0, comments: p.comments?.summary?.total_count || 0,
@@ -346,10 +346,10 @@ router.post('/ai/recommendations', auth, async (req, res) => {
         );
         if (profile.instagramBusinessAccountId) {
           researchPromises.push(
-            fetch(`${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count&limit=15&access_token=${token}`)
+            fetch(`${FB_GRAPH}/${profile.instagramBusinessAccountId}/media?fields=id,caption,timestamp,like_count,comments_count&limit=10&access_token=${token}`)
               .then(r => r.json())
               .then(d => { if (d.data) pastIgPosts = d.data.map(p => ({
-                caption: (p.caption || '').substring(0, 120),
+                caption: (p.caption || '').substring(0, 100),
                 day: new Date(p.timestamp).toLocaleDateString('en-AU', { weekday: 'long' }),
                 time: new Date(p.timestamp).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: true }),
                 likes: p.like_count || 0, comments: p.comments_count || 0,
@@ -364,10 +364,9 @@ router.post('/ai/recommendations', auth, async (req, res) => {
       const postData = { pastFbPosts, pastIgPosts };
       console.log('[Insights] Research:', pastFbPosts.length, 'FB,', pastIgPosts.length, 'IG for', profile.businessName);
 
-      const [recs, times] = await Promise.all([
-        generateRecommendations(geminiKey, profile.businessName, profile.businessType, stats, postData),
-        analyzePostTimes(geminiKey, profile.businessType, profile.location || 'Australia', postData)
-      ]);
+      // Run sequentially to avoid Gemini rate-limit delays
+      const recs = await generateRecommendations(geminiKey, profile.businessName, profile.businessType, stats, postData);
+      const times = await analyzePostTimes(geminiKey, profile.businessType, profile.location || 'Australia', postData);
       return { recommendations: recs, bestTimes: times };
     };
 
