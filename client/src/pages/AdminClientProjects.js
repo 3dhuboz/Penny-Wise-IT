@@ -266,8 +266,10 @@ const AdminClientProjects = () => {
       const res = await api.post(`/scaffold/${projectId}`, { projectPath: defaultPath || undefined });
       if (res.data.alreadyExists) {
         toast.success('Project folder already exists — path linked!', { duration: 4000 });
+      } else if (res.data.githubRepoUrl) {
+        toast.success(`Scaffolded + GitHub repo created! ${res.data.githubRepoUrl}`, { duration: 8000 });
       } else {
-        toast.success(`Scaffolded! Apps: ${res.data.apps?.join(', ')}`, { duration: 5000 });
+        toast.success(`Scaffolded! Apps: ${res.data.apps?.join(', ')} (add GITHUB_TOKEN to .env to auto-create repos)`, { duration: 5000 });
       }
       loadAll();
     } catch (err) {

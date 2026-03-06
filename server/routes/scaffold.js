@@ -2,10 +2,55 @@ const express = require('express');
 const { execSync, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const fetch = require('node-fetch');
 const ClientProject = require('../models/ClientProject');
 const { auth, adminOnly } = require('../middleware/auth');
 
 const router = express.Router();
+
+// ═══════════════════════════════════════════
+// GITHUB AUTOMATION HELPER
+// Creates a new private repo under GITHUB_ORG
+// (or the authenticated user if no org is set)
+// Returns the HTTPS clone URL on success.
+// ═══════════════════════════════════════════
+async function createGitHubRepo(repoName, description) {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return null;
+
+  const org = process.env.GITHUB_ORG || '';
+  const apiUrl = org
+    ? `https://api.github.com/orgs/${org}/repos`
+    : 'https://api.github.com/user/repos';
+
+  const res = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      Authorization: `token ${token}`,
+      Accept: 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name: repoName,
+      description,
+      private: true,
+      auto_init: false
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    // 422 = repo already exists — return the expected URL so scaffold can still push
+    if (res.status === 422) {
+      const owner = org || process.env.GITHUB_USER || '';
+      return owner ? `https://github.com/${owner}/${repoName}.git` : null;
+    }
+    throw new Error(`GitHub API ${res.status}: ${err.message || 'unknown error'}`);
+  }
+
+  const data = await res.json();
+  return data.clone_url;
+}
 
 // ═══════════════════════════════════════════
 // TEMPLATE REGISTRY
@@ -609,8 +654,32 @@ router.post('/:projectId', auth, adminOnly, async (req, res) => {
       console.warn('[Scaffold] Git init warning:', gitErr.message);
     }
 
+    // ── Step 6: Auto-create GitHub repo + push (if GITHUB_TOKEN is set) ──
+    let githubRepoUrl = null;
+    if (process.env.GITHUB_TOKEN) {
+      console.log('[Scaffold] Step 6: Creating GitHub repo...');
+      try {
+        const repoSlug = (project.projectName || clientName)
+          .toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+        githubRepoUrl = await createGitHubRepo(
+          repoSlug,
+          `${clientName} — scaffolded by Penny Wise I.T`
+        );
+        if (githubRepoUrl) {
+          execSync(`git remote add origin "${githubRepoUrl}"`, { cwd: projectDir, stdio: 'pipe' });
+          execSync('git push -u origin main', { cwd: projectDir, stdio: 'pipe', timeout: 60000 });
+          console.log(`[Scaffold] ✓ GitHub repo created and pushed: ${githubRepoUrl}`);
+        }
+      } catch (ghErr) {
+        console.warn('[Scaffold] GitHub repo creation failed (non-blocking):', ghErr.message);
+      }
+    } else {
+      console.log('[Scaffold] Skipping GitHub repo creation (GITHUB_TOKEN not set)');
+    }
+
     // Update project with local path
     project.localProjectPath = projectDir;
+    if (githubRepoUrl) project.deployment.repoUrl = githubRepoUrl;
 
     // Mark checklist items
     if (project.setupChecklist?.length > 0) {
@@ -631,6 +700,7 @@ router.post('/:projectId', auth, adminOnly, async (req, res) => {
     res.json({
       message: `Project scaffolded with ${appSlugs.length} app(s)! Dependencies installed. Open in Windsurf to start editing.`,
       localProjectPath: projectDir,
+      githubRepoUrl,
       template: primarySlug,
       templateDescription: template.description,
       apps: appSlugs,
