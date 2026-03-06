@@ -57,6 +57,8 @@ const clientProjectSchema = new mongoose.Schema({
 
   // Local development
   localProjectPath: { type: String, default: '' },
+  scaffoldPending: { type: Boolean, default: false },
+  scaffoldRequestedAt: { type: Date },
 
   // General
   notes: { type: String, default: '' },

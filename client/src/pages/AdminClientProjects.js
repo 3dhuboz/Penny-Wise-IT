@@ -4,7 +4,7 @@ import {
   ArrowLeft, Plus, Search, FolderKanban, Globe, Rocket, CheckCircle,
   Circle, ChevronDown, ChevronUp, ExternalLink, Trash2, Save, Edit,
   Users, DollarSign, Server, Palette, ClipboardList, XCircle, AlertCircle,
-  RefreshCw, Loader2, FolderOpen
+  RefreshCw, Loader2, FolderOpen, GitMerge, Bell, X
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
@@ -37,6 +37,9 @@ const AdminClientProjects = () => {
   const [editingLocalPath, setEditingLocalPath] = useState({});
   const [localPathDraft, setLocalPathDraft] = useState({});
   const [scaffolding, setScaffolding] = useState({});
+  const [syncing, setSyncing] = useState({});
+  const [pendingScaffolds, setPendingScaffolds] = useState([]);
+  const [scaffoldModal, setScaffoldModal] = useState(null); // { projectId, projectName, defaultPath, apps }
   const [createForm, setCreateForm] = useState({
     clientId: '', projectName: '', businessName: '', contactName: '',
     contactEmail: '', contactPhone: '', appSlugs: [], notes: ''
@@ -44,15 +47,17 @@ const AdminClientProjects = () => {
 
   const loadAll = useCallback(async () => {
     try {
-      const [projRes, custRes, appsRes, statsRes] = await Promise.all([
+      const [projRes, custRes, appsRes, statsRes, pendingRes] = await Promise.all([
         api.get('/client-projects'),
         api.get('/customers'),
         api.get('/marketplace/admin/apps').catch(() => ({ data: [] })),
-        api.get('/client-projects/stats/summary').catch(() => ({ data: null }))
+        api.get('/client-projects/stats/summary').catch(() => ({ data: null })),
+        api.get('/scaffold/pending').catch(() => ({ data: [] }))
       ]);
       setProjects(projRes.data);
       setCustomers(custRes.data);
       setApps(appsRes.data);
+      setPendingScaffolds(pendingRes.data || []);
       setStats(statsRes.data);
     } catch (err) {
       toast.error('Failed to load projects');
@@ -238,21 +243,53 @@ const AdminClientProjects = () => {
     return 'windsurf://file/' + encoded;
   };
 
-  const scaffoldProject = async (projectId) => {
-    setScaffolding(prev => ({ ...prev, [projectId]: true }));
+  const openScaffoldModal = async (projectId) => {
     try {
-      const res = await api.post(`/scaffold/${projectId}`);
+      const res = await api.get(`/scaffold/${projectId}/default-path`);
+      setScaffoldModal({
+        projectId,
+        defaultPath: res.data.existingPath || res.data.defaultPath,
+        clientName: res.data.clientName,
+        apps: res.data.apps
+      });
+    } catch {
+      setScaffoldModal({ projectId, defaultPath: '', clientName: '', apps: [] });
+    }
+  };
+
+  const confirmScaffold = async () => {
+    if (!scaffoldModal) return;
+    const { projectId, defaultPath } = scaffoldModal;
+    setScaffolding(prev => ({ ...prev, [projectId]: true }));
+    setScaffoldModal(null);
+    try {
+      const res = await api.post(`/scaffold/${projectId}`, { projectPath: defaultPath || undefined });
       if (res.data.alreadyExists) {
         toast.success('Project folder already exists — path linked!', { duration: 4000 });
       } else {
-        toast.success(`Project scaffolded! Template: ${res.data.template}`, { duration: 5000 });
+        toast.success(`Scaffolded! Apps: ${res.data.apps?.join(', ')}`, { duration: 5000 });
       }
       loadAll();
     } catch (err) {
-      const msg = err.response?.data?.message || 'Scaffold failed';
-      toast.error(msg, { duration: 5000 });
+      toast.error(err.response?.data?.message || 'Scaffold failed', { duration: 5000 });
     } finally {
       setScaffolding(prev => ({ ...prev, [projectId]: false }));
+    }
+  };
+
+  const syncAndOpen = async (projectId) => {
+    setSyncing(prev => ({ ...prev, [projectId]: true }));
+    try {
+      const res = await api.post(`/scaffold/${projectId}/sync`);
+      toast.success(res.data.lastCommit ? `Synced — ${res.data.lastCommit}` : 'Project synced', { duration: 3000 });
+      if (res.data.windsurfUri) {
+        setTimeout(() => { window.location.href = res.data.windsurfUri; }, 500);
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Sync failed';
+      toast.error(msg);
+    } finally {
+      setSyncing(prev => ({ ...prev, [projectId]: false }));
     }
   };
 
@@ -303,8 +340,56 @@ const AdminClientProjects = () => {
 
   return (
     <div className="admin-page">
+      {/* Path-prompt modal */}
+      {scaffoldModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ background: '#111827', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 14, padding: '1.75rem', maxWidth: 520, width: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.0625rem', fontWeight: 800 }}>Scaffold Project</h3>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.8125rem', color: '#9ca3af' }}>
+                  {scaffoldModal.clientName} — Apps: {scaffoldModal.apps?.join(', ') || 'none'}
+                </p>
+              </div>
+              <button onClick={() => setScaffoldModal(null)} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: '0.25rem' }}><X size={18} /></button>
+            </div>
+            <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#e2e8f0', display: 'block', marginBottom: '0.5rem' }}>Save project to path:</label>
+            <input
+              value={scaffoldModal.defaultPath}
+              onChange={e => setScaffoldModal(prev => ({ ...prev, defaultPath: e.target.value }))}
+              style={{ width: '100%', padding: '0.625rem 0.75rem', borderRadius: 8, background: '#0f172a', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.15)', fontSize: '0.8125rem', fontFamily: 'monospace', boxSizing: 'border-box', marginBottom: '0.375rem' }}
+            />
+            <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '1.25rem' }}>Default follows convention: Business Folders \ Client Name \ App \ Project-Name. Change freely.</p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button onClick={() => setScaffoldModal(null)} style={{ padding: '0.5rem 1.25rem', borderRadius: 7, fontSize: '0.875rem', background: 'rgba(255,255,255,0.06)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={confirmScaffold} disabled={!scaffoldModal.apps?.length} style={{ padding: '0.5rem 1.25rem', borderRadius: 7, fontSize: '0.875rem', fontWeight: 700, background: 'linear-gradient(135deg,#10b981,#3b82f6)', color: '#fff', border: 'none', cursor: 'pointer' }}>
+                <Rocket size={14} style={{ verticalAlign: 'middle', marginRight: '0.35rem' }} />Scaffold &amp; Open in Windsurf
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="container" style={{ padding: '2rem 1.5rem' }}>
         <Link to="/admin" className="back-link"><ArrowLeft size={16} /> Back to Admin</Link>
+
+        {/* Pending scaffold banner */}
+        {pendingScaffolds.length > 0 && (
+          <div style={{ margin: '1rem 0', padding: '0.875rem 1.25rem', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 10, display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+            <Bell size={18} style={{ color: '#f59e0b', flexShrink: 0, marginTop: '0.1rem' }} />
+            <div style={{ flex: 1 }}>
+              <strong style={{ color: '#fcd34d', fontSize: '0.875rem' }}>{pendingScaffolds.length} project{pendingScaffolds.length !== 1 ? 's' : ''} awaiting scaffold</strong>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+                {pendingScaffolds.map(p => (
+                  <button key={p._id} onClick={() => openScaffoldModal(p._id)}
+                    style={{ padding: '0.25rem 0.75rem', borderRadius: 20, fontSize: '0.75rem', fontWeight: 700, background: 'rgba(245,158,11,0.15)', color: '#fcd34d', border: '1px solid rgba(245,158,11,0.3)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Rocket size={11} /> {p.businessName || p.projectName}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         <div className="admin-header">
           <div>
             <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -507,13 +592,13 @@ const AdminClientProjects = () => {
                         {!project.localProjectPath ? (
                           <div style={{ padding: '1rem', background: 'rgba(59,130,246,0.08)', borderRadius: 8, border: '1px dashed rgba(59,130,246,0.3)', marginBottom: '0.75rem', textAlign: 'center' }}>
                             <p style={{ fontSize: '0.8125rem', color: '#93c5fd', marginBottom: '0.75rem' }}>
-                              No local project yet. Scaffold one from the app template to start editing in Windsurf.
+                              {project.scaffoldPending ? '⏳ Purchase detected — ready to scaffold.' : 'No local project yet. Scaffold one from the app template to start editing in Windsurf.'}
                             </p>
                             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                               <button
-                                onClick={() => scaffoldProject(project._id)}
+                                onClick={() => openScaffoldModal(project._id)}
                                 disabled={scaffolding[project._id] || !project.apps?.length}
-                                style={{ padding: '0.5rem 1rem', borderRadius: 6, fontSize: '0.8125rem', fontWeight: 700, background: 'linear-gradient(135deg, #10b981, #3b82f6)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: scaffolding[project._id] ? 0.6 : 1 }}>
+                                style={{ padding: '0.5rem 1rem', borderRadius: 6, fontSize: '0.8125rem', fontWeight: 700, background: project.scaffoldPending ? 'linear-gradient(135deg,#f59e0b,#ef4444)' : 'linear-gradient(135deg, #10b981, #3b82f6)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: scaffolding[project._id] ? 0.6 : 1 }}>
                                 {scaffolding[project._id] ? <Loader2 size={14} className="spin" /> : <Rocket size={14} />}
                                 {scaffolding[project._id] ? 'Scaffolding...' : 'Scaffold Project'}
                               </button>
@@ -554,12 +639,14 @@ const AdminClientProjects = () => {
 
                         {/* Action buttons */}
                         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                          {project.localProjectPath && buildWindsurfUri(project.localProjectPath) ? (
-                            <a
-                              href={buildWindsurfUri(project.localProjectPath)}
-                              style={{ padding: '0.5rem 1rem', borderRadius: 6, fontSize: '0.8125rem', fontWeight: 700, background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', border: 'none', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                              <Edit size={14} /> Open in Windsurf
-                            </a>
+                          {project.localProjectPath ? (
+                            <button
+                              onClick={() => syncAndOpen(project._id)}
+                              disabled={syncing[project._id]}
+                              style={{ padding: '0.5rem 1rem', borderRadius: 6, fontSize: '0.8125rem', fontWeight: 700, background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: syncing[project._id] ? 0.7 : 1 }}>
+                              {syncing[project._id] ? <Loader2 size={14} className="spin" /> : <GitMerge size={14} />}
+                              {syncing[project._id] ? 'Syncing...' : 'Sync & Open in Windsurf'}
+                            </button>
                           ) : (
                             <span style={{ padding: '0.5rem 1rem', borderRadius: 6, fontSize: '0.8125rem', fontWeight: 600, background: 'rgba(59,130,246,0.06)', color: '#4b5563', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                               <Edit size={14} /> Open in Windsurf
@@ -567,7 +654,7 @@ const AdminClientProjects = () => {
                           )}
                           {project.localProjectPath && (
                             <button
-                              onClick={() => scaffoldProject(project._id)}
+                              onClick={() => openScaffoldModal(project._id)}
                               disabled={scaffolding[project._id]}
                               style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                               {scaffolding[project._id] ? <Loader2 size={12} className="spin" /> : <RefreshCw size={12} />} Re-scaffold

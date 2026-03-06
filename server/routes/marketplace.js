@@ -1,10 +1,25 @@
 const express = require('express');
 const AppDefinition = require('../models/AppDefinition');
 const AppSubscription = require('../models/AppSubscription');
+const ClientProject = require('../models/ClientProject');
 const User = require('../models/User');
 const { auth, adminOnly } = require('../middleware/auth');
 const { sendEmail, subscriptionConfirmationEmail, adminNotificationEmail } = require('../utils/email');
 const { findOrCreateSquareCustomer, createSquareInvoice, publishSquareInvoice } = require('../utils/square');
+
+// Default checklist for auto-created projects
+const DEFAULT_CHECKLIST = [
+  { step: 'Create customer account in Admin → Customers', completed: false },
+  { step: 'Issue app licenses (Admin → Customers → Issue License)', completed: false },
+  { step: 'Scaffold project in Windsurf (auto-triggered on purchase)', completed: false },
+  { step: 'Create new Render Web Service from same GitHub repo', completed: false },
+  { step: 'Configure Render env vars (MONGODB_URI, JWT_SECRET, etc.)', completed: false },
+  { step: 'Create separate MongoDB database/cluster for client', completed: false },
+  { step: 'Configure white-label branding (logo, colors, name)', completed: false },
+  { step: 'Test client login and app functionality', completed: false },
+  { step: 'Send client their login credentials', completed: false },
+  { step: 'Create initial invoice via Square', completed: false }
+];
 
 const router = express.Router();
 
@@ -177,6 +192,41 @@ router.post('/subscribe', auth, async (req, res) => {
         setupFee: setupFeePaid ? 0 : setupFee
       })
     }).catch(err => console.error('[Email] Admin notification failed:', err.message));
+
+    // Auto-create / update ClientProject for this subscriber (non-blocking)
+    (async () => {
+      try {
+        const appEntry = { slug: appDef.slug, name: appDef.name, subscription: sub._id, planKey: plan.key };
+        let project = await ClientProject.findOne({ client: customer._id });
+        if (!project) {
+          // Create new project
+          const businessName = customer.company || `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || customer.email;
+          project = new ClientProject({
+            client: customer._id,
+            projectName: `${businessName} — ${appDef.name}`,
+            businessName,
+            contactName: `${customer.firstName || ''} ${customer.lastName || ''}`.trim(),
+            contactEmail: customer.email,
+            contactPhone: customer.phone || '',
+            apps: [appEntry],
+            scaffoldPending: true,
+            scaffoldRequestedAt: new Date(),
+            setupChecklist: DEFAULT_CHECKLIST,
+            status: 'setup'
+          });
+        } else {
+          // Add app if not already in project
+          const already = project.apps.some(a => a.slug === appDef.slug);
+          if (!already) project.apps.push(appEntry);
+          project.scaffoldPending = true;
+          project.scaffoldRequestedAt = new Date();
+        }
+        await project.save();
+        console.log(`[Marketplace] ClientProject auto-created/updated for ${customer.email} — ${appDef.slug}`);
+      } catch (projErr) {
+        console.error('[Marketplace] ClientProject auto-create failed:', projErr.message);
+      }
+    })();
 
     const intervalLabel = isYearly ? 'year' : 'month';
     const setupMsg = !setupFeePaid && setupFee > 0 ? ` Setup fee: $${setupFee}.` : '';

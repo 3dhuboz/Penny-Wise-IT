@@ -493,12 +493,13 @@ router.post('/:projectId', auth, adminOnly, async (req, res) => {
       return res.status(400).json({ message: `No template found for app: ${primarySlug}` });
     }
 
-    // Determine target directory
+    // Determine target directory — custom path overrides default convention
     const baseDir = process.env.CLIENT_PROJECTS_BASE_DIR
       || path.join(require('os').homedir(), 'OneDrive', 'Desktop', 'Business Folders');
     const clientName = project.businessName || project.projectName;
     const safeName = clientName.replace(/[<>:"/\\|?*]/g, '').trim();
-    const projectDir = path.join(baseDir, safeName, 'App', safeName.replace(/\s+/g, '-'));
+    const defaultDir = path.join(baseDir, safeName, 'App', safeName.replace(/\s+/g, '-'));
+    const projectDir = req.body.projectPath ? path.resolve(req.body.projectPath) : defaultDir;
 
     // Check if already scaffolded
     if (fs.existsSync(projectDir) && fs.readdirSync(projectDir).length > 0) {
@@ -626,6 +627,7 @@ router.post('/:projectId', auth, adminOnly, async (req, res) => {
       }
     }
 
+    project.scaffoldPending = false;
     await project.save();
     console.log(`[Scaffold] ✓ Project fully scaffolded at ${projectDir}`);
 
@@ -669,6 +671,110 @@ router.get('/:projectId/status', auth, adminOnly, async (req, res) => {
     res.json({ scaffolded: hasFiles, exists, hasFiles, hasPennywiseMeta, meta, localPath });
   } catch (err) {
     res.status(500).json({ message: 'Status check failed', error: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════
+// GET default path suggestion for a project
+// GET /api/scaffold/:projectId/default-path
+// ═══════════════════════════════════════════
+router.get('/:projectId/default-path', auth, adminOnly, async (req, res) => {
+  try {
+    const project = await ClientProject.findById(req.params.projectId);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    const baseDir = process.env.CLIENT_PROJECTS_BASE_DIR
+      || path.join(require('os').homedir(), 'OneDrive', 'Desktop', 'Business Folders');
+    const clientName = project.businessName || project.projectName;
+    const safeName = clientName.replace(/[<>:"/\\|?*]/g, '').trim();
+    const defaultPath = path.join(baseDir, safeName, 'App', safeName.replace(/\s+/g, '-'));
+
+    res.json({
+      defaultPath,
+      existingPath: project.localProjectPath || null,
+      clientName,
+      apps: project.apps?.map(a => a.slug) || []
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════
+// GET all pending scaffolds (admin dashboard)
+// GET /api/scaffold/pending
+// ═══════════════════════════════════════════
+router.get('/pending', auth, adminOnly, async (req, res) => {
+  try {
+    const pending = await ClientProject.find({ scaffoldPending: true })
+      .populate('client', 'firstName lastName email')
+      .select('businessName projectName apps scaffoldRequestedAt client localProjectPath');
+    res.json(pending);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════
+// SYNC local project — git pull latest
+// POST /api/scaffold/:projectId/sync
+// ═══════════════════════════════════════════
+router.post('/:projectId/sync', auth, adminOnly, async (req, res) => {
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    return res.status(400).json({ message: 'Sync only works when running locally.' });
+  }
+  try {
+    const project = await ClientProject.findById(req.params.projectId);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+    if (!project.localProjectPath) return res.status(400).json({ message: 'Project not yet scaffolded.' });
+
+    const projectDir = project.localProjectPath;
+    if (!fs.existsSync(projectDir)) {
+      return res.status(400).json({ message: 'Local folder not found. Re-scaffold required.' });
+    }
+
+    const messages = [];
+
+    // Stage and commit any local uncommitted work first
+    try {
+      execSync('git add -A', { cwd: projectDir, stdio: 'pipe' });
+      const dirty = execSync('git status --porcelain', { cwd: projectDir, stdio: 'pipe' }).toString().trim();
+      if (dirty) {
+        execSync(`git commit -m "Auto-save before sync — ${new Date().toLocaleString('en-AU')}"`, {
+          cwd: projectDir, stdio: 'pipe'
+        });
+        messages.push('Committed local changes before sync');
+      }
+    } catch (e) {}
+
+    // Pull from origin if configured
+    try {
+      const remotes = execSync('git remote', { cwd: projectDir, stdio: 'pipe' }).toString();
+      if (remotes.includes('origin')) {
+        execSync('git pull origin --rebase', { cwd: projectDir, stdio: 'pipe', timeout: 30000 });
+        messages.push('Pulled latest from origin remote');
+      } else {
+        messages.push('No origin remote — local project is the source of truth');
+      }
+    } catch (pullErr) {
+      messages.push('Pull skipped (no remote changes or up to date)');
+    }
+
+    // Get last commit info for display
+    let lastCommit = '';
+    try {
+      lastCommit = execSync('git log -1 --pretty=format:"%s (%cr)"', { cwd: projectDir, stdio: 'pipe' }).toString().trim();
+    } catch (e) {}
+
+    res.json({
+      synced: true,
+      projectDir,
+      lastCommit,
+      messages,
+      windsurfUri: 'windsurf://file/' + projectDir.replace(/\\/g, '/').split('/').map(s => encodeURIComponent(s)).join('/')
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Sync failed: ' + err.message });
   }
 });
 
