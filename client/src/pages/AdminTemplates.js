@@ -121,11 +121,24 @@ const AdminTemplates = () => {
         </div>
 
         {/* How it works banner */}
-        <div style={{ padding: '1rem 1.25rem', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.25)', borderRadius: 10, marginBottom: '2rem', fontSize: '0.8125rem', color: '#c4b5fd' }}>
+        <div style={{ padding: '1rem 1.25rem', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.25)', borderRadius: 10, marginBottom: '1rem', fontSize: '0.8125rem', color: '#c4b5fd' }}>
           <strong style={{ color: '#a78bfa' }}>Workflow:</strong>{' '}
           Click <em>Edit in Windsurf</em> to open the master app code → make improvements → save &amp; commit →
           come back here and click <em>Push Update to Clients</em>. Client env files, branding, and custom scripts are
           <strong> always preserved</strong> — only app logic is updated.
+        </div>
+
+        {/* Internal-only notice */}
+        <div style={{ padding: '0.875rem 1.25rem', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, marginBottom: '2rem', fontSize: '0.8125rem', color: '#fca5a5', display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+          <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>🔒</span>
+          <div>
+            <strong style={{ color: '#f87171' }}>Pennywise IT is the internal platform — it is never offered to clients.</strong>
+            {' '}When you scaffold a client project, they receive <em>only</em> the white-label apps they paid for
+            (controlled by <code style={{ background: 'rgba(0,0,0,0.3)', padding: '0 0.3em', borderRadius: 3 }}>ENABLED_APPS</code> in their{' '}
+            <code style={{ background: 'rgba(0,0,0,0.3)', padding: '0 0.3em', borderRadius: 3 }}>.env</code>).
+            The full Pennywise admin dashboard, client management, marketplace and invoicing tools
+            are <strong>not accessible</strong> in any client deployment.
+          </div>
         </div>
 
         {/* Template cards */}
@@ -153,6 +166,12 @@ const AdminTemplates = () => {
                       <span style={{ padding: '0.125rem 0.625rem', borderRadius: 20, fontSize: '0.6875rem', fontWeight: 600, background: isPennywiseModule ? 'rgba(124,58,237,0.15)' : 'rgba(16,185,129,0.15)', color: isPennywiseModule ? '#a78bfa' : '#6ee7b7' }}>
                         {isPennywiseModule ? 'Pennywise Module' : 'Standalone'}
                       </span>
+                      {isPennywiseModule && (
+                        <span style={{ padding: '0.125rem 0.625rem', borderRadius: 20, fontSize: '0.6875rem', fontWeight: 600, background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.2)' }}
+                          title="Clients only receive the specific apps they paid for via ENABLED_APPS — not the full Pennywise IT system">
+                          🔒 Internal Template
+                        </span>
+                      )}
                     </div>
                     <p style={{ margin: '0.2rem 0 0', fontSize: '0.8125rem', color: '#9ca3af' }}>{meta.desc || tpl.description}</p>
                   </div>

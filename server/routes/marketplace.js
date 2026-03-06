@@ -12,11 +12,15 @@ const router = express.Router();
 // PUBLIC — Browse Apps
 // ══════════════════════════════════════════════
 
+// Slugs reserved for the internal Pennywise IT platform — never offered to customers
+const INTERNAL_SLUGS = ['pennywise', 'pennywise-it', 'penny-wise', 'admin', 'platform'];
+const isInternal = (slug) => INTERNAL_SLUGS.some(s => slug?.toLowerCase().includes(s));
+
 // List all published apps
 router.get('/apps', async (req, res) => {
   try {
     const apps = await AppDefinition.find({ isActive: true, isPublished: true }).sort('displayOrder');
-    res.json(apps);
+    res.json(apps.filter(a => !isInternal(a.slug)));
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
@@ -25,6 +29,7 @@ router.get('/apps', async (req, res) => {
 // Get single app by slug
 router.get('/apps/:slug', async (req, res) => {
   try {
+    if (isInternal(req.params.slug)) return res.status(404).json({ message: 'App not found' });
     const app = await AppDefinition.findOne({ slug: req.params.slug, isActive: true });
     if (!app) return res.status(404).json({ message: 'App not found' });
     res.json(app);
