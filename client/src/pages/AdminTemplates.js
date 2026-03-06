@@ -17,12 +17,17 @@ const APP_META = {
   'autohue':          { icon: Palette,  color: '#06b6d4', label: 'AutoHue',           desc: 'AI vehicle photo colour sorter' },
 };
 
+const LS_KEY = 'pw_local_project_root';
+
 const AdminTemplates = () => {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [expanded, setExpanded]   = useState({});
   const [pushing, setPushing]     = useState({});
   const [updateLogs, setUpdateLogs] = useState({});
+  const [localRoot, setLocalRoot] = useState(() => localStorage.getItem(LS_KEY) || '');
+  const [showPathModal, setShowPathModal] = useState(false);
+  const [pathInput, setPathInput] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -44,21 +49,26 @@ const AdminTemplates = () => {
     return 'windsurf://file/' + encoded;
   };
 
-  const getTemplateWindsurfUri = async (slug) => {
-    try {
-      const res = await api.get(`/scaffold/templates/${slug}/open`);
-      return res.data.windsurfUri;
-    } catch {
-      return null;
-    }
+  const saveLocalRoot = (val) => {
+    const trimmed = val.trim();
+    localStorage.setItem(LS_KEY, trimmed);
+    setLocalRoot(trimmed);
+    setShowPathModal(false);
+    return trimmed;
   };
 
-  const openTemplate = async (slug) => {
-    const uri = await getTemplateWindsurfUri(slug);
+  const openTemplate = (slug) => {
+    const root = localRoot || localStorage.getItem(LS_KEY) || '';
+    if (!root) {
+      setPathInput('');
+      setShowPathModal(true);
+      return;
+    }
+    const uri = buildWindsurfUri(root);
     if (uri) {
       window.location.href = uri;
     } else {
-      toast.error('Template path not available (standalone app — clone repo manually)');
+      toast.error('Could not build Windsurf URI — check the saved path in settings.');
     }
   };
 
@@ -101,6 +111,39 @@ const AdminTemplates = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0f1e', color: '#e2e8f0', padding: '2rem 1.5rem' }}>
+
+      {/* ── Local path modal ── */}
+      {showPathModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ background: '#111827', border: '1px solid rgba(124,58,237,0.4)', borderRadius: 14, padding: '1.75rem', width: '100%', maxWidth: 520 }}>
+            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem', fontWeight: 700 }}>Set Your Local Project Root</h3>
+            <p style={{ fontSize: '0.8125rem', color: '#9ca3af', marginBottom: '1rem', lineHeight: 1.6 }}>
+              Enter the full path to the folder where you keep your cloned repos on this machine.
+              This is saved in your browser only — never sent to the server.
+            </p>
+            <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '1rem', fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', padding: '0.5rem 0.75rem', borderRadius: 6 }}>
+              Example:&nbsp; C:/Users/steve/OneDrive/Desktop/Business Folders/Pennywise/App/CascadeProjects/windsurf-project
+            </p>
+            <input
+              autoFocus
+              value={pathInput}
+              onChange={e => setPathInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && pathInput.trim() && saveLocalRoot(pathInput)}
+              placeholder="C:/Users/steve/..."
+              style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 7, padding: '0.625rem 0.875rem', color: 'white', fontSize: '0.875rem', fontFamily: 'monospace', marginBottom: '1rem', boxSizing: 'border-box' }}
+            />
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowPathModal(false)} style={{ padding: '0.5rem 1rem', borderRadius: 7, fontSize: '0.8125rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#9ca3af', cursor: 'pointer' }}>Cancel</button>
+              <button
+                onClick={() => pathInput.trim() && saveLocalRoot(pathInput)}
+                disabled={!pathInput.trim()}
+                style={{ padding: '0.5rem 1.25rem', borderRadius: 7, fontSize: '0.8125rem', fontWeight: 700, background: 'linear-gradient(135deg,#7c3aed,#6366f1)', color: 'white', border: 'none', cursor: 'pointer', opacity: pathInput.trim() ? 1 : 0.4 }}
+              >Save &amp; Open</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ maxWidth: 960, margin: '0 auto' }}>
 
         {/* Header */}
@@ -121,11 +164,30 @@ const AdminTemplates = () => {
         </div>
 
         {/* How it works banner */}
-        <div style={{ padding: '1rem 1.25rem', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.25)', borderRadius: 10, marginBottom: '1rem', fontSize: '0.8125rem', color: '#c4b5fd' }}>
+        <div style={{ padding: '1rem 1.25rem', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.25)', borderRadius: 10, marginBottom: '0.75rem', fontSize: '0.8125rem', color: '#c4b5fd' }}>
           <strong style={{ color: '#a78bfa' }}>Workflow:</strong>{' '}
           Click <em>Edit in Windsurf</em> to open the master app code → make improvements → save &amp; commit →
           come back here and click <em>Push Update to Clients</em>. Client env files, branding, and custom scripts are
           <strong> always preserved</strong> — only app logic is updated.
+        </div>
+
+        {/* Local path status */}
+        <div style={{ padding: '0.625rem 1rem', background: localRoot ? 'rgba(16,185,129,0.06)' : 'rgba(245,158,11,0.08)', border: `1px solid ${localRoot ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.25)'}`, borderRadius: 8, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.75rem', color: localRoot ? '#34d399' : '#fbbf24', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+            {localRoot ? <CheckCircle size={13} /> : <AlertCircle size={13} />}
+            <strong>Local Windsurf Path:</strong>
+          </span>
+          {localRoot ? (
+            <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontFamily: 'monospace', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{localRoot}</span>
+          ) : (
+            <span style={{ fontSize: '0.75rem', color: '#fbbf24' }}>Not set — click “Edit in Windsurf” on any template to configure</span>
+          )}
+          <button
+            onClick={() => { setPathInput(localRoot); setShowPathModal(true); }}
+            style={{ padding: '0.25rem 0.625rem', borderRadius: 5, fontSize: '0.6875rem', fontWeight: 600, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#9ca3af', cursor: 'pointer', flexShrink: 0 }}
+          >
+            {localRoot ? 'Change Path' : 'Set Path'}
+          </button>
         </div>
 
         {/* Internal-only notice */}
