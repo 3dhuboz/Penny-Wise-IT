@@ -589,7 +589,7 @@ router.post('/:projectId', auth, adminOnly, async (req, res) => {
       // Non-fatal — user can run npm install manually
     }
 
-    // ── Step 5: Init git + commit everything ──
+    // ── Step 5: Init git + add template remote + commit everything ──
     console.log('[Scaffold] Step 5/5: Initializing git repo');
     try {
       execSync('git init', { cwd: projectDir, stdio: 'pipe' });
@@ -598,6 +598,8 @@ router.post('/:projectId', auth, adminOnly, async (req, res) => {
       if (!fs.existsSync(gitignorePath)) {
         fs.writeFileSync(gitignorePath, 'node_modules/\ndist/\nbuild/\n.env\n.env.local\n', 'utf8');
       }
+      // Track the template repo so we can pull updates later
+      execSync(`git remote add template "${template.repo}"`, { cwd: projectDir, stdio: 'pipe' });
       execSync('git add -A', { cwd: projectDir, stdio: 'pipe' });
       execSync(`git commit -m "Initial scaffold for ${clientName} — apps: ${appSlugs.join(', ')}"`, {
         cwd: projectDir, stdio: 'pipe'
@@ -667,12 +669,245 @@ router.get('/:projectId/status', auth, adminOnly, async (req, res) => {
   }
 });
 
-// GET available templates
-router.get('/templates/list', auth, adminOnly, (req, res) => {
+// ═══════════════════════════════════════════
+// GET available templates + client counts
+// GET /api/scaffold/templates/list
+// ═══════════════════════════════════════════
+router.get('/templates/list', auth, adminOnly, async (req, res) => {
   const templates = Object.entries(TEMPLATES).map(([slug, t]) => ({
     slug, description: t.description, type: t.type, repo: t.repo
   }));
-  res.json(templates);
+
+  // Enrich with client counts from DB
+  try {
+    const projects = await ClientProject.find({}, 'apps localProjectPath businessName projectName');
+    const enriched = templates.map(t => {
+      const clients = projects.filter(p => p.apps?.some(a => a.slug === t.slug));
+      return {
+        ...t,
+        clientCount: clients.length,
+        scaffoldedCount: clients.filter(p => p.localProjectPath).length,
+        clients: clients.map(p => ({
+          id: p._id,
+          name: p.businessName || p.projectName,
+          localProjectPath: p.localProjectPath
+        }))
+      };
+    });
+    res.json(enriched);
+  } catch (e) {
+    res.json(templates);
+  }
+});
+
+// ═══════════════════════════════════════════
+// PUSH TEMPLATE UPDATE TO ALL CLIENTS
+// POST /api/scaffold/push-update/:appSlug
+//
+// Safe-merge strategy:
+//   1. git fetch template remote
+//   2. Stash client-specific files (env, branding, scripts)
+//   3. git merge template/main (ours strategy for conflicts)
+//   4. Restore client-specific files (env wins always)
+//   5. git push to origin (if configured)
+// ═══════════════════════════════════════════
+
+// Files/patterns that belong to the client — never overwritten by template updates
+const CLIENT_PROTECTED = [
+  '.env', '.env.local', '.env.production',
+  '.pennywise.json',
+  'README.md',
+  'scripts/autopush.js',
+  'scripts/seed-sample-data.js',
+  '.vscode/settings.json',
+  '.vscode/tasks.json'
+];
+
+router.post('/push-update/:appSlug', auth, adminOnly, async (req, res) => {
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    return res.status(400).json({ message: 'Update push only works locally.' });
+  }
+
+  const { appSlug } = req.params;
+  const template = TEMPLATES[appSlug];
+  if (!template) {
+    return res.status(404).json({ message: `No template for app: ${appSlug}` });
+  }
+
+  // Find all scaffolded client projects with this app
+  const projects = await ClientProject.find({
+    localProjectPath: { $exists: true, $ne: '' }
+  }).populate('client', 'firstName lastName');
+
+  const targets = projects.filter(p => p.apps?.some(a => a.slug === appSlug));
+
+  if (targets.length === 0) {
+    return res.json({ message: 'No scaffolded client projects for this app.', results: [] });
+  }
+
+  const results = [];
+
+  for (const project of targets) {
+    const projectDir = project.localProjectPath;
+    const clientName = project.businessName || project.projectName;
+    const result = { clientName, projectDir, status: 'pending', messages: [] };
+
+    try {
+      if (!fs.existsSync(projectDir)) {
+        result.status = 'skipped';
+        result.messages.push('Project folder not found on disk');
+        results.push(result);
+        continue;
+      }
+
+      // ── 1. Backup protected files ──
+      const backups = {};
+      for (const rel of CLIENT_PROTECTED) {
+        const full = path.join(projectDir, rel);
+        if (fs.existsSync(full)) {
+          backups[rel] = fs.readFileSync(full, 'utf8');
+        }
+      }
+      result.messages.push(`Backed up ${Object.keys(backups).length} protected file(s)`);
+
+      // ── 2. Ensure template remote exists ──
+      try {
+        const remotes = execSync('git remote', { cwd: projectDir, stdio: 'pipe' }).toString();
+        if (!remotes.includes('template')) {
+          execSync(`git remote add template "${template.repo}"`, { cwd: projectDir, stdio: 'pipe' });
+        } else {
+          execSync(`git remote set-url template "${template.repo}"`, { cwd: projectDir, stdio: 'pipe' });
+        }
+        result.messages.push('Template remote configured');
+      } catch (remoteErr) {
+        result.messages.push('Warning: could not set template remote');
+      }
+
+      // ── 3. Fetch latest from template ──
+      execSync('git fetch template --depth 1', { cwd: projectDir, stdio: 'pipe', timeout: 60000 });
+      result.messages.push('Fetched latest from template');
+
+      // ── 4. Create backup branch ──
+      const backupBranch = `backup-before-update-${Date.now()}`;
+      try {
+        execSync(`git branch ${backupBranch}`, { cwd: projectDir, stdio: 'pipe' });
+        result.messages.push(`Backup branch created: ${backupBranch}`);
+      } catch (e) {}
+
+      // ── 5. Merge template — use 'ours' for conflicts ──
+      // Stage any uncommitted changes first
+      try {
+        execSync('git add -A', { cwd: projectDir, stdio: 'pipe' });
+        const dirty = execSync('git status --porcelain', { cwd: projectDir, stdio: 'pipe' }).toString().trim();
+        if (dirty) {
+          execSync(`git commit -m "Pre-update snapshot — ${new Date().toLocaleString('en-AU')}"`, {
+            cwd: projectDir, stdio: 'pipe'
+          });
+        }
+      } catch (e) {}
+
+      try {
+        execSync(
+          `git merge template/${template.defaultBranch} --allow-unrelated-histories --no-edit -X ours`,
+          { cwd: projectDir, stdio: 'pipe', timeout: 60000 }
+        );
+        result.messages.push('Template merged (client customisations preserved on conflicts)');
+      } catch (mergeErr) {
+        // Abort merge if it failed
+        try { execSync('git merge --abort', { cwd: projectDir, stdio: 'pipe' }); } catch (e) {}
+        result.status = 'error';
+        result.messages.push('Merge failed: ' + (mergeErr.stderr?.toString().substring(0, 300) || mergeErr.message));
+        results.push(result);
+        continue;
+      }
+
+      // ── 6. Restore protected client files ──
+      for (const [rel, content] of Object.entries(backups)) {
+        const full = path.join(projectDir, rel);
+        const dir = path.dirname(full);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(full, content, 'utf8');
+      }
+      result.messages.push('Client files restored (.env, scripts, branding)');
+
+      // ── 7. Commit the restored files + update marker ──
+      const updateMarker = path.join(projectDir, '.pennywise.json');
+      if (fs.existsSync(updateMarker)) {
+        try {
+          const meta = JSON.parse(fs.readFileSync(updateMarker, 'utf8'));
+          meta.lastTemplateUpdate = new Date().toISOString();
+          meta.lastTemplateVersion = template.defaultBranch;
+          fs.writeFileSync(updateMarker, JSON.stringify(meta, null, 2), 'utf8');
+        } catch (e) {}
+      }
+
+      execSync('git add -A', { cwd: projectDir, stdio: 'pipe' });
+      try {
+        execSync(`git commit -m "Template update: ${appSlug} — ${new Date().toLocaleString('en-AU')}"`, {
+          cwd: projectDir, stdio: 'pipe'
+        });
+        result.messages.push('Changes committed');
+      } catch (e) {
+        result.messages.push('Nothing new to commit (already up to date)');
+      }
+
+      // ── 8. Push to origin if remote is configured ──
+      try {
+        const remotes = execSync('git remote', { cwd: projectDir, stdio: 'pipe' }).toString();
+        if (remotes.includes('origin')) {
+          execSync('git push origin', { cwd: projectDir, stdio: 'pipe', timeout: 30000 });
+          result.messages.push('Pushed to origin remote');
+          result.pushed = true;
+        } else {
+          result.messages.push('No origin remote — changes committed locally only');
+          result.pushed = false;
+        }
+      } catch (pushErr) {
+        result.messages.push('Push failed: ' + (pushErr.message?.substring(0, 100)));
+        result.pushed = false;
+      }
+
+      result.status = 'success';
+    } catch (err) {
+      result.status = 'error';
+      result.messages.push('Error: ' + err.message);
+    }
+
+    results.push(result);
+    console.log(`[Update] ${clientName}: ${result.status}`);
+  }
+
+  const successCount = results.filter(r => r.status === 'success').length;
+  res.json({
+    message: `Update complete: ${successCount}/${results.length} clients updated`,
+    appSlug,
+    results
+  });
+});
+
+// ═══════════════════════════════════════════
+// GET windsurf URI for a template
+// GET /api/scaffold/templates/:appSlug/open
+// ═══════════════════════════════════════════
+router.get('/templates/:appSlug/open', auth, adminOnly, (req, res) => {
+  const { appSlug } = req.params;
+  const template = TEMPLATES[appSlug];
+  if (!template) return res.status(404).json({ message: 'Template not found' });
+
+  // For pennywise-module apps, the template IS the running project dir
+  // For standalone apps, we return the template repo info only
+  const mainProjectDir = path.resolve(__dirname, '..', '..');
+  const localPath = template.type === 'pennywise-module' ? mainProjectDir : null;
+
+  res.json({
+    appSlug,
+    type: template.type,
+    repo: template.repo,
+    localPath,
+    windsurfUri: localPath
+      ? 'windsurf://file/' + localPath.replace(/\\/g, '/').split('/').map(s => encodeURIComponent(s)).join('/')
+      : null
+  });
 });
 
 module.exports = router;

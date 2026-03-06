@@ -38,6 +38,7 @@ import WirezLauncher from './pages/WirezLauncher';
 import SimpleWebsiteProduct from './pages/SimpleWebsiteProduct';
 import AdminSettings from './pages/AdminSettings';
 import AdminClientProjects from './pages/AdminClientProjects';
+import AdminTemplates from './pages/AdminTemplates';
 import Hosting from './pages/Hosting';
 import FoodTruck from './pages/FoodTruck';
 import SimpleWebsite from './pages/SimpleWebsite';
@@ -140,6 +141,7 @@ const AppRoutes = () => {
       <Route path="/admin/invoices" element={<ProtectedRoute adminOnly><AdminInvoices /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute adminOnly><AdminSettings /></ProtectedRoute>} />
       <Route path="/admin/projects" element={<ProtectedRoute adminOnly><AdminClientProjects /></ProtectedRoute>} />
+      <Route path="/admin/templates" element={<ProtectedRoute adminOnly><AdminTemplates /></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
