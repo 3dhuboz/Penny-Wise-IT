@@ -499,16 +499,11 @@ const AdminClientProjects = () => {
                               style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                               <FolderKanban size={12} /> Work Locally
                             </button>
-                            <button
-                              onClick={() => {
-                                const cmd = 'windsurf "C:\\Users\\steve\\OneDrive\\Desktop\\Business Folders\\Pennywise\\App\\CascadeProjects\\windsurf-project"';
-                                navigator.clipboard.writeText(cmd).then(() => {
-                                  toast.success('Command copied! Paste in a terminal to open in Windsurf.', { duration: 4000 });
-                                }).catch(() => toast.error('Failed to copy'));
-                              }}
-                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)', display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer' }}>
+                            <a
+                              href="windsurf://file/C:/Users/steve/OneDrive/Desktop/Business%20Folders/Pennywise/App/CascadeProjects/windsurf-project"
+                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer' }}>
                               <Edit size={12} /> Open in Windsurf
-                            </button>
+                            </a>
                             {project.deployment?.serviceUrl && (
                               <a href={`${project.deployment.serviceUrl}/login`} target="_blank" rel="noopener noreferrer"
                                 style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(251,191,36,0.12)', color: '#fcd34d', border: '1px solid rgba(251,191,36,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
