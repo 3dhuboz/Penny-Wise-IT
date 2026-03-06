@@ -935,4 +935,138 @@ router.post('/ai/video/cancel/:taskId', auth, async (req, res) => {
   }
 });
 
+// ── Facebook Publishing ──
+
+// Shared helper: post text+image to a Facebook Page via Graph API
+const postToFacebookPage = async (pageId, pageAccessToken, message, imageUrl) => {
+  if (imageUrl && imageUrl.startsWith('data:')) {
+    // Base64 image → upload as photo
+    const base64 = imageUrl.split(',')[1];
+    const buf = Buffer.from(base64, 'base64');
+    const formData = new (require('form-data'))();
+    formData.append('source', buf, { filename: 'post.jpg', contentType: 'image/jpeg' });
+    formData.append('message', message);
+    formData.append('access_token', pageAccessToken);
+    const photoRes = await fetch(`${FB_GRAPH}/${pageId}/photos`, {
+      method: 'POST',
+      body: formData,
+      headers: formData.getHeaders()
+    });
+    const photoData = await photoRes.json();
+    if (photoData.error) throw new Error(photoData.error.message);
+    return photoData;
+  } else if (imageUrl) {
+    // URL-based image
+    const photoRes = await fetch(`${FB_GRAPH}/${pageId}/photos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: imageUrl, message, access_token: pageAccessToken })
+    });
+    const photoData = await photoRes.json();
+    if (photoData.error) throw new Error(photoData.error.message);
+    return photoData;
+  } else {
+    const feedRes = await fetch(`${FB_GRAPH}/${pageId}/feed`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, access_token: pageAccessToken })
+    });
+    const feedData = await feedRes.json();
+    if (feedData.error) throw new Error(feedData.error.message);
+    return feedData;
+  }
+};
+
+// Publish a single post to Facebook now (manual trigger from calendar)
+router.post('/posts/:id/publish', auth, async (req, res) => {
+  try {
+    const post = await SocialPost.findById(req.params.id);
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+    if (req.user.role === 'customer' && post.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const profile = await SocialProfile.findOne({ user: post.user });
+    if (!profile?.facebookConnected || !profile?.facebookPageAccessToken) {
+      return res.status(400).json({ message: 'Facebook not connected. Connect in Settings first.' });
+    }
+
+    const hashtags = (post.hashtags || []).length > 0 ? '\n\n' + post.hashtags.join(' ') : '';
+    const message = `${post.content}${hashtags}`;
+
+    await postToFacebookPage(profile.facebookPageId, profile.facebookPageAccessToken, message, post.image || null);
+
+    post.status = 'Posted';
+    post.publishedAt = new Date();
+    post.publishError = null;
+    await post.save();
+
+    res.json({ message: 'Published to Facebook!', post });
+  } catch (err) {
+    // Store error on post so user can see it
+    try {
+      await SocialPost.findByIdAndUpdate(req.params.id, { publishError: err.message });
+    } catch (_) {}
+    res.status(500).json({ message: `Publish failed: ${err.message}` });
+  }
+});
+
+// Publish all due scheduled posts (called by polling or manual "Run Publisher" button)
+router.post('/publish-scheduled', auth, async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Find scheduled posts due now — scoped to user unless admin
+    const query = {
+      status: 'Scheduled',
+      scheduledFor: { $lte: now }
+    };
+    if (req.user.role === 'customer') query.user = req.user._id;
+
+    const duePosts = await SocialPost.find(query).populate('user', '_id');
+    if (duePosts.length === 0) {
+      return res.json({ published: 0, failed: 0, message: 'No posts due right now.', errors: [] });
+    }
+
+    let published = 0;
+    let failed = 0;
+    const errors = [];
+
+    for (const post of duePosts) {
+      try {
+        const profile = await SocialProfile.findOne({ user: post.user._id });
+        if (!profile?.facebookConnected || !profile?.facebookPageAccessToken) {
+          errors.push(`Post ${post._id}: Facebook not connected`);
+          failed++;
+          continue;
+        }
+
+        const hashtags = (post.hashtags || []).length > 0 ? '\n\n' + post.hashtags.join(' ') : '';
+        const message = `${post.content}${hashtags}`;
+
+        await postToFacebookPage(profile.facebookPageId, profile.facebookPageAccessToken, message, post.image || null);
+
+        post.status = 'Posted';
+        post.publishedAt = new Date();
+        post.publishError = null;
+        await post.save();
+        published++;
+      } catch (err) {
+        failed++;
+        const errMsg = err.message?.substring(0, 200) || 'Unknown error';
+        errors.push(`Post ${post._id}: ${errMsg}`);
+        try { post.publishError = errMsg; await post.save(); } catch (_) {}
+      }
+    }
+
+    const message = published > 0
+      ? `Published ${published} post(s)${failed > 0 ? `, ${failed} failed` : ''}.`
+      : `${failed} post(s) failed to publish.`;
+
+    res.json({ published, failed, message, errors });
+  } catch (err) {
+    res.status(500).json({ message: 'Publisher error', error: err.message });
+  }
+});
+
 module.exports = router;

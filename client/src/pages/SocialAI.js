@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Sparkles, Settings, Calendar, BarChart3, Wand2, Image as ImageIcon,
   Loader2, Trash2, Clock, CheckCircle, Zap, Save, Brain, Instagram, Facebook,
   Palette, Crown, ArrowRight, Star, Shield, ExternalLink, X, RefreshCw,
   HelpCircle, Users, Eye, ThumbsUp, MessageCircle, Share2, Link2,
-  ChevronRight, AlertCircle, Info, BookOpen, Key, Globe, Monitor, Video, Linkedin
+  ChevronRight, ChevronLeft, AlertCircle, AlertTriangle, Info, BookOpen, Key, Globe, Monitor, Video, Linkedin,
+  Edit2, Send, Plus, TrendingUp, Activity, List, LayoutGrid
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
@@ -278,6 +279,31 @@ const SocialAI = ({ embedded = false }) => {
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [onboardingDismissed, setOnboardingDismissed] = useState(() => !!localStorage.getItem('sai_onboarding_done'));
 
+  // Saturation mode + smart schedule ticker
+  const [saturationMode, setSaturationMode] = useState(false);
+  const [tickerIdx, setTickerIdx] = useState(0);
+
+  // Smart post image auto-generation queue
+  const [smartPostImages, setSmartPostImages] = useState({});
+  const [autoGenSet, setAutoGenSet] = useState(new Set());
+  const [currentGenIdx, setCurrentGenIdx] = useState(null);
+  const [imgGenDone, setImgGenDone] = useState(0);
+  const uploadFileRef = useRef(null);
+  const [uploadTargetIdx, setUploadTargetIdx] = useState(null);
+
+  // Publisher state
+  const [publisherRunning, setPublisherRunning] = useState(false);
+  const [lastRunResult, setLastRunResult] = useState(null);
+  const [publishingPostId, setPublishingPostId] = useState(null);
+
+  // Calendar view/edit state
+  const [calViewMode, setCalViewMode] = useState('grid');
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editContent, setEditContent] = useState('');
+  const [editTime, setEditTime] = useState('');
+  const [editStatus, setEditStatus] = useState('Scheduled');
+  const [expandedPostId, setExpandedPostId] = useState(null);
+
   // AI Video generation state
   const [videoTaskId, setVideoTaskId] = useState(null);
   const [videoStatus, setVideoStatus] = useState(null); // null | 'starting' | 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED'
@@ -285,6 +311,143 @@ const SocialAI = ({ embedded = false }) => {
   const [videoUrl, setVideoUrl] = useState(null);
   const [videoPostIndex, setVideoPostIndex] = useState(null);
   const [videoAvailable, setVideoAvailable] = useState(false);
+
+  // ── Ticker steps for smart schedule generation ──
+  const TICKER_STEPS_NORMAL = [
+    { label: 'Analysing your brand profile & location...', pct: 5 },
+    { label: 'Researching best posting times for your audience...', pct: 15 },
+    { label: 'Identifying top content pillars for your industry...', pct: 25 },
+    { label: 'Studying hashtag themes & trending topics...', pct: 35 },
+    { label: 'Determining ideal platform mix & image aesthetic...', pct: 45 },
+    { label: 'Building strategy from research insights...', pct: 55 },
+    { label: 'Writing post captions with your brand tone...', pct: 65 },
+    { label: 'Scheduling at researched peak engagement times...', pct: 75 },
+    { label: 'Crafting image prompts for each post...', pct: 83 },
+    { label: 'Weaving in researched hashtags...', pct: 90 },
+    { label: 'Almost there — finalising your calendar...', pct: 96 },
+  ];
+  const TICKER_STEPS_SATURATION = [
+    { label: 'Activating saturation mode — maximum volume campaign...', pct: 5 },
+    { label: 'Researching peak intra-day posting windows...', pct: 12 },
+    { label: 'Mapping 7-day blitz schedule (3–5 posts/day)...', pct: 22 },
+    { label: 'Building 7-pillar content variety matrix...', pct: 32 },
+    { label: 'Calculating platform saturation split...', pct: 42 },
+    { label: 'Engineering anti-fatigue content rotation...', pct: 52 },
+    { label: 'Writing high-frequency captions with varied formats...', pct: 63 },
+    { label: 'Spacing posts across all daily time windows...', pct: 73 },
+    { label: 'Crafting unique image prompts for every post...', pct: 82 },
+    { label: 'Loading niche + broad hashtag mix per post...', pct: 90 },
+    { label: 'Finalising your 7-day saturation campaign...', pct: 96 },
+  ];
+  const TICKER_STEPS = saturationMode ? TICKER_STEPS_SATURATION : TICKER_STEPS_NORMAL;
+
+  useEffect(() => {
+    if (!isSmartGenerating) { setTickerIdx(0); return; }
+    const id = setInterval(() => {
+      setTickerIdx(prev => (prev < TICKER_STEPS.length - 1 ? prev + 1 : prev));
+    }, 2800);
+    return () => clearInterval(id);
+  }, [isSmartGenerating]); // eslint-disable-line
+
+  // ── Auto-publish polling (every 60s while page is open) ──
+  useEffect(() => {
+    const trigger = () => api.post('/social/publish-scheduled').catch(() => {});
+    trigger();
+    const id = setInterval(trigger, 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // ── Auto-generate images for all smart posts (sequential) ──
+  const autoGenerateAllImages = async (posts) => {
+    if (!hasApiKey && !aiAdminManaged) return;
+    const allIdxs = new Set(posts.map((_, i) => i));
+    setAutoGenSet(allIdxs);
+    setImgGenDone(0);
+    for (let i = 0; i < posts.length; i++) {
+      const prompt = posts[i].imagePrompt || posts[i].topic;
+      setCurrentGenIdx(i);
+      if (!prompt) {
+        setAutoGenSet(prev => { const s = new Set(prev); s.delete(i); return s; });
+        setImgGenDone(d => d + 1);
+        continue;
+      }
+      try {
+        const res = await api.post('/social/ai/image', { prompt });
+        if (res.data.image) setSmartPostImages(prev => ({ ...prev, [i]: res.data.image }));
+      } catch { /* silently skip */ }
+      setAutoGenSet(prev => { const s = new Set(prev); s.delete(i); return s; });
+      setImgGenDone(d => d + 1);
+    }
+    setCurrentGenIdx(null);
+  };
+
+  const handleUploadImage = (idx) => {
+    setUploadTargetIdx(idx);
+    uploadFileRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file || uploadTargetIdx === null) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      if (ev.target?.result) setSmartPostImages(prev => ({ ...prev, [uploadTargetIdx]: ev.target.result }));
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+    setUploadTargetIdx(null);
+  };
+
+  // ── Run Publisher manually ──
+  const handleRunPublisher = async () => {
+    setPublisherRunning(true);
+    try {
+      const res = await api.post('/social/publish-scheduled');
+      const data = res.data;
+      const result = { published: data.published ?? 0, failed: data.failed ?? 0, message: data.message || '', errors: data.errors || [], time: new Date() };
+      setLastRunResult(result);
+      if (result.failed > 0) toast.error(`${result.failed} post(s) failed to publish.`);
+      else if (result.published > 0) { toast.success(`Published ${result.published} post(s) to Facebook!`); loadData(); }
+      else toast(data.message || 'No posts due right now.');
+    } catch (err) {
+      toast.error(safeStr(err.response?.data?.message) || 'Publisher error');
+    }
+    setPublisherRunning(false);
+  };
+
+  // ── Publish a single post to Facebook now ──
+  const handlePublishNow = async (post) => {
+    setPublishingPostId(post._id);
+    try {
+      await api.post(`/social/posts/${post._id}/publish`);
+      toast.success('Published to Facebook!');
+      loadData();
+    } catch (err) {
+      toast.error(safeStr(err.response?.data?.message) || 'Publish failed');
+    }
+    setPublishingPostId(null);
+  };
+
+  // ── Inline calendar post editing ──
+  const startEditPost = (post) => {
+    setEditingPostId(post._id);
+    setEditContent(post.content);
+    const dt = post.scheduledFor ? new Date(post.scheduledFor).toISOString().slice(0, 16) : '';
+    setEditTime(dt);
+    setEditStatus(post.status);
+  };
+  const cancelEditPost = () => setEditingPostId(null);
+  const saveEditPost = async (post) => {
+    try {
+      const updated = { ...post, content: editContent, scheduledFor: editTime || post.scheduledFor, status: editStatus };
+      await api.put(`/social/posts/${post._id}`, updated);
+      setEditingPostId(null);
+      loadData();
+      toast.success('Post updated');
+    } catch (err) {
+      toast.error('Failed to update post');
+    }
+  };
 
   const loadData = useCallback(async () => {
     try {
@@ -314,14 +477,14 @@ const SocialAI = ({ embedded = false }) => {
       // Check AI availability (admin-managed key) and video status
       api.get('/social/ai/status').then(r => setAiAdminManaged(!!r.data?.adminManaged)).catch(() => {});
       api.get('/social/ai/video/status').then(r => setVideoAvailable(r.data?.available)).catch(() => {});
+      // Show onboarding wizard for first-time users who haven't set a business name
+      if (!profileRes.data?.businessName && !localStorage.getItem('sai_onboarding_done')) {
+        setShowOnboarding(true);
+      }
     } catch (err) {
       console.error(err);
     }
     setLoading(false);
-    // Show onboarding wizard for first-time users who haven't set a business name
-    if (!profileRes.data?.businessName && !localStorage.getItem('sai_onboarding_done')) {
-      setShowOnboarding(true);
-    }
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
@@ -456,12 +619,14 @@ const SocialAI = ({ embedded = false }) => {
 
   // ── Smart Schedule ──
   const handleSmartSchedule = async () => {
-    if (!hasApiKey) return toast.error('Set your Gemini API key in Settings.');
+    if (!hasApiKey && !aiAdminManaged) return toast.error('Set your Gemini API key in Settings.');
     setIsSmartGenerating(true);
+    setSmartPostImages({});
+    setAutoGenSet(new Set());
+    setCurrentGenIdx(null);
+    setImgGenDone(0);
     try {
-      const res = await api.post('/social/ai/smart-schedule', { count: smartCount });
-      // Sanitize every post field to prevent React error #31 (objects as JSX children)
-      console.log('[Smart Schedule] Response:', { postsCount: (res.data.posts || []).length, strategyLength: (res.data.strategy || '').length });
+      const res = await api.post('/social/ai/smart-schedule', { count: smartCount, saturationMode });
       const safePosts = (res.data.posts || []).map(p => ({
         ...p,
         platform: safeStr(p.platform) || 'Instagram',
@@ -473,8 +638,6 @@ const SocialAI = ({ embedded = false }) => {
         mediaType: safeStr(p.mediaType) || 'image',
         hashtags: Array.isArray(p.hashtags) ? p.hashtags.filter(h => typeof h === 'string') : [],
         scheduledFor: typeof p.scheduledFor === 'string' ? p.scheduledFor : new Date().toISOString(),
-        generatedImage: null,
-        imageLoading: false
       }));
       setSmartPosts(safePosts);
       const strat = safeStr(res.data.strategy);
@@ -484,25 +647,8 @@ const SocialAI = ({ embedded = false }) => {
       } else if (safePosts.length === 0 && strat) {
         toast.error('AI generated strategy but no posts. Trying again may help.');
       }
-      // Auto-generate images for each post in parallel (non-blocking)
-      if (safePosts.length > 0) {
-        safePosts.forEach((post, idx) => {
-          if (post.imagePrompt) {
-            setSmartPosts(prev => prev.map((sp, i) => i === idx ? { ...sp, imageLoading: true } : sp));
-            api.post('/social/ai/image', { prompt: post.imagePrompt })
-              .then(imgRes => {
-                if (imgRes.data?.image) {
-                  setSmartPosts(prev => prev.map((sp, i) => i === idx ? { ...sp, generatedImage: imgRes.data.image, imageLoading: false } : sp));
-                } else {
-                  setSmartPosts(prev => prev.map((sp, i) => i === idx ? { ...sp, imageLoading: false } : sp));
-                }
-              })
-              .catch(() => {
-                setSmartPosts(prev => prev.map((sp, i) => i === idx ? { ...sp, imageLoading: false } : sp));
-              });
-          }
-        });
-      }
+      // Auto-generate images sequentially in background
+      if (safePosts.length > 0) autoGenerateAllImages(safePosts);
     } catch (err) {
       toast.error(safeStr(err.response?.data?.error || err.response?.data?.message) || 'Smart schedule failed');
     }
@@ -570,14 +716,14 @@ const SocialAI = ({ embedded = false }) => {
 
   const handleAcceptSmartPosts = async () => {
     try {
-      const postsData = smartPosts.map(sp => ({
+      const postsData = smartPosts.map((sp, i) => ({
         platform: sp.platform,
         content: sp.content,
         hashtags: sp.hashtags,
         scheduledFor: sp.scheduledFor,
         status: 'Scheduled',
         imagePrompt: sp.imagePrompt,
-        image: sp.generatedImage || null,
+        image: smartPostImages[i] || sp.generatedImage || null,
         mediaType: sp.mediaType || 'image',
         reasoning: sp.reasoning,
         pillar: sp.pillar,
@@ -587,6 +733,9 @@ const SocialAI = ({ embedded = false }) => {
       toast.success(`${postsData.length} posts added to calendar!`);
       setSmartPosts([]);
       setSmartStrategy('');
+      setSmartPostImages({});
+      setAutoGenSet(new Set());
+      setCurrentGenIdx(null);
       loadData();
     } catch (err) {
       toast.error('Failed to save posts');
@@ -1009,11 +1158,29 @@ const SocialAI = ({ embedded = false }) => {
                   )}
                 </p>
               </div>
-              {profile?.facebookConnected && (
-                <button onClick={handleRefreshStats} disabled={refreshingStats} className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                  <RefreshCw size={14} className={refreshingStats ? 'spin' : ''} /> Refresh Stats
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem' }}>
+                {lastRunResult && (
+                  <span style={{ fontSize: '0.6875rem', display: 'flex', alignItems: 'center', gap: '0.25rem', color: lastRunResult.failed > 0 ? '#f87171' : lastRunResult.published > 0 ? '#4ade80' : '#6b7280' }}>
+                    {lastRunResult.failed > 0 ? <AlertTriangle size={10} /> : <CheckCircle size={10} />}
+                    Last run {lastRunResult.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}: {lastRunResult.message}
+                  </span>
+                )}
+                {profile?.facebookConnected && (
+                  <button onClick={handleRefreshStats} disabled={refreshingStats} className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                    <RefreshCw size={14} className={refreshingStats ? 'spin' : ''} /> Refresh Stats
+                  </button>
+                )}
+                <button
+                  onClick={handleRunPublisher}
+                  disabled={publisherRunning || !profile?.facebookConnected}
+                  className="btn btn-sm"
+                  title={!profile?.facebookConnected ? 'Connect Facebook first' : 'Manually run the post publisher now'}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#fcd34d', opacity: (!profile?.facebookConnected) ? 0.4 : 1 }}
+                >
+                  <Send size={14} style={{ animation: publisherRunning ? 'pulse 1s infinite' : 'none' }} />
+                  {publisherRunning ? 'Publishing...' : 'Run Publisher'}
                 </button>
-              )}
+              </div>
             </div>
 
             {/* Stats Cards */}
@@ -1433,17 +1600,18 @@ const SocialAI = ({ embedded = false }) => {
           </div>
         )}
 
-        {/* ═══ CALENDAR TAB — Google-style month grid ═══ */}
+        {/* ═══ CALENDAR TAB ═══ */}
         {activeTab === 'calendar' && (() => {
           const year = calMonth.getFullYear();
           const month = calMonth.getMonth();
-          const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+          const firstDay = new Date(year, month, 1).getDay();
           const daysInMonth = new Date(year, month + 1, 0).getDate();
           const prevMonthDays = new Date(year, month, 0).getDate();
           const today = new Date();
           const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
 
-          // Group posts by date key
+          const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
           const postsByDate = {};
           posts.forEach(p => {
             const d = new Date(p.scheduledFor);
@@ -1452,112 +1620,235 @@ const SocialAI = ({ embedded = false }) => {
             postsByDate[key].push(p);
           });
 
-          // Build calendar cells
           const cells = [];
-          // Previous month fill
-          for (let i = firstDay - 1; i >= 0; i--) {
-            cells.push({ day: prevMonthDays - i, outside: true, key: `prev-${i}` });
-          }
-          // Current month
+          for (let i = firstDay - 1; i >= 0; i--) cells.push({ day: prevMonthDays - i, outside: true, key: `prev-${i}` });
           for (let d = 1; d <= daysInMonth; d++) {
             const key = `${year}-${month}-${d}`;
-            cells.push({ day: d, outside: false, key, dateKey: key, isToday: key === todayStr, posts: postsByDate[key] || [] });
+            cells.push({ day: d, outside: false, key, isToday: key === todayStr, posts: postsByDate[key] || [] });
           }
-          // Next month fill
           const remaining = 7 - (cells.length % 7);
-          if (remaining < 7) {
-            for (let i = 1; i <= remaining; i++) {
-              cells.push({ day: i, outside: true, key: `next-${i}` });
-            }
-          }
+          if (remaining < 7) for (let i = 1; i <= remaining; i++) cells.push({ day: i, outside: true, key: `next-${i}` });
 
-          const prevMonth = () => setCalMonth(new Date(year, month - 1, 1));
-          const nextMonth = () => setCalMonth(new Date(year, month + 1, 1));
+          const goToPrev = () => setCalMonth(new Date(year, month - 1, 1));
+          const goToNext = () => setCalMonth(new Date(year, month + 1, 1));
           const goToday = () => setCalMonth(new Date(today.getFullYear(), today.getMonth(), 1));
 
+          // Month stats
+          const monthPosts = posts.filter(p => { const d = new Date(p.scheduledFor); return d.getMonth() === month && d.getFullYear() === year; });
+          const scheduledCount = monthPosts.filter(p => p.status === 'Scheduled').length;
+          const draftCount = monthPosts.filter(p => p.status === 'Draft').length;
+          const postedCount = monthPosts.filter(p => p.status === 'Posted').length;
+
           const handleTileClick = (e, dayPosts, day) => {
-            if (dayPosts.length === 0) return;
-            const rect = e.currentTarget.getBoundingClientRect();
-            setCalPopover({
-              date: new Date(year, month, day),
-              posts: dayPosts,
-              x: Math.min(rect.left, window.innerWidth - 340),
-              y: Math.min(rect.bottom + 4, window.innerHeight - 420)
-            });
+            const key = `${year}-${month}-${day}`;
+            setCalPopover(prev => prev?.key === key ? null : { date: new Date(year, month, day), posts: dayPosts, key });
           };
 
           return (
-            <div className="sai-section" onClick={() => calPopover && setCalPopover(null)}>
-              <h2 className="sai-title"><Calendar size={22} style={{ color: '#f59e0b' }} /> Content Calendar</h2>
+            <div className="sai-section">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <h2 className="sai-title" style={{ marginBottom: 0 }}><Calendar size={22} style={{ color: '#f59e0b' }} /> Content Calendar</h2>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  {/* Grid / List toggle */}
+                  <div style={{ display: 'flex', background: 'rgba(255,255,255,0.06)', borderRadius: 8, padding: 2 }}>
+                    <button onClick={() => setCalViewMode('grid')} title="Grid view" style={{ padding: '0.375rem 0.625rem', borderRadius: 6, border: 'none', background: calViewMode === 'grid' ? 'rgba(255,255,255,0.12)' : 'none', color: calViewMode === 'grid' ? 'white' : '#6b7280', cursor: 'pointer', display: 'flex' }}>
+                      <LayoutGrid size={14} />
+                    </button>
+                    <button onClick={() => setCalViewMode('list')} title="List view" style={{ padding: '0.375rem 0.625rem', borderRadius: 6, border: 'none', background: calViewMode === 'list' ? 'rgba(255,255,255,0.12)' : 'none', color: calViewMode === 'list' ? 'white' : '#6b7280', cursor: 'pointer', display: 'flex' }}>
+                      <List size={14} />
+                    </button>
+                  </div>
+                  <button onClick={() => setActiveTab('create')} className="btn btn-sm btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.375rem 0.75rem' }}>
+                    <Plus size={13} /> New Post
+                  </button>
+                </div>
+              </div>
+
+              {/* Month stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.625rem', marginBottom: '1rem' }}>
+                {[
+                  { label: 'Total Posts', val: monthPosts.length, color: 'white', bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.08)' },
+                  { label: 'Scheduled', val: scheduledCount, color: '#93c5fd', bg: 'rgba(59,130,246,0.07)', border: 'rgba(59,130,246,0.15)' },
+                  { label: 'Drafts', val: draftCount, color: '#9ca3af', bg: 'rgba(255,255,255,0.03)', border: 'rgba(255,255,255,0.06)' },
+                  { label: 'Published', val: postedCount, color: '#4ade80', bg: 'rgba(34,197,94,0.07)', border: 'rgba(34,197,94,0.15)' },
+                ].map((s, i) => (
+                  <div key={i} style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10, padding: '0.75rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.375rem', fontWeight: 800, color: s.color }}>{s.val}</div>
+                    <div style={{ fontSize: '0.6875rem', color: '#6b7280', marginTop: 2 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
 
               {/* Month navigation */}
               <div className="sai-cal-header">
                 <div className="sai-cal-nav">
-                  <button onClick={prevMonth}><ChevronRight size={14} style={{ transform: 'rotate(180deg)' }} /></button>
-                  <span className="sai-cal-month">{calMonth.toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })}</span>
-                  <button onClick={nextMonth}><ChevronRight size={14} /></button>
+                  <button onClick={goToPrev}><ChevronLeft size={14} /></button>
+                  <span className="sai-cal-month">{MONTH_NAMES[month]} {year}</span>
+                  <button onClick={goToNext}><ChevronRight size={14} /></button>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <div className="sai-cal-nav"><button onClick={goToday}>Today</button></div>
-                  <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{posts.length} posts total</span>
-                </div>
+                <div className="sai-cal-nav"><button onClick={goToday}>Today</button></div>
               </div>
 
-              {/* Day headers */}
-              <div className="sai-cal-grid">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                  <div key={d} className="sai-cal-day-header">{d}</div>
-                ))}
-
-                {/* Calendar cells */}
-                {cells.map(cell => (
-                  <div
-                    key={cell.key}
-                    className={`sai-cal-cell${cell.outside ? ' outside' : ''}${cell.isToday ? ' today' : ''}`}
-                    onClick={(e) => !cell.outside && handleTileClick(e, cell.posts || [], cell.day)}
-                  >
-                    <div className="sai-cal-date">{cell.day}</div>
-                    {(cell.posts || []).slice(0, 3).map((p, pi) => (
-                      <div key={pi} className={`sai-cal-tile ${(p.platform || '').toLowerCase()}`} title={p.content?.substring(0, 80)}>
-                        {p.image && <img src={p.image} alt="" className="sai-cal-tile-img" />}
-                        {p.mediaType === 'video' && <Video size={9} />}
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {new Date(p.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} {p.topic || p.content?.substring(0, 20)}
-                        </span>
-                      </div>
-                    ))}
-                    {(cell.posts || []).length > 3 && (
-                      <div className="sai-cal-more">+{cell.posts.length - 3} more</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Day detail popover */}
-              {calPopover && (
-                <div className="sai-cal-popover" style={{ left: calPopover.x, top: calPopover.y }} onClick={e => e.stopPropagation()}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <strong style={{ color: 'white', fontSize: '0.875rem' }}>
-                      {calPopover.date.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })}
-                    </strong>
-                    <button onClick={() => setCalPopover(null)} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer' }}><X size={14} /></button>
-                  </div>
-                  {calPopover.posts.map((p, i) => (
-                    <div key={i} className="sai-cal-popover-post">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
-                        <PlatformIcon p={p.platform} size={14} />
-                        <span className={`sai-status ${(p.status || 'draft').toLowerCase()}`}>{p.status}</span>
-                        <span style={{ fontSize: '0.6875rem', color: '#6b7280' }}>
-                          {new Date(p.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                        {p.pillar && <span className="sai-pillar">{p.pillar}</span>}
-                        {p.mediaType === 'video' && <span style={{ fontSize: '0.5625rem', background: 'rgba(168,85,247,0.2)', color: '#c4b5fd', padding: '0.0625rem 0.375rem', borderRadius: 4 }}>Video</span>}
-                        <button onClick={() => deletePost(p._id)} className="sai-delete-btn" style={{ marginLeft: 'auto', padding: '0.25rem' }} title="Delete"><Trash2 size={12} /></button>
-                      </div>
-                      {p.image && <img src={p.image} alt="" style={{ width: '100%', borderRadius: 6, marginBottom: '0.375rem', maxHeight: 120, objectFit: 'cover' }} />}
-                      <p style={{ fontSize: '0.75rem', color: '#d1d5db', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.content}</p>
+              {/* Grid View */}
+              {calViewMode === 'grid' && (
+                <div className="sai-cal-grid">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+                    <div key={d} className="sai-cal-day-header">{d}</div>
+                  ))}
+                  {cells.map(cell => (
+                    <div
+                      key={cell.key}
+                      className={`sai-cal-cell${cell.outside ? ' outside' : ''}${cell.isToday ? ' today' : ''}`}
+                      onClick={e => !cell.outside && handleTileClick(e, cell.posts || [], cell.day)}
+                    >
+                      <div className="sai-cal-date">{cell.day}</div>
+                      {(cell.posts || []).slice(0, 3).map((p, pi) => (
+                        <div key={pi} className={`sai-cal-tile ${(p.status === 'Posted' ? 'posted' : (p.platform || '').toLowerCase())}`} title={p.content?.substring(0, 80)}>
+                          {p.image && <img src={p.image} alt="" className="sai-cal-tile-img" />}
+                          {p.mediaType === 'video' && <Video size={9} />}
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {new Date(p.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} {p.topic || p.content?.substring(0, 20)}
+                          </span>
+                        </div>
+                      ))}
+                      {(cell.posts || []).length > 3 && <div className="sai-cal-more">+{cell.posts.length - 3} more</div>}
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* List View */}
+              {calViewMode === 'list' && (
+                <div className="sai-card" style={{ padding: 0, overflow: 'hidden' }}>
+                  {monthPosts.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#6b7280' }}>
+                      <Calendar size={36} style={{ opacity: 0.3, margin: '0 auto 0.75rem' }} />
+                      <p style={{ fontSize: '0.875rem' }}>No posts this month.</p>
+                      <button onClick={() => setActiveTab('create')} className="btn btn-sm btn-primary" style={{ marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Plus size={13} /> Create a post</button>
+                    </div>
+                  ) : (
+                    [...monthPosts].sort((a, b) => new Date(a.scheduledFor) - new Date(b.scheduledFor)).map((p, i) => (
+                      <div key={p._id} style={{ padding: '0.875rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '0.875rem', alignItems: 'flex-start' }}>
+                        {p.image && <img src={p.image} alt="" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8, flexShrink: 0, border: '1px solid rgba(255,255,255,0.06)' }} />}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
+                            <PlatformIcon p={p.platform} size={13} />
+                            <span className={`sai-status ${(p.status || 'draft').toLowerCase()}`}>{p.status}</span>
+                            <span style={{ fontSize: '0.6875rem', color: '#6b7280', display: 'flex', alignItems: 'center', gap: 2 }}><Clock size={10} /> {new Date(p.scheduledFor).toLocaleDateString('en-AU')} {new Date(p.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            {p.pillar && <span className="sai-pillar">{p.pillar}</span>}
+                            {p.publishError && <span style={{ fontSize: '0.5625rem', background: 'rgba(239,68,68,0.15)', color: '#f87171', padding: '0.125rem 0.375rem', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 2 }}><AlertTriangle size={9} /> Error</span>}
+                          </div>
+                          <p style={{ fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{p.content}</p>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
+                          {fbConnected && p.status !== 'Posted' && (
+                            <button onClick={() => handlePublishNow(p)} disabled={publishingPostId === p._id} title="Publish now" style={{ background: 'none', border: 'none', color: publishingPostId === p._id ? '#6b7280' : '#60a5fa', cursor: 'pointer', padding: '0.25rem', display: 'flex' }}>
+                              {publishingPostId === p._id ? <Loader2 size={14} className="spin" /> : <Send size={14} />}
+                            </button>
+                          )}
+                          <button onClick={() => startEditPost(p)} title="Edit" style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: '0.25rem', display: 'flex' }}><Edit2 size={14} /></button>
+                          <button onClick={() => deletePost(p._id)} title="Delete" style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: '0.25rem', display: 'flex' }}><Trash2 size={14} /></button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* Selected Day Detail Panel */}
+              {calPopover && calViewMode === 'grid' && (
+                <div className="sai-card" style={{ marginTop: '1rem', overflow: 'hidden', padding: 0, border: '1px solid rgba(245,158,11,0.2)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.875rem 1rem', background: 'rgba(245,158,11,0.05)', borderBottom: '1px solid rgba(245,158,11,0.1)' }}>
+                    <strong style={{ color: 'white', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Calendar size={15} style={{ color: '#f59e0b' }} />
+                      {calPopover.date.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                    </strong>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.6875rem', color: '#6b7280' }}>{calPopover.posts.length} post{calPopover.posts.length !== 1 ? 's' : ''}</span>
+                      <button onClick={() => setActiveTab('create')} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer', fontSize: '0.6875rem', display: 'flex', alignItems: 'center', gap: 3 }}><Plus size={11} /> New</button>
+                      <button onClick={() => setCalPopover(null)} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: 2, display: 'flex' }}><X size={14} /></button>
+                    </div>
+                  </div>
+                  {calPopover.posts.length === 0 ? (
+                    <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+                      <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>No posts on this day.</p>
+                      <button onClick={() => setActiveTab('create')} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer', fontSize: '0.8125rem', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Plus size={13} /> Create a post</button>
+                    </div>
+                  ) : (
+                    <div>
+                      {[...calPopover.posts].sort((a, b) => new Date(a.scheduledFor) - new Date(b.scheduledFor)).map((p, i) => (
+                        <div key={p._id} style={{ padding: '1rem', borderBottom: i < calPopover.posts.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                          <div style={{ display: 'flex', gap: '0.875rem', alignItems: 'flex-start' }}>
+                            {p.image && <img src={p.image} alt="" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 10, flexShrink: 0, border: '1px solid rgba(255,255,255,0.07)' }} />}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap', marginBottom: '0.375rem' }}>
+                                <PlatformIcon p={p.platform} size={14} />
+                                <span className={`sai-status ${(p.publishError ? 'error' : (p.status || 'draft')).toLowerCase()}`}>{p.publishError ? 'Failed' : p.status}</span>
+                                <span style={{ fontSize: '0.6875rem', color: '#6b7280', display: 'flex', alignItems: 'center', gap: 2 }}><Clock size={10} />{new Date(p.scheduledFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                {p.pillar && <span className="sai-pillar">{p.pillar}</span>}
+                                {p.topic && <span style={{ fontSize: '0.5625rem', background: 'rgba(245,158,11,0.12)', color: '#fcd34d', padding: '0.125rem 0.4rem', borderRadius: 4, fontWeight: 600 }}>{p.topic}</span>}
+                                {p.mediaType === 'video' && <span style={{ fontSize: '0.5625rem', background: 'rgba(168,85,247,0.15)', color: '#c4b5fd', padding: '0.125rem 0.4rem', borderRadius: 4 }}>Video</span>}
+                              </div>
+                              {p.publishError && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.6875rem', color: '#f87171', marginBottom: '0.375rem' }}>
+                                  <AlertTriangle size={10} /> <strong>Failed:</strong> {p.publishError?.substring(0, 80)}
+                                </div>
+                              )}
+                              {editingPostId !== p._id && (
+                                <>
+                                  <p
+                                    onClick={() => setExpandedPostId(expandedPostId === p._id ? null : p._id)}
+                                    style={{ fontSize: '0.8125rem', color: '#d1d5db', lineHeight: 1.55, cursor: 'pointer', margin: '0 0 0.375rem', display: expandedPostId === p._id ? 'block' : '-webkit-box', WebkitLineClamp: expandedPostId === p._id ? undefined : 3, WebkitBoxOrient: 'vertical', overflow: expandedPostId === p._id ? 'visible' : 'hidden' }}
+                                  >{p.content}</p>
+                                  {(p.content?.length || 0) > 120 && (
+                                    <button onClick={() => setExpandedPostId(expandedPostId === p._id ? null : p._id)} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer', fontSize: '0.6875rem', display: 'flex', alignItems: 'center', gap: 3, padding: 0, marginBottom: '0.375rem' }}>
+                                      <Eye size={11} /> {expandedPostId === p._id ? 'Show less' : 'Read more'}
+                                    </button>
+                                  )}
+                                  {(p.hashtags || []).length > 0 && (
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginBottom: '0.375rem' }}>
+                                      {(p.hashtags || []).slice(0, 6).map((t, j) => <span key={j} className="sai-hashtag" style={{ fontSize: '0.625rem' }}>{t.startsWith('#') ? t : `#${t}`}</span>)}
+                                    </div>
+                                  )}
+                                  {p.reasoning && (
+                                    <p style={{ fontSize: '0.6875rem', color: '#6b7280', fontStyle: 'italic', display: 'flex', alignItems: 'flex-start', gap: 3, margin: 0 }}>
+                                      <Brain size={11} style={{ color: '#f59e0b', flexShrink: 0, marginTop: 2 }} />{p.reasoning}
+                                    </p>
+                                  )}
+                                </>
+                              )}
+                              {editingPostId === p._id && (
+                                <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 8 }}>
+                                  <textarea value={editContent} onChange={e => setEditContent(e.target.value)} style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '0.5rem', color: 'white', fontSize: '0.8125rem', resize: 'vertical', minHeight: 80, outline: 'none', marginBottom: '0.5rem' }} />
+                                  <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                                    <input type="datetime-local" value={editTime} onChange={e => setEditTime(e.target.value)} style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '0.25rem 0.5rem', color: 'white', fontSize: '0.6875rem', outline: 'none' }} />
+                                    <select value={editStatus} onChange={e => setEditStatus(e.target.value)} style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '0.25rem 0.5rem', color: 'white', fontSize: '0.6875rem', outline: 'none' }}>
+                                      <option value="Draft">Draft</option>
+                                      <option value="Scheduled">Scheduled</option>
+                                      <option value="Posted">Posted</option>
+                                    </select>
+                                  </div>
+                                  <div style={{ display: 'flex', gap: '0.375rem' }}>
+                                    <button onClick={() => saveEditPost(p)} className="btn btn-sm btn-primary" style={{ fontSize: '0.6875rem', padding: '0.25rem 0.75rem', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={11} /> Save</button>
+                                    <button onClick={cancelEditPost} className="btn btn-sm btn-secondary" style={{ fontSize: '0.6875rem', padding: '0.25rem 0.625rem', display: 'flex', alignItems: 'center', gap: 4 }}><X size={11} /> Cancel</button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
+                              {fbConnected && p.status !== 'Posted' && (
+                                <button onClick={() => handlePublishNow(p)} disabled={publishingPostId === p._id} title="Publish to Facebook now" style={{ background: 'none', border: 'none', color: publishingPostId === p._id ? '#6b7280' : '#60a5fa', cursor: 'pointer', padding: '0.375rem', display: 'flex', borderRadius: 6 }}>
+                                  {publishingPostId === p._id ? <Loader2 size={14} className="spin" /> : <Send size={14} />}
+                                </button>
+                              )}
+                              <button onClick={() => startEditPost(p)} title="Edit" style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: '0.375rem', display: 'flex', borderRadius: 6 }}><Edit2 size={14} /></button>
+                              <button onClick={() => deletePost(p._id)} title="Delete" className="sai-delete-btn" style={{ padding: '0.375rem' }}><Trash2 size={14} /></button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1573,35 +1864,89 @@ const SocialAI = ({ embedded = false }) => {
             </p>
 
             {/* Generator Card */}
-            <div className="sai-card" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(168,85,247,0.08))', borderColor: 'rgba(245,158,11,0.2)' }}>
+            <div className="sai-card" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(168,85,247,0.08))', borderColor: saturationMode ? 'rgba(239,68,68,0.3)' : 'rgba(245,158,11,0.2)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #f59e0b, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Zap size={18} style={{ color: '#000' }} />
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: saturationMode ? 'linear-gradient(135deg, #ef4444, #ea580c)' : 'linear-gradient(135deg, #f59e0b, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Zap size={18} style={{ color: '#fff' }} />
                 </div>
                 <div>
                   <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'white' }}>Generate Your Content Plan</h3>
                   <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>AI analyses your profile, industry, and audience to create the perfect schedule</p>
                 </div>
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'flex-end' }}>
-                <div className="form-group" style={{ marginBottom: 0, minWidth: 140 }}>
-                  <label style={{ fontSize: '0.75rem' }}>Posts to Generate</label>
-                  <select value={smartCount} onChange={e => setSmartCount(Number(e.target.value))} className="sai-select">
-                    <option value={5}>5 posts (1 week light)</option>
-                    <option value={7}>7 posts (1 week)</option>
-                    <option value={10}>10 posts (mixed)</option>
-                    <option value={14}>14 posts (2 weeks)</option>
-                  </select>
+
+              {/* Saturation Mode Toggle */}
+              <div
+                onClick={() => { const next = !saturationMode; setSaturationMode(next); setSmartCount(next ? 21 : 7); }}
+                style={{ cursor: 'pointer', borderRadius: 14, border: saturationMode ? '1px solid rgba(239,68,68,0.35)' : '1px solid rgba(255,255,255,0.1)', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', background: saturationMode ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)', transition: 'all 0.2s', maxWidth: 480 }}
+              >
+                <div style={{ width: 36, height: 20, borderRadius: 10, background: saturationMode ? '#ef4444' : 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', padding: '0 2px', transition: 'background 0.2s', flexShrink: 0 }}>
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'white', transform: saturationMode ? 'translateX(16px)' : 'translateX(0)', transition: 'transform 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }} />
                 </div>
-                <button onClick={handleSmartSchedule} disabled={isSmartGenerating} className="btn sai-btn-smart" style={{ padding: '0.75rem 1.5rem' }}>
+                <div>
+                  <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: saturationMode ? '#fca5a5' : 'rgba(255,255,255,0.8)', margin: 0 }}>
+                    {saturationMode ? '🔥 Saturation Mode ON' : 'Saturation Mode'}
+                  </p>
+                  <p style={{ fontSize: '0.6875rem', color: '#6b7280', margin: 0, lineHeight: 1.4 }}>
+                    {saturationMode ? '3–5 posts/day · 7-day blitz · anti-fatigue content rotation' : 'Post as frequently as possible to maximise algorithmic reach'}
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'flex-end' }}>
+                <div className="form-group" style={{ marginBottom: 0, minWidth: 160 }}>
+                  <label style={{ fontSize: '0.75rem' }}>How many posts?</label>
+                  {saturationMode ? (
+                    <select value={smartCount} onChange={e => setSmartCount(Number(e.target.value))} className="sai-select" style={{ borderColor: 'rgba(239,68,68,0.4)' }}>
+                      <option value={21}>21 posts (3/day · 7 days)</option>
+                      <option value={28}>28 posts (4/day · 7 days)</option>
+                      <option value={35}>35 posts (5/day · 7 days)</option>
+                    </select>
+                  ) : (
+                    <select value={smartCount} onChange={e => setSmartCount(Number(e.target.value))} className="sai-select">
+                      <option value={5}>5 posts (1 week light)</option>
+                      <option value={7}>7 posts (1 week)</option>
+                      <option value={10}>10 posts (mixed)</option>
+                      <option value={14}>14 posts (2 weeks)</option>
+                    </select>
+                  )}
+                </div>
+                <button onClick={handleSmartSchedule} disabled={isSmartGenerating} className="btn sai-btn-smart" style={{ padding: '0.75rem 1.5rem', background: saturationMode ? 'linear-gradient(135deg, #ef4444, #ea580c)' : undefined }}>
                   {isSmartGenerating ? <Loader2 size={16} className="spin" /> : <Zap size={16} />}
-                  {isSmartGenerating ? 'AI is Thinking...' : 'Generate Schedule'}
+                  {isSmartGenerating ? 'Generating...' : saturationMode ? 'Launch Saturation Campaign' : 'Generate Schedule'}
                 </button>
               </div>
 
+              {/* Generation Ticker */}
               {isSmartGenerating && (
-                <div style={{ marginTop: '1.25rem' }}>
-                  <AILoadingOverlay type="schedule" title="Building Your Content Strategy" />
+                <div style={{ marginTop: '1.25rem', background: 'rgba(0,0,0,0.25)', borderRadius: 12, padding: '1.25rem', border: '1px solid rgba(245,158,11,0.15)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Sparkles size={15} style={{ color: '#f59e0b' }} className="spin" />
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'white', margin: 0 }}>AI is building your schedule</p>
+                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', margin: 0 }}>This takes 15–40 seconds — hang tight</p>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '0.75rem' }}>
+                    <div style={{ height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden', marginBottom: '0.375rem' }}>
+                      <div style={{ height: '100%', width: `${TICKER_STEPS[tickerIdx].pct}%`, background: 'linear-gradient(90deg, #f59e0b, #ea580c)', borderRadius: 3, transition: 'width 1s ease' }} />
+                    </div>
+                    <p style={{ fontSize: '0.6875rem', color: '#f59e0b', fontWeight: 600, margin: 0 }}>{TICKER_STEPS[tickerIdx].pct}% complete</p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
+                    <Loader2 size={13} className="spin" style={{ color: '#f59e0b', flexShrink: 0 }} />
+                    <span style={{ fontSize: '0.8125rem', color: '#d1d5db' }}>{TICKER_STEPS[tickerIdx].label}</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                    {TICKER_STEPS.slice(0, tickerIdx).map((step, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <CheckCircle size={12} style={{ color: '#34d399', flexShrink: 0 }} />
+                        <span style={{ fontSize: '0.6875rem', color: '#4b5563', textDecoration: 'line-through' }}>{step.label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -1612,6 +1957,25 @@ const SocialAI = ({ embedded = false }) => {
                 </div>
               )}
             </div>
+
+            {/* How It Works — shown when no posts yet */}
+            {smartPosts.length === 0 && !isSmartGenerating && !smartStrategy && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
+                {[
+                  { icon: Brain, title: 'Smart Strategy', desc: 'AI analyzes your brand, audience, and goals to create a tailored content strategy.' },
+                  { icon: Calendar, title: 'Perfect Timing', desc: "Posts are scheduled at optimal times based on your audience's activity patterns." },
+                  { icon: Sparkles, title: 'Ready to Post', desc: 'Complete captions, hashtags, and AI images — accept them all in one click.' },
+                ].map((item, i) => (
+                  <div key={i} className="sai-card" style={{ padding: '1rem' }}>
+                    <div style={{ width: 32, height: 32, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.625rem' }}>
+                      <item.icon size={16} style={{ color: '#f59e0b' }} />
+                    </div>
+                    <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'white', margin: '0 0 0.25rem' }}>{item.title}</h4>
+                    <p style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.5, margin: 0 }}>{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Best Practices Knowledge Hub */}
             {smartPosts.length === 0 && !isSmartGenerating && (
@@ -1733,15 +2097,28 @@ const SocialAI = ({ embedded = false }) => {
             {/* Generated Posts */}
             {smartPosts.length > 0 && (
               <div style={{ marginTop: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                   <div>
-                    <strong style={{ color: 'white', fontSize: '1.0625rem' }}>{smartPosts.length} Posts Generated</strong>
+                    <strong style={{ color: 'white', fontSize: '1.0625rem' }}>{smartPosts.length} Posts Ready</strong>
                     <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Review your AI-crafted content plan below</p>
                   </div>
                   <button onClick={handleAcceptSmartPosts} className="btn sai-btn-save" style={{ padding: '0.625rem 1.25rem' }}>
-                    <CheckCircle size={16} /> Accept All & Add to Calendar
+                    <CheckCircle size={16} /> Accept All & Schedule
                   </button>
                 </div>
+                {/* Image generation progress banner */}
+                {autoGenSet.size > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, padding: '0.75rem 1rem', marginBottom: '0.75rem' }}>
+                    <Loader2 size={15} className="spin" style={{ color: '#818cf8', flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#a5b4fc' }}>AI is selecting the best image for each post</span>
+                      <span style={{ fontSize: '0.75rem', color: '#6b7280', marginLeft: 8 }}>— {imgGenDone} of {smartPosts.length} done</span>
+                    </div>
+                    <div style={{ width: 100, height: 5, background: 'rgba(99,102,241,0.15)', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${Math.round((imgGenDone / smartPosts.length) * 100)}%`, background: '#818cf8', borderRadius: 3, transition: 'width 0.5s ease' }} />
+                    </div>
+                  </div>
+                )}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {smartPosts.map((sp, i) => (
                     <div key={i} className="sai-card" style={{ padding: '1.25rem', borderLeft: `3px solid ${PLATFORM_COLORS[sp.platform] || '#6b7280'}` }}>
@@ -1760,22 +2137,33 @@ const SocialAI = ({ embedded = false }) => {
                         {sp.pillar && <span className="sai-pillar">{sp.pillar}</span>}
                       </div>
 
-                      {/* Generated Image / Loading */}
-                      {sp.imageLoading && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem', background: 'rgba(99,102,241,0.06)', borderRadius: 8, marginBottom: '0.625rem' }}>
-                          <Loader2 size={16} className="spin" style={{ color: '#a855f7' }} />
-                          <span style={{ fontSize: '0.75rem', color: '#c4b5fd' }}>Generating AI {sp.mediaType === 'video' ? 'image for video' : 'image'}...</span>
+                      {/* Per-card image: queue indicator / AI suggestion / upload */}
+                      {autoGenSet.has(i) ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0.875rem', background: currentGenIdx === i ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${currentGenIdx === i ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 8, marginBottom: '0.625rem' }}>
+                          <Loader2 size={13} className="spin" style={{ color: currentGenIdx === i ? '#818cf8' : '#4b5563', flexShrink: 0 }} />
+                          <span style={{ fontSize: '0.75rem', color: currentGenIdx === i ? '#a5b4fc' : '#6b7280' }}>
+                            {currentGenIdx === i ? 'AI generating image now…' : 'In queue — AI will generate soon'}
+                          </span>
                         </div>
-                      )}
-                      {sp.generatedImage && !sp.imageLoading && (
-                        <div style={{ marginBottom: '0.75rem', borderRadius: 8, overflow: 'hidden', position: 'relative' }}>
-                          <img src={sp.generatedImage} alt="" style={{ width: '100%', maxHeight: 280, objectFit: 'cover', borderRadius: 8 }} />
-                          {sp.mediaType === 'video' && (
-                            <div style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,0.7)', borderRadius: 6, padding: '0.25rem 0.5rem', fontSize: '0.625rem', color: '#c4b5fd', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                              <Video size={10} /> AI will convert to video
-                            </div>
-                          )}
+                      ) : smartPostImages[i] ? (
+                        <div style={{ position: 'relative', marginBottom: '0.75rem', borderRadius: 8, overflow: 'hidden' }} className="sai-img-hover-group">
+                          <img src={smartPostImages[i]} alt="AI suggested" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 8, display: 'block' }} />
+                          <div style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(0,0,0,0.65)', borderRadius: 20, padding: '0.2rem 0.5rem', fontSize: '0.625rem', color: '#fcd34d', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <Sparkles size={9} /> AI Suggestion
+                          </div>
+                          <div className="sai-img-overlay" style={{ position: 'absolute', top: 6, right: 6, display: 'flex', gap: 4, opacity: 0, transition: 'opacity 0.2s' }}>
+                            <button onClick={() => handleUploadImage(i)} title="Use my own image" style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid #d1d5db', borderRadius: 6, padding: '0.25rem', cursor: 'pointer', display: 'flex' }}>
+                              <ImageIcon size={11} style={{ color: '#3b82f6' }} />
+                            </button>
+                            <button onClick={() => setSmartPostImages(prev => { const c = { ...prev }; delete c[i]; return c; })} title="Dismiss AI image" style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid #d1d5db', borderRadius: 6, padding: '0.25rem', cursor: 'pointer', display: 'flex' }}>
+                              <X size={11} style={{ color: '#ef4444' }} />
+                            </button>
+                          </div>
                         </div>
+                      ) : (
+                        <button onClick={() => handleUploadImage(i)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '0.5rem', marginBottom: '0.625rem', background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.12)', borderRadius: 8, color: '#6b7280', fontSize: '0.75rem', cursor: 'pointer' }}>
+                          <ImageIcon size={13} /> Upload your own image
+                        </button>
                       )}
 
                       <p style={{ fontSize: '0.875rem', color: '#e5e7eb', marginBottom: '0.625rem', lineHeight: 1.6 }}>{sp.content}</p>
