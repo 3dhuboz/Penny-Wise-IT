@@ -60,6 +60,9 @@ const clientProjectSchema = new mongoose.Schema({
   scaffoldPending: { type: Boolean, default: false },
   scaffoldRequestedAt: { type: Date },
 
+  // Per-client MongoDB database (created automatically on first write)
+  dbName: { type: String, default: '' },
+
   // General
   notes: { type: String, default: '' },
   status: { type: String, enum: ['setup', 'active', 'suspended', 'cancelled'], default: 'setup' },
