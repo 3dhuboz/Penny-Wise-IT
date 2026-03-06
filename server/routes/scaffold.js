@@ -1003,9 +1003,9 @@ router.get('/templates/:appSlug/open', auth, adminOnly, (req, res) => {
   const template = TEMPLATES[appSlug];
   if (!template) return res.status(404).json({ message: 'Template not found' });
 
-  // For pennywise-module apps, the template IS the running project dir
-  // For standalone apps, we return the template repo info only
-  const mainProjectDir = path.resolve(__dirname, '..', '..');
+  // For pennywise-module apps, the template IS the running project dir.
+  // Prefer PROJECT_ROOT env var — __dirname resolves to /var/task/ on deployed servers.
+  const mainProjectDir = process.env.PROJECT_ROOT || path.resolve(__dirname, '..', '..');
   const localPath = template.type === 'pennywise-module' ? mainProjectDir : null;
 
   res.json({
