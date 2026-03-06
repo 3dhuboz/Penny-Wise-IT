@@ -19,32 +19,29 @@ const TEMPLATES = {
     description: 'White-label e-commerce website (React/Firebase/Vite)'
   },
   'social-ai-studio': {
-    repo: 'https://github.com/3dhuboz/Penny-Wise-IT.git',
-    type: 'pennywise-module',
+    repo: 'https://github.com/3dhuboz/SocialAI-Studio.git',
+    type: 'standalone',
     defaultBranch: 'main',
-    enabledApps: 'social-ai-studio',
-    description: 'SocialAI Studio (Pennywise module)'
+    description: 'SocialAI Studio — AI social media content & scheduling'
   },
   'foodtruc': {
-    repo: 'https://github.com/3dhuboz/Penny-Wise-IT.git',
-    type: 'pennywise-module',
+    repo: 'https://github.com/3dhuboz/FoodTruc-App.git',
+    type: 'standalone',
     defaultBranch: 'main',
-    enabledApps: 'foodtruc',
-    description: 'Food Truck ordering app (Pennywise module)'
+    description: 'Food Truck ordering & loyalty app'
+  },
+  'autohue': {
+    repo: 'https://github.com/3dhuboz/autohue.git',
+    type: 'standalone',
+    defaultBranch: 'main',
+    description: 'AutoHue — AI vehicle photo colour sorter'
   },
   'wirez': {
     repo: 'https://github.com/3dhuboz/Penny-Wise-IT.git',
     type: 'pennywise-module',
     defaultBranch: 'main',
     enabledApps: 'wirez',
-    description: 'Wirez electrician workflow (Pennywise module)'
-  },
-  'autohue': {
-    repo: 'https://github.com/3dhuboz/Penny-Wise-IT.git',
-    type: 'pennywise-module',
-    defaultBranch: 'main',
-    enabledApps: 'autohue',
-    description: 'AutoHue car photo sorter (Pennywise module)'
+    description: 'Wirez electrician workflow (standalone repo pending)'
   }
 };
 

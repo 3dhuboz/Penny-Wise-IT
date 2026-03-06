@@ -64,7 +64,20 @@ const AdminTemplates = () => {
       setShowPathModal(true);
       return;
     }
-    const uri = buildWindsurfUri(root);
+    const tpl = templates.find(t => t.slug === slug);
+    let localPath;
+    if (!tpl || tpl.type === 'pennywise-module') {
+      // Wirez (and any future module) still lives in the Pennywise monorepo
+      localPath = root;
+    } else {
+      // Standalone apps: extract repo folder name from URL
+      // e.g. https://github.com/3dhuboz/SocialAI-Studio.git  →  SocialAI-Studio
+      const repoFolder = (tpl.repo || '').replace(/\.git$/, '').split('/').pop();
+      localPath = repoFolder
+        ? root.replace(/[\/\\]$/, '') + '/' + repoFolder
+        : root;
+    }
+    const uri = buildWindsurfUri(localPath);
     if (uri) {
       window.location.href = uri;
     } else {
@@ -253,22 +266,12 @@ const AdminTemplates = () => {
 
                 {/* Action bar */}
                 <div style={{ padding: '0 1.5rem 1.25rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                  {/* Edit in Windsurf */}
-                  {isPennywiseModule ? (
-                    <button
-                      onClick={() => openTemplate(tpl.slug)}
-                      style={{ padding: '0.5rem 1rem', borderRadius: 7, fontSize: '0.8125rem', fontWeight: 700, background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Edit size={14} /> Edit in Windsurf
-                    </button>
-                  ) : (
-                    <a
-                      href={tpl.repo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ padding: '0.5rem 1rem', borderRadius: 7, fontSize: '0.8125rem', fontWeight: 700, background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                      <ExternalLink size={14} /> View on GitHub
-                    </a>
-                  )}
+                  {/* Edit in Windsurf — all templates now have standalone repos */}
+                  <button
+                    onClick={() => openTemplate(tpl.slug)}
+                    style={{ padding: '0.5rem 1rem', borderRadius: 7, fontSize: '0.8125rem', fontWeight: 700, background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Edit size={14} /> Edit in Windsurf
+                  </button>
 
                   {/* Push update button */}
                   <button
