@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowLeft, Rocket, RefreshCw, Loader2, ExternalLink, GitBranch,
   Users, CheckCircle, AlertCircle, ChevronDown, ChevronUp, Edit,
-  Globe, Zap, Sparkles, Palette, Bolt, FolderOpen, Clock, Send
+  Globe, Zap, Sparkles, Palette, Clock, Send
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
@@ -13,7 +13,7 @@ const APP_META = {
   'foodtruc':         { icon: Zap,      color: '#f59e0b', label: 'Food Truck',       desc: 'Mobile ordering, menu, loyalty & admin' },
   'social-ai-studio': { icon: Sparkles, color: '#a855f7', label: 'SocialAI Studio',  desc: 'AI-driven social media content & scheduling' },
   'simple-website':   { icon: Globe,    color: '#10b981', label: 'SimpleWebsite',     desc: 'White-label e-commerce storefront' },
-  'wirez':            { icon: Bolt,     color: '#f97316', label: 'Wirez',             desc: 'Electrician job & workflow management' },
+  'wirez':            { icon: Zap,      color: '#f97316', label: 'Wirez',             desc: 'Electrician job & workflow management' },
   'autohue':          { icon: Palette,  color: '#06b6d4', label: 'AutoHue',           desc: 'AI vehicle photo colour sorter' },
 };
 

@@ -1,4 +1,4 @@
-const { Client, Environment } = require('square');
+const { Client } = require('square');
 const SiteSettings = require('../models/SiteSettings');
 
 let squareClient = null;
@@ -50,9 +50,7 @@ async function getSquareClient() {
 
   squareClient = new Client({
     accessToken: settings.accessToken,
-    environment: settings.environment === 'production' 
-      ? Environment.Production 
-      : Environment.Sandbox
+    environment: settings.environment === 'production' ? 'production' : 'sandbox'
   });
   // Tag for change detection
   squareClient._accessToken = settings.accessToken;
