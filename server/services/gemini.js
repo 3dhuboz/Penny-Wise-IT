@@ -22,7 +22,8 @@ const generateSocialPost = async (apiKey, topic, platform, businessName, busines
   const ai = getAI(apiKey);
   if (!ai) return { content: 'API Key missing. Configure in Social AI Settings.', hashtags: [] };
 
-  const platformRules = platform === 'Instagram' ? `
+  const platformRulesMap = {
+    Instagram: `
 INSTAGRAM-SPECIFIC RULES (2025 Algorithm):
 - First line MUST be a scroll-stopping hook (pattern interrupt, bold claim, or question)
 - Use line breaks for readability — short punchy paragraphs (1-2 sentences max)
@@ -31,7 +32,8 @@ INSTAGRAM-SPECIFIC RULES (2025 Algorithm):
 - Hashtag strategy: 5-8 highly targeted hashtags. Mix: 2 broad (500K-5M posts), 3 niche (10K-500K posts), 2-3 micro-niche (<10K posts). NO banned or overused spam hashtags
 - Carousel/Reel hooks perform 3x better — frame content as if it's a carousel or reel script when relevant
 - End with a micro-CTA question to drive comments (the algorithm rewards comment velocity in first 30 min)
-` : `
+`,
+    Facebook: `
 FACEBOOK-SPECIFIC RULES (2025 Algorithm):
 - First line MUST hook — Facebook truncates after ~3 lines so the hook is critical
 - Longer-form storytelling performs best on Facebook (150-300 words ideal)
@@ -41,7 +43,35 @@ FACEBOOK-SPECIFIC RULES (2025 Algorithm):
 - NO hashtags or max 1-2 branded ones — Facebook's algorithm doesn't reward hashtags like Instagram
 - Native video/photo descriptions outperform link posts — write as if accompanying an image
 - Controversy and opinion posts get 2-5x more reach than promotional content
-`;
+`,
+    TikTok: `
+TIKTOK-SPECIFIC RULES (2025 Algorithm):
+- This is a VIDEO SCRIPT / caption — write as if spoken on camera, not read
+- First 3 words MUST stop the scroll — TikTok users swipe in 0.5 seconds
+- Use "POV:", "Story time:", "I can't believe" style openers — they perform 4x better
+- Keep caption under 150 characters — TikTok truncates and the hook must be visible
+- Include 3-5 hashtags: 1 mega (#foryou or #fyp), 2 trending niche, 1 branded
+- Write a VIDEO HOOK at the top as if speaking: what happens in the first 3 seconds of the video?
+- TikTok rewards authenticity over polish — casual, raw, real beats production quality
+- Include trending sound/audio suggestions if relevant to the topic
+- End with a "duet this" or "comment your answer" CTA — interaction spikes algorithm reach
+- Write in first person, conversational, fast-paced
+`,
+    LinkedIn: `
+LINKEDIN-SPECIFIC RULES (2025 Algorithm):
+- LinkedIn rewards thought leadership, professional insights, and personal stories
+- First line (visible before "see more") MUST be compelling — make it a bold insight or counterintuitive claim
+- Use short paragraphs (1-2 lines) with strategic line breaks for readability in feed
+- Personal stories get 3x more engagement than pure promotional content — lead with "I used to think..."
+- Hashtags: use 3-5 professional hashtags (e.g., #marketing #businessgrowth #entrepreneurship)
+- End with a professional discussion prompt: "What's your take?", "Agree or disagree?"
+- NO emojis in the first line — keep the opening professional; 1-3 emojis total is fine
+- Optimal length: 150-300 words for feed posts; carousel-style numbered lists perform best
+- Include specific data points, percentages, or timelines — professional readers trust specifics
+- Tag 1-2 relevant people or companies if appropriate to extend reach
+`
+  };
+  const platformRules = platformRulesMap[platform] || platformRulesMap.Instagram;
 
   // Build context from top-performing posts
   let performanceContext = '';

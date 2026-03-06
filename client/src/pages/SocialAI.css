@@ -576,6 +576,111 @@
   border-left: 2px solid #1877f2;
 }
 
+.sai-cal-tile.tiktok {
+  background: rgba(0,0,0,0.4);
+  color: #e4e4e4;
+  border-left: 2px solid #69c9d0;
+}
+
+.sai-cal-tile.linkedin {
+  background: rgba(10,102,194,0.15);
+  color: #7bb7f0;
+  border-left: 2px solid #0a66c2;
+}
+
+/* ═══ Onboarding Wizard ═══ */
+.sai-onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0,0,0,0.85);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.sai-onboarding-modal {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  border: 1px solid rgba(139,92,246,0.3);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.6), 0 0 80px rgba(139,92,246,0.1);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.sai-onboarding-header {
+  padding: 1.75rem 2rem 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sai-onboarding-body { padding: 1.5rem 2rem; }
+.sai-onboarding-footer {
+  padding: 1.25rem 2rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sai-onboarding-steps {
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+.sai-onboarding-step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  transition: all 0.3s;
+}
+
+.sai-onboarding-step-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: #a855f7;
+}
+
+.sai-onboarding-step-dot.done { background: #34d399; }
+
+/* Platform pill selectors */
+.sai-platform-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sai-platform-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 2px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: #9ca3af;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sai-platform-pill:hover { border-color: rgba(255,255,255,0.25); color: white; }
+.sai-platform-pill.active { border-color: #a855f7; background: rgba(168,85,247,0.12); color: white; }
+
+@media (max-width: 640px) {
+  .sai-onboarding-modal { border-radius: 16px; }
+  .sai-onboarding-header, .sai-onboarding-body, .sai-onboarding-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+}
+
 .sai-cal-tile-img {
   width: 16px;
   height: 16px;

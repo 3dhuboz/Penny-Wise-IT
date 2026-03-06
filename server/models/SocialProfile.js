@@ -8,6 +8,7 @@ const socialProfileSchema = new mongoose.Schema({
   tone: { type: String, default: 'Friendly and professional' },
   location: { type: String, default: 'Australia' },
   logoUrl: { type: String, default: '' },
+  platforms: { type: [String], default: ['Instagram', 'Facebook'] },
   geminiApiKey: { type: String, default: '' },
   facebookAppId: { type: String, default: '' },
   facebookPageId: { type: String, default: '' },

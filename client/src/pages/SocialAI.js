@@ -5,11 +5,24 @@ import {
   Loader2, Trash2, Clock, CheckCircle, Zap, Save, Brain, Instagram, Facebook,
   Palette, Crown, ArrowRight, Star, Shield, ExternalLink, X, RefreshCw,
   HelpCircle, Users, Eye, ThumbsUp, MessageCircle, Share2, Link2,
-  ChevronRight, AlertCircle, Info, BookOpen, Key, Globe, Monitor, Video
+  ChevronRight, AlertCircle, Info, BookOpen, Key, Globe, Monitor, Video, Linkedin
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
 import './SocialAI.css';
+
+const TikTokIcon = ({ size = 16, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" style={style}>
+    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.19 8.19 0 004.79 1.54V6.79a4.85 4.85 0 01-1.02-.1z"/>
+  </svg>
+);
+
+const PLATFORM_COLORS = {
+  Instagram: '#e1306c',
+  Facebook: '#1877f2',
+  TikTok: '#69c9d0',
+  LinkedIn: '#0a66c2'
+};
 
 const PLAN_DETAILS = {
   starter: { name: 'Starter', price: 49, color: '#3b82f6', icon: Star, features: ['AI Content Generation', 'Content Calendar & Scheduling', 'AI-Powered Insights', 'Best Practices Knowledge Hub', '1 Brand Profile'] },
@@ -77,6 +90,36 @@ const FB_TIPS_POOL = [
   { tip: 'Cross-post your best Instagram Reels to Facebook Reels — Meta rewards multi-platform creators', icon: '🔄' },
   { tip: 'Add a clear CTA in every post — "Comment below", "Share with a friend", "Tag someone who needs this"', icon: '📢' },
   { tip: 'Create a content series (e.g., "Tip Tuesday") to build anticipation and habitual engagement', icon: '🗓️' }
+];
+
+const TIKTOK_TIPS_POOL = [
+  { tip: 'The first 1-2 seconds decide everything — open with movement, a bold claim, or a face looking directly at camera', icon: '⚡' },
+  { tip: 'Use trending sounds — videos using viral audio get 3x more distribution from the algorithm', icon: '🎵' },
+  { tip: 'Duet and Stitch popular videos in your niche — this puts your content in front of an existing engaged audience', icon: '🔗' },
+  { tip: 'Post 1-3 times daily for maximum growth — TikTok rewards consistent volume more than any other platform', icon: '📅' },
+  { tip: 'Add text overlays on screen — 70% of TikTok users watch with sound OFF at some point during the video', icon: '💬' },
+  { tip: 'Use 3-5 hashtags max: #fyp, 1-2 niche hashtags, and 1 branded — more hashtags actually hurt discoverability', icon: '#️⃣' },
+  { tip: 'Reply to comments with a video — this triggers re-engagement and the algorithm pushes the original post again', icon: '↩️' },
+  { tip: 'Best posting times in Australia: 7-9am, 12-2pm, and 7-11pm AEST for maximum FYP placement', icon: '🕐' },
+  { tip: 'Behind-the-scenes and "how it\'s made" content gets 40% more saves and shares than polished promotional videos', icon: '🎬' },
+  { tip: 'End every video with an incomplete loop — content that auto-replays gets boosted significantly by TikTok', icon: '🔄' },
+  { tip: 'POV-style content gets 2x more comments — people respond to being placed in a scenario', icon: '👁️' },
+  { tip: 'Use the "Q&A" feature by answering comments with videos — it drives incredible community engagement', icon: '❓' }
+];
+
+const LINKEDIN_TIPS_POOL = [
+  { tip: 'Start with a bold, counterintuitive first line — LinkedIn truncates after 2-3 lines so make every word count before "see more"', icon: '✍️' },
+  { tip: 'Personal stories consistently outperform promotional posts — share a failure, lesson, or turning point with a business insight', icon: '📖' },
+  { tip: 'Document formats perform best: lists, frameworks, and step-by-step breakdowns get saved and shared the most', icon: '📋' },
+  { tip: 'Post 1x per weekday at 8-10am AEST — LinkedIn\'s algorithm favours accounts that post consistently at similar times', icon: '📅' },
+  { tip: 'Engage with 10-15 other posts within 30 min of posting — this signals activity and boosts your own post\'s reach', icon: '💬' },
+  { tip: 'Ask a specific question at the end of every post — posts with 20+ comments are promoted exponentially by LinkedIn', icon: '❓' },
+  { tip: 'Native documents (PDFs, slide carousels) get 3x more impressions than standard posts or external links', icon: '📄' },
+  { tip: 'Avoid external links in the post body — add them in the first comment to prevent reach suppression', icon: '🔗' },
+  { tip: 'Include 3-5 relevant hashtags — LinkedIn actively surfaces content through hashtags unlike other platforms', icon: '#️⃣' },
+  { tip: 'Thought leadership posts that include data, stats, or original research get 45% more engagement', icon: '📊' },
+  { tip: 'Tag relevant people and companies (sparingly, 1-3 max) — over-tagging looks spammy and reduces reach', icon: '🏷️' },
+  { tip: 'Vulnerability and authenticity drive connection on LinkedIn — show your human side alongside your expertise', icon: '🤝' }
 ];
 
 const STRATEGY_FACTS_POOL = [
@@ -176,6 +219,8 @@ const SocialAI = ({ embedded = false }) => {
     quickStats: shuffle(QUICK_STATS_POOL).slice(0, 4),
     igTips: shuffle(IG_TIPS_POOL).slice(0, 7),
     fbTips: shuffle(FB_TIPS_POOL).slice(0, 7),
+    tiktokTips: shuffle(TIKTOK_TIPS_POOL).slice(0, 7),
+    linkedinTips: shuffle(LINKEDIN_TIPS_POOL).slice(0, 7),
     facts: shuffle(STRATEGY_FACTS_POOL).slice(0, 8)
   }));
 
@@ -226,6 +271,11 @@ const SocialAI = ({ embedded = false }) => {
   // AI admin-key awareness
   const [aiAdminManaged, setAiAdminManaged] = useState(false);
 
+  // Onboarding wizard state
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [onboardingDismissed, setOnboardingDismissed] = useState(() => !!localStorage.getItem('sai_onboarding_done'));
+
   // AI Video generation state
   const [videoTaskId, setVideoTaskId] = useState(null);
   const [videoStatus, setVideoStatus] = useState(null); // null | 'starting' | 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED'
@@ -266,6 +316,10 @@ const SocialAI = ({ embedded = false }) => {
       console.error(err);
     }
     setLoading(false);
+    // Show onboarding wizard for first-time users who haven't set a business name
+    if (!profileRes.data?.businessName && !localStorage.getItem('sai_onboarding_done')) {
+      setShowOnboarding(true);
+    }
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
@@ -551,6 +605,15 @@ const SocialAI = ({ embedded = false }) => {
     setIsAnalyzing(false);
   };
 
+  // ── Onboarding complete ──
+  const handleCompleteOnboarding = async () => {
+    try { await api.put('/social/profile', profile); } catch (e) { /* non-blocking */ }
+    localStorage.setItem('sai_onboarding_done', '1');
+    setOnboardingDismissed(true);
+    setShowOnboarding(false);
+    toast.success('Profile saved! AI will now tailor content to your brand.');
+  };
+
   // ── Delete Post ──
   const deletePost = async (id) => {
     try {
@@ -675,8 +738,13 @@ const SocialAI = ({ embedded = false }) => {
 
   if (loading) return <div className="page-loading">Loading Social AI...</div>;
 
-  const PlatformIcon = ({ p, size = 14 }) =>
-    p === 'Instagram' ? <Instagram size={size} style={{ color: '#e1306c' }} /> : <Facebook size={size} style={{ color: '#1877f2' }} />;
+  const PlatformIcon = ({ p, size = 14 }) => {
+    if (p === 'Instagram') return <Instagram size={size} style={{ color: '#e1306c' }} />;
+    if (p === 'Facebook') return <Facebook size={size} style={{ color: '#1877f2' }} />;
+    if (p === 'TikTok') return <TikTokIcon size={size} style={{ color: '#69c9d0' }} />;
+    if (p === 'LinkedIn') return <Linkedin size={size} style={{ color: '#0a66c2' }} />;
+    return <Globe size={size} style={{ color: '#9ca3af' }} />;
+  };
 
   // ── Purchase Gate ── (skip when embedded inside another app)
   if (!isSubscribed && !embedded) {
@@ -740,9 +808,162 @@ const SocialAI = ({ embedded = false }) => {
     );
   }
 
+  // ── Onboarding Wizard ──
+  const ONBOARDING_STEPS = ['Welcome', 'Your Brand', 'Your Platforms', 'All Set!'];
+  const OnboardingWizard = showOnboarding && !onboardingDismissed ? (
+    <div className="sai-onboarding-overlay" onClick={e => e.target === e.currentTarget && (localStorage.setItem('sai_onboarding_done','1'), setShowOnboarding(false), setOnboardingDismissed(true))}>
+      <div className="sai-onboarding-modal">
+        <div className="sai-onboarding-header">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#a855f7,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Sparkles size={18} style={{ color: 'white' }} />
+              </div>
+              <div>
+                <div style={{ fontSize: '1rem', fontWeight: 700, color: 'white' }}>Welcome to {displayName}</div>
+                <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Quick setup — under 2 minutes</div>
+              </div>
+            </div>
+            <button onClick={() => { localStorage.setItem('sai_onboarding_done','1'); setShowOnboarding(false); setOnboardingDismissed(true); }} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
+          </div>
+          <div className="sai-onboarding-steps">
+            {ONBOARDING_STEPS.map((s, i) => (
+              <div key={i} className={`sai-onboarding-step-dot ${i === onboardingStep ? 'active' : i < onboardingStep ? 'done' : ''}`} title={s} />
+            ))}
+            <span style={{ fontSize: '0.6875rem', color: '#6b7280', marginLeft: '0.375rem' }}>{ONBOARDING_STEPS[onboardingStep]}</span>
+          </div>
+        </div>
+
+        <div className="sai-onboarding-body">
+          {/* Step 0: Welcome */}
+          {onboardingStep === 0 && (
+            <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👋</div>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'white', marginBottom: '0.75rem' }}>Let\'s build your social media engine</h2>
+              <p style={{ color: '#9ca3af', fontSize: '0.875rem', lineHeight: 1.7, maxWidth: 400, margin: '0 auto 1.5rem' }}>
+                We\'ll set up your brand profile and connect your platforms so AI can generate content tailored to your exact business and audience.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', textAlign: 'left' }}>
+                {[{ icon: '🎯', title: 'Brand-tailored AI', desc: 'Every post written for your specific business and voice' }, { icon: '📅', title: 'Smart scheduling', desc: 'AI picks the best times based on your platform data' }, { icon: '🖼️', title: 'Image + Video AI', desc: 'Generate scroll-stopping visuals instantly' }, { icon: '📊', title: 'Live analytics', desc: 'Track what works and let AI improve your strategy' }].map((f, i) => (
+                  <div key={i} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.04)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div style={{ fontSize: '1.25rem', marginBottom: '0.375rem' }}>{f.icon}</div>
+                    <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'white', marginBottom: '0.25rem' }}>{f.title}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#9ca3af', lineHeight: 1.4 }}>{f.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 1: Brand Profile */}
+          {onboardingStep === 1 && (
+            <div>
+              <h3 style={{ fontWeight: 700, color: 'white', marginBottom: '0.375rem' }}>Tell us about your business</h3>
+              <p style={{ color: '#9ca3af', fontSize: '0.8125rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>AI uses this to write in your voice, for your audience, every time.</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-group">
+                  <label>Business Name *</label>
+                  <input value={profile?.businessName || ''} onChange={e => setProfile(prev => ({ ...prev, businessName: e.target.value }))} placeholder="e.g. Brew & Bloom Cafe" autoFocus />
+                </div>
+                <div className="form-group">
+                  <label>Business Type *</label>
+                  <input value={profile?.businessType || ''} onChange={e => setProfile(prev => ({ ...prev, businessType: e.target.value }))} placeholder="e.g. cafe, gym, retail, agency" />
+                </div>
+                <div className="form-group">
+                  <label>Location</label>
+                  <input value={profile?.location || ''} onChange={e => setProfile(prev => ({ ...prev, location: e.target.value }))} placeholder="e.g. Brisbane, QLD" />
+                </div>
+                <div className="form-group">
+                  <label>Brand Voice / Tone</label>
+                  <input value={profile?.tone || ''} onChange={e => setProfile(prev => ({ ...prev, tone: e.target.value }))} placeholder="e.g. Friendly, casual, and fun" />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Business Description</label>
+                <textarea value={profile?.description || ''} onChange={e => setProfile(prev => ({ ...prev, description: e.target.value }))} placeholder="What do you do? Who are your customers? What makes you different?" rows={2} />
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Platforms */}
+          {onboardingStep === 2 && (
+            <div>
+              <h3 style={{ fontWeight: 700, color: 'white', marginBottom: '0.375rem' }}>Which platforms are you on?</h3>
+              <p style={{ color: '#9ca3af', fontSize: '0.8125rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>AI will generate platform-optimised content for each one you select.</p>
+              <div className="sai-platform-pills">
+                {[{ id: 'Instagram', icon: <Instagram size={16} />, color: '#e1306c' }, { id: 'Facebook', icon: <Facebook size={16} />, color: '#1877f2' }, { id: 'TikTok', icon: <TikTokIcon size={16} />, color: '#69c9d0' }, { id: 'LinkedIn', icon: <Linkedin size={16} />, color: '#0a66c2' }].map(p => {
+                  const sel = (profile?.platforms || ['Instagram', 'Facebook']).includes(p.id);
+                  return (
+                    <button key={p.id} className={`sai-platform-pill${sel ? ' active' : ''}`}
+                      style={sel ? { borderColor: p.color, background: `${p.color}18`, color: 'white' } : {}}
+                      onClick={() => {
+                        const current = profile?.platforms || ['Instagram', 'Facebook'];
+                        setProfile(prev => ({ ...prev, platforms: sel ? current.filter(x => x !== p.id) : [...current, p.id] }));
+                      }}>
+                      <span style={{ color: p.color }}>{p.icon}</span> {p.id} {sel && <CheckCircle size={12} />}
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: '1.25rem', padding: '0.875rem 1rem', background: 'rgba(245,158,11,0.06)', borderRadius: 10, border: '1px solid rgba(245,158,11,0.15)' }}>
+                <div style={{ fontSize: '0.75rem', color: '#fcd34d', display: 'flex', alignItems: 'flex-start', gap: '0.375rem' }}>
+                  <Info size={14} style={{ marginTop: 1, flexShrink: 0 }} />
+                  <span>You can connect Facebook & Instagram in <strong>Settings</strong> after setup to pull live stats and recent posts into your dashboard.</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Done */}
+          {onboardingStep === 3 && (
+            <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg,#34d399,#059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
+                <CheckCircle size={32} style={{ color: 'white' }} />
+              </div>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'white', marginBottom: '0.75rem' }}>You\'re all set, {profile?.businessName || 'there'}!</h2>
+              <p style={{ color: '#9ca3af', fontSize: '0.875rem', lineHeight: 1.7, maxWidth: 380, margin: '0 auto 1.5rem' }}>Your brand profile is saved. Head to <strong style={{ color: '#f59e0b' }}>Smart AI</strong> to generate your first content calendar, or <strong style={{ color: '#f59e0b' }}>Settings</strong> to connect your Facebook page for live stats.</p>
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button onClick={() => { handleCompleteOnboarding(); setActiveTab('smart'); }} className="btn sai-btn-smart" style={{ padding: '0.625rem 1.5rem' }}>
+                  <Zap size={16} /> Generate My First Posts
+                </button>
+                <button onClick={() => { handleCompleteOnboarding(); setActiveTab('settings'); }} className="btn btn-secondary">
+                  <Settings size={16} /> Connect Facebook
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="sai-onboarding-footer">
+          {onboardingStep > 0 ? (
+            <button onClick={() => setOnboardingStep(s => s - 1)} className="btn btn-secondary btn-sm">← Back</button>
+          ) : (
+            <button onClick={() => { localStorage.setItem('sai_onboarding_done','1'); setShowOnboarding(false); setOnboardingDismissed(true); }} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '0.8125rem' }}>Skip setup</button>
+          )}
+          <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>{onboardingStep + 1} / {ONBOARDING_STEPS.length}</div>
+          {onboardingStep < ONBOARDING_STEPS.length - 1 ? (
+            <button
+              onClick={() => {
+                if (onboardingStep === 1 && !profile?.businessName?.trim()) return toast.error('Please enter your business name first.');
+                setOnboardingStep(s => s + 1);
+              }}
+              className="btn btn-primary btn-sm"
+              style={{ background: 'linear-gradient(135deg,#a855f7,#6366f1)', borderColor: 'transparent' }}
+            >
+              {onboardingStep === 0 ? 'Get Started →' : 'Next →'}
+            </button>
+          ) : (
+            <button onClick={handleCompleteOnboarding} className="btn sai-btn-save btn-sm">Finish Setup ✓</button>
+          )}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   // ── Subscribed: Full App ──
   const innerContent = (
     <>
+      {OnboardingWizard}
 
       {/* Tab Nav */}
       <div className="sai-tabs">
@@ -872,6 +1093,8 @@ const SocialAI = ({ embedded = false }) => {
                   <select value={platform} onChange={e => setPlatform(e.target.value)} className="sai-select" style={{ fontSize: '0.8125rem' }}>
                     <option value="Instagram">Instagram</option>
                     <option value="Facebook">Facebook</option>
+                    <option value="TikTok">TikTok</option>
+                    <option value="LinkedIn">LinkedIn</option>
                   </select>
                   <button onClick={handleGenerate} disabled={isGenerating} className="btn btn-primary btn-sm">
                     {isGenerating ? <Loader2 size={14} className="spin" /> : <Wand2 size={14} />}
@@ -1103,6 +1326,8 @@ const SocialAI = ({ embedded = false }) => {
                 <select value={platform} onChange={e => setPlatform(e.target.value)} className="sai-select">
                   <option value="Instagram">Instagram</option>
                   <option value="Facebook">Facebook</option>
+                  <option value="TikTok">TikTok</option>
+                  <option value="LinkedIn">LinkedIn</option>
                 </select>
                 <button onClick={handleGenerate} disabled={isGenerating} className="btn btn-primary">
                   {isGenerating ? <Loader2 size={16} className="spin" /> : <Wand2 size={16} />}
@@ -1425,35 +1650,27 @@ const SocialAI = ({ embedded = false }) => {
 
                 {/* Platform-Specific Tips */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="sai-card">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
-                      <Instagram size={20} style={{ color: '#e1306c' }} />
-                      <h4 style={{ fontWeight: 700, color: '#e1306c', fontSize: '0.9375rem' }}>Instagram Best Practices</h4>
+                  {[
+                    { key: 'igTips', label: 'Instagram Best Practices', color: '#e1306c', Icon: Instagram },
+                    { key: 'fbTips', label: 'Facebook Best Practices', color: '#1877f2', Icon: Facebook },
+                    { key: 'tiktokTips', label: 'TikTok Best Practices', color: '#69c9d0', Icon: ({ size }) => <TikTokIcon size={size} style={{ color: '#69c9d0' }} /> },
+                    { key: 'linkedinTips', label: 'LinkedIn Best Practices', color: '#0a66c2', Icon: Linkedin }
+                  ].map(({ key, label, color, Icon }) => (
+                    <div key={key} className="sai-card">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                        <Icon size={20} style={{ color }} />
+                        <h4 style={{ fontWeight: 700, color, fontSize: '0.9375rem' }}>{label}</h4>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {randomTips[key].map((item, i) => (
+                          <div key={i} style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', color: '#d1d5db', lineHeight: 1.5 }}>
+                            <span style={{ flexShrink: 0 }}>{item.icon}</span>
+                            <span>{item.tip}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      {randomTips.igTips.map((item, i) => (
-                        <div key={i} style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', color: '#d1d5db', lineHeight: 1.5 }}>
-                          <span style={{ flexShrink: 0 }}>{item.icon}</span>
-                          <span>{item.tip}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="sai-card">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
-                      <Facebook size={20} style={{ color: '#1877f2' }} />
-                      <h4 style={{ fontWeight: 700, color: '#1877f2', fontSize: '0.9375rem' }}>Facebook Best Practices</h4>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      {randomTips.fbTips.map((item, i) => (
-                        <div key={i} style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', color: '#d1d5db', lineHeight: 1.5 }}>
-                          <span style={{ flexShrink: 0 }}>{item.icon}</span>
-                          <span>{item.tip}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
                 {/* General Strategy Tips */}
@@ -1481,16 +1698,20 @@ const SocialAI = ({ embedded = false }) => {
                   </h4>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
                     {[
-                      { platform: 'Instagram Feed', freq: '3–5 posts/week', note: 'Consistency matters more than volume' },
-                      { platform: 'Instagram Stories', freq: '1–3 per day', note: 'Keep your account active between posts' },
-                      { platform: 'Instagram Reels', freq: '4–7 per week', note: 'Highest organic reach format in 2024' },
-                      { platform: 'Facebook Page', freq: '1–2 posts/day', note: 'Quality over quantity; avoid over-posting' },
-                      { platform: 'Facebook Stories', freq: '1–2 per day', note: 'Underused — less competition for attention' },
-                      { platform: 'Facebook Live', freq: '1–2 per month', note: 'Highest engagement format on Facebook' }
+                      { platform: 'Instagram Feed', freq: '3–5 posts/week', note: 'Consistency matters more than volume', color: '#e1306c' },
+                      { platform: 'Instagram Stories', freq: '1–3 per day', note: 'Keep your account active between posts', color: '#e1306c' },
+                      { platform: 'Instagram Reels', freq: '4–7 per week', note: 'Highest organic reach format in 2025', color: '#e1306c' },
+                      { platform: 'Facebook Page', freq: '1–2 posts/day', note: 'Quality over quantity; avoid over-posting', color: '#1877f2' },
+                      { platform: 'Facebook Stories', freq: '1–2 per day', note: 'Underused — less competition for attention', color: '#1877f2' },
+                      { platform: 'Facebook Live', freq: '1–2 per month', note: 'Highest engagement format on Facebook', color: '#1877f2' },
+                      { platform: 'TikTok', freq: '1–3 videos/day', note: 'Volume + consistency = FYP algorithm fuel', color: '#69c9d0' },
+                      { platform: 'TikTok Live', freq: '2–3 per week', note: 'Live streams boost profile reach 4x', color: '#69c9d0' },
+                      { platform: 'LinkedIn Posts', freq: '1x per weekday', note: 'Consistency at same time builds audience habit', color: '#0a66c2' },
+                      { platform: 'LinkedIn Articles', freq: '1–2 per month', note: 'Long-form thought leadership for SEO', color: '#0a66c2' }
                     ].map((item, i) => (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.05)' }}>
                         <div>
-                          <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#e5e7eb' }}>{item.platform}</div>
+                          <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: item.color || '#e5e7eb' }}>{item.platform}</div>
                           <div style={{ fontSize: '0.625rem', color: '#6b7280' }}>{item.note}</div>
                         </div>
                         <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#fcd34d', whiteSpace: 'nowrap' }}>{item.freq}</div>
@@ -1515,7 +1736,7 @@ const SocialAI = ({ embedded = false }) => {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {smartPosts.map((sp, i) => (
-                    <div key={i} className="sai-card" style={{ padding: '1.25rem', borderLeft: `3px solid ${sp.platform === 'Instagram' ? '#e1306c' : '#1877f2'}` }}>
+                    <div key={i} className="sai-card" style={{ padding: '1.25rem', borderLeft: `3px solid ${PLATFORM_COLORS[sp.platform] || '#6b7280'}` }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
                         <PlatformIcon p={sp.platform} size={16} />
                         <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'white' }}>{sp.platform}</span>
@@ -1905,6 +2126,38 @@ const SocialAI = ({ embedded = false }) => {
                   <CheckCircle size={12} /> Key configured
                 </p>
               )}
+            </div>
+
+            {/* TikTok Connection */}
+            <div className="sai-card" style={{ marginTop: '1.5rem' }}>
+              <h3 style={{ fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <TikTokIcon size={18} style={{ color: '#69c9d0' }} /> TikTok
+              </h3>
+              <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.75rem' }}>TikTok does not yet offer a public API for third-party stat reading. The best workflow is to generate TikTok-optimised content here, then copy and post it manually.</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <a href="https://www.tiktok.com/upload" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" style={{ fontSize: '0.75rem', color: '#69c9d0', borderColor: 'rgba(105,201,208,0.3)' }}>
+                  <ExternalLink size={12} /> Open TikTok Upload
+                </a>
+                <button onClick={() => setActiveTab('create')} className="btn btn-secondary btn-sm" style={{ fontSize: '0.75rem' }}>
+                  <Wand2 size={12} /> Generate TikTok Content
+                </button>
+              </div>
+            </div>
+
+            {/* LinkedIn Connection */}
+            <div className="sai-card" style={{ marginTop: '1.5rem' }}>
+              <h3 style={{ fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <Linkedin size={18} style={{ color: '#0a66c2' }} /> LinkedIn
+              </h3>
+              <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.75rem' }}>LinkedIn\'s API requires app verification for third-party posting. Use SocialAI to craft your LinkedIn content, then copy it directly into LinkedIn.</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <a href="https://www.linkedin.com/feed/" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" style={{ fontSize: '0.75rem', color: '#0a66c2', borderColor: 'rgba(10,102,194,0.3)' }}>
+                  <ExternalLink size={12} /> Open LinkedIn Feed
+                </a>
+                <button onClick={() => { setPlatform('LinkedIn'); setActiveTab('create'); }} className="btn btn-secondary btn-sm" style={{ fontSize: '0.75rem' }}>
+                  <Wand2 size={12} /> Generate LinkedIn Content
+                </button>
+              </div>
             </div>
 
             {/* Facebook / Instagram Connection */}
