@@ -1268,10 +1268,16 @@ const SocialAI = ({ embedded = false }) => {
                 </button>
               </div>
               {posts.filter(p => p.status === 'Scheduled').length === 0 ? (
-                <div className="sai-card" style={{ textAlign: 'center', padding: '2rem' }}>
-                  <Calendar size={32} style={{ color: '#4b5563', marginBottom: '0.75rem' }} />
-                  <p style={{ color: '#6b7280', fontSize: '0.8125rem' }}>No scheduled posts yet.</p>
-                  <p style={{ color: '#4b5563', fontSize: '0.75rem', marginTop: '0.25rem' }}>Use the AI Content Generator above or <button onClick={() => setActiveTab('smart')} style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer' }}>Smart AI Scheduler</button> to create posts.</p>
+                <div className="sai-card">
+                  <div className="sai-empty">
+                    <div className="sai-empty-icon"><Calendar size={24} style={{ color: '#4b5563' }} /></div>
+                    <h4>No scheduled posts yet</h4>
+                    <p>Use the AI Content Generator or Smart AI Scheduler to plan your content calendar.</p>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                      <button onClick={() => setActiveTab('create')} className="btn btn-primary btn-sm"><Wand2 size={13} /> Create Post</button>
+                      <button onClick={() => setActiveTab('smart')} className="btn btn-secondary btn-sm" style={{ color: '#f59e0b', borderColor: 'rgba(245,158,11,0.3)' }}><Brain size={13} /> Smart AI</button>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -1293,15 +1299,15 @@ const SocialAI = ({ embedded = false }) => {
 
             {/* Not connected? Show setup prompt */}
             {!profile?.facebookConnected && !hasApiKey && !aiAdminManaged && (
-              <div className="sai-card" style={{ marginTop: '1.5rem', background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(239,68,68,0.08))', borderColor: 'rgba(245,158,11,0.2)', textAlign: 'center', padding: '2rem' }}>
-                <AlertCircle size={32} style={{ color: '#fbbf24', marginBottom: '0.75rem' }} />
-                <h3 style={{ fontWeight: 700, color: 'white', marginBottom: '0.5rem' }}>Get Started</h3>
-                <p style={{ color: '#9ca3af', fontSize: '0.8125rem', maxWidth: 400, margin: '0 auto 1rem' }}>
-                  Set up your Gemini API key and connect your Facebook Business Page to unlock the full power of Social AI.
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button onClick={() => setActiveTab('settings')} className="btn btn-primary btn-sm"><Key size={14} /> Set Up API Key</button>
-                  <button onClick={() => setActiveTab('help')} className="btn btn-secondary btn-sm"><BookOpen size={14} /> Read the Guide</button>
+              <div className="sai-card" style={{ marginTop: '1.5rem', background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(239,68,68,0.08))', borderColor: 'rgba(245,158,11,0.2)' }}>
+                <div className="sai-empty" style={{ padding: '2rem 1rem' }}>
+                  <div className="sai-empty-icon" style={{ background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.2)' }}><AlertCircle size={24} style={{ color: '#fbbf24' }} /></div>
+                  <h4>Get started with Social AI</h4>
+                  <p>Set up your Gemini API key and connect your Facebook Business Page to unlock the full power of Social AI.</p>
+                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <button onClick={() => setActiveTab('settings')} className="btn btn-primary btn-sm"><Key size={14} /> Set Up API Key</button>
+                    <button onClick={() => setActiveTab('help')} className="btn btn-secondary btn-sm"><BookOpen size={14} /> Read the Guide</button>
+                  </div>
                 </div>
               </div>
             )}

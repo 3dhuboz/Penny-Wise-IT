@@ -53,6 +53,12 @@
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 12px;
   padding: 1.5rem;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.sai-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  border-color: rgba(255,255,255,0.16);
 }
 
 .social-ai-page .form-group label {
@@ -725,4 +731,147 @@
   .sai-cal-tile { font-size: 0.5rem; padding: 0.125rem 0.25rem; }
   .sai-cal-date { font-size: 0.5625rem; }
   .sai-cal-tile-img { display: none; }
+}
+
+/* ═══ UI Polish ═══ */
+
+/* Header — accent gradient underline */
+.sai-header {
+  position: relative;
+}
+.sai-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245,158,11,0.4), rgba(139,92,246,0.4), transparent);
+}
+
+/* Tab bar — pill hover background */
+.sai-tab {
+  border-radius: 8px 8px 0 0;
+  margin-bottom: -1px;
+}
+.sai-tab:hover {
+  background: rgba(255,255,255,0.05);
+}
+.sai-tab.active {
+  background: rgba(245,158,11,0.06);
+}
+
+/* Locked tab — subtler, with a tiny crown */
+.sai-tab.locked {
+  opacity: 0.35;
+  cursor: not-allowed;
+  position: relative;
+}
+.sai-tab.locked:hover {
+  background: transparent;
+  opacity: 0.45;
+}
+
+/* Stat cards — lift on hover */
+.sai-stat-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.sai-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+
+/* Rich empty states */
+.sai-empty {
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  color: #6b7280;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+.sai-empty-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+.sai-empty h4 {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #d1d5db;
+  margin: 0;
+}
+.sai-empty p {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  max-width: 320px;
+  line-height: 1.6;
+  margin: 0;
+}
+.sai-empty .btn {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+}
+
+/* Skeleton loading shimmer */
+.sai-skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: sai-skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+@keyframes sai-skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Input focus — matches brand color dynamically via var */
+.social-ai-page input:focus,
+.social-ai-page textarea:focus,
+.social-ai-page select:focus {
+  border-color: rgba(245,158,11,0.6);
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
+}
+
+/* Scrollbar styling for the dark theme */
+.social-ai-page ::-webkit-scrollbar { width: 5px; height: 5px; }
+.social-ai-page ::-webkit-scrollbar-track { background: transparent; }
+.social-ai-page ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+.social-ai-page ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+/* Post card — slightly more pronounced hover */
+.sai-post-card:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.16);
+  transform: translateX(2px);
+}
+
+/* Mobile: tabs scroll + compact */
+@media (max-width: 640px) {
+  .sai-tabs .container {
+    padding: 0 0.75rem !important;
+  }
+  .sai-tab {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+  .sai-title {
+    font-size: 1.125rem;
+  }
+  .sai-header .container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* Mobile: stack stat cards */
+@media (max-width: 480px) {
+  .social-ai-page .sai-card { padding: 0.875rem; }
+  .sai-empty { padding: 2.5rem 1rem; }
 }
