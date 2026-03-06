@@ -64,20 +64,8 @@ const AdminTemplates = () => {
       setShowPathModal(true);
       return;
     }
-    const tpl = templates.find(t => t.slug === slug);
-    let localPath;
-    if (!tpl || tpl.type === 'pennywise-module') {
-      // Wirez (and any future module) still lives in the Pennywise monorepo
-      localPath = root;
-    } else {
-      // Standalone apps: extract repo folder name from URL
-      // e.g. https://github.com/3dhuboz/SocialAI-Studio.git  →  SocialAI-Studio
-      const repoFolder = (tpl.repo || '').replace(/\.git$/, '').split('/').pop();
-      localPath = repoFolder
-        ? root.replace(/[\/\\]$/, '') + '/' + repoFolder
-        : root;
-    }
-    const uri = buildWindsurfUri(localPath);
+    // All templates are pennywise-module — they all live in the monorepo root
+    const uri = buildWindsurfUri(root);
     if (uri) {
       window.location.href = uri;
     } else {
