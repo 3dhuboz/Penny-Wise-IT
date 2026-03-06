@@ -593,6 +593,9 @@ router.post('/:projectId', auth, adminOnly, async (req, res) => {
     console.log('[Scaffold] Step 5/5: Initializing git repo');
     try {
       execSync('git init', { cwd: projectDir, stdio: 'pipe' });
+      // Set local git identity (required on some Windows machines with no global config)
+      execSync('git config user.email "admin@pennywiseit.com.au"', { cwd: projectDir, stdio: 'pipe' });
+      execSync('git config user.name "Penny Wise I.T"', { cwd: projectDir, stdio: 'pipe' });
       // Ensure .gitignore exists
       const gitignorePath = path.join(projectDir, '.gitignore');
       if (!fs.existsSync(gitignorePath)) {
