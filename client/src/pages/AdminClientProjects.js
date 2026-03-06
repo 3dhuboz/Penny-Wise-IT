@@ -36,6 +36,7 @@ const AdminClientProjects = () => {
   const [stats, setStats] = useState(null);
   const [editingLocalPath, setEditingLocalPath] = useState({});
   const [localPathDraft, setLocalPathDraft] = useState({});
+  const [scaffolding, setScaffolding] = useState({});
   const [createForm, setCreateForm] = useState({
     clientId: '', projectName: '', businessName: '', contactName: '',
     contactEmail: '', contactPhone: '', appSlugs: [], notes: ''
@@ -235,6 +236,24 @@ const AdminClientProjects = () => {
     const normalized = localPath.replace(/\\/g, '/');
     const encoded = normalized.split('/').map(s => encodeURIComponent(s)).join('/');
     return 'windsurf://file/' + encoded;
+  };
+
+  const scaffoldProject = async (projectId) => {
+    setScaffolding(prev => ({ ...prev, [projectId]: true }));
+    try {
+      const res = await api.post(`/scaffold/${projectId}`);
+      if (res.data.alreadyExists) {
+        toast.success('Project folder already exists — path linked!', { duration: 4000 });
+      } else {
+        toast.success(`Project scaffolded! Template: ${res.data.template}`, { duration: 5000 });
+      }
+      loadAll();
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Scaffold failed';
+      toast.error(msg, { duration: 5000 });
+    } finally {
+      setScaffolding(prev => ({ ...prev, [projectId]: false }));
+    }
   };
 
   const updateStatus = async (projectId, status) => {
@@ -483,44 +502,76 @@ const AdminClientProjects = () => {
                         <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#6ee7b7', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <FolderOpen size={16} style={{ color: '#10b981' }} /> Local Development
                         </h4>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                          {editingLocalPath[project._id] ? (
-                            <>
-                              <input
-                                value={localPathDraft[project._id] || ''}
-                                onChange={e => setLocalPathDraft(prev => ({ ...prev, [project._id]: e.target.value }))}
-                                placeholder="e.g. C:\Users\steve\OneDrive\Desktop\Business Folders\ClientName\App\project"
-                                style={{ flex: 1, fontSize: '0.75rem', padding: '0.375rem 0.5rem', background: '#0f172a', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, fontFamily: 'monospace' }}
-                              />
-                              <button onClick={() => saveLocalPath(project._id)} className="btn btn-sm btn-primary" style={{ fontSize: '0.7rem' }}><Save size={12} /> Save</button>
-                              <button onClick={() => setEditingLocalPath(prev => ({ ...prev, [project._id]: false }))} className="btn btn-sm btn-secondary" style={{ fontSize: '0.7rem' }}>Cancel</button>
-                            </>
-                          ) : (
-                            <>
-                              {project.localProjectPath ? (
-                                <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontFamily: 'monospace', flex: 1 }}>{project.localProjectPath}</span>
-                              ) : (
-                                <span style={{ fontSize: '0.75rem', color: '#6b7280', fontStyle: 'italic', flex: 1 }}>No local path set — set one to enable Open in Windsurf</span>
-                              )}
+
+                        {/* Scaffold / Path Section */}
+                        {!project.localProjectPath ? (
+                          <div style={{ padding: '1rem', background: 'rgba(59,130,246,0.08)', borderRadius: 8, border: '1px dashed rgba(59,130,246,0.3)', marginBottom: '0.75rem', textAlign: 'center' }}>
+                            <p style={{ fontSize: '0.8125rem', color: '#93c5fd', marginBottom: '0.75rem' }}>
+                              No local project yet. Scaffold one from the app template to start editing in Windsurf.
+                            </p>
+                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                               <button
-                                onClick={() => { setLocalPathDraft(prev => ({ ...prev, [project._id]: project.localProjectPath || '' })); setEditingLocalPath(prev => ({ ...prev, [project._id]: true })); }}
-                                className="btn btn-sm btn-secondary" style={{ fontSize: '0.7rem' }}>
-                                <Edit size={12} /> {project.localProjectPath ? 'Edit Path' : 'Set Path'}
+                                onClick={() => scaffoldProject(project._id)}
+                                disabled={scaffolding[project._id] || !project.apps?.length}
+                                style={{ padding: '0.5rem 1rem', borderRadius: 6, fontSize: '0.8125rem', fontWeight: 700, background: 'linear-gradient(135deg, #10b981, #3b82f6)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: scaffolding[project._id] ? 0.6 : 1 }}>
+                                {scaffolding[project._id] ? <Loader2 size={14} className="spin" /> : <Rocket size={14} />}
+                                {scaffolding[project._id] ? 'Scaffolding...' : 'Scaffold Project'}
                               </button>
-                            </>
-                          )}
-                        </div>
+                              <button
+                                onClick={() => { setLocalPathDraft(prev => ({ ...prev, [project._id]: '' })); setEditingLocalPath(prev => ({ ...prev, [project._id]: true })); }}
+                                className="btn btn-sm btn-secondary" style={{ fontSize: '0.75rem' }}>
+                                <Edit size={12} /> Set Path Manually
+                              </button>
+                            </div>
+                            {!project.apps?.length && (
+                              <p style={{ fontSize: '0.7rem', color: '#f59e0b', marginTop: '0.5rem' }}>Add apps to this project first before scaffolding.</p>
+                            )}
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                            <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontFamily: 'monospace', flex: 1 }}>{project.localProjectPath}</span>
+                            <button
+                              onClick={() => { setLocalPathDraft(prev => ({ ...prev, [project._id]: project.localProjectPath || '' })); setEditingLocalPath(prev => ({ ...prev, [project._id]: true })); }}
+                              className="btn btn-sm btn-secondary" style={{ fontSize: '0.7rem' }}>
+                              <Edit size={12} /> Edit Path
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Inline path editor */}
+                        {editingLocalPath[project._id] && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                            <input
+                              value={localPathDraft[project._id] || ''}
+                              onChange={e => setLocalPathDraft(prev => ({ ...prev, [project._id]: e.target.value }))}
+                              placeholder="e.g. C:\Users\steve\OneDrive\Desktop\Business Folders\ClientName\App\project"
+                              style={{ flex: 1, fontSize: '0.75rem', padding: '0.375rem 0.5rem', background: '#0f172a', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, fontFamily: 'monospace' }}
+                            />
+                            <button onClick={() => saveLocalPath(project._id)} className="btn btn-sm btn-primary" style={{ fontSize: '0.7rem' }}><Save size={12} /> Save</button>
+                            <button onClick={() => setEditingLocalPath(prev => ({ ...prev, [project._id]: false }))} className="btn btn-sm btn-secondary" style={{ fontSize: '0.7rem' }}>Cancel</button>
+                          </div>
+                        )}
+
+                        {/* Action buttons */}
                         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                           {project.localProjectPath && buildWindsurfUri(project.localProjectPath) ? (
                             <a
                               href={buildWindsurfUri(project.localProjectPath)}
-                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer' }}>
-                              <Edit size={12} /> Open in Windsurf
+                              style={{ padding: '0.5rem 1rem', borderRadius: 6, fontSize: '0.8125rem', fontWeight: 700, background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', border: 'none', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                              <Edit size={14} /> Open in Windsurf
                             </a>
                           ) : (
-                            <span style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.06)', color: '#4b5563', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                              <Edit size={12} /> Open in Windsurf
+                            <span style={{ padding: '0.5rem 1rem', borderRadius: 6, fontSize: '0.8125rem', fontWeight: 600, background: 'rgba(59,130,246,0.06)', color: '#4b5563', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <Edit size={14} /> Open in Windsurf
                             </span>
+                          )}
+                          {project.localProjectPath && (
+                            <button
+                              onClick={() => scaffoldProject(project._id)}
+                              disabled={scaffolding[project._id]}
+                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                              {scaffolding[project._id] ? <Loader2 size={12} className="spin" /> : <RefreshCw size={12} />} Re-scaffold
+                            </button>
                           )}
                           <button
                             onClick={() => workLocally(project._id, project.projectName)}
@@ -528,6 +579,7 @@ const AdminClientProjects = () => {
                             <FolderKanban size={12} /> Work Locally
                           </button>
                         </div>
+
                         <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 6, fontSize: '0.6875rem', color: '#6b7280', fontFamily: 'monospace' }}>
                           <span style={{ color: '#9ca3af', fontFamily: 'inherit', fontWeight: 600 }}>Local test:</span>{' '}
                           CLIENT_MODE=true ENABLED_APPS={project.apps?.map(a => a.slug).join(',') || 'socialai'} BRAND_NAME="{project.businessName || project.projectName}" npm run dev
