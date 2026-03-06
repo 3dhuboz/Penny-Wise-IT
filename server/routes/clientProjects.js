@@ -134,7 +134,8 @@ router.put('/:id', auth, adminOnly, async (req, res) => {
     // Update allowed fields
     const allowedFields = [
       'projectName', 'businessName', 'contactName', 'contactEmail', 'contactPhone',
-      'deployment', 'whiteLabel', 'notes', 'status', 'monthlyRevenue', 'apps', 'envVars'
+      'deployment', 'whiteLabel', 'notes', 'status', 'monthlyRevenue', 'apps', 'envVars',
+      'localProjectPath'
     ];
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {

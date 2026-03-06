@@ -4,7 +4,7 @@ import {
   ArrowLeft, Plus, Search, FolderKanban, Globe, Rocket, CheckCircle,
   Circle, ChevronDown, ChevronUp, ExternalLink, Trash2, Save, Edit,
   Users, DollarSign, Server, Palette, ClipboardList, XCircle, AlertCircle,
-  RefreshCw, Loader2
+  RefreshCw, Loader2, FolderOpen
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
@@ -34,6 +34,8 @@ const AdminClientProjects = () => {
   const [expandedId, setExpandedId] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [stats, setStats] = useState(null);
+  const [editingLocalPath, setEditingLocalPath] = useState({});
+  const [localPathDraft, setLocalPathDraft] = useState({});
   const [createForm, setCreateForm] = useState({
     clientId: '', projectName: '', businessName: '', contactName: '',
     contactEmail: '', contactPhone: '', appSlugs: [], notes: ''
@@ -215,6 +217,24 @@ const AdminClientProjects = () => {
     } catch (err) {
       toast.error('Failed to update');
     }
+  };
+
+  const saveLocalPath = async (projectId) => {
+    try {
+      await api.put(`/client-projects/${projectId}`, { localProjectPath: localPathDraft[projectId] || '' });
+      toast.success('Local project path saved');
+      setEditingLocalPath(prev => ({ ...prev, [projectId]: false }));
+      loadAll();
+    } catch (err) {
+      toast.error('Failed to save path');
+    }
+  };
+
+  const buildWindsurfUri = (localPath) => {
+    if (!localPath) return null;
+    const normalized = localPath.replace(/\\/g, '/');
+    const encoded = normalized.split('/').map(s => encodeURIComponent(s)).join('/');
+    return 'windsurf://file/' + encoded;
   };
 
   const updateStatus = async (projectId, status) => {
@@ -458,6 +478,62 @@ const AdminClientProjects = () => {
                         </div>
                       </div>
 
+                      {/* Local Development */}
+                      <div style={{ marginTop: '1.25rem', padding: '1rem', background: 'rgba(16,185,129,0.06)', borderRadius: 8, border: '1px solid rgba(16,185,129,0.15)' }}>
+                        <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#6ee7b7', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <FolderOpen size={16} style={{ color: '#10b981' }} /> Local Development
+                        </h4>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                          {editingLocalPath[project._id] ? (
+                            <>
+                              <input
+                                value={localPathDraft[project._id] || ''}
+                                onChange={e => setLocalPathDraft(prev => ({ ...prev, [project._id]: e.target.value }))}
+                                placeholder="e.g. C:\Users\steve\OneDrive\Desktop\Business Folders\ClientName\App\project"
+                                style={{ flex: 1, fontSize: '0.75rem', padding: '0.375rem 0.5rem', background: '#0f172a', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, fontFamily: 'monospace' }}
+                              />
+                              <button onClick={() => saveLocalPath(project._id)} className="btn btn-sm btn-primary" style={{ fontSize: '0.7rem' }}><Save size={12} /> Save</button>
+                              <button onClick={() => setEditingLocalPath(prev => ({ ...prev, [project._id]: false }))} className="btn btn-sm btn-secondary" style={{ fontSize: '0.7rem' }}>Cancel</button>
+                            </>
+                          ) : (
+                            <>
+                              {project.localProjectPath ? (
+                                <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontFamily: 'monospace', flex: 1 }}>{project.localProjectPath}</span>
+                              ) : (
+                                <span style={{ fontSize: '0.75rem', color: '#6b7280', fontStyle: 'italic', flex: 1 }}>No local path set — set one to enable Open in Windsurf</span>
+                              )}
+                              <button
+                                onClick={() => { setLocalPathDraft(prev => ({ ...prev, [project._id]: project.localProjectPath || '' })); setEditingLocalPath(prev => ({ ...prev, [project._id]: true })); }}
+                                className="btn btn-sm btn-secondary" style={{ fontSize: '0.7rem' }}>
+                                <Edit size={12} /> {project.localProjectPath ? 'Edit Path' : 'Set Path'}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          {project.localProjectPath && buildWindsurfUri(project.localProjectPath) ? (
+                            <a
+                              href={buildWindsurfUri(project.localProjectPath)}
+                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer' }}>
+                              <Edit size={12} /> Open in Windsurf
+                            </a>
+                          ) : (
+                            <span style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.06)', color: '#4b5563', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                              <Edit size={12} /> Open in Windsurf
+                            </span>
+                          )}
+                          <button
+                            onClick={() => workLocally(project._id, project.projectName)}
+                            style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                            <FolderKanban size={12} /> Work Locally
+                          </button>
+                        </div>
+                        <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 6, fontSize: '0.6875rem', color: '#6b7280', fontFamily: 'monospace' }}>
+                          <span style={{ color: '#9ca3af', fontFamily: 'inherit', fontWeight: 600 }}>Local test:</span>{' '}
+                          CLIENT_MODE=true ENABLED_APPS={project.apps?.map(a => a.slug).join(',') || 'socialai'} BRAND_NAME="{project.businessName || project.projectName}" npm run dev
+                        </div>
+                      </div>
+
                       {/* Dev Quick Links */}
                       {project.deployment?.serviceId && (
                         <div style={{ marginTop: '1.25rem', padding: '1rem', background: 'rgba(59,130,246,0.06)', borderRadius: 8, border: '1px solid rgba(59,130,246,0.15)' }}>
@@ -494,26 +570,12 @@ const AdminClientProjects = () => {
                               style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                               <RefreshCw size={12} /> Check Status
                             </button>
-                            <button
-                              onClick={() => workLocally(project._id, project.projectName)}
-                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(16,185,129,0.12)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                              <FolderKanban size={12} /> Work Locally
-                            </button>
-                            <a
-                              href="windsurf://file/C:/Users/steve/OneDrive/Desktop/Business%20Folders/Pennywise/App/CascadeProjects/windsurf-project"
-                              style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer' }}>
-                              <Edit size={12} /> Open in Windsurf
-                            </a>
                             {project.deployment?.serviceUrl && (
                               <a href={`${project.deployment.serviceUrl}/login`} target="_blank" rel="noopener noreferrer"
                                 style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(251,191,36,0.12)', color: '#fcd34d', border: '1px solid rgba(251,191,36,0.25)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                                 <ExternalLink size={12} /> Client Admin
                               </a>
                             )}
-                          </div>
-                          <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 6, fontSize: '0.6875rem', color: '#6b7280', fontFamily: 'monospace' }}>
-                            <span style={{ color: '#9ca3af', fontFamily: 'inherit', fontWeight: 600 }}>Local test:</span>{' '}
-                            CLIENT_MODE=true ENABLED_APPS={project.apps?.map(a => a.slug).join(',') || 'socialai'} BRAND_NAME="{project.businessName || project.projectName}" npm run dev
                           </div>
                         </div>
                       )}

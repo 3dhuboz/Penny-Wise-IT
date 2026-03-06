@@ -55,6 +55,9 @@ const clientProjectSchema = new mongoose.Schema({
     notes: { type: String, default: '' }
   }],
 
+  // Local development
+  localProjectPath: { type: String, default: '' },
+
   // General
   notes: { type: String, default: '' },
   status: { type: String, enum: ['setup', 'active', 'suspended', 'cancelled'], default: 'setup' },
