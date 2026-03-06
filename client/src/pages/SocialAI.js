@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import api from '../api';
 import toast from 'react-hot-toast';
+import { useClientConfig } from '../context/ClientConfigContext';
 import './SocialAI.css';
 
 const TikTokIcon = ({ size = 16, style }) => (
@@ -251,6 +252,7 @@ const SocialAI = ({ embedded = false }) => {
 
   // Marketplace subscription state (generic system)
   const [mpSub, setMpSub] = useState(null);
+  const { clientMode } = useClientConfig();
 
   // Facebook / Instagram integration state
   const [fbStats, setFbStats] = useState(null);
@@ -746,8 +748,8 @@ const SocialAI = ({ embedded = false }) => {
     return <Globe size={size} style={{ color: '#9ca3af' }} />;
   };
 
-  // ── Purchase Gate ── (skip when embedded inside another app)
-  if (!isSubscribed && !embedded) {
+  // ── Purchase Gate ── (skip when embedded or running as a deployed client app)
+  if (!isSubscribed && !embedded && !clientMode) {
     return (
       <div className="social-ai-page">
         <div className="sai-header">
@@ -969,7 +971,7 @@ const SocialAI = ({ embedded = false }) => {
       <div className="sai-tabs">
         <div className="container" style={{ display: 'flex', gap: '0.25rem', padding: '0 1.5rem', overflowX: 'auto' }}>
           {tabs.map(tab => {
-            const locked = tab.requirePlan && !tab.requirePlan.includes(currentPlan);
+            const locked = tab.requirePlan && !tab.requirePlan.includes(currentPlan) && !clientMode;
             return (
               <button
                 key={tab.id}
@@ -2059,8 +2061,8 @@ const SocialAI = ({ embedded = false }) => {
           <div className="sai-section">
             <h2 className="sai-title"><Settings size={22} style={{ color: brandColor }} /> Settings</h2>
 
-            {/* Subscription Status */}
-            <div className="sai-card" style={{ marginBottom: '1.5rem' }}>
+            {/* Subscription Status — hidden in CLIENT_MODE (client has paid, managed by Pennywise) */}
+            {!clientMode && <div className="sai-card" style={{ marginBottom: '1.5rem' }}>
               <h3 style={{ fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                 <Crown size={18} style={{ color: brandColor }} /> Subscription
               </h3>
@@ -2094,7 +2096,7 @@ const SocialAI = ({ embedded = false }) => {
                   Cancel Subscription
                 </button>
               </div>
-            </div>
+            </div>}
 
             {/* API Key */}
             <div className="sai-card">
