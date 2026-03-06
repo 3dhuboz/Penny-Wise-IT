@@ -501,18 +501,10 @@ const AdminClientProjects = () => {
                             </button>
                             <button
                               onClick={() => {
-                                const projectPath = 'C:\\Users\\steve\\OneDrive\\Desktop\\Business Folders\\Pennywise\\App\\CascadeProjects\\windsurf-project';
-                                const uri = 'windsurf://file/' + projectPath.replace(/\\/g, '/');
-                                // Use hidden iframe to trigger protocol handler without navigating away
-                                const iframe = document.createElement('iframe');
-                                iframe.style.display = 'none';
-                                iframe.src = uri;
-                                document.body.appendChild(iframe);
-                                setTimeout(() => document.body.removeChild(iframe), 2000);
-                                // Also copy CLI command as fallback
-                                const cmd = `windsurf "${projectPath}"`;
-                                navigator.clipboard.writeText(cmd).catch(() => {});
-                                toast.success('Opening in Windsurf...\nIf it didn\'t open, paste the copied command in a terminal.', { duration: 5000 });
+                                const cmd = 'windsurf "C:\\Users\\steve\\OneDrive\\Desktop\\Business Folders\\Pennywise\\App\\CascadeProjects\\windsurf-project"';
+                                navigator.clipboard.writeText(cmd).then(() => {
+                                  toast.success('Command copied! Paste in a terminal to open in Windsurf.', { duration: 4000 });
+                                }).catch(() => toast.error('Failed to copy'));
                               }}
                               style={{ padding: '0.375rem 0.75rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)', display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer' }}>
                               <Edit size={12} /> Open in Windsurf
