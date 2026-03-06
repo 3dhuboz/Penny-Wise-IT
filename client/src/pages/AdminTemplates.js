@@ -110,7 +110,12 @@ const AdminTemplates = () => {
       }
       load();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Push update failed');
+      const msg = err.response?.data?.message || 'Push update failed';
+      if (msg.includes('locally')) {
+        toast.error('Push Update requires the local server. Run "npm run server" on your machine, then visit localhost:5000/admin/templates to push updates.', { duration: 8000 });
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setPushing(prev => ({ ...prev, [slug]: false }));
     }
