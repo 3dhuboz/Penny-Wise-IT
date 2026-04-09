@@ -1,0 +1,16 @@
+{
+  "id": "gladstone-bbq-festival",
+  "name": "Gladstone BBQ Festival",
+  "domain": "gladstonebbqfestival.com.au",
+  "template": "festival",
+  "branding": {
+    "name": "Gladstone BBQ Festival",
+    "color": "#b91c1c"
+  },
+  "features": ["auth-clerk", "payments-stripe", "email-resend", "sms-twilio"],
+  "env": {
+    "EMAIL_FROM": "info@gladstonebbqfestival.com.au",
+    "TWILIO_FROM_NUMBER": "+61400000001"
+  },
+  "secrets": ["CLERK_SECRET_KEY", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "RESEND_API_KEY", "TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN"]
+}

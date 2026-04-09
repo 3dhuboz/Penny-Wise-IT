@@ -1,0 +1,26 @@
+{
+  "id": "coastal-candles",
+  "name": "Coastal Candles Co",
+  "domain": "coastalcandles.com.au",
+  "template": "simple-website",
+  "branding": {
+    "name": "Coastal Candles Co",
+    "color": "#f59e0b",
+    "logo_url": null
+  },
+  "features": [
+    "auth-clerk",
+    "payments-paypal",
+    "email-resend"
+  ],
+  "env": {
+    "EMAIL_FROM": "hello@coastalcandles.com.au",
+    "PAYPAL_SANDBOX": "true"
+  },
+  "secrets": [
+    "CLERK_SECRET_KEY",
+    "PAYPAL_CLIENT_ID",
+    "PAYPAL_CLIENT_SECRET",
+    "RESEND_API_KEY"
+  ]
+}

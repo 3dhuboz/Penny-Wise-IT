@@ -1,0 +1,49 @@
+{
+  "id": "payments-paypal",
+  "name": "PayPal Payments",
+  "version": "1.0.0",
+  "category": "foundation",
+  "description": "Payment processing via PayPal. Supports one-time payments, subscriptions, and webhook handling.",
+  "requires": {
+    "envVars": [
+      { "name": "PAYPAL_CLIENT_ID", "description": "PayPal REST API Client ID", "required": true, "secret": true },
+      { "name": "PAYPAL_CLIENT_SECRET", "description": "PayPal REST API Client Secret", "required": true, "secret": true },
+      { "name": "PAYPAL_SANDBOX", "description": "Set to 'true' for sandbox mode", "required": false, "secret": false, "example": "false" }
+    ],
+    "features": [],
+    "dbTables": [
+      {
+        "name": "payments",
+        "sql": "CREATE TABLE IF NOT EXISTS payments (id TEXT PRIMARY KEY, user_id TEXT, paypal_order_id TEXT UNIQUE, paypal_payer_id TEXT, amount INTEGER NOT NULL, currency TEXT DEFAULT 'AUD', status TEXT DEFAULT 'pending', description TEXT, metadata TEXT, created_at TEXT DEFAULT (datetime('now')))",
+        "indexes": ["CREATE INDEX IF NOT EXISTS idx_payments_user ON payments(user_id)", "CREATE INDEX IF NOT EXISTS idx_payments_paypal ON payments(paypal_order_id)"]
+      },
+      {
+        "name": "subscriptions",
+        "sql": "CREATE TABLE IF NOT EXISTS subscriptions (id TEXT PRIMARY KEY, user_id TEXT, paypal_subscription_id TEXT UNIQUE, paypal_plan_id TEXT, status TEXT DEFAULT 'active', current_period_start TEXT, current_period_end TEXT, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')))",
+        "indexes": ["CREATE INDEX IF NOT EXISTS idx_subs_user ON subscriptions(user_id)", "CREATE INDEX IF NOT EXISTS idx_subs_paypal ON subscriptions(paypal_subscription_id)"]
+      }
+    ],
+    "bindings": []
+  },
+  "provides": {
+    "routes": [
+      { "method": "POST", "path": "/api/payments/create-order", "description": "Create a PayPal order", "auth": "authenticated" },
+      { "method": "POST", "path": "/api/payments/capture-order", "description": "Capture an approved PayPal order", "auth": "authenticated" },
+      { "method": "POST", "path": "/api/payments/create-subscription", "description": "Create a PayPal subscription", "auth": "authenticated" },
+      { "method": "GET", "path": "/api/payments/history", "description": "Get payment history", "auth": "authenticated" },
+      { "method": "GET", "path": "/api/payments/subscription", "description": "Get current subscription", "auth": "authenticated" },
+      { "method": "POST", "path": "/api/payments/cancel-subscription", "description": "Cancel subscription", "auth": "authenticated" },
+      { "method": "POST", "path": "/webhooks/paypal", "description": "Handle PayPal webhook events", "auth": "public" }
+    ],
+    "webhooks": [
+      { "path": "/webhooks/paypal", "provider": "paypal", "events": ["CHECKOUT.ORDER.APPROVED", "PAYMENT.CAPTURE.COMPLETED", "BILLING.SUBSCRIPTION.ACTIVATED", "BILLING.SUBSCRIPTION.CANCELLED"], "description": "Process PayPal payment and subscription events" }
+    ],
+    "cronJobs": [],
+    "middleware": [],
+    "dbTables": ["payments", "subscriptions"]
+  },
+  "conflicts": [],
+  "stackOptions": {
+    "payments": ["paypal"]
+  }
+}

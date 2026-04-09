@@ -1,0 +1,17 @@
+{
+  "name": "@pennywiseit/validator",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute composer-db --file=./schema.sql"
+  },
+  "dependencies": {
+    "hono": "^4.4.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.60.0",
+    "@cloudflare/workers-types": "^4.20240614.0"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@pennywiseit/composer",
+  "version": "0.1.0",
+  "description": "Feature composition engine — assembles apps from feature modules",
+  "main": "src/index.ts",
+  "scripts": {
+    "compose": "tsx src/compose.ts",
+    "deploy": "tsx src/deploy.ts",
+    "validate-manifest": "tsx src/validate-manifest.ts",
+    "drift": "tsx src/drift.ts"
+  },
+  "dependencies": {
+    "hono": "^4.4.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

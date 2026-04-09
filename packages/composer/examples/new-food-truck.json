@@ -1,0 +1,29 @@
+{
+  "id": "new-food-truck-customer",
+  "name": "New Food Truck Customer",
+  "domain": "example-truck.com.au",
+  "template": "food-truck",
+  "branding": {
+    "name": "Example Food Truck",
+    "color": "#f97316",
+    "logo_url": null
+  },
+  "features": [
+    "auth-clerk",
+    "payments-stripe",
+    "email-resend",
+    "sms-twilio"
+  ],
+  "env": {
+    "EMAIL_FROM": "orders@example-truck.com.au",
+    "TWILIO_FROM_NUMBER": "+61400000000"
+  },
+  "secrets": [
+    "CLERK_SECRET_KEY",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "RESEND_API_KEY",
+    "TWILIO_ACCOUNT_SID",
+    "TWILIO_AUTH_TOKEN"
+  ]
+}

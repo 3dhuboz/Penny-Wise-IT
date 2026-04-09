@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PennyWiseIT — Sales Portal</title>
+<style>
+:root {
+  --bg: #0b0f1a; --surface: #141b2d; --card: #1a2338; --border: #1f2d45;
+  --text: #e8edf5; --muted: #6b7fa3; --soft: #a0aec0;
+  --accent: #4f8ef7; --green: #34d399; --yellow: #fbbf24;
+  --red: #f87171; --purple: #a78bfa; --orange: #fb923c; --teal: #2dd4bf;
+  --radius: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.65; min-height: 100vh; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── NAV ── */
+nav { position: sticky; top: 0; z-index: 50; background: rgba(11,15,26,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; height: 54px; gap: 0.25rem; }
+.nav-brand { font-weight: 800; font-size: 0.95rem; color: var(--accent); margin-right: 1.5rem; white-space: nowrap; cursor: pointer; }
+.nav-brand span { color: var(--text); }
+.nav-tabs { display: flex; gap: 0.15rem; flex: 1; overflow-x: auto; }
+.nav-tab { color: var(--muted); font-size: 0.82rem; padding: 0.4rem 0.75rem; border-radius: 6px; white-space: nowrap; cursor: pointer; transition: all 0.15s; border: none; background: none; font-family: inherit; }
+.nav-tab:hover { background: rgba(79,142,247,0.1); color: var(--soft); }
+.nav-tab.active { background: rgba(79,142,247,0.15); color: var(--accent); font-weight: 600; }
+.nav-right { display: flex; gap: 0.5rem; align-items: center; margin-left: auto; }
+.nav-user { font-size: 0.78rem; color: var(--soft); font-weight: 600; }
+.nav-logout { font-size: 0.72rem; color: var(--muted); cursor: pointer; border: 1px solid var(--border); background: none; padding: 0.25rem 0.6rem; border-radius: 5px; font-family: inherit; }
+.nav-logout:hover { border-color: var(--red); color: var(--red); }
+
+/* ── LAYOUT ── */
+.container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── CARDS ── */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.card:hover { border-color: rgba(79,142,247,0.3); }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+.stat-val { font-size: 1.5rem; font-weight: 800; }
+.stat-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+
+/* ── BUTTONS ── */
+.btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #3b7ce5; }
+.btn-secondary { background: rgba(79,142,247,0.12); color: var(--accent); border: 1px solid rgba(79,142,247,0.2); }
+.btn-secondary:hover { background: rgba(79,142,247,0.2); }
+.btn-green { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+.btn-sm { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
+
+/* ── FORMS ── */
+.form-group { margin-bottom: 1rem; }
+.form-label { display: block; font-size: 0.78rem; color: var(--soft); margin-bottom: 0.3rem; font-weight: 600; }
+.form-input, .form-select, .form-textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.875rem; color: var(--text); font-size: 0.85rem; font-family: inherit; outline: none; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-textarea { resize: vertical; min-height: 80px; }
+
+/* ── SECTION HEADERS ── */
+.section-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.3rem; }
+.section-sub { color: var(--soft); font-size: 0.88rem; margin-bottom: 1.5rem; }
+.section-anchor { display: inline-block; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.2); border-radius: 4px; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem; }
+
+/* ── TAGS ── */
+.tag { font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.tag-green { background: rgba(52,211,153,0.12); color: var(--green); }
+.tag-blue { background: rgba(79,142,247,0.12); color: var(--accent); }
+.tag-yellow { background: rgba(251,191,36,0.12); color: var(--yellow); }
+.tag-purple { background: rgba(167,139,250,0.12); color: var(--purple); }
+.tag-red { background: rgba(248,113,113,0.12); color: var(--red); }
+.tag-orange { background: rgba(251,146,60,0.12); color: var(--orange); }
+
+/* ── PRODUCT CARDS ── */
+.product-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all 0.2s; }
+.product-card:hover { border-color: rgba(79,142,247,0.35); transform: translateY(-2px); }
+.product-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.product-name { font-size: 1.05rem; font-weight: 700; }
+.product-target { font-size: 0.78rem; color: var(--muted); margin-top: 0.1rem; }
+.product-pricing { display: flex; gap: 1rem; margin: 0.75rem 0; }
+.product-pricing .price-box { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.15); border-radius: 8px; padding: 0.4rem 0.75rem; }
+.price-num { font-size: 1.1rem; font-weight: 800; color: var(--green); }
+.price-label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.product-pitch { font-size: 0.85rem; color: var(--soft); margin: 0.75rem 0; padding: 0.75rem; background: rgba(79,142,247,0.06); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; }
+.product-includes { list-style: none; margin: 0.75rem 0; }
+.product-includes li { font-size: 0.82rem; color: var(--soft); padding: 0.2rem 0; }
+.product-includes li::before { content: '\2713'; color: var(--green); margin-right: 0.5rem; font-weight: 700; }
+.product-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+
+/* ── PIPELINE ── */
+.pipeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; overflow-x: auto; }
+.pipeline-col { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; min-width: 180px; padding: 0.75rem; }
+.pipeline-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+.pipeline-count { background: var(--border); color: var(--soft); font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 3px; }
+.lead-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.4rem; cursor: pointer; transition: border-color 0.15s; }
+.lead-card:hover { border-color: rgba(79,142,247,0.3); }
+.lead-name { font-size: 0.82rem; font-weight: 700; }
+.lead-type { font-size: 0.7rem; color: var(--muted); margin-top: 0.1rem; }
+.lead-value { font-size: 0.72rem; color: var(--green); font-weight: 600; margin-top: 0.3rem; }
+
+/* ── QUOTE ── */
+.quote-result { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-top: 1rem; }
+.quote-text { white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.82rem; color: var(--soft); line-height: 1.6; background: var(--bg); padding: 1rem; border-radius: 8px; margin-top: 0.75rem; }
+.quote-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.quote-box { padding: 0.75rem; border-radius: 8px; text-align: center; }
+.quote-box-client { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.15); }
+.quote-box-comm { background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.15); }
+.quote-big { font-size: 1.3rem; font-weight: 800; }
+
+/* ── PLAYBOOK ── */
+.playbook-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.playbook-box { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.playbook-box h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem; }
+.playbook-q { margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+.playbook-q:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.playbook-q strong { display: block; font-size: 0.88rem; margin-bottom: 0.3rem; }
+.playbook-q em { font-style: normal; font-size: 0.82rem; color: var(--soft); display: block; }
+.objection { margin-bottom: 1rem; }
+.objection:last-child { margin-bottom: 0; }
+.objection-q { font-weight: 700; font-size: 0.88rem; color: var(--yellow); margin-bottom: 0.3rem; }
+.objection-a { font-size: 0.82rem; color: var(--soft); }
+
+/* ── TEMPLATES ── */
+.template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 0.75rem; }
+.template-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.125rem; }
+.template-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem; }
+.template-card > p { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.75rem; }
+.template-body { background: var(--bg); padding: 0.875rem; border-radius: 8px; font-size: 0.82rem; color: var(--soft); line-height: 1.55; white-space: pre-wrap; margin-bottom: 0.75rem; }
+.template-copy-btn { background: rgba(79,142,247,0.1); color: var(--accent); border: 1px solid rgba(79,142,247,0.2); padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+.template-copy-btn:hover { background: rgba(79,142,247,0.2); }
+
+/* ── COMMISSION TABLE ── */
+.comm-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.comm-table th { text-align: left; padding: 0.6rem 0.75rem; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+.comm-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+.comm-table .purple { color: var(--purple); font-weight: 700; }
+.comm-table .green { color: var(--green); font-weight: 700; }
+
+/* ── MODAL ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); width: 90%; max-width: 520px; max-height: 85vh; overflow-y: auto; padding: 1.5rem; }
+.modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+.modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.25rem; }
+
+/* ── LOGIN ── */
+#login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+.login-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; width: 100%; max-width: 400px; text-align: center; }
+.login-card h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.3rem; }
+.login-card h1 span { color: var(--accent); }
+.login-card .sub { color: var(--soft); font-size: 0.88rem; margin-bottom: 2rem; }
+.login-error { color: var(--red); font-size: 0.82rem; margin-top: 0.5rem; display: none; }
+
+/* ── ONBOARDING ── */
+#onboarding-overlay { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 500; overflow-y: auto; }
+#onboarding-overlay.open { display: block; }
+.onboard-container { max-width: 700px; margin: 0 auto; padding: 3rem 2rem; }
+.onboard-progress { display: flex; gap: 0.4rem; margin-bottom: 2rem; }
+.onboard-dot { flex: 1; height: 4px; border-radius: 2px; background: var(--border); transition: background 0.3s; }
+.onboard-dot.done { background: var(--accent); }
+.onboard-dot.active { background: var(--green); }
+.onboard-step { display: none; }
+.onboard-step.active { display: block; }
+.onboard-step h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.onboard-step .desc { color: var(--soft); font-size: 0.92rem; margin-bottom: 1.5rem; line-height: 1.6; }
+.onboard-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; margin: 1.5rem 0; }
+.onboard-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+.onboard-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
+.onboard-card p { font-size: 0.82rem; color: var(--soft); }
+.onboard-nav { display: flex; justify-content: space-between; margin-top: 2rem; }
+.onboard-example { background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.15); border-radius: 10px; padding: 1rem 1.25rem; margin: 1rem 0; }
+.onboard-example h4 { color: var(--green); font-size: 0.88rem; margin-bottom: 0.3rem; }
+.onboard-example p { font-size: 0.82rem; color: var(--soft); }
+
+/* ── PRESENTATION MODE ── */
+#presentation-overlay { display: none; position: fixed; inset: 0; z-index: 400; }
+#presentation-overlay.open { display: block; }
+#pres-slides { position: absolute; inset: 0; }
+.pres-slide { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 3rem 5rem; text-align: center; overflow-y: auto; }
+.pres-slide.active { display: flex; }
+.pres-nav { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.75rem; align-items: center; z-index: 410; background: rgba(0,0,0,0.4); padding: 0.5rem 1rem; border-radius: 999px; backdrop-filter: blur(8px); }
+.pres-nav button { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; width: 42px; height: 42px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; transition: background 0.15s; }
+.pres-nav button:hover { background: rgba(255,255,255,0.3); }
+.pres-close { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 410; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+.pres-counter { color: rgba(255,255,255,0.6); font-size: 0.82rem; font-weight: 600; min-width: 40px; text-align: center; }
+.pres-hero-icon { font-size: 5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
+.pres-hero-name { font-size: 3.5rem; font-weight: 900; margin-bottom: 0.75rem; letter-spacing: -0.02em; text-shadow: 0 2px 20px rgba(0,0,0,0.2); }
+.pres-hero-target { font-size: 1.3rem; font-weight: 500; opacity: 0.85; }
+.pres-section-title { font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 1rem; opacity: 0.7; }
+.pres-h2 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -0.01em; }
+.pres-feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; max-width: 750px; margin: 1.5rem auto; text-align: left; }
+.pres-feature-item { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.1rem 1.25rem; font-size: 1.05rem; backdrop-filter: blur(4px); }
+.pres-price-big { font-size: 4.5rem; font-weight: 900; letter-spacing: -0.03em; text-shadow: 0 2px 20px rgba(0,0,0,0.15); }
+.pres-pill { display: inline-block; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.15); padding: 0.6rem 1.5rem; border-radius: 999px; font-size: 1rem; font-weight: 600; backdrop-filter: blur(4px); }
+.pres-card { background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem 2rem; max-width: 550px; margin: 0.5rem auto; text-align: left; backdrop-filter: blur(4px); }
+.pres-problem-item { font-size: 1.2rem; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 1rem; }
+.pres-problem-item:last-child { border-bottom: none; }
+.pres-problem-num { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.88rem; flex-shrink: 0; }
+@media (max-width: 768px) {
+  .pres-hero-name { font-size: 2.2rem; }
+  .pres-h2 { font-size: 1.8rem; }
+  .pres-price-big { font-size: 3rem; }
+  .pres-feature-grid { grid-template-columns: 1fr; }
+  .pres-slide { padding: 2rem 1.5rem 4rem; }
+}
+
+/* ── ADMIN ── */
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.admin-table th { text-align: left; padding: 0.6rem 0.75rem; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+.admin-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+
+/* ── LEAD SCANNER ── */
+.scanner-section { margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+.scanner-controls { display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem; }
+.scan-quota { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; font-size: 0.75rem; color: var(--muted); }
+.scan-quota-bar { width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.scan-quota-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s, background 0.3s; }
+.scan-results { display: grid; grid-template-columns: 1fr; gap: 0.6rem; margin-top: 1rem; }
+.scan-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.15s; }
+.scan-card:hover { border-color: rgba(79,142,247,0.3); }
+.scan-card-top { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.4rem; }
+.scan-source { font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.scan-source-Facebook { background: rgba(66,103,178,0.15); color: #7b9cd6; }
+.scan-source-Reddit { background: rgba(255,69,0,0.12); color: #ff8c5a; }
+.scan-source-Google { background: rgba(52,211,153,0.12); color: var(--green); }
+.scan-source-default { background: rgba(79,142,247,0.1); color: var(--accent); }
+.scan-confidence { font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.scan-confidence-hot { background: rgba(248,113,113,0.15); color: var(--red); }
+.scan-confidence-warm { background: rgba(251,191,36,0.15); color: var(--yellow); }
+.scan-confidence-cold { background: rgba(79,142,247,0.1); color: var(--accent); }
+.scan-product { font-size: 0.65rem; font-weight: 600; color: var(--muted); }
+.scan-title { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.2rem; }
+.scan-snippet { font-size: 0.8rem; color: var(--soft); line-height: 1.5; }
+.scan-pain { font-size: 0.78rem; color: var(--yellow); margin-top: 0.3rem; }
+.scan-approach { display: block; margin-top: 0.6rem; padding: 0.75rem; background: rgba(79,142,247,0.06); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; font-size: 0.82rem; color: var(--soft); line-height: 1.5; }
+.scan-actions { display: flex; gap: 0.4rem; margin-top: 0.6rem; }
+.scan-seen { font-size: 0.6rem; color: var(--muted); font-weight: 600; margin-left: auto; }
+.scan-summary { display: flex; gap: 1rem; margin-bottom: 0.75rem; font-size: 0.78rem; color: var(--soft); }
+.scan-loading { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+.scan-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: scan-spin 0.8s linear infinite; margin-bottom: 0.75rem; }
+@keyframes scan-spin { to { transform: rotate(360deg); } }
+.scan-history-item { font-size: 0.75rem; color: var(--muted); padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; gap: 0.75rem; }
+
+/* ── TOAST ── */
+#toast { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999; padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; transform: translateY(100px); opacity: 0; transition: all 0.3s; pointer-events: none; }
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast.success { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+#toast.error { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+#toast.info { background: rgba(79,142,247,0.15); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 0 0.75rem; }
+  .nav-tabs { gap: 0; }
+  .container { padding: 1.25rem 1rem; }
+  .card-grid, .playbook-grid, .template-grid { grid-template-columns: 1fr; }
+  .pipeline { grid-template-columns: 1fr 1fr; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .quote-summary { grid-template-columns: 1fr; }
+  .pres-hero-name { font-size: 1.8rem; }
+  .pres-feature-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ LOGIN SCREEN ═══════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <h1><span>Penny</span>WiseIT</h1>
+    <p class="sub">Sales Portal</p>
+    <div class="form-group">
+      <input type="text" id="login-user" class="form-input" placeholder="Username" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <input type="password" id="login-pass" class="form-input" placeholder="Password" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ═══════ ONBOARDING WIZARD ═══════ -->
+<div id="onboarding-overlay">
+  <div class="onboard-container">
+    <div class="onboard-progress" id="onboard-progress"></div>
+
+    <!-- Step 1: Welcome -->
+    <div class="onboard-step" data-step="0">
+      <h2>Welcome to PennyWiseIT</h2>
+      <p class="desc">You're about to start earning commission selling custom web apps to Australian small businesses. This portal has everything you need — product info, pitch scripts, quote builder, and lead tracking. No prior knowledge required.</p>
+      <div class="onboard-cards">
+        <div class="onboard-card"><h4>No tech knowledge needed</h4><p>You sell, we build. You never touch code or deal with hosting.</p></div>
+        <div class="onboard-card"><h4>Commission on every deal</h4><p>Earn a percentage of setup fees plus ongoing monthly revenue.</p></div>
+        <div class="onboard-card"><h4>Everything is in here</h4><p>Products, pricing, pitch scripts, objection handling — it's all inside this app.</p></div>
+      </div>
+      <div class="onboard-nav"><div></div><button class="btn btn-primary" onclick="nextOnboardStep()">Let's go</button></div>
+    </div>
+
+    <!-- Step 2: What We Do -->
+    <div class="onboard-step" data-step="1">
+      <h2>What PennyWiseIT Does</h2>
+      <p class="desc">We build custom, fully branded web apps for small businesses. The client's customers never see our name — it looks 100% like the client's own app. We handle everything: design, development, hosting, domain, and ongoing support.</p>
+      <div class="onboard-cards">
+        <div class="onboard-card"><h4>White-label apps</h4><p>Every app is branded to the client's business — their logo, their colours, their domain. We're invisible.</p></div>
+        <div class="onboard-card"><h4>Live in under a week</h4><p>From "yes" to a working app in days, not weeks or months. No other company can do this at our price point.</p></div>
+        <div class="onboard-card"><h4>Built on Cloudflare</h4><p>Enterprise infrastructure. Fast globally, 99.99% uptime. If we disappeared tomorrow, apps keep running.</p></div>
+        <div class="onboard-card"><h4>One-off + monthly</h4><p>Client pays a setup fee (your big commission hit) plus a monthly hosting/support fee (your recurring income).</p></div>
+      </div>
+      <div class="onboard-nav"><button class="btn btn-secondary" onclick="prevOnboardStep()">Back</button><button class="btn btn-primary" onclick="nextOnboardStep()">Next</button></div>
+    </div>
+
+    <!-- Step 3: What You Sell -->
+    <div class="onboard-step" data-step="2">
+      <h2>What You're Selling</h2>
+      <p class="desc">We have 8 app types. Each one is designed for a specific type of business. You don't need to know the tech — just match the business to the right app.</p>
+      <div id="onboard-products"></div>
+      <p class="desc" style="margin-top:1rem">Don't worry about memorising all of this — the Products tab has everything and you can show it directly to clients.</p>
+      <div class="onboard-nav"><button class="btn btn-secondary" onclick="prevOnboardStep()">Back</button><button class="btn btn-primary" onclick="nextOnboardStep()">Next</button></div>
+    </div>
+
+    <!-- Step 4: How Commission Works -->
+    <div class="onboard-step" data-step="3">
+      <h2>How You Get Paid</h2>
+      <p class="desc">You earn commission on every deal you close. Your rates are set by the admin and shown in your Commission tab.</p>
+      <div class="onboard-example">
+        <h4>Example: You sell a Food Truck App ($799 setup, $79/mo)</h4>
+        <p>At 15% setup commission = <strong style="color:var(--purple)">$120 upfront</strong><br>
+        At 10% monthly commission = <strong style="color:var(--green)">$7.90/month ongoing</strong> ($94.80/year)<br>
+        <strong>Total first-year earnings from this one deal: $214.80</strong></p>
+      </div>
+      <div class="onboard-example">
+        <h4>Example: You sell 5 apps a month</h4>
+        <p>Average deal: $1,200 setup, $95/mo<br>
+        Monthly setup commissions: <strong style="color:var(--purple)">$900</strong><br>
+        Monthly recurring (builds every month): <strong style="color:var(--green)">$47.50 and growing</strong><br>
+        After 12 months of 5 deals/mo, your recurring alone is $570/month — on top of setup commissions.</p>
+      </div>
+      <div class="onboard-nav"><button class="btn btn-secondary" onclick="prevOnboardStep()">Back</button><button class="btn btn-primary" onclick="nextOnboardStep()">Next</button></div>
+    </div>
+
+    <!-- Step 5: How to Pitch -->
+    <div class="onboard-step" data-step="4">
+      <h2>How to Approach People</h2>
+      <p class="desc">You're not a salesperson reading from a script. You're someone who genuinely helps businesses solve real problems. Here's the approach that works:</p>
+      <div class="onboard-cards" style="grid-template-columns:1fr">
+        <div class="onboard-card">
+          <h4>1. Be a customer first</h4>
+          <p>Visit the business. Buy their food, get a quote from the tradie, attend their event. Start as a real person, not a sales rep. You'll understand their business better and they'll be more open to talking.</p>
+        </div>
+        <div class="onboard-card">
+          <h4>2. Ask, don't pitch</h4>
+          <p>Start with a genuine question: "Do you take online orders?" or "What do you use for job bookings?" Listen to their answer. If they have a pain point, you'll hear it. If they don't, move on — not every business needs an app.</p>
+        </div>
+        <div class="onboard-card">
+          <h4>3. Show, don't tell</h4>
+          <p>If they're interested, open the Products tab and tap "Show Client". A 60-second visual demo is worth more than 10 minutes of explaining. Let them ask questions — don't oversell.</p>
+        </div>
+        <div class="onboard-card">
+          <h4>4. Make it easy to say yes (and easy to say no)</h4>
+          <p>Send a quote using the Quote Builder. Always say "no stress if it's not the right time." Removing pressure makes people more likely to engage, not less. If they need to think, book a specific follow-up date.</p>
+        </div>
+        <div class="onboard-card">
+          <h4>5. Follow up with value, not pressure</h4>
+          <p>Every follow-up should add something new — a demo video, a case study, an observation about their business. Never send "just checking in." If they don't reply after 3 touches, send the breakup message and move on.</p>
+        </div>
+        <div class="onboard-card">
+          <h4>6. Log everything</h4>
+          <p>Add every conversation to My Leads — even ones that said no. Track the stage, add notes. When they say yes, mark as Won and let the team handle the build. You just earned your commission.</p>
+        </div>
+      </div>
+      <div class="onboard-nav"><button class="btn btn-secondary" onclick="prevOnboardStep()">Back</button><button class="btn btn-primary" onclick="nextOnboardStep()">Next</button></div>
+    </div>
+
+    <!-- Step 6: Profile Setup -->
+    <div class="onboard-step" data-step="5">
+      <h2>Set Up Your Profile</h2>
+      <p class="desc">This info appears on quotes and messages you send to prospects.</p>
+      <div style="max-width:400px">
+        <div class="form-group"><label class="form-label">Your full name</label><input type="text" id="onboard-name" class="form-input" placeholder="e.g. Sarah Mitchell"></div>
+        <div class="form-group"><label class="form-label">Your email</label><input type="email" id="onboard-email" class="form-input" placeholder="e.g. sarah@email.com"></div>
+        <div class="form-group"><label class="form-label">Your phone</label><input type="tel" id="onboard-phone" class="form-input" placeholder="e.g. 0412 345 678"></div>
+      </div>
+      <div class="onboard-nav"><button class="btn btn-secondary" onclick="prevOnboardStep()">Back</button><button class="btn btn-primary btn-green" onclick="finishOnboarding()">Start selling</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ PRESENTATION MODE ═══════ -->
+<div id="presentation-overlay">
+  <button class="pres-close" onclick="closePresentation()" title="Close">&times;</button>
+  <div id="pres-slides"></div>
+  <div class="pres-nav">
+    <button onclick="presSlide(-1)" title="Previous">&larr;</button>
+    <span class="pres-counter" id="pres-counter">1 / 7</span>
+    <button onclick="presSlide(1)" title="Next">&rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════ LEAD MODAL ═══════ -->
+<div class="modal-overlay" id="lead-modal">
+  <div class="modal">
+    <div class="modal-title" id="lead-modal-title">Add Lead</div>
+    <input type="hidden" id="lead-edit-id">
+    <div class="form-group"><label class="form-label">Business name</label><input type="text" id="lead-biz" class="form-input" placeholder="e.g. Joe's BBQ"></div>
+    <div class="form-group"><label class="form-label">Contact name</label><input type="text" id="lead-contact" class="form-input" placeholder="e.g. Joe Smith"></div>
+    <div class="form-group"><label class="form-label">Phone</label><input type="tel" id="lead-phone" class="form-input" placeholder="e.g. 0412 345 678"></div>
+    <div class="form-group"><label class="form-label">Email</label><input type="email" id="lead-email" class="form-input" placeholder="e.g. joe@joebbq.com.au"></div>
+    <div class="form-group"><label class="form-label">App type interested in</label>
+      <select id="lead-app" class="form-select"><option value="">-- Select --</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Stage</label>
+      <select id="lead-stage" class="form-select">
+        <option value="new">New</option><option value="contacted">Contacted</option>
+        <option value="demo">Demo Given</option><option value="proposal">Quote Sent</option>
+        <option value="won">Won</option><option value="lost">Lost</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea id="lead-notes" class="form-textarea" placeholder="Any details about this prospect..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeLeadModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLead()">Save Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ APP SHELL ═══════ -->
+<div id="app-shell" style="display:none">
+  <nav>
+    <div class="nav-brand" onclick="switchTab('dashboard')"><span>Penny</span>WiseIT</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('dashboard',this)" data-tab="dashboard">Dashboard</button>
+      <button class="nav-tab" onclick="switchTab('products',this)" data-tab="products">Products</button>
+      <button class="nav-tab" onclick="switchTab('quote',this)" data-tab="quote">Quote Builder</button>
+      <button class="nav-tab" onclick="switchTab('leads',this)" data-tab="leads">My Leads</button>
+      <button class="nav-tab" onclick="switchTab('toolkit',this)" data-tab="toolkit">Sales Toolkit</button>
+      <button class="nav-tab" onclick="switchTab('commission',this)" data-tab="commission">Commission</button>
+      <button class="nav-tab" onclick="switchTab('admin',this)" data-tab="admin" id="admin-tab" style="display:none">Admin</button>
+    </div>
+    <div class="nav-right">
+      <span class="nav-user" id="nav-user"></span>
+      <button class="nav-logout" onclick="doLogout()">Sign out</button>
+    </div>
+  </nav>
+
+  <!-- ── TAB: DASHBOARD ── -->
+  <div class="tab-panel active" id="panel-dashboard">
+    <div class="container">
+      <div class="section-anchor">DASHBOARD</div>
+      <h1 class="section-title" id="dash-welcome">Welcome back</h1>
+      <p class="section-sub">Here's your sales overview.</p>
+      <div class="stat-grid" id="dash-stats">
+        <div class="stat-card"><div class="stat-val" style="color:var(--purple)" id="ds-earned">$0</div><div class="stat-label">Commission earned</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--green)" id="ds-won">0</div><div class="stat-label">Deals won</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--accent)" id="ds-pipeline">0</div><div class="stat-label">In pipeline</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--orange)" id="ds-monthly">$0</div><div class="stat-label">Monthly recurring</div></div>
+      </div>
+      <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="switchTab('leads');openLeadModal()">Add Lead</button>
+        <button class="btn btn-secondary" onclick="switchTab('quote')">Build Quote</button>
+        <button class="btn btn-secondary" onclick="switchTab('products')">View Products</button>
+      </div>
+      <h3 style="font-size:0.95rem;margin-bottom:0.75rem">Recent leads</h3>
+      <div id="dash-recent-leads"></div>
+    </div>
+  </div>
+
+  <!-- ── TAB: PRODUCTS ── -->
+  <div class="tab-panel" id="panel-products">
+    <div class="container">
+      <div class="section-anchor">PRODUCTS</div>
+      <h1 class="section-title">What You're Selling</h1>
+      <p class="section-sub">Tap "Show Client" to present any product full-screen on your phone or tablet.</p>
+      <div class="card-grid" id="products-grid"></div>
+
+      <div style="margin-top:2rem">
+        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.75rem">Add-on Modules</h2>
+        <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(250px,1fr))">
+          <div class="card"><div style="font-size:1.2rem;margin-bottom:0.3rem">Email (Resend)</div><div class="tag tag-green" style="margin-bottom:0.5rem">Included</div><p style="font-size:0.82rem;color:var(--soft)">Transactional emails — order confirmations, password resets, etc. Included with every app at no extra cost.</p></div>
+          <div class="card"><div style="font-size:1.2rem;margin-bottom:0.3rem">SMS Alerts (Twilio)</div><div style="margin-bottom:0.5rem"><span class="tag tag-yellow">+$99 setup</span> <span class="tag tag-yellow">+$30/mo</span></div><p style="font-size:0.82rem;color:var(--soft)">Order alerts via SMS to the business owner. Great for food trucks and tradies who aren't checking email.</p></div>
+          <div class="card"><div style="font-size:1.2rem;margin-bottom:0.3rem">Managed Login (Clerk)</div><div style="margin-bottom:0.5rem"><span class="tag tag-blue">+$25/mo</span></div><p style="font-size:0.82rem;color:var(--soft)">Social sign-in (Google, Facebook), passwordless login, and multi-factor auth. Professional login page.</p></div>
+          <div class="card"><div style="font-size:1.2rem;margin-bottom:0.3rem">AI Writing</div><div style="margin-bottom:0.5rem"><span class="tag tag-purple">Usage-based</span></div><p style="font-size:0.82rem;color:var(--soft)">AI-powered content generation — product descriptions, social posts, email copy. Very low cost per use.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: QUOTE BUILDER ── -->
+  <div class="tab-panel" id="panel-quote">
+    <div class="container">
+      <div class="section-anchor">QUOTE BUILDER</div>
+      <h1 class="section-title">Build a Quote</h1>
+      <p class="section-sub">Select an app, toggle add-ons, and generate a professional quote in seconds.</p>
+      <div class="card" style="max-width:600px">
+        <div class="form-group"><label class="form-label">Client name</label><input type="text" id="qb-name" class="form-input" placeholder="e.g. Joe's BBQ" oninput="buildQuote()"></div>
+        <div class="form-group"><label class="form-label">App type</label><select id="qb-app" class="form-select" onchange="buildQuote()"></select></div>
+        <div class="form-group">
+          <label class="form-label">Add-ons</label>
+          <div style="display:flex;flex-direction:column;gap:0.4rem" class="quote-checks">
+            <label style="font-size:0.82rem;color:var(--soft);display:flex;align-items:center;gap:0.5rem"><input type="checkbox" id="qb-sms" value="99|30" onchange="buildQuote()"> SMS Alerts (+$99 setup, +$30/mo)</label>
+            <label style="font-size:0.82rem;color:var(--soft);display:flex;align-items:center;gap:0.5rem"><input type="checkbox" id="qb-clerk" value="0|25" onchange="buildQuote()"> Managed Login (+$25/mo)</label>
+            <label style="font-size:0.82rem;color:var(--soft);display:flex;align-items:center;gap:0.5rem"><input type="checkbox" id="qb-ai" value="0|0" onchange="buildQuote()"> AI Writing (usage-based)</label>
+          </div>
+        </div>
+      </div>
+      <div id="quote-result" class="quote-result" style="max-width:600px;display:none">
+        <div class="quote-summary">
+          <div class="quote-box quote-box-client"><div class="price-label">CLIENT PAYS</div><div class="quote-big" style="color:var(--green)" id="qr-setup">$0</div><div style="font-size:0.78rem;color:var(--soft)">setup</div><div class="quote-big" style="color:var(--green);font-size:1rem;margin-top:0.3rem" id="qr-monthly">$0/mo</div></div>
+          <div class="quote-box quote-box-comm"><div class="price-label">YOU EARN</div><div class="quote-big" style="color:var(--purple)" id="qr-comm-setup">$0</div><div style="font-size:0.78rem;color:var(--soft)">setup commission</div><div class="quote-big" style="color:var(--purple);font-size:1rem;margin-top:0.3rem" id="qr-comm-monthly">$0/mo</div></div>
+        </div>
+        <div class="quote-text" id="qb-text"></div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
+          <button class="btn btn-primary" id="qb-copy-btn" onclick="copyQuote()">Copy quote</button>
+          <button class="btn btn-secondary" onclick="emailQuote()">Email quote</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: LEADS ── -->
+  <div class="tab-panel" id="panel-leads">
+    <div class="container">
+      <div class="section-anchor">MY LEADS</div>
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap">
+        <h1 class="section-title" style="margin:0">Lead Pipeline</h1>
+        <button class="btn btn-primary btn-sm" onclick="openLeadModal()">+ Add Lead</button>
+        <input type="text" id="lead-search" class="form-input" placeholder="Search leads..." style="width:200px;padding:0.35rem 0.7rem;font-size:0.78rem" oninput="renderLeads()">
+      </div>
+      <p class="section-sub">Track every prospect from first contact to closed deal.</p>
+      <div class="pipeline" id="leads-pipeline"></div>
+
+      <!-- LEAD SCANNER -->
+      <div class="scanner-section">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap">
+          <h2 style="font-size:1.1rem;font-weight:700;margin:0">Lead Scanner</h2>
+          <span class="tag tag-purple">AI-Powered</span>
+          <div class="scan-quota" id="scan-quota">
+            <span id="scan-quota-text">-- scans left today</span>
+            <div class="scan-quota-bar"><div class="scan-quota-fill" id="scan-quota-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <p style="font-size:0.82rem;color:var(--soft);margin-bottom:1rem">Searches Facebook, Reddit, Google Reviews, and forums for real complaints PennyWiseIT can solve.</p>
+
+        <div class="scanner-controls">
+          <div class="form-group" style="flex:1;min-width:180px;margin:0">
+            <label class="form-label">Your area</label>
+            <input type="text" id="scan-location" class="form-input" placeholder="e.g. Brisbane, Gold Coast, Gladstone" oninput="saveScanLocation()">
+          </div>
+          <div class="form-group" style="min-width:160px;margin:0">
+            <label class="form-label">App type (optional)</label>
+            <select id="scan-app-type" class="form-select"><option value="">All types</option></select>
+          </div>
+          <button class="btn btn-primary" id="scan-btn" onclick="runLeadScan()" style="align-self:flex-end">Scan Now</button>
+        </div>
+
+        <div id="scan-results-area"></div>
+
+        <div id="scan-history" style="display:none;margin-top:1rem">
+          <h4 style="font-size:0.78rem;color:var(--muted);margin-bottom:0.3rem">Recent scans</h4>
+          <div id="scan-history-list"></div>
+        </div>
+
+        <!-- AUTO-SCAN CONFIG -->
+        <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem">
+            <h2 style="font-size:1.1rem;font-weight:700;margin:0">Daily Auto-Scan</h2>
+            <span class="tag tag-green" id="autoscan-status-tag" style="display:none">Active</span>
+          </div>
+          <p style="font-size:0.82rem;color:var(--soft);margin-bottom:1rem">Set your area and the scanner will automatically find new leads every day and email them to you.</p>
+          <div class="scanner-controls">
+            <div class="form-group" style="flex:1;min-width:180px;margin:0">
+              <label class="form-label">Your area</label>
+              <input type="text" id="autoscan-location" class="form-input" placeholder="e.g. Queensland, Brisbane, Gold Coast">
+            </div>
+            <div class="form-group" style="min-width:160px;margin:0">
+              <label class="form-label">Focus (optional)</label>
+              <select id="autoscan-apptype" class="form-select"><option value="all">All services</option></select>
+            </div>
+            <div class="form-group" style="min-width:200px;margin:0">
+              <label class="form-label">Email for notifications</label>
+              <input type="email" id="autoscan-email" class="form-input" placeholder="e.g. sarah@email.com">
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.75rem;align-items:center">
+            <button class="btn btn-green btn-sm" onclick="saveAutoScanConfig(true)">Enable daily scan</button>
+            <button class="btn btn-secondary btn-sm" onclick="saveAutoScanConfig(false)">Disable</button>
+            <span id="autoscan-save-msg" style="font-size:0.75rem;color:var(--green);display:none">Saved</span>
+          </div>
+        </div>
+
+        <!-- AUTO-SCAN NEW LEADS -->
+        <div id="auto-leads-section" style="display:none;margin-top:1.5rem">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem">
+            <h3 style="font-size:1rem;font-weight:700;margin:0">New Leads Found</h3>
+            <span class="tag tag-red" id="auto-leads-count">0</span>
+            <button class="btn btn-secondary btn-sm" style="margin-left:auto" onclick="markAutoLeadsSeen()">Mark all seen</button>
+          </div>
+          <div id="auto-leads-list" class="scan-results"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: SALES TOOLKIT ── -->
+  <div class="tab-panel" id="panel-toolkit">
+    <div class="container">
+      <div class="section-anchor">SALES TOOLKIT</div>
+      <h1 class="section-title">Everything You Need to Close Deals</h1>
+      <p class="section-sub">Pitch scripts, objection handling, message templates, and more.</p>
+
+      <!-- How to Introduce Yourself -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.75rem">How to Introduce Yourself</h2>
+      <div class="card" style="margin-bottom:0.75rem;border-left:3px solid var(--green)">
+        <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.5rem">THE RULE: Know three things, say them naturally. Never memorise a script word-for-word.</div>
+        <div style="font-size:0.88rem;color:var(--soft);line-height:1.6">
+          <strong style="color:var(--text)">1.</strong> Who you help <em style="color:var(--muted)">(food trucks, tradies, event organisers)</em><br>
+          <strong style="color:var(--text)">2.</strong> One specific result for a real business <em style="color:var(--muted)">(not features, not pricing)</em><br>
+          <strong style="color:var(--text)">3.</strong> A question that opens a conversation <em style="color:var(--muted)">(never end with a pitch)</em>
+        </div>
+      </div>
+      <div class="card-grid" style="margin-bottom:2rem">
+        <div class="card">
+          <div class="tag tag-green" style="margin-bottom:0.5rem">Casual intro</div>
+          <p style="font-size:0.85rem;color:var(--soft)">"I work with a lot of local food trucks and tradies — I help them get their own app for things like online ordering or job bookings. One of the food trucks I work with reckons it saved them about 4 hours a week just on phone orders. What sort of setup are you using at the moment?"</p>
+          <button class="template-copy-btn" style="margin-top:0.5rem" onclick="copyText(this.previousElementSibling.textContent,this)">Copy</button>
+        </div>
+        <div class="card">
+          <div class="tag tag-blue" style="margin-bottom:0.5rem">When someone asks what you do</div>
+          <p style="font-size:0.85rem;color:var(--soft)">"So basically, I help small businesses get their own app — ordering, bookings, that kind of thing. Fully branded to them, their customers never see our name. One sparky I work with replaced three separate tools he was paying $200 a month for with one app. It depends on the business though — what do you do?"</p>
+          <button class="template-copy-btn" style="margin-top:0.5rem" onclick="copyText(this.previousElementSibling.textContent,this)">Copy</button>
+        </div>
+        <div class="card">
+          <div class="tag tag-purple" style="margin-bottom:0.5rem">Longer conversation</div>
+          <p style="font-size:0.85rem;color:var(--soft)">Don't pitch — show. Open the Products tab, tap "Show Client" on the relevant app type. Walk them through the slides and let them ask questions. The presentation does the heavy lifting.</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem">Tip: Be a customer first. Buy their food, use their service. Start as a genuine person, not a rep.</p>
+        </div>
+      </div>
+
+      <!-- Discovery Questions -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.75rem">Conversation Starters</h2>
+      <div class="card" style="margin-bottom:0.75rem;border-left:3px solid var(--yellow)">
+        <div style="font-size:0.82rem;color:var(--soft)">The 80/20 rule: spend 80% of the conversation listening, 20% talking. Ask about their business, their frustrations, their goals. The more they talk, the more you understand what they actually need.</div>
+      </div>
+      <div class="playbook-grid">
+        <div class="playbook-box">
+          <h3>Getting them talking</h3>
+          <div class="playbook-q"><strong>"How did you get into [their business]?"</strong><em>People love telling their origin story. It builds genuine rapport and they'll relax because you're not pitching yet.</em></div>
+          <div class="playbook-q"><strong>"What's the busiest part of your week look like?"</strong><em>This naturally reveals pain points without you having to dig. They'll tell you where they're struggling.</em></div>
+          <div class="playbook-q"><strong>"What do you use right now for [orders/bookings/jobs]?"</strong><em>Non-threatening, just curious. Most will say phone calls, texts, or pen and paper — which is your opening.</em></div>
+          <div class="playbook-q"><strong>"Have you tried anything before that didn't work out?"</strong><em>Shows you're not naive. Most have tried Shopify, Wix, or an expensive agency. Their bad experience is your opportunity.</em></div>
+          <div class="playbook-q"><strong>"If you could fix one thing about running the business, what would it be?"</strong><em>Gets to the real problem. Whatever they say is what you sell against — not features, not pricing.</em></div>
+        </div>
+        <div class="playbook-box">
+          <h3>When they're ready</h3>
+          <div class="playbook-q"><strong>Let them close themselves</strong><em>If they ask "so how does it work?" or "what does it cost?" — they're interested. Answer simply. Don't oversell.</em></div>
+          <div class="playbook-q"><strong>Summarise what they said back to them</strong><em>"So you're doing about 50 orders on Saturday mornings all by phone, and you reckon you lose a few because people can't get through — is that right?" Then: "Yeah, that's exactly what the app fixes."</em></div>
+          <div class="playbook-q"><strong>Make the next step easy</strong><em>"Want me to send you a quick demo of what it'd look like for [Business Name]? Takes 60 seconds to watch." Not a 30-minute call — just a demo link.</em></div>
+          <div class="playbook-q"><strong>After they say yes</strong><em>Mark the lead as Won in My Leads, note the agreed price, and let the boss know. That's it — the team handles everything from here.</em></div>
+        </div>
+      </div>
+
+      <!-- Objection Handling -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.75rem">When They Push Back</h2>
+      <div class="card" style="margin-bottom:0.75rem;border-left:3px solid var(--yellow)">
+        <div style="font-size:0.82rem;color:var(--soft)">Objections aren't rejection — they're questions in disguise. The person is still talking to you, which means they're interested. Don't get defensive. Just answer honestly.</div>
+      </div>
+      <div class="playbook-grid">
+        <div class="playbook-box">
+          <div class="objection"><div class="objection-q">"It's too expensive."</div><div class="objection-a">Don't argue. Ask: "Compared to what?" If they mean DIY: "Fair enough — Shopify is $79+/month and you still have to build it yourself and figure out the tech. This is done for you." If they mean generally: "What would it cost you to keep doing it by hand for another year?" Let them do the maths.</div></div>
+          <div class="objection"><div class="objection-q">"I need to think about it."</div><div class="objection-a">Don't push. Say: "Yeah of course. What's the main thing you want to mull over — the cost side or how it'd actually work day-to-day?" Address that one thing, then book a follow-up: "Can I check back in on Thursday?" Always leave with a specific date.</div></div>
+          <div class="objection"><div class="objection-q">"We already have a website."</div><div class="objection-a">"That's cool — this isn't a website replacement. Your website tells people about you. This lets customers actually do something — order, book, pay. They work alongside each other."</div></div>
+          <div class="objection"><div class="objection-q">"I'm not techy."</div><div class="objection-a">"Honestly, most of the people I work with aren't either. That's kind of the whole point — we build it, we manage it, you just use it. If you can use Facebook, you can use the dashboard. And if you get stuck, you message me."</div></div>
+        </div>
+        <div class="playbook-box">
+          <div class="objection"><div class="objection-q">"Can't I just use Shopify / Wix?"</div><div class="objection-a">"You could, yeah. Shopify's about $79/month before any add-ons, and you'd need to build it yourself which takes a few weeks. The main difference is this is built specifically for your business and you don't have to touch the tech side at all. Up to you though — happy to show you what the difference looks like."</div></div>
+          <div class="objection"><div class="objection-q">"What happens if you go out of business?"</div><div class="objection-a">"Reasonable question. The app runs on Cloudflare — they're one of the biggest infrastructure companies in the world. If we disappeared tomorrow, the app keeps running as-is. We can also hand over the code if that's a genuine concern for you."</div></div>
+          <div class="objection"><div class="objection-q">"I need to talk to my partner / accountant."</div><div class="objection-a">"No worries at all. Want me to send through a one-pager they can look at? And when works for me to check back in — end of the week?" Don't leave without a date.</div></div>
+          <div class="objection"><div class="objection-q">"I've been burned before."</div><div class="objection-a">"Honestly, that's really common. The reason our stuff is different is we don't start from scratch each time — we have proven templates we customise. So there's no scope creep, no mystery invoices, and it's done in days, not months. And there's no lock-in — if it's not right, you just cancel."</div></div>
+        </div>
+      </div>
+
+      <!-- Competitor Comparison -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin:1.5rem 0 0.75rem">Why PennyWiseIT vs Competitors</h2>
+      <div class="card" style="overflow-x:auto">
+        <table class="comm-table" style="min-width:600px">
+          <thead><tr><th></th><th style="color:var(--accent)">PennyWiseIT</th><th>Shopify</th><th>Web Agency</th><th>DIY (Wix)</th></tr></thead>
+          <tbody>
+            <tr><td>Setup cost</td><td class="green">$799-$1,999</td><td>$0 (but hours of work)</td><td>$5,000-$20,000</td><td>$0 (weeks of work)</td></tr>
+            <tr><td>Monthly</td><td class="green">$69-$149</td><td>$79-$399</td><td>$200-$500</td><td>$23-$49</td></tr>
+            <tr><td>Time to launch</td><td class="green">Under 1 week</td><td>2-4 weeks</td><td>2-6 months</td><td>1-4 weeks</td></tr>
+            <tr><td>Fully branded</td><td class="green">Yes — 100%</td><td>Shopify branding</td><td>Usually yes</td><td>Wix branding</td></tr>
+            <tr><td>Custom-built</td><td class="green">Yes</td><td>Template-based</td><td>Yes</td><td>Template-based</td></tr>
+            <tr><td>Ongoing support</td><td class="green">Included</td><td>Forums only</td><td>$100-$200/hr</td><td>Forums only</td></tr>
+            <tr><td>Australian-focused</td><td class="green">Yes</td><td>US-centric</td><td>Varies</td><td>US-centric</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Message Templates -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin:1.5rem 0 0.75rem">Message Templates</h2>
+      <div class="card" style="margin-bottom:0.75rem;border-left:3px solid var(--accent)">
+        <div style="font-size:0.82rem;color:var(--soft)"><strong style="color:var(--text)">Before you send:</strong> These are starting points, not scripts. Change the words so they sound like you. Reference something specific about their business — their menu, a Google review, their van you saw. If your message could be sent to any business, it's too generic.</div>
+      </div>
+      <div class="template-grid">
+        <div class="template-card"><h3>Cold DM — you've seen their business</h3><p>SMS, Facebook, or Instagram message</p><div class="template-body">Hey [Name], your [specific product/dish/service] looks great — I've been meaning to check it out. Quick question: do you take orders online or is it all walk-up/phone? I ask because I helped [similar business type] in [area] set up their own ordering app and they said it took the pressure off their busiest days. Happy to show you what it looks like if you're curious. No stress either way.</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+        <div class="template-card"><h3>Cold DM — you found them online</h3><p>When you haven't visited in person yet</p><div class="template-body">Hey [Name], came across [Business Name] on Google — your reviews are really solid. Quick one: are you managing [bookings/orders/jobs] by phone and text at the moment? I work with a few [tradies/food trucks/shops] around [area] and helped one of them set up a simple app that handles it all. They reckon it cut their admin time in half. Worth a 5-min chat to see if something like that suits your setup? If not, no worries at all.</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+        <div class="template-card"><h3>Warm intro — referral from Steve</h3><p>Someone the boss has connected you with</p><div class="template-body">Hey [Name], Steve mentioned you'd been thinking about getting an app set up for [Business Name]. I help with that side of things — basically I chat to business owners and figure out if an app actually makes sense for them. Sometimes it does, sometimes it doesn't. Would it be worth a quick chat? Happy to explain what's involved and you can decide from there.</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+        <div class="template-card"><h3>Follow-up — no reply (3 days later)</h3><p>Add new value, don't just "check in"</p><div class="template-body">Hey [Name], just a quick one — I put together a 30-second video showing what the app looks like for a [their business type]. Happy to send it through if you're keen, otherwise no stress at all.</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+        <div class="template-card"><h3>Sending the quote</h3><p>After a good conversation</p><div class="template-body">Hey [Name], good chatting. As promised, here's the numbers:
+
+Setup: $[setup] (one-off)
+Monthly: $[monthly]/month
+
+That covers everything we talked about — fully branded to [Business Name], live within a week of you saying go. No lock-in, cancel anytime.
+
+Any questions at all just ask. Otherwise just say the word and I'll get things moving.</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+        <div class="template-card"><h3>After they say yes</h3><p>Keep it simple and warm</p><div class="template-body">Legend, [Name]. Really glad we could sort this out for you.
+
+Here's what happens now:
+1. The team starts building your [App Type] straight away
+2. You'll get a preview link to check before it goes live
+3. Should be live within the week
+
+I'm your contact the whole way through — message me anytime if you need anything.</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+        <div class="template-card"><h3>Breakup — graceful exit</h3><p>Last message after 2-3 attempts. Gets a 33% reply rate.</p><div class="template-body">Hey [Name], I've reached out a couple of times about the app idea for [Business Name]. Totally get it if the timing's not right — I'll leave it with you. If things change down the track and you want to chat about it, I'm easy to find. Cheers.</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+      </div>
+
+      <!-- FAQ -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin:1.5rem 0 0.75rem">FAQ — Questions Prospects Ask</h2>
+      <div class="playbook-grid">
+        <div class="playbook-box">
+          <div class="playbook-q"><strong>"How does the payment processing work?"</strong><em>We integrate with Stripe, PayPal, or Square — whichever the client prefers. Payments go directly to the client's account. We never touch their money. Stripe/PayPal take a standard transaction fee (about 1.75-2.9% + 30c).</em></div>
+          <div class="playbook-q"><strong>"Can I update the content myself?"</strong><em>Yes — every app comes with a dashboard where you can update menus, products, pricing, blog posts, etc. If you ever get stuck, just message us and we'll do it for you.</em></div>
+          <div class="playbook-q"><strong>"What if I want a feature you don't have?"</strong><em>We can build custom features. The base packages cover 90% of what businesses need, but if there's something specific, we'll quote it separately. Usually pretty affordable because our platform handles the hard stuff.</em></div>
+        </div>
+        <div class="playbook-box">
+          <div class="playbook-q"><strong>"Do I need to buy a domain?"</strong><em>We can set up a subdomain for free (e.g. joes-bbq.pennywiseit.com.au) or configure a custom domain the client already owns. If they need to buy one, we'll help — it's about $15-$20/year.</em></div>
+          <div class="playbook-q"><strong>"Is there a contract or lock-in?"</strong><em>No lock-in. The setup fee is a one-off, then it's month-to-month for hosting and support. Cancel anytime — we'll even help them export their data.</em></div>
+          <div class="playbook-q"><strong>"How many customers can use it at once?"</strong><em>Unlimited. It runs on Cloudflare's global network — same infrastructure that powers some of the largest websites in the world. It can handle thousands of simultaneous users without slowing down.</em></div>
+        </div>
+      </div>
+
+      <!-- Success Stories -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin:1.5rem 0 0.75rem">Success Stories</h2>
+      <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+        <div class="card"><div style="font-size:1.5rem;margin-bottom:0.3rem">Street Meatz BBQ</div><div class="tag tag-green" style="margin-bottom:0.5rem">Food Truck — Live</div><p style="font-size:0.82rem;color:var(--soft)">Online pre-ordering app with QR code ordering and Stripe payments. Customers order before they arrive, cutting wait times by 60%. Owner gets SMS alerts for every order.</p></div>
+        <div class="card"><div style="font-size:1.5rem;margin-bottom:0.3rem">Wirez Electrical</div><div class="tag tag-green" style="margin-bottom:0.5rem">Tradie — Live</div><p style="font-size:0.82rem;color:var(--soft)">Job management system with quote requests, scheduling, time tracking, and invoicing. Replaced three separate tools the owner was paying $200+/month for.</p></div>
+        <div class="card"><div style="font-size:1.5rem;margin-bottom:0.3rem">Gladstone BBQ Festival</div><div class="tag tag-green" style="margin-bottom:0.5rem">Festival — Live</div><p style="font-size:0.82rem;color:var(--soft)">Event app with vendor map, live schedule, ticket QR scanning, and push notifications. 2,000+ attendees used the app on event day.</p></div>
+        <div class="card"><div style="font-size:1.5rem;margin-bottom:0.3rem">AutoHue</div><div class="tag tag-green" style="margin-bottom:0.5rem">SaaS Product — Live</div><p style="font-size:0.82rem;color:var(--soft)">Desktop software licensing platform with activation keys, auto-updates, and Stripe/PayPal payments. Launched a $9/mo subscription product from scratch.</p></div>
+      <!-- REFERRAL SYSTEM -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin:2rem 0 0.75rem">Referral System</h2>
+      <div class="card" style="margin-bottom:0.75rem;border-left:3px solid var(--green)">
+        <div style="font-size:0.82rem;color:var(--soft)"><strong style="color:var(--green)">Referrals close 3x faster than cold leads.</strong> Ask within 48 hours of project handoff. One happy client = 2-3 more clients over time.</div>
+      </div>
+      <div class="template-grid">
+        <div class="template-card"><h3>Post-handoff referral request</h3><p>Send within 48 hours of going live</p><div class="template-body">Hey [Name], hope you're loving the new [app/website]!
+
+Quick one — if you know anyone else who might need something similar built (another [business type], a mate with a small business, someone at the markets), I'd really appreciate an intro.
+
+No pressure at all — but referrals are genuinely how I get most of my work, and it means I can keep my prices lower than agencies.
+
+Thanks again for the opportunity!</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+        <div class="template-card"><h3>3-month check-in + referral</h3><p>Follow up after they've been using it</p><div class="template-body">Hey [Name], just checking in — how's everything going with the [app/website]? Any tweaks needed or anything I can help with?
+
+Also, if you've come across anyone who's been looking at getting something built for their business, feel free to point them my way. Happy to have a chat with them, no obligation.
+
+Cheers!</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+        <div class="template-card"><h3>Google Review request</h3><p>Reviews on Google + Clutch = more inbound leads</p><div class="template-body">Hey [Name], quick favour — would you mind leaving a short Google review for PennyWiseIT? Even just a couple of sentences about your experience makes a massive difference.
+
+Here's the link: [Google Review Link]
+
+If you've got a minute to do one on Clutch too, that'd be amazing: clutch.co
+
+Really appreciate it!</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+      </div>
+
+      <!-- COLD OUTREACH -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin:2rem 0 0.75rem">Cold Email Outreach</h2>
+      <div class="card" style="margin-bottom:0.75rem;border-left:3px solid var(--purple)">
+        <div style="font-size:0.82rem;color:var(--soft)"><strong style="color:var(--purple)">10-20 personalized emails per day = 1 client in 2-4 weeks.</strong> Target businesses with bad/no websites. Mention something specific about their business. Keep it under 100 words.</div>
+      </div>
+      <div class="template-grid">
+        <div class="template-card"><h3>Cold email — bad website</h3><p>For businesses you've found with outdated sites</p><div class="template-body">Subject: Quick thought about [Business Name]'s website
+
+Hey [Name],
+
+I came across [Business Name] and had a look at your website — it looks like it might be due for an update. I noticed [specific issue: slow loading, not mobile-friendly, no online ordering, etc.].
+
+I build custom websites and apps for small businesses — here's a recent one I did: [portfolio link]. I could put something together for you that'd work better on mobile and actually help bring in more customers.
+
+Happy to have a quick chat if you're interested. No pressure either way.
+
+Steve
+PennyWiseIT — 30+ years in software development
+pennywiseit.com.au</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+        <div class="template-card"><h3>Cold email — no website at all</h3><p>For businesses only on Facebook/Instagram</p><div class="template-body">Subject: [Business Name] — just an idea
+
+Hey [Name],
+
+I found [Business Name] on Facebook and your [product/service] looks great. I noticed you don't have a website yet — not sure if that's by choice or if it's something you've been meaning to get to.
+
+I work with a lot of small businesses like yours and build custom websites from about $799. Everything's included — design, hosting, domain, ongoing support. Live in under a week.
+
+Here's one I built recently: [portfolio link]
+
+Worth a quick chat? No pressure at all.
+
+Steve
+PennyWiseIT
+pennywiseit.com.au</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+      </div>
+
+      <!-- FACEBOOK GROUPS TO JOIN -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin:2rem 0 0.75rem">Facebook Groups to Join</h2>
+      <div class="card" style="margin-bottom:0.75rem;border-left:3px solid var(--accent)">
+        <div style="font-size:0.82rem;color:var(--soft)"><strong style="color:var(--accent)">Join these groups, set notifications to "All Posts", and reply within minutes when someone asks for a website.</strong> This is faster than any automated tool — you see posts the second they're made.</div>
+      </div>
+      <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+        <div class="card"><h4 style="margin-bottom:0.3rem">Queensland</h4><ul style="font-size:0.82rem;color:var(--soft);list-style:none;line-height:1.8">
+          <li><a href="https://www.facebook.com/groups/queenslandsmallbusiness/" target="_blank">Queensland Small Business</a></li>
+          <li><a href="https://www.facebook.com/groups/brisbanebusinessnetworking/" target="_blank">Brisbane Business Networking</a></li>
+          <li><a href="https://www.facebook.com/groups/goldcoastbusiness/" target="_blank">Gold Coast Business Community</a></li>
+          <li><a href="https://www.facebook.com/search/groups/?q=rockhampton%20business" target="_blank">Rockhampton Business Groups</a></li>
+          <li><a href="https://www.facebook.com/search/groups/?q=gladstone%20community" target="_blank">Gladstone Community Groups</a></li>
+          <li><a href="https://www.facebook.com/search/groups/?q=bundaberg%20business" target="_blank">Bundaberg Business Groups</a></li>
+        </ul></div>
+        <div class="card"><h4 style="margin-bottom:0.3rem">Australia-Wide</h4><ul style="font-size:0.82rem;color:var(--soft);list-style:none;line-height:1.8">
+          <li><a href="https://www.facebook.com/groups/australiansmallbusinesowners/" target="_blank">Australian Small Business Owners</a></li>
+          <li><a href="https://www.facebook.com/search/groups/?q=i%20need%20a%20website%20australia" target="_blank">I Need a Website - Australia</a></li>
+          <li><a href="https://www.facebook.com/search/groups/?q=australian%20entrepreneurs" target="_blank">Australian Entrepreneurs</a></li>
+          <li><a href="https://www.facebook.com/search/groups/?q=small%20business%20australia" target="_blank">Small Business Australia Groups</a></li>
+        </ul></div>
+        <div class="card"><h4 style="margin-bottom:0.3rem">Industry-Specific</h4><ul style="font-size:0.82rem;color:var(--soft);list-style:none;line-height:1.8">
+          <li><a href="https://www.facebook.com/search/groups/?q=food%20truck%20australia" target="_blank">Food Truck Australia Groups</a></li>
+          <li><a href="https://www.facebook.com/search/groups/?q=australian%20tradies" target="_blank">Australian Tradies Groups</a></li>
+          <li><a href="https://www.facebook.com/search/groups/?q=australian%20markets%20festivals" target="_blank">Markets & Festivals Groups</a></li>
+          <li><a href="https://www.facebook.com/search/groups/?q=shopify%20australia" target="_blank">Shopify Australia</a></li>
+        </ul></div>
+      </div>
+
+      <!-- DIRECTORY LISTINGS -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin:2rem 0 0.75rem">Free Directory Listings</h2>
+      <div class="card" style="margin-bottom:0.75rem;border-left:3px solid var(--orange)">
+        <div style="font-size:0.82rem;color:var(--soft)"><strong style="color:var(--orange)">List on these directories for free.</strong> Clients find you, not the other way around. $2 billion in projects flow through Clutch alone every year.</div>
+      </div>
+      <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(250px,1fr))">
+        <div class="card"><div style="font-size:1.1rem;font-weight:700;margin-bottom:0.3rem">Clutch.co</div><div class="tag tag-green" style="margin-bottom:0.5rem">Free</div><p style="font-size:0.82rem;color:var(--soft)">Top B2B directory. Verified reviews build trust. $5k-$250k projects. 12M+ buyers search yearly.</p><a href="https://clutch.co/get-listed" target="_blank" class="btn btn-secondary btn-sm" style="margin-top:0.5rem">Create free profile</a></div>
+        <div class="card"><div style="font-size:1.1rem;font-weight:700;margin-bottom:0.3rem">GoodFirms</div><div class="tag tag-green" style="margin-bottom:0.5rem">Free</div><p style="font-size:0.82rem;color:var(--soft)">B2B directory with verified reviews. Growing agencies see best ROI. Good supplementary listing.</p><a href="https://www.goodfirms.co/get-listed" target="_blank" class="btn btn-secondary btn-sm" style="margin-top:0.5rem">Get listed free</a></div>
+        <div class="card"><div style="font-size:1.1rem;font-weight:700;margin-bottom:0.3rem">DesignRush</div><div class="tag tag-green" style="margin-bottom:0.5rem">Free</div><p style="font-size:0.82rem;color:var(--soft)">Agency marketplace. Free basic listing. Paid tier gives access to $10k-$250k exclusive projects.</p><a href="https://www.designrush.com/agency/profile" target="_blank" class="btn btn-secondary btn-sm" style="margin-top:0.5rem">Create profile</a></div>
+        <div class="card"><div style="font-size:1.1rem;font-weight:700;margin-bottom:0.3rem">Visual Objects</div><div class="tag tag-green" style="margin-bottom:0.5rem">Free via Clutch</div><p style="font-size:0.82rem;color:var(--soft)">Visual portfolio directory. Sister site of Clutch. Add 6+ portfolio items to your Clutch profile to appear here automatically.</p></div>
+      </div>
+
+      <!-- UPWORK GUIDE -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin:2rem 0 0.75rem">Upwork Quick-Start</h2>
+      <div class="card" style="margin-bottom:0.75rem;border-left:3px solid var(--teal)">
+        <div style="font-size:0.82rem;color:var(--soft)"><strong style="color:var(--teal)">6-14% win rate on web dev proposals.</strong> Send 5-10 targeted proposals per day. Focus on clients with verified payment methods and clear project descriptions. Niche down to stand out.</div>
+      </div>
+      <div class="template-grid">
+        <div class="template-card"><h3>Upwork proposal template</h3><p>Personalize for each job — never send generic</p><div class="template-body">Hi [Client Name],
+
+I read your brief carefully — you need [specific thing they described]. I've built something very similar recently: [relevant portfolio link].
+
+A few things that stood out to me:
+- [Reference something specific from their job post]
+- I'd approach [specific requirement] by [brief technical approach]
+- Timeline: I can have a working version within [timeframe]
+
+I've been building websites and apps for 30+ years and specialize in small business projects exactly like this. Happy to jump on a quick call to discuss.
+
+Steve — PennyWiseIT
+pennywiseit.com.au</div><button class="template-copy-btn" onclick="copyTemplate(this)">Copy</button></div>
+      </div>
+
+      <!-- WEEKLY GAME PLAN -->
+      <h2 style="font-size:1.1rem;font-weight:700;margin:2rem 0 0.75rem">The 1-Website-Per-Week Game Plan</h2>
+      <div class="card" style="border-left:3px solid var(--yellow)">
+        <div style="font-size:0.88rem;color:var(--soft);line-height:1.8">
+          <strong style="color:var(--text);font-size:1rem">Daily (30 mins):</strong><br>
+          <span style="color:var(--green)">\u2713</span> Check Lead Scanner for new leads — reply immediately to any hot ones<br>
+          <span style="color:var(--green)">\u2713</span> Check your Facebook groups for new "need a website" posts<br>
+          <span style="color:var(--green)">\u2713</span> Send 5-10 cold emails to businesses with bad/no websites<br><br>
+          <strong style="color:var(--text);font-size:1rem">Weekly (1 hour):</strong><br>
+          <span style="color:var(--green)">\u2713</span> Send 3-5 Upwork proposals to relevant jobs<br>
+          <span style="color:var(--green)">\u2713</span> Follow up with any leads from last week<br>
+          <span style="color:var(--green)">\u2713</span> Ask any recent clients for a referral + Google review<br><br>
+          <strong style="color:var(--text);font-size:1rem">Monthly:</strong><br>
+          <span style="color:var(--green)">\u2713</span> Update your Clutch/GoodFirms profiles with new projects<br>
+          <span style="color:var(--green)">\u2713</span> Join 2-3 new Facebook groups in target areas<br>
+          <span style="color:var(--green)">\u2713</span> Write 1 blog post for SEO ("How much does a website cost in [City]?")<br><br>
+          <strong style="color:var(--yellow)">The maths:</strong> 50 cold emails/week at 3% conversion = 1.5 replies. 10 Facebook group posts responded to = 1-2 conversations. 5 Upwork proposals at 10% win rate = 0.5 wins. Referrals from past clients = 0.5-1/month. <strong style="color:var(--green)">Total: 1-2 qualified opportunities per week.</strong>
+        </div>
+      </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: COMMISSION ── -->
+  <div class="tab-panel" id="panel-commission">
+    <div class="container">
+      <div class="section-anchor">COMMISSION</div>
+      <h1 class="section-title">Your Earnings</h1>
+      <p class="section-sub">Track what you've earned and what's coming.</p>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-val" style="color:var(--green)" id="ce-won">0</div><div class="stat-label">Deals won</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--purple)" id="ce-setup">$0</div><div class="stat-label">Setup commission</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--teal)" id="ce-monthly">$0/mo</div><div class="stat-label">Monthly recurring</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--orange)" id="ce-annual">$0</div><div class="stat-label">Projected annual</div></div>
+      </div>
+      <div class="card" style="margin-bottom:1rem;display:inline-block">
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.3rem">YOUR COMMISSION RATES</div>
+        <div style="display:flex;gap:1.5rem">
+          <div><span style="font-size:1.3rem;font-weight:800;color:var(--purple)" id="my-setup-pct">15</span><span style="color:var(--muted);font-size:0.82rem">% of setup</span></div>
+          <div><span style="font-size:1.3rem;font-weight:800;color:var(--teal)" id="my-monthly-pct">10</span><span style="color:var(--muted);font-size:0.82rem">% of monthly</span></div>
+        </div>
+      </div>
+      <h3 style="font-size:1rem;font-weight:700;margin:1.5rem 0 0.75rem">Commission per product (at your rates)</h3>
+      <div class="card" style="overflow-x:auto">
+        <table class="comm-table">
+          <thead><tr><th>Product</th><th>Setup</th><th>Monthly</th><th>Your setup comm.</th><th>Your annual</th></tr></thead>
+          <tbody id="comm-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: ADMIN ── -->
+  <div class="tab-panel" id="panel-admin">
+    <div class="container">
+      <div class="section-anchor">ADMIN</div>
+      <h1 class="section-title">Admin Panel</h1>
+      <p class="section-sub">Manage salespeople, view all leads, edit pricing.</p>
+
+      <!-- Admin Auth Gate -->
+      <div id="admin-gate" class="card" style="max-width:400px;text-align:center">
+        <p style="font-size:0.88rem;color:var(--soft);margin-bottom:1rem">Enter the admin secret to access this panel.</p>
+        <div class="form-group"><input type="password" id="admin-secret" class="form-input" placeholder="Admin secret" style="text-align:center"></div>
+        <button class="btn btn-primary" onclick="unlockAdmin()">Unlock</button>
+        <div class="login-error" id="admin-error"></div>
+      </div>
+
+      <!-- Admin Content (hidden until unlocked) -->
+      <div id="admin-content" style="display:none">
+        <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap">
+          <button class="btn btn-secondary" onclick="adminSection('people')">Salespeople</button>
+          <button class="btn btn-secondary" onclick="adminSection('all-leads')">All Leads</button>
+          <button class="btn btn-secondary" onclick="adminSection('pricing')">Edit Pricing</button>
+          <button class="btn btn-secondary" onclick="adminSection('leaderboard')">Leaderboard</button>
+        </div>
+        <div id="admin-section-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ TOAST ═══════ -->
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════
+//  PennyWiseIT Sales App — All JavaScript
+// ════════════════════════════════════════════════
+
+const API_URL = 'https://pennywiseit-validator.steve-700.workers.dev';
+
+// ── Product Data ──
+const DEFAULT_PRICES = [
+  { id:'food-truck', name:'Food Truck App', icon:'\u{1F32E}', target:'food trucks, street food, pop-ups', setup:799, monthly:79, pitch:'Let customers pre-order, skip the queue, and pay before they arrive.', includes:['Online menu & pre-order','QR code table ordering','Square/Stripe payments','Order queue dashboard','Pickup alerts via SMS'] },
+  { id:'online-store', name:'Online Store', icon:'\u{1F6D2}', target:'retail, boutique, handmade goods', setup:999, monthly:89, pitch:'A full ecommerce store \u2014 products, cart, checkout, and inventory.', includes:['Unlimited products','Shopping cart & checkout','Stripe/Square payments','Inventory management','Order notifications'] },
+  { id:'tradie', name:'Tradie & Field Service', icon:'\u{1F527}', target:'plumbers, electricians, cleaners, landscapers', setup:1299, monthly:99, pitch:'Quote requests, job scheduling, and invoicing \u2014 all in one app.', includes:['Online quote requests','Job calendar & scheduling','Invoice generation','Customer portal','Photo upload from site'] },
+  { id:'festival', name:'Festival & Event App', icon:'\u{1F3AA}', target:'markets, festivals, events, conferences', setup:1499, monthly:109, pitch:'Vendor maps, event schedules, and ticket scanning \u2014 runs offline too.', includes:['Interactive vendor map','Live event schedule','Ticket QR scanning','Push notifications','Works offline'] },
+  { id:'delivery', name:'Delivery & Logistics', icon:'\u{1F69A}', target:'couriers, food delivery, distribution', setup:1799, monthly:129, pitch:'Driver dispatch, live tracking, and proof of delivery for local businesses.', includes:['Driver app (iOS & Android)','Live GPS tracking','Proof of delivery photos','Customer notifications','Route optimisation'] },
+  { id:'desktop', name:'Desktop + Licensing', icon:'\u{1F5A5}\uFE0F', target:'software vendors, niche tools, SaaS', setup:999, monthly:69, pitch:'Desktop software with an activation key system and auto-update.', includes:['Windows/Mac desktop app','License key activation','Auto-updater','Customer portal','Usage analytics'] },
+  { id:'price-comparison', name:'Price Comparison App', icon:'\u2696\uFE0F', target:'insurance brokers, finance, retail aggregators', setup:1499, monthly:99, pitch:'Let customers compare products or quotes side-by-side.', includes:['Dynamic comparison engine','Custom scoring logic','Lead capture forms','Admin product manager','Embeddable widget'] },
+  { id:'ai-social', name:'AI Social Platform', icon:'\u{1F916}', target:'communities, creators, niche social networks', setup:1999, monthly:149, pitch:'A private social network with AI content tools \u2014 posts, comments, DMs, and AI writing.', includes:['User profiles & posts','Follows, likes, comments','AI writing assistant','Direct messaging','Moderation dashboard'] },
+];
+
+const FLYER_THEMES = {
+  'food-truck':       { bg:'#ff6b35', fg:'#fff', accent:'#ffd166' },
+  'online-store':     { bg:'#2d6a4f', fg:'#fff', accent:'#95d5b2' },
+  'tradie':           { bg:'#1d3557', fg:'#fff', accent:'#e9c46a' },
+  'festival':         { bg:'#9b2226', fg:'#fff', accent:'#ffb703' },
+  'delivery':         { bg:'#023e8a', fg:'#fff', accent:'#48cae4' },
+  'desktop':          { bg:'#2b2d42', fg:'#fff', accent:'#8d99ae' },
+  'price-comparison': { bg:'#6a040f', fg:'#fff', accent:'#e85d04' },
+  'ai-social':        { bg:'#7209b7', fg:'#fff', accent:'#f72585' },
+};
+
+// ── State ──
+let session = null;
+let leads = [];
+let onboardStep = 0;
+let presProduct = null;
+let presSlideIdx = 0;
+let adminToken = null;
+
+// ── Helpers ──
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function getPrices() {
+  try { return JSON.parse(localStorage.getItem('pwsales_prices') || 'null') || DEFAULT_PRICES; }
+  catch { return DEFAULT_PRICES; }
+}
+function savePrices(prices) {
+  localStorage.setItem('pwsales_prices', JSON.stringify(prices));
+  renderProducts(); populateQuoteSelect();
+  buildCommTable();
+}
+
+async function api(method, path, body, useAdminToken) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (useAdminToken && adminToken) {
+    opts.headers['Authorization'] = 'Bearer ' + adminToken;
+  } else if (session?.token) {
+    opts.headers['Authorization'] = 'Bearer ' + session.token;
+  }
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API_URL + path, opts);
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) { throw new Error('AUTH_EXPIRED'); }
+  if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+  return data;
+}
+
+// ── Auth ──
+async function doLogin() {
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  if (!user || !pass) { err.textContent = 'Enter username and password'; err.style.display = 'block'; return; }
+  try {
+    err.style.display = 'none';
+    const data = await api('POST', '/salesperson/auth', { username: user, password: pass });
+    session = { token: data.token, salesperson: data.salesperson };
+    localStorage.setItem('pwsales_session', JSON.stringify(session));
+    showApp();
+  } catch (e) {
+    err.textContent = (e.message === 'AUTH_EXPIRED' ? 'Invalid credentials' : e.message) || 'Login failed';
+    err.style.display = 'block';
+  }
+}
+
+function doLogout() {
+  session = null; leads = [];
+  localStorage.removeItem('pwsales_session');
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+function restoreSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem('pwsales_session'));
+    if (s?.token) { session = s; showApp(); }
+  } catch {}
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'block';
+  document.getElementById('nav-user').textContent = session.salesperson?.name || 'Rep';
+  document.getElementById('dash-welcome').textContent = 'Welcome back, ' + (session.salesperson?.name || 'rep');
+
+  // Show admin tab if owner
+  if (session.salesperson?.role === 'owner' || session.salesperson?.role === 'admin') {
+    document.getElementById('admin-tab').style.display = '';
+  }
+
+  renderProducts();
+  populateQuoteSelect();
+  populateLeadAppSelect();
+  populateScanAppSelect();
+  populateAutoScanSelect();
+  restoreScanLocation();
+  buildCommTable();
+  loadLeads();
+  loadScanStatus();
+  loadAutoScanConfig();
+  loadAutoLeads();
+
+  // Check onboarding
+  if (!localStorage.getItem('pwsales_onboarded')) {
+    showOnboarding();
+  }
+
+  updateDashboard();
+}
+
+// ── Tabs ──
+function switchTab(name, btn) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else document.querySelector(`[data-tab="${name}"]`)?.classList.add('active');
+  document.getElementById('panel-' + name)?.classList.add('active');
+  if (name === 'commission') updateCommEarned();
+  if (name === 'leads') loadScanStatus();
+  if (name === 'dashboard') updateDashboard();
+}
+
+// ── Onboarding ──
+function showOnboarding() {
+  onboardStep = 0;
+  document.getElementById('onboarding-overlay').classList.add('open');
+  renderOnboardProducts();
+  renderOnboardStep();
+}
+
+function renderOnboardStep() {
+  const steps = document.querySelectorAll('.onboard-step');
+  steps.forEach((s, i) => s.classList.toggle('active', i === onboardStep));
+  const dots = document.getElementById('onboard-progress');
+  dots.innerHTML = Array.from({ length: steps.length }, (_, i) =>
+    `<div class="onboard-dot ${i < onboardStep ? 'done' : ''} ${i === onboardStep ? 'active' : ''}"></div>`
+  ).join('');
+}
+
+function nextOnboardStep() { onboardStep++; renderOnboardStep(); }
+function prevOnboardStep() { onboardStep--; renderOnboardStep(); }
+
+function renderOnboardProducts() {
+  const el = document.getElementById('onboard-products');
+  el.innerHTML = '<div class="onboard-cards">' + getPrices().map(p => `
+    <div class="onboard-card">
+      <h4>${p.icon} ${esc(p.name)}</h4>
+      <p style="color:var(--muted);font-size:0.75rem;margin-bottom:0.3rem">For: ${esc(p.target)}</p>
+      <p style="color:var(--green);font-weight:700;font-size:0.88rem">$${p.setup.toLocaleString()} setup + $${p.monthly}/mo</p>
+    </div>
+  `).join('') + '</div>';
+}
+
+function finishOnboarding() {
+  const name = document.getElementById('onboard-name').value.trim();
+  const email = document.getElementById('onboard-email').value.trim();
+  const phone = document.getElementById('onboard-phone').value.trim();
+  if (name || email || phone) {
+    localStorage.setItem('pwsales_profile', JSON.stringify({ name, email, phone }));
+  }
+  localStorage.setItem('pwsales_onboarded', '1');
+  document.getElementById('onboarding-overlay').classList.remove('open');
+  showToast('You\'re all set! Start selling.', 'success');
+}
+
+// ── Products ──
+function renderProducts() {
+  const grid = document.getElementById('products-grid');
+  grid.innerHTML = getPrices().map((p, i) => `
+    <div class="product-card">
+      <div style="padding:1.25rem">
+        <div class="product-icon">${p.icon}</div>
+        <div class="product-name">${esc(p.name)}</div>
+        <div class="product-target">For: ${esc(p.target)}</div>
+        <div class="product-pricing">
+          <div class="price-box"><div class="price-num">$${p.setup.toLocaleString()}</div><div class="price-label">Setup</div></div>
+          <div class="price-box"><div class="price-num">$${p.monthly}</div><div class="price-label">/ month</div></div>
+        </div>
+        <div class="product-pitch">${esc(p.pitch)}</div>
+        <ul class="product-includes">${p.includes.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+        <div class="product-actions">
+          <button class="btn btn-primary btn-sm" onclick="openPresentation(${i})">Show Client</button>
+          <button class="btn btn-secondary btn-sm" onclick="downloadFlyer(${i})">Download Flyer</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Quote Builder ──
+function populateQuoteSelect() {
+  const sel = document.getElementById('qb-app');
+  sel.innerHTML = '<option value="">-- Select app type --</option>' + getPrices().map(p =>
+    `<option value="${esc(p.name)}|${p.setup}|${p.monthly}">${esc(p.name)} \u2014 $${p.setup.toLocaleString()} + $${p.monthly}/mo</option>`
+  ).join('');
+}
+
+function buildQuote() {
+  const sel = document.getElementById('qb-app').value;
+  const area = document.getElementById('quote-result');
+  if (!sel) { area.style.display = 'none'; return; }
+  const [appName, baseSetup, baseMonthly] = sel.split('|');
+  let setup = Number(baseSetup), monthly = Number(baseMonthly);
+
+  document.querySelectorAll('.quote-checks input[type=checkbox]:checked').forEach(cb => {
+    const [s, m] = cb.value.split('|').map(Number);
+    setup += s; monthly += m;
+  });
+
+  const cp = session?.salesperson?.commission_pct ?? 15;
+  const mp = session?.salesperson?.monthly_comm_pct ?? 10;
+  const commSetup = Math.round(setup * cp / 100);
+  const commMonthly = (monthly * mp / 100).toFixed(2);
+  const clientName = document.getElementById('qb-name').value.trim() || '[Client Name]';
+
+  document.getElementById('qr-setup').textContent = '$' + setup.toLocaleString();
+  document.getElementById('qr-monthly').textContent = '$' + monthly + '/mo';
+  document.getElementById('qr-comm-setup').textContent = '$' + commSetup;
+  document.getElementById('qr-comm-monthly').textContent = '$' + commMonthly + '/mo';
+
+  const addons = [];
+  if (document.getElementById('qb-sms').checked) addons.push('SMS order alerts (+$99 setup, +$30/month)');
+  if (document.getElementById('qb-clerk').checked) addons.push('Managed login / social sign-in (+$25/month)');
+  if (document.getElementById('qb-ai').checked) addons.push('AI writing (usage-based, very low cost)');
+
+  const quote = `Hi ${clientName},
+
+Thanks for your time \u2014 here's your quote for a ${appName}.
+
+\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501
+  Setup fee:     $${setup.toLocaleString()} (one-off)
+  Monthly:       $${monthly}/month
+\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501
+${addons.length ? '\nIncludes:\n' + addons.map(a => '  \u00B7 ' + a).join('\n') + '\n' : ''}
+What's included:
+  \u00B7 Fully custom-built and branded to ${clientName}
+  \u00B7 Your domain / URL configured
+  \u00B7 Mobile-friendly \u2014 works on any device
+  \u00B7 Ongoing hosting, updates, and support
+  \u00B7 Live within one week of you saying go
+
+No lock-in contract. Cancel anytime.
+
+Let me know if you have any questions!`;
+
+  document.getElementById('qb-text').textContent = quote;
+  area.style.display = 'block';
+}
+
+function copyQuote() {
+  const text = document.getElementById('qb-text').textContent;
+  const btn = document.getElementById('qb-copy-btn');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '\u2713 Copied!';
+    setTimeout(() => btn.textContent = 'Copy quote', 2000);
+  });
+}
+
+function emailQuote() {
+  const text = document.getElementById('qb-text').textContent;
+  const clientName = document.getElementById('qb-name').value.trim() || 'Client';
+  const subject = encodeURIComponent('Quote for ' + clientName + ' \u2014 PennyWiseIT');
+  const body = encodeURIComponent(text);
+  window.open('mailto:?subject=' + subject + '&body=' + body);
+}
+
+// ── Leads ──
+function populateLeadAppSelect() {
+  const sel = document.getElementById('lead-app');
+  sel.innerHTML = '<option value="">-- Select --</option>' + getPrices().map(p =>
+    `<option value="${esc(p.name)}">${esc(p.name)}</option>`
+  ).join('');
+}
+
+async function loadLeads() {
+  try {
+    const data = await api('GET', '/salesperson/leads');
+    leads = data.leads || data || [];
+    localStorage.setItem('pwsales_leads', JSON.stringify(leads));
+  } catch {
+    try { leads = JSON.parse(localStorage.getItem('pwsales_leads') || '[]'); } catch { leads = []; }
+  }
+  renderLeads();
+  updateDashboard();
+}
+
+function renderLeads() {
+  const search = (document.getElementById('lead-search')?.value || '').toLowerCase();
+  const stages = ['new','contacted','demo','proposal','won','lost'];
+  const stageNames = { new:'New', contacted:'Contacted', demo:'Demo Given', proposal:'Quote Sent', won:'Won', lost:'Lost' };
+  const stageColors = { new:'var(--accent)', contacted:'var(--yellow)', demo:'var(--orange)', proposal:'var(--purple)', won:'var(--green)', lost:'var(--red)' };
+
+  const filtered = leads.filter(l => {
+    if (!search) return true;
+    return (l.business_name || '').toLowerCase().includes(search) || (l.contact_name || '').toLowerCase().includes(search);
+  });
+
+  document.getElementById('leads-pipeline').innerHTML = stages.map(stage => {
+    const stageLeads = filtered.filter(l => l.stage === stage);
+    return `<div class="pipeline-col">
+      <div class="pipeline-title"><span style="color:${stageColors[stage]}">${stageNames[stage]}</span> <span class="pipeline-count">${stageLeads.length}</span></div>
+      ${stageLeads.map(l => `
+        <div class="lead-card" onclick="editLead('${l.id}')">
+          <div class="lead-name">${esc(l.business_name || 'Unnamed')}</div>
+          <div class="lead-type">${esc(l.contact_name || '')}${l.app_type ? ' \u00B7 ' + esc(l.app_type) : ''}</div>
+          ${l.setup_value ? `<div class="lead-value">$${Number(l.setup_value).toLocaleString()} + $${l.monthly_value || 0}/mo</div>` : ''}
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('');
+}
+
+function openLeadModal(id) {
+  document.getElementById('lead-modal').classList.add('open');
+  document.getElementById('lead-modal-title').textContent = id ? 'Edit Lead' : 'Add Lead';
+  document.getElementById('lead-edit-id').value = id || '';
+  if (id) {
+    const l = leads.find(x => x.id === id);
+    if (l) {
+      document.getElementById('lead-biz').value = l.business_name || '';
+      document.getElementById('lead-contact').value = l.contact_name || '';
+      document.getElementById('lead-phone').value = l.phone || '';
+      document.getElementById('lead-email').value = l.email || '';
+      document.getElementById('lead-app').value = l.app_type || '';
+      document.getElementById('lead-stage').value = l.stage || 'new';
+      document.getElementById('lead-notes').value = l.notes || '';
+    }
+  } else {
+    ['lead-biz','lead-contact','lead-phone','lead-email','lead-notes'].forEach(x => document.getElementById(x).value = '');
+    document.getElementById('lead-app').value = '';
+    document.getElementById('lead-stage').value = 'new';
+  }
+}
+
+function editLead(id) { openLeadModal(id); }
+
+function closeLeadModal() {
+  document.getElementById('lead-modal').classList.remove('open');
+}
+
+async function saveLead() {
+  const id = document.getElementById('lead-edit-id').value;
+  const prices = getPrices();
+  const appType = document.getElementById('lead-app').value;
+  const product = prices.find(p => p.name === appType);
+  const body = {
+    business_name: document.getElementById('lead-biz').value.trim(),
+    contact_name: document.getElementById('lead-contact').value.trim(),
+    phone: document.getElementById('lead-phone').value.trim(),
+    email: document.getElementById('lead-email').value.trim(),
+    app_type: appType,
+    stage: document.getElementById('lead-stage').value,
+    notes: document.getElementById('lead-notes').value.trim(),
+    setup_value: product?.setup || 0,
+    monthly_value: product?.monthly || 0,
+  };
+  if (!body.business_name) { showToast('Business name required', 'error'); return; }
+  try {
+    if (id) {
+      await api('PUT', '/salesperson/leads/' + id, body);
+      const idx = leads.findIndex(l => l.id === id);
+      if (idx >= 0) leads[idx] = { ...leads[idx], ...body };
+      showToast('Lead updated', 'success');
+    } else {
+      const data = await api('POST', '/salesperson/leads', body);
+      leads.push({ id: data.id || Date.now().toString(), ...body });
+      showToast('Lead added', 'success');
+    }
+    closeLeadModal();
+    renderLeads();
+    updateDashboard();
+  } catch (e) {
+    if (e.message === 'AUTH_EXPIRED') { doLogout(); return; }
+    showToast('Save failed: ' + e.message, 'error');
+  }
+}
+
+// ── Commission ──
+function buildCommTable() {
+  const cp = session?.salesperson?.commission_pct ?? 15;
+  const mp = session?.salesperson?.monthly_comm_pct ?? 10;
+  document.getElementById('my-setup-pct').textContent = cp;
+  document.getElementById('my-monthly-pct').textContent = mp;
+  const tbody = document.getElementById('comm-table-body');
+  tbody.innerHTML = getPrices().map(p => {
+    const cs = Math.round(p.setup * cp / 100);
+    const annual = cs + Math.round(p.monthly * mp / 100 * 12);
+    return `<tr>
+      <td>${esc(p.name)}</td><td>$${p.setup.toLocaleString()}</td><td>$${p.monthly}/mo</td>
+      <td class="purple">$${cs}</td><td class="green">$${annual.toLocaleString()}/yr</td>
+    </tr>`;
+  }).join('');
+}
+
+function updateCommEarned() {
+  const cp = session?.salesperson?.commission_pct ?? 15;
+  const mp = session?.salesperson?.monthly_comm_pct ?? 10;
+  const won = leads.filter(l => l.stage === 'won');
+  const totalSetup = won.reduce((s, l) => s + Number(l.setup_value || 0), 0);
+  const totalMonthly = won.reduce((s, l) => s + Number(l.monthly_value || 0), 0);
+  const commSetup = Math.round(totalSetup * cp / 100);
+  const commMonthly = Math.round(totalMonthly * mp / 100);
+  const annual = commSetup + commMonthly * 12;
+  document.getElementById('ce-won').textContent = won.length;
+  document.getElementById('ce-setup').textContent = '$' + commSetup.toLocaleString();
+  document.getElementById('ce-monthly').textContent = '$' + commMonthly + '/mo';
+  document.getElementById('ce-annual').textContent = '$' + annual.toLocaleString();
+}
+
+// ── Dashboard ──
+function updateDashboard() {
+  const cp = session?.salesperson?.commission_pct ?? 15;
+  const mp = session?.salesperson?.monthly_comm_pct ?? 10;
+  const won = leads.filter(l => l.stage === 'won');
+  const pipeline = leads.filter(l => !['won','lost'].includes(l.stage));
+  const totalSetup = won.reduce((s, l) => s + Number(l.setup_value || 0), 0);
+  const totalMonthly = won.reduce((s, l) => s + Number(l.monthly_value || 0), 0);
+  const commSetup = Math.round(totalSetup * cp / 100);
+  const commMonthly = Math.round(totalMonthly * mp / 100);
+
+  document.getElementById('ds-earned').textContent = '$' + commSetup.toLocaleString();
+  document.getElementById('ds-won').textContent = won.length;
+  document.getElementById('ds-pipeline').textContent = pipeline.length;
+  document.getElementById('ds-monthly').textContent = '$' + commMonthly + '/mo';
+
+  const recent = [...leads].sort((a, b) => (b.id || '').localeCompare(a.id || '')).slice(0, 5);
+  document.getElementById('dash-recent-leads').innerHTML = recent.length ? recent.map(l => `
+    <div class="card" style="padding:0.75rem 1rem;margin-bottom:0.4rem;cursor:pointer" onclick="switchTab('leads');editLead('${l.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><span style="font-weight:700;font-size:0.88rem">${esc(l.business_name || 'Unnamed')}</span> <span style="font-size:0.75rem;color:var(--muted)">${esc(l.app_type || '')}</span></div>
+        <span class="tag tag-${l.stage === 'won' ? 'green' : l.stage === 'lost' ? 'red' : 'blue'}">${esc(l.stage)}</span>
+      </div>
+    </div>
+  `).join('') : '<p style="font-size:0.85rem;color:var(--muted)">No leads yet. Add your first lead to get started.</p>';
+}
+
+// ── Presentation Mode ──
+function openPresentation(idx) {
+  presProduct = getPrices()[idx];
+  presSlideIdx = 0;
+  const theme = FLYER_THEMES[presProduct.id] || { bg:'#1a2338', fg:'#fff', accent:'#4f8ef7' };
+
+  const problemMap = {
+    'food-truck': ['Customers wait too long and leave','No way to pre-order or pay ahead','Paper menus get lost or damaged'],
+    'online-store': ['Customers can\'t buy when you\'re closed','No online catalogue or inventory tracking','Losing sales to bigger online stores'],
+    'tradie': ['Quote requests lost in emails and texts','No system for job scheduling','Invoicing takes hours every week'],
+    'festival': ['Attendees can\'t find vendors or stages','No real-time schedule updates','Long ticket queues at entry'],
+    'delivery': ['No live tracking for customers','Drivers use paper for proof of delivery','Route planning is manual and slow'],
+    'desktop': ['No way to control software licenses','Can\'t push updates to users','No revenue from existing users'],
+    'price-comparison': ['Customers can\'t compare options easily','No lead capture on comparisons','Competitors offer better tools'],
+    'ai-social': ['Content creation takes hours','No community engagement tools','Moderation is manual and slow'],
+  };
+
+  const problems = problemMap[presProduct.id] || ['Manual processes waste hours','No online presence for customers','Losing business to competitors'];
+
+  // Gradient backgrounds per product
+  const grad = `linear-gradient(135deg, ${theme.bg} 0%, ${theme.bg}dd 40%, ${theme.accent}44 100%)`;
+  const grad2 = `linear-gradient(160deg, #0f172a 0%, ${theme.bg}ee 50%, ${theme.accent}33 100%)`;
+  const darkGrad = `linear-gradient(135deg, #0a0e1a 0%, #111827 50%, ${theme.bg}88 100%)`;
+
+  const slides = [
+    // SLIDE 1: Hero
+    `<div class="pres-slide active" style="background:${grad}; color:${theme.fg}">
+      <div class="pres-hero-icon">${presProduct.icon}</div>
+      <div class="pres-hero-name">${esc(presProduct.name)}</div>
+      <div class="pres-hero-target" style="color:${theme.accent}">Built for ${esc(presProduct.target)}</div>
+    </div>`,
+
+    // SLIDE 2: Problem
+    `<div class="pres-slide" style="background:${darkGrad}; color:#fff">
+      <div class="pres-section-title" style="color:${theme.accent}">The challenge</div>
+      <div class="pres-h2">Sound familiar?</div>
+      <div class="pres-card">${problems.map((p,i) => `<div class="pres-problem-item"><div class="pres-problem-num" style="color:${theme.accent}">${i+1}</div><div>${esc(p)}</div></div>`).join('')}</div>
+    </div>`,
+
+    // SLIDE 3: Solution
+    `<div class="pres-slide" style="background:${grad}; color:${theme.fg}">
+      <div class="pres-section-title" style="color:${theme.accent}">The solution</div>
+      <div class="pres-h2">${esc(presProduct.name)}</div>
+      <p style="font-size:1.3rem;max-width:600px;margin:0 auto 2rem;opacity:0.9;line-height:1.6">${esc(presProduct.pitch)}</p>
+      <div class="pres-pill" style="color:${theme.accent}">100% branded to your business \u2014 your logo, your colours, your domain</div>
+    </div>`,
+
+    // SLIDE 4: Features
+    `<div class="pres-slide" style="background:${darkGrad}; color:#fff">
+      <div class="pres-section-title" style="color:${theme.accent}">What's included</div>
+      <div class="pres-h2">Everything you need</div>
+      <div class="pres-feature-grid">${presProduct.includes.map(f => `<div class="pres-feature-item"><span style="color:${theme.accent};margin-right:0.6rem;font-weight:700">\u2713</span>${esc(f)}</div>`).join('')}</div>
+    </div>`,
+
+    // SLIDE 5: Pricing
+    `<div class="pres-slide" style="background:${grad}; color:${theme.fg}">
+      <div class="pres-section-title" style="color:${theme.accent}">Investment</div>
+      <div class="pres-price-big">$${presProduct.setup.toLocaleString()}</div>
+      <div style="font-size:1.15rem;opacity:0.7;margin-bottom:2rem">one-time setup</div>
+      <div style="font-size:2rem;font-weight:800">$${presProduct.monthly}/month</div>
+      <div style="font-size:1rem;opacity:0.7;margin-bottom:2.5rem">hosting, support & updates</div>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+        <div class="pres-pill">Live in under a week</div>
+        <div class="pres-pill">No lock-in contract</div>
+        <div class="pres-pill">Cancel anytime</div>
+      </div>
+    </div>`,
+
+    // SLIDE 6: Why us
+    `<div class="pres-slide" style="background:${darkGrad}; color:#fff">
+      <div class="pres-section-title" style="color:${theme.accent}">Why PennyWiseIT</div>
+      <div class="pres-h2">What makes us different</div>
+      <div class="pres-card">
+        <div style="padding:0.9rem 0;border-bottom:1px solid rgba(255,255,255,0.06)"><strong style="color:${theme.accent};font-size:1.1rem">Fraction of agency prices</strong><br><span style="opacity:0.7">Agencies charge $5k\u2013$20k. We\u2019re a fraction of that.</span></div>
+        <div style="padding:0.9rem 0;border-bottom:1px solid rgba(255,255,255,0.06)"><strong style="color:${theme.accent};font-size:1.1rem">Live in days, not months</strong><br><span style="opacity:0.7">From \u201Cyes\u201D to a working app in under a week.</span></div>
+        <div style="padding:0.9rem 0;border-bottom:1px solid rgba(255,255,255,0.06)"><strong style="color:${theme.accent};font-size:1.1rem">100% white-label</strong><br><span style="opacity:0.7">Your brand, your domain. We\u2019re invisible.</span></div>
+        <div style="padding:0.9rem 0"><strong style="color:${theme.accent};font-size:1.1rem">Enterprise infrastructure</strong><br><span style="opacity:0.7">Built on Cloudflare. Fast, secure, always online.</span></div>
+      </div>
+    </div>`,
+
+    // SLIDE 7: CTA
+    `<div class="pres-slide" style="background:${grad}; color:${theme.fg}">
+      <div style="font-size:4rem;margin-bottom:1.5rem">${presProduct.icon}</div>
+      <div class="pres-h2" style="margin-bottom:0.5rem">Ready to get started?</div>
+      <p style="font-size:1.2rem;opacity:0.8;margin-bottom:2.5rem">Let\u2019s build your ${esc(presProduct.name).toLowerCase()} this week.</p>
+      <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);padding:2rem 2.5rem;border-radius:16px;backdrop-filter:blur(8px)">
+        <div style="font-size:1.4rem;font-weight:700" id="pres-rep-name"></div>
+        <div style="color:${theme.accent};font-size:0.95rem;margin-top:0.25rem">PennyWiseIT</div>
+        <div style="opacity:0.6;font-size:0.9rem;margin-top:0.5rem" id="pres-rep-contact"></div>
+      </div>
+    </div>`,
+  ];
+
+  document.getElementById('pres-slides').innerHTML = slides.join('');
+  document.getElementById('presentation-overlay').classList.add('open');
+  updatePresCounter();
+
+  // Fill rep info on CTA slide
+  const profile = JSON.parse(localStorage.getItem('pwsales_profile') || '{}');
+  const repName = document.getElementById('pres-rep-name');
+  const repContact = document.getElementById('pres-rep-contact');
+  if (repName) repName.textContent = profile.name || session?.salesperson?.name || '';
+  if (repContact) repContact.textContent = [profile.phone, profile.email].filter(Boolean).join(' \u00B7 ');
+}
+
+function closePresentation() {
+  document.getElementById('presentation-overlay').classList.remove('open');
+}
+
+function presSlide(dir) {
+  const slides = document.querySelectorAll('#pres-slides .pres-slide');
+  slides[presSlideIdx].classList.remove('active');
+  presSlideIdx = Math.max(0, Math.min(slides.length - 1, presSlideIdx + dir));
+  slides[presSlideIdx].classList.add('active');
+  updatePresCounter();
+}
+
+function updatePresCounter() {
+  const total = document.querySelectorAll('#pres-slides .pres-slide').length;
+  document.getElementById('pres-counter').textContent = (presSlideIdx + 1) + ' / ' + total;
+}
+
+// Keyboard nav for presentation
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('presentation-overlay').classList.contains('open')) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') presSlide(1);
+  if (e.key === 'ArrowLeft') presSlide(-1);
+  if (e.key === 'Escape') closePresentation();
+});
+
+// ── Flyer Download ──
+function downloadFlyer(idx) {
+  const p = getPrices()[idx];
+  const t = FLYER_THEMES[p.id] || { bg:'#1a2338', fg:'#fff', accent:'#4f8ef7' };
+
+  // Per-product benefits: how they SAVE money and EARN more
+  const benefitsMap = {
+    'food-truck': [
+      { icon:'\u{1F4B0}', title:'Stop losing orders', desc:'Customers order ahead instead of walking away when the queue\u2019s too long' },
+      { icon:'\u{23F1}\uFE0F', title:'Save 4+ hours/week', desc:'No more taking orders over the phone or managing paper tickets' },
+      { icon:'\u{1F4C8}', title:'Increase average order', desc:'Customers spend 20\u201330% more when ordering online vs at the window' },
+      { icon:'\u{1F4B3}', title:'Get paid instantly', desc:'Card payments go straight to your account \u2014 no cash handling, no shortages' },
+    ],
+    'online-store': [
+      { icon:'\u{1F319}', title:'Sell while you sleep', desc:'Your store is open 24/7 \u2014 customers buy anytime, not just during hours' },
+      { icon:'\u{1F6AB}', title:'No marketplace fees', desc:'Keep 100% of your margin \u2014 no Etsy, eBay, or Amazon commissions' },
+      { icon:'\u{1F4E6}', title:'Automated inventory', desc:'Stock updates automatically \u2014 no overselling, no manual counts' },
+      { icon:'\u{1F4C8}', title:'Grow your customer list', desc:'Every purchase builds your email list \u2014 market to them directly for free' },
+    ],
+    'tradie': [
+      { icon:'\u{23F1}\uFE0F', title:'Save 5+ hours/week on admin', desc:'Quotes, invoices, and job scheduling in one place \u2014 not across 5 apps' },
+      { icon:'\u{1F4B0}', title:'Get paid faster', desc:'Send invoices from site, customers pay online \u2014 no more chasing payments' },
+      { icon:'\u{1F4CB}', title:'Never lose a quote request', desc:'Customers submit requests online \u2014 no missed calls, no forgotten texts' },
+      { icon:'\u{1F4F8}', title:'Photo evidence built in', desc:'Upload photos from the job site \u2014 protects you and builds client trust' },
+    ],
+    'festival': [
+      { icon:'\u{1F3AB}', title:'Sell tickets online', desc:'QR code tickets \u2014 no printing costs, faster entry, real-time sales data' },
+      { icon:'\u{1F4CD}', title:'Interactive vendor map', desc:'Attendees find vendors instantly \u2014 happier visitors, more foot traffic for stalls' },
+      { icon:'\u{1F4F2}', title:'Push notifications', desc:'Send live updates to every attendee\u2019s phone \u2014 schedule changes, announcements' },
+      { icon:'\u{1F4B0}', title:'Reduce staffing costs', desc:'Self-service ticketing and info means fewer staff needed at entry and info booths' },
+    ],
+    'delivery': [
+      { icon:'\u{1F4CD}', title:'Live GPS tracking', desc:'Customers track their delivery in real time \u2014 fewer "where\u2019s my order" calls' },
+      { icon:'\u{1F4F8}', title:'Proof of delivery', desc:'Photo evidence on every drop-off \u2014 eliminates disputes and lost claims' },
+      { icon:'\u{26FD}', title:'Route optimisation', desc:'Smarter routes mean less fuel, faster deliveries, and more drops per day' },
+      { icon:'\u{1F4C9}', title:'Cut support calls by 60%', desc:'Automated notifications keep customers informed without your team lifting a finger' },
+    ],
+    'desktop': [
+      { icon:'\u{1F511}', title:'License key control', desc:'Issue, revoke, and track software licenses \u2014 stop piracy, protect revenue' },
+      { icon:'\u{1F504}', title:'Auto-updates', desc:'Push updates to all users instantly \u2014 no support tickets about old versions' },
+      { icon:'\u{1F4B3}', title:'Recurring revenue', desc:'Subscription billing built in \u2014 turn one-off sales into monthly income' },
+      { icon:'\u{1F4CA}', title:'Usage analytics', desc:'See who\u2019s using what, how often \u2014 data to guide your product roadmap' },
+    ],
+    'price-comparison': [
+      { icon:'\u{1F50D}', title:'Capture leads automatically', desc:'Every comparison generates a lead \u2014 name, email, preferences, ready to convert' },
+      { icon:'\u{1F4C8}', title:'Higher conversion rates', desc:'Customers who compare buy faster \u2014 give them the tool and they\u2019ll choose you' },
+      { icon:'\u{1F517}', title:'Embed anywhere', desc:'Widget drops into any existing website \u2014 no redesign needed' },
+      { icon:'\u{2699}\uFE0F', title:'You control the data', desc:'Add, remove, and score products from your admin panel \u2014 update in seconds' },
+    ],
+    'ai-social': [
+      { icon:'\u{1F916}', title:'AI writes your content', desc:'Generate posts, replies, and descriptions in seconds \u2014 save hours every week' },
+      { icon:'\u{1F465}', title:'Build a community', desc:'Profiles, posts, DMs, follows \u2014 your own social platform, not rented from Facebook' },
+      { icon:'\u{1F4B0}', title:'Subscription revenue', desc:'Charge members monthly \u2014 built-in billing means predictable recurring income' },
+      { icon:'\u{1F6E1}\uFE0F', title:'Moderation dashboard', desc:'Flag, review, and manage content easily \u2014 keep your community safe and on-brand' },
+    ],
+  };
+
+  const benefits = benefitsMap[p.id] || benefitsMap['online-store'];
+
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>${esc(p.name)}</title><style>
+@page { size: A4; margin: 0; }
+@media print { body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; width: 210mm; min-height: 297mm; position: relative; overflow: hidden; background: #0f172a; color: #fff; }
+
+/* HERO - top 30% */
+.hero {
+  padding: 2.5rem 3rem 2rem; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, ${t.bg} 0%, ${t.bg}ee 60%, ${t.accent}66 100%);
+}
+.hero::before {
+  content: ''; position: absolute; top: -40%; right: -10%; width: 350px; height: 350px;
+  background: radial-gradient(circle, ${t.accent}33 0%, transparent 70%); border-radius: 50%;
+}
+.hero-content { position: relative; z-index: 1; }
+.hero-row { display: flex; align-items: center; gap: 2rem; }
+.hero-text { flex: 1; }
+.brand { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: ${t.accent}; opacity: 0.8; margin-bottom: 0.75rem; }
+.icon { font-size: 4rem; filter: drop-shadow(0 4px 20px rgba(0,0,0,0.3)); }
+h1 { font-size: 2.5rem; font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 0.35rem; }
+.target { font-size: 0.95rem; color: ${t.accent}; font-weight: 500; margin-bottom: 1rem; }
+.pitch { font-size: 1.05rem; line-height: 1.5; opacity: 0.85; max-width: 400px; }
+
+/* COMPARISON BANNER */
+.compare {
+  background: linear-gradient(90deg, ${t.accent}22, ${t.accent}11); border-top: 1px solid ${t.accent}33; border-bottom: 1px solid ${t.accent}33;
+  padding: 0.75rem 3rem; display: flex; justify-content: center; gap: 2.5rem; align-items: center;
+}
+.compare-item { text-align: center; }
+.compare-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.5); }
+.compare-us { font-size: 1.1rem; font-weight: 800; color: ${t.accent}; }
+.compare-them { font-size: 0.82rem; color: rgba(255,255,255,0.35); text-decoration: line-through; }
+.compare-vs { color: rgba(255,255,255,0.2); font-size: 0.7rem; font-weight: 700; }
+
+/* BODY */
+.body {
+  padding: 1.5rem 3rem 1.5rem;
+  background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+  flex: 1;
+}
+.section-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: ${t.accent}; margin-bottom: 0.6rem; }
+
+/* BENEFITS */
+.benefits { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.25rem; }
+.benefit {
+  padding: 0.75rem 0.9rem; border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.benefit-top { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+.benefit-icon { font-size: 1.1rem; }
+.benefit-title { font-size: 0.82rem; font-weight: 700; color: #fff; }
+.benefit-desc { font-size: 0.72rem; color: rgba(255,255,255,0.55); line-height: 1.4; }
+
+/* FEATURES */
+.features { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.25rem 1rem; margin-bottom: 1.25rem; }
+.feat { font-size: 0.75rem; padding: 0.35rem 0; display: flex; align-items: center; gap: 0.4rem; color: rgba(255,255,255,0.7); }
+.feat-check { color: ${t.accent}; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+
+/* PRICING + CTA ROW */
+.pricing-cta {
+  display: flex; align-items: center; gap: 1.5rem; padding: 1.1rem 1.5rem; margin-bottom: 1rem;
+  background: linear-gradient(135deg, ${t.accent}15, ${t.accent}08);
+  border: 1px solid ${t.accent}25; border-radius: 14px;
+}
+.price-block { text-align: center; }
+.price-amount { font-size: 2.2rem; font-weight: 900; letter-spacing: -0.03em; }
+.price-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: ${t.accent}; font-weight: 600; margin-top: 0.1rem; }
+.price-divider { width: 1px; height: 40px; background: ${t.accent}33; flex-shrink: 0; }
+.price-monthly .price-amount { font-size: 1.6rem; }
+.cta-text { flex: 1; text-align: right; }
+.cta-headline { font-size: 1rem; font-weight: 800; color: ${t.accent}; margin-bottom: 0.2rem; }
+.cta-sub { font-size: 0.72rem; color: rgba(255,255,255,0.5); }
+
+/* BADGES */
+.badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.badge {
+  font-size: 0.65rem; font-weight: 600; padding: 0.3rem 0.8rem; border-radius: 999px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07); color: rgba(255,255,255,0.6);
+}
+
+/* FOOTER */
+.footer {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06);
+}
+.footer-brand { font-weight: 800; font-size: 0.85rem; }
+.footer-brand span { color: ${t.accent}; }
+.footer-url { font-size: 0.7rem; color: rgba(255,255,255,0.35); }
+.footer-tagline { font-size: 0.65rem; color: rgba(255,255,255,0.3); text-align: right; }
+  </style></head><body>
+
+  <div class="hero">
+    <div class="hero-content">
+      <div class="brand">PennyWiseIT</div>
+      <div class="hero-row">
+        <div class="hero-text">
+          <h1>${esc(p.name)}</h1>
+          <div class="target">For ${esc(p.target)}</div>
+          <div class="pitch">${esc(p.pitch)}</div>
+        </div>
+        <div class="icon">${p.icon}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-item"><div class="compare-label">Us</div><div class="compare-us">$${p.setup.toLocaleString()} + $${p.monthly}/mo</div></div>
+    <div class="compare-vs">VS</div>
+    <div class="compare-item"><div class="compare-label">Web agency</div><div class="compare-them">$5,000\u2013$20,000+</div></div>
+    <div class="compare-vs">VS</div>
+    <div class="compare-item"><div class="compare-label">Shopify/Wix DIY</div><div class="compare-them">$79\u2013$399/mo + your time</div></div>
+  </div>
+
+  <div class="body">
+    <div class="section-label">How this helps your business</div>
+    <div class="benefits">
+      ${benefits.map(b => `<div class="benefit"><div class="benefit-top"><span class="benefit-icon">${b.icon}</span><span class="benefit-title">${b.title}</span></div><div class="benefit-desc">${b.desc}</div></div>`).join('')}
+    </div>
+
+    <div class="section-label">Everything that\u2019s included</div>
+    <div class="features">
+      ${p.includes.map(f => `<div class="feat"><span class="feat-check">\u2713</span>${esc(f)}</div>`).join('')}
+      <div class="feat"><span class="feat-check">\u2713</span>Custom domain & SSL</div>
+      <div class="feat"><span class="feat-check">\u2713</span>Mobile-friendly design</div>
+      <div class="feat"><span class="feat-check">\u2713</span>Ongoing support & updates</div>
+      <div class="feat"><span class="feat-check">\u2713</span>100% branded to you</div>
+      <div class="feat"><span class="feat-check">\u2713</span>Live in under a week</div>
+      <div class="feat"><span class="feat-check">\u2713</span>Built on enterprise infra</div>
+    </div>
+
+    <div class="pricing-cta">
+      <div class="price-block"><div class="price-amount">$${p.setup.toLocaleString()}</div><div class="price-label">One-time setup</div></div>
+      <div class="price-divider"></div>
+      <div class="price-block price-monthly"><div class="price-amount">$${p.monthly}/mo</div><div class="price-label">Hosting & support</div></div>
+      <div class="cta-text"><div class="cta-headline">Ready in under a week</div><div class="cta-sub">No lock-in \u00B7 Cancel anytime \u00B7 We handle everything</div></div>
+    </div>
+
+    <div class="badges">
+      <div class="badge">No technical knowledge needed</div>
+      <div class="badge">We build, host & manage it</div>
+      <div class="badge">Your customers never see our name</div>
+      <div class="badge">Fraction of agency cost</div>
+    </div>
+
+    <div class="footer">
+      <div><div class="footer-brand"><span>Penny</span>WiseIT</div><div class="footer-url">pennywiseit.com.au</div></div>
+      <div class="footer-tagline">Custom apps for Aussie<br>small businesses</div>
+    </div>
+  </div>
+
+</body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 300);
+}
+
+// ── Template Copy ──
+function copyTemplate(btn) {
+  const body = btn.previousElementSibling.textContent;
+  navigator.clipboard.writeText(body).then(() => {
+    btn.textContent = '\u2713 Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '\u2713 Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+
+// ── Admin ──
+function unlockAdmin() {
+  const secret = document.getElementById('admin-secret').value.trim();
+  if (!secret) return;
+  adminToken = secret;
+  document.getElementById('admin-gate').style.display = 'none';
+  document.getElementById('admin-content').style.display = 'block';
+  localStorage.setItem('pwsales_admin_token', secret);
+  adminSection('people');
+}
+
+async function adminSection(section) {
+  const el = document.getElementById('admin-section-content');
+  if (section === 'people') {
+    el.innerHTML = '<p style="color:var(--muted)">Loading salespeople...</p>';
+    try {
+      const data = await api('GET', '/api/salespeople', null, true);
+      const people = data.salespeople || data || [];
+      el.innerHTML = `
+        <h3 style="margin-bottom:0.75rem">Salespeople</h3>
+        <table class="admin-table"><thead><tr><th>Name</th><th>Username</th><th>Setup %</th><th>Monthly %</th><th>Status</th></tr></thead>
+        <tbody>${people.map(p => `<tr><td style="font-weight:600">${esc(p.name)}</td><td>${esc(p.username)}</td><td>${p.commission_pct || 15}%</td><td>${p.monthly_comm_pct || 10}%</td><td><span class="tag tag-${p.active ? 'green' : 'red'}">${p.active ? 'Active' : 'Inactive'}</span></td></tr>`).join('')}</tbody></table>`;
+    } catch (e) {
+      el.innerHTML = '<p style="color:var(--red)">Failed to load: ' + esc(e.message) + '</p>';
+    }
+  } else if (section === 'all-leads') {
+    el.innerHTML = '<p style="color:var(--muted)">Loading all leads...</p>';
+    try {
+      const data = await api('GET', '/api/leads', null, true);
+      const allLeads = data.leads || data || [];
+      el.innerHTML = `
+        <h3 style="margin-bottom:0.75rem">All Leads (${allLeads.length})</h3>
+        <table class="admin-table"><thead><tr><th>Business</th><th>Stage</th><th>App Type</th><th>Value</th><th>Rep</th></tr></thead>
+        <tbody>${allLeads.map(l => `<tr><td style="font-weight:600">${esc(l.business_name || '')}</td><td><span class="tag tag-${l.stage === 'won' ? 'green' : l.stage === 'lost' ? 'red' : 'blue'}">${esc(l.stage)}</span></td><td>${esc(l.app_type || '')}</td><td style="color:var(--green)">$${Number(l.setup_value || 0).toLocaleString()}</td><td>${esc(l.salesperson_name || '')}</td></tr>`).join('')}</tbody></table>`;
+    } catch (e) {
+      el.innerHTML = '<p style="color:var(--red)">Failed to load: ' + esc(e.message) + '</p>';
+    }
+  } else if (section === 'pricing') {
+    const prices = getPrices();
+    el.innerHTML = `
+      <h3 style="margin-bottom:0.75rem">Edit Product Pricing</h3>
+      <table class="admin-table"><thead><tr><th>Product</th><th>Setup ($)</th><th>Monthly ($)</th></tr></thead>
+      <tbody>${prices.map((p, i) => `<tr><td style="font-weight:600">${p.icon} ${esc(p.name)}</td>
+        <td><input type="number" value="${p.setup}" min="0" style="width:90px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.5rem;color:var(--text);font-size:0.85rem;outline:none" onchange="updatePrice(${i},'setup',this.value)"></td>
+        <td><input type="number" value="${p.monthly}" min="0" style="width:80px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.5rem;color:var(--text);font-size:0.85rem;outline:none" onchange="updatePrice(${i},'monthly',this.value)"></td>
+      </tr>`).join('')}</tbody></table>
+      <button class="btn btn-secondary" style="margin-top:0.75rem" onclick="resetPrices()">Reset to defaults</button>`;
+  } else if (section === 'leaderboard') {
+    el.innerHTML = '<p style="color:var(--muted)">Loading leaderboard...</p>';
+    try {
+      const data = await api('GET', '/api/leads', null, true);
+      const allLeads = data.leads || data || [];
+      const won = allLeads.filter(l => l.stage === 'won');
+      const byRep = {};
+      won.forEach(l => {
+        const name = l.salesperson_name || 'Unknown';
+        if (!byRep[name]) byRep[name] = { deals: 0, revenue: 0 };
+        byRep[name].deals++;
+        byRep[name].revenue += Number(l.setup_value || 0);
+      });
+      const sorted = Object.entries(byRep).sort((a, b) => b[1].revenue - a[1].revenue);
+      el.innerHTML = `
+        <h3 style="margin-bottom:0.75rem">Leaderboard</h3>
+        <table class="admin-table"><thead><tr><th>#</th><th>Salesperson</th><th>Deals Won</th><th>Revenue</th></tr></thead>
+        <tbody>${sorted.map(([name, d], i) => `<tr><td style="font-weight:800;color:${i === 0 ? 'var(--yellow)' : 'var(--muted)'}">${i + 1}</td><td style="font-weight:600">${esc(name)}</td><td>${d.deals}</td><td class="green">$${d.revenue.toLocaleString()}</td></tr>`).join('') || '<tr><td colspan="4" style="color:var(--muted)">No won deals yet</td></tr>'}</tbody></table>`;
+    } catch (e) {
+      el.innerHTML = '<p style="color:var(--red)">Failed to load: ' + esc(e.message) + '</p>';
+    }
+  }
+}
+
+function updatePrice(idx, field, value) {
+  const prices = getPrices();
+  prices[idx][field] = Number(value);
+  savePrices(prices);
+  showToast('Price updated', 'success');
+}
+
+function resetPrices() {
+  localStorage.removeItem('pwsales_prices');
+  savePrices(DEFAULT_PRICES);
+  adminSection('pricing');
+  showToast('Prices reset to defaults', 'success');
+}
+
+// ── Lead Scanner ──
+let scanResults = [];
+
+function populateScanAppSelect() {
+  const sel = document.getElementById('scan-app-type');
+  sel.innerHTML = '<option value="">All types</option>' + getPrices().map(p =>
+    `<option value="${p.id}">${esc(p.name)}</option>`
+  ).join('');
+}
+
+function restoreScanLocation() {
+  const loc = localStorage.getItem('pwsales_scan_location');
+  if (loc) document.getElementById('scan-location').value = loc;
+}
+
+function saveScanLocation() {
+  localStorage.setItem('pwsales_scan_location', document.getElementById('scan-location').value.trim());
+}
+
+function updateScanQuota(used, limit) {
+  const left = Math.max(0, limit - used);
+  const pct = (left / limit) * 100;
+  document.getElementById('scan-quota-text').textContent = left + ' scans left today';
+  const fill = document.getElementById('scan-quota-fill');
+  fill.style.width = pct + '%';
+  fill.style.background = left > 2 ? 'var(--accent)' : left > 0 ? 'var(--yellow)' : 'var(--red)';
+}
+
+async function loadScanStatus() {
+  try {
+    const data = await api('GET', '/salesperson/scan-leads/status');
+    updateScanQuota(data.scansUsed, data.scansLimit);
+    if (data.recentScans?.length) {
+      renderScanHistory(data.recentScans);
+    }
+  } catch {}
+}
+
+async function runLeadScan(page) {
+  const location = document.getElementById('scan-location').value.trim();
+  if (!location) { showToast('Enter your area first', 'error'); return; }
+  saveScanLocation();
+  const appType = document.getElementById('scan-app-type').value;
+  const btn = document.getElementById('scan-btn');
+  btn.disabled = true; btn.textContent = 'Scanning...';
+  document.getElementById('scan-results-area').innerHTML = `<div class="scan-loading"><div class="scan-spinner"></div><div>Searching for leads in ${esc(location)}...</div><div style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem">This may take 10\u201320 seconds</div></div>`;
+  try {
+    const data = await api('POST', '/salesperson/scan-leads', { location, appType, page: page || 0 });
+    scanResults = data.leads || [];
+    updateScanQuota(data.scansUsed, data.scansLimit);
+    renderScanResults(scanResults, location, data.page || 0);
+    saveScanToHistory(data.scanId, location, appType, scanResults);
+    loadScanStatus();
+  } catch (e) {
+    if (e.message === 'AUTH_EXPIRED') { doLogout(); return; }
+    document.getElementById('scan-results-area').innerHTML = `<div class="card" style="text-align:center;padding:2rem"><div style="font-size:1.5rem;margin-bottom:0.5rem">\u26A0\uFE0F</div><div style="color:var(--red);font-weight:600">${esc(e.message)}</div></div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Scan Now';
+  }
+}
+
+function renderScanResults(results, location, page) {
+  const area = document.getElementById('scan-results-area');
+  if (!results.length) {
+    area.innerHTML = `<div class="card" style="text-align:center;padding:2rem"><div style="font-size:1.5rem;margin-bottom:0.5rem">\u{1F50D}</div><div style="color:var(--soft)">No leads found for "${esc(location)}". Try a different area or app type.</div></div>`;
+    return;
+  }
+  const seen = getScanSeen();
+  const hot = results.filter(r => r.confidence === 'hot').length;
+  const warm = results.filter(r => r.confidence === 'warm').length;
+
+  let html = `<div class="scan-summary">
+    <span><strong>${results.length}</strong> results found</span>
+    ${hot ? `<span style="color:var(--red)">\u{1F525} ${hot} hot</span>` : ''}
+    ${warm ? `<span style="color:var(--yellow)">\u26A1 ${warm} warm</span>` : ''}
+  </div><div class="scan-results">`;
+
+  results.forEach((r, i) => {
+    const srcClass = 'scan-source-' + (['Facebook','Reddit'].includes(r.source) ? r.source : r.source.includes('Google') ? 'Google' : 'default');
+    const isSeen = seen.has(r.link);
+    html += `<div class="scan-card${isSeen ? '' : ''}" onclick="toggleScanCard(${i})" id="scan-card-${i}">
+      <div class="scan-card-top">
+        <span class="scan-source ${srcClass}">${esc(r.source)}</span>
+        <span class="scan-confidence scan-confidence-${r.confidence}">${r.confidence === 'hot' ? '\u{1F525} Hot' : r.confidence === 'warm' ? '\u26A1 Warm' : '\u2744\uFE0F Cold'}</span>
+        <span class="scan-product">${esc(r.matchedProductName || '')}</span>
+        ${isSeen ? '<span class="scan-seen">SEEN</span>' : ''}
+      </div>
+      <div class="scan-title">${esc(r.businessName || r.title)}</div>
+      <div class="scan-snippet">${esc(r.snippet || '')}</div>
+      ${r.painPoint ? `<div class="scan-pain">\u{1F4A1} ${esc(r.painPoint)}</div>` : ''}
+      ${r.approachMessage ? `<div class="scan-approach"><strong style="color:var(--accent);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em">Suggested approach</strong><br>${esc(r.approachMessage)}</div>` : ''}
+      <div class="scan-actions">
+        <button class="btn btn-green btn-sm" onclick="event.stopPropagation();replyToLead(${i},'scan')" style="font-weight:700">Reply Now</button>
+        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();addScanLeadToPipeline(${i})">+ Add to leads</button>
+        ${r.approachMessage ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();copyScanApproach(${i})">Copy pitch</button>` : ''}
+        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showPortfolioForLead(${i},'scan')" title="Show relevant project screenshot">\u{1F4F8} Portfolio</button>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  if (results.length >= 5) {
+    html += `<div style="text-align:center;margin-top:1rem"><button class="btn btn-secondary" onclick="runLeadScan(${(page||0)+1})">Load more results</button></div>`;
+  }
+  area.innerHTML = html;
+}
+
+function toggleScanCard(i) {
+  document.getElementById('scan-card-' + i)?.classList.toggle('expanded');
+}
+
+function copyScanApproach(i) {
+  const r = scanResults[i];
+  if (!r?.approachMessage) return;
+  navigator.clipboard.writeText(r.approachMessage).then(() => showToast('Pitch copied', 'success'));
+}
+
+function addScanLeadToPipeline(i) {
+  const r = scanResults[i];
+  if (!r) return;
+  const prices = getPrices();
+  const product = prices.find(p => p.id === r.matchedProduct) || prices.find(p => p.name === r.matchedProductName);
+  document.getElementById('lead-edit-id').value = '';
+  document.getElementById('lead-biz').value = r.businessName || r.title || '';
+  document.getElementById('lead-contact').value = '';
+  document.getElementById('lead-phone').value = '';
+  document.getElementById('lead-email').value = '';
+  document.getElementById('lead-app').value = product?.name || '';
+  document.getElementById('lead-stage').value = 'new';
+  document.getElementById('lead-notes').value = `[Lead Scanner] ${r.confidence.toUpperCase()}\nSource: ${r.source}\nPain: ${r.painPoint || 'N/A'}\nURL: ${r.link}\n${r.approachMessage ? 'Approach: ' + r.approachMessage : ''}`;
+  document.getElementById('lead-modal-title').textContent = 'Add Lead from Scanner';
+  document.getElementById('lead-modal').classList.add('open');
+  markScanSeen(r.link);
+}
+
+function getScanSeenKey() { return 'pwsales_scan_seen_' + (session?.salesperson?.id || 'anon'); }
+function getScanSeen() { try { return new Set(JSON.parse(localStorage.getItem(getScanSeenKey()) || '[]')); } catch { return new Set(); } }
+function markScanSeen(url) {
+  const seen = getScanSeen();
+  seen.add(url);
+  const arr = [...seen].slice(-500);
+  localStorage.setItem(getScanSeenKey(), JSON.stringify(arr));
+}
+
+function saveScanToHistory(scanId, location, appType, results) {
+  try {
+    const history = JSON.parse(localStorage.getItem('pwsales_scan_history') || '[]');
+    history.unshift({ scanId, location, appType, results, date: new Date().toISOString() });
+    localStorage.setItem('pwsales_scan_history', JSON.stringify(history.slice(0, 20)));
+  } catch {}
+}
+
+function viewPastScan(scanId) {
+  try {
+    const history = JSON.parse(localStorage.getItem('pwsales_scan_history') || '[]');
+    const scan = history.find(s => s.scanId === scanId);
+    if (scan && scan.results?.length) {
+      scanResults = scan.results;
+      renderScanResults(scan.results, scan.location, 0);
+      window.scrollTo({ top: document.getElementById('scan-results-area').offsetTop - 80, behavior: 'smooth' });
+    } else {
+      showToast('No cached results for this scan', 'info');
+    }
+  } catch {}
+}
+
+async function deleteScan(scanId) {
+  try {
+    await api('DELETE', '/salesperson/scan-leads/' + scanId);
+    const history = JSON.parse(localStorage.getItem('pwsales_scan_history') || '[]');
+    localStorage.setItem('pwsales_scan_history', JSON.stringify(history.filter(s => s.scanId !== scanId)));
+    loadScanStatus();
+    showToast('Scan deleted', 'success');
+  } catch (e) {
+    if (e.message === 'AUTH_EXPIRED') { doLogout(); return; }
+    showToast('Delete failed', 'error');
+  }
+}
+
+function renderScanHistory(scans) {
+  if (!scans?.length) return;
+  document.getElementById('scan-history').style.display = 'block';
+  document.getElementById('scan-history-list').innerHTML = scans.slice(0, 10).map(s => `
+    <div class="scan-history-item" style="display:flex;align-items:center;gap:0.75rem">
+      <span>${new Date(s.created_at).toLocaleDateString()}</span>
+      <span style="color:var(--text);font-weight:600">${esc(s.location)}</span>
+      <span>${s.app_type ? esc(s.app_type) : 'All types'}</span>
+      <span>${s.results_count} results</span>
+      <span style="margin-left:auto;display:flex;gap:0.3rem">
+        ${s.results_count > 0 ? `<button class="btn btn-secondary btn-sm" style="padding:0.2rem 0.5rem;font-size:0.65rem" onclick="viewPastScan('${s.id}')">View</button>` : ''}
+        <button class="btn btn-sm" style="padding:0.2rem 0.5rem;font-size:0.65rem;color:var(--red);border:1px solid var(--border);background:none;cursor:pointer" onclick="deleteScan('${s.id}')">Delete</button>
+      </span>
+    </div>
+  `).join('');
+}
+
+// ── Auto-Scan Config ──
+function populateAutoScanSelect() {
+  const sel = document.getElementById('autoscan-apptype');
+  sel.innerHTML = '<option value="all">All services</option>' + getPrices().map(p =>
+    `<option value="${p.id}">${esc(p.name)}</option>`
+  ).join('');
+}
+
+async function loadAutoScanConfig() {
+  try {
+    const data = await api('GET', '/salesperson/scan-config');
+    if (data.scan_location) document.getElementById('autoscan-location').value = data.scan_location;
+    if (data.scan_app_type) document.getElementById('autoscan-apptype').value = data.scan_app_type;
+    if (data.scan_email) document.getElementById('autoscan-email').value = data.scan_email;
+    const tag = document.getElementById('autoscan-status-tag');
+    if (data.auto_scan) { tag.style.display = ''; tag.textContent = 'Active'; tag.className = 'tag tag-green'; }
+    else { tag.style.display = 'none'; }
+  } catch {}
+}
+
+async function saveAutoScanConfig(enable) {
+  const location = document.getElementById('autoscan-location').value.trim();
+  if (enable && !location) { showToast('Enter your area first', 'error'); return; }
+  const body = {
+    scan_location: location,
+    scan_app_type: document.getElementById('autoscan-apptype').value,
+    scan_email: document.getElementById('autoscan-email').value.trim(),
+    auto_scan: enable,
+  };
+  try {
+    await api('PUT', '/salesperson/scan-config', body);
+    const tag = document.getElementById('autoscan-status-tag');
+    if (enable) { tag.style.display = ''; tag.textContent = 'Active'; tag.className = 'tag tag-green'; }
+    else { tag.style.display = ''; tag.textContent = 'Disabled'; tag.className = 'tag tag-red'; }
+    const msg = document.getElementById('autoscan-save-msg');
+    msg.style.display = ''; msg.textContent = enable ? 'Enabled! You\'ll get daily emails.' : 'Disabled.';
+    setTimeout(() => msg.style.display = 'none', 3000);
+    showToast(enable ? 'Daily auto-scan enabled' : 'Auto-scan disabled', 'success');
+  } catch (e) {
+    if (e.message === 'AUTH_EXPIRED') { doLogout(); return; }
+    showToast('Save failed: ' + e.message, 'error');
+  }
+}
+
+async function loadAutoLeads() {
+  try {
+    const data = await api('GET', '/salesperson/auto-leads');
+    const leads = data.leads || [];
+    if (!leads.length) { document.getElementById('auto-leads-section').style.display = 'none'; return; }
+    document.getElementById('auto-leads-section').style.display = 'block';
+    document.getElementById('auto-leads-count').textContent = leads.length;
+    scanResults = leads;
+    document.getElementById('auto-leads-list').innerHTML = leads.map((r, i) => {
+      const srcClass = 'scan-source-' + (['Facebook','Reddit'].includes(r.source) ? r.source : 'default');
+      return `<div class="scan-card" onclick="toggleScanCard(${i})" id="scan-card-${i}">
+        <div class="scan-card-top">
+          <span class="scan-source ${srcClass}">${esc(r.source || 'Web')}</span>
+          <span class="scan-confidence scan-confidence-${r.confidence || 'warm'}">${r.confidence === 'hot' ? '\u{1F525} Hot' : '\u26A1 Warm'}</span>
+          <span class="scan-product">${esc(r.matched_product ? (PRODUCT_NAMES_MAP[r.matched_product] || r.matched_product) : '')}</span>
+          <span class="tag tag-red" style="margin-left:auto;font-size:0.6rem">NEW</span>
+        </div>
+        <div class="scan-title">${esc(r.business_name || r.title || '')}</div>
+        <div class="scan-snippet">${esc(r.snippet || '')}</div>
+        ${r.pain_point ? `<div class="scan-pain">\u{1F4A1} ${esc(r.pain_point)}</div>` : ''}
+        ${r.approach_message ? `<div class="scan-approach"><strong style="color:var(--accent);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em">Suggested approach</strong><br>${esc(r.approach_message)}</div>` : ''}
+        <div class="scan-actions">
+          ${r.approach_message ? `<button class="btn btn-green btn-sm" onclick="event.stopPropagation();replyToLead(${i},'auto')" style="font-weight:700">Reply Now</button>` : ''}
+          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();addAutoLeadToPipeline(${i})">+ Add to leads</button>
+          ${r.approach_message ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();copyText(scanResults[${i}].approach_message,this)">Copy pitch</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch {}
+}
+
+const PRODUCT_NAMES_MAP = { 'food-truck':'Food Truck App','online-store':'Online Store','tradie':'Tradie & Field Service','festival':'Festival & Event App','delivery':'Delivery & Logistics','desktop':'Desktop + Licensing','price-comparison':'Price Comparison App','ai-social':'AI Social Platform' };
+
+// Portfolio projects mapped to product types
+const R2_BASE = 'https://pub-e9f06ab167a44125b75d7528e2271086.r2.dev';
+const PORTFOLIO = {
+  'food-truck': { name: 'Street Meatz BBQ', url: 'https://streetmeatzbbq.com.au', desc: 'Food truck with online ordering, catering packages, and rewards program', thumb: R2_BASE + '/streetmeatz.png' },
+  'online-store': { name: 'Pickle Nick', url: 'https://picklenick.au', desc: 'Online store for handcrafted pickles and sauces with shopping cart', thumb: R2_BASE + '/picklenick.png' },
+  'tradie': { name: 'Wirez R Us', url: 'https://wirezapp.au', desc: 'Tradie job management — quoting, scheduling, invoicing, field app', thumb: R2_BASE + '/wirez.png' },
+  'festival': { name: 'Gladstone BBQ Festival', url: 'https://gladstonebbqfest.au', desc: 'Event app with tickets, vendor map, schedule, and live updates', thumb: R2_BASE + '/gladstone.png' },
+  'delivery': { name: "O'Connor Agriculture", url: 'https://oconnoragriculture.com.au', desc: 'Delivery management with driver tracking and order system', thumb: R2_BASE + '/oconnor.png' },
+  'desktop': { name: 'AutoHue', url: 'https://autohue.app', desc: 'Desktop SaaS with license keys, auto-updates, and subscription billing', thumb: R2_BASE + '/autohue.png' },
+  'ai-social': { name: 'SocialAI Studio', url: 'https://socialaistudio.au', desc: 'AI social media management platform with content generation', thumb: R2_BASE + '/socialai.png' },
+};
+const PORTFOLIO_DEFAULT = PORTFOLIO['online-store'];
+
+function showPortfolioForLead(i, source) {
+  const r = scanResults[i];
+  if (!r) return;
+  const productId = r.matchedProduct || r.matched_product || 'online-store';
+  // Find best matching portfolio project
+  const project = PORTFOLIO[productId] || PORTFOLIO_DEFAULT;
+  // Show all projects in a modal
+  const allProjects = Object.values(PORTFOLIO);
+  const modal = document.getElementById('lead-modal');
+  // Reuse the modal structure
+  document.getElementById('lead-modal-title').textContent = 'Portfolio — attach to your reply';
+  modal.querySelector('.modal').innerHTML = `
+    <div class="modal-title">Portfolio — attach to your reply</div>
+    <p style="font-size:0.82rem;color:var(--soft);margin-bottom:1rem">Right-click any image to save it, then attach it to your Facebook/Reddit reply.</p>
+    <div style="border:2px solid var(--accent);border-radius:10px;padding:1rem;margin-bottom:1rem;background:rgba(79,142,247,0.05)">
+      <div style="font-size:0.72rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">Best match for this lead</div>
+      <div style="font-weight:700;font-size:1rem;margin-bottom:0.3rem">${esc(project.name)}</div>
+      <div style="font-size:0.82rem;color:var(--soft);margin-bottom:0.75rem">${esc(project.desc)}</div>
+      <img src="${project.thumb}" style="width:100%;border-radius:8px;border:1px solid var(--border);margin-bottom:0.75rem" alt="${esc(project.name)}" loading="lazy" onerror="this.style.display='none'">
+      <div style="display:flex;gap:0.5rem">
+        <a href="${project.url}" target="_blank" class="btn btn-primary btn-sm">Open live site</a>
+        <a href="${project.thumb}" download="${productId}-portfolio.jpg" class="btn btn-secondary btn-sm">Download image</a>
+      </div>
+    </div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem">Other projects:</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.5rem">
+      ${allProjects.filter(p => p.url !== project.url).map(p => `
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.75rem;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'" onclick="downloadPortfolioImage('${p.thumb}','${p.name}')">
+          <img src="${p.thumb}" style="width:100%;border-radius:6px;margin-bottom:0.4rem" alt="${esc(p.name)}" loading="lazy" onerror="this.style.display='none'">
+          <div style="font-weight:600;font-size:0.82rem">${esc(p.name)}</div>
+          <div style="font-size:0.7rem;color:var(--muted)">${esc(p.desc)}</div>
+          <div style="font-size:0.6rem;color:var(--accent);margin-top:0.3rem">Click to add</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closePortfolioModal()">Close</button></div>
+  `;
+  modal.classList.add('open');
+}
+
+function downloadPortfolioImage(url, name) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() + '.png';
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast('Downloading ' + name + ' screenshot', 'success');
+}
+
+function closePortfolioModal() {
+  const modal = document.getElementById('lead-modal');
+  modal.classList.remove('open');
+  // Restore original modal content on next open
+  setTimeout(() => {
+    modal.querySelector('.modal').innerHTML = `
+      <div class="modal-title" id="lead-modal-title">Add Lead</div>
+      <input type="hidden" id="lead-edit-id">
+      <div class="form-group"><label class="form-label">Business name</label><input type="text" id="lead-biz" class="form-input" placeholder="e.g. Joe's BBQ"></div>
+      <div class="form-group"><label class="form-label">Contact name</label><input type="text" id="lead-contact" class="form-input" placeholder="e.g. Joe Smith"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input type="tel" id="lead-phone" class="form-input" placeholder="e.g. 0412 345 678"></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" id="lead-email" class="form-input" placeholder="e.g. joe@joebbq.com.au"></div>
+      <div class="form-group"><label class="form-label">App type interested in</label><select id="lead-app" class="form-select"><option value="">-- Select --</option></select></div>
+      <div class="form-group"><label class="form-label">Stage</label><select id="lead-stage" class="form-select"><option value="new">New</option><option value="contacted">Contacted</option><option value="demo">Demo Given</option><option value="proposal">Quote Sent</option><option value="won">Won</option><option value="lost">Lost</option></select></div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea id="lead-notes" class="form-textarea" placeholder="Any details about this prospect..."></textarea></div>
+      <div class="modal-actions"><button class="btn btn-secondary" onclick="closeLeadModal()">Cancel</button><button class="btn btn-primary" onclick="saveLead()">Save Lead</button></div>
+    `;
+    populateLeadAppSelect();
+  }, 300);
+}
+
+function replyToLead(i, source) {
+  const r = scanResults[i];
+  if (!r) return;
+  const pitch = r.approach_message || r.approachMessage || '';
+  const link = r.link || '';
+  const productId = r.matchedProduct || r.matched_product || 'online-store';
+  const project = PORTFOLIO[productId] || PORTFOLIO_DEFAULT;
+  const allProjects = Object.values(PORTFOLIO);
+
+  // Copy pitch to clipboard
+  if (pitch) navigator.clipboard.writeText(pitch);
+
+  // Open split-screen overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'split-reply';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:600;display:flex;background:var(--bg);';
+  overlay.innerHTML = `
+    <div style="width:380px;min-width:380px;background:var(--surface);border-right:2px solid var(--border);display:flex;flex-direction:column;overflow-y:auto">
+      <div style="padding:1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.5rem">
+        <div style="font-weight:800;font-size:0.95rem;color:var(--accent)">Reply Kit</div>
+        <span style="font-size:0.68rem;color:var(--green);font-weight:600">\u2713 Copied</span>
+        <button style="margin-left:auto;background:var(--accent);border:none;color:#fff;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-size:0.78rem;font-weight:700;font-family:inherit" onclick="document.getElementById('split-reply').remove()">\u2190 Back to Leads</button>
+      </div>
+
+      <div style="padding:1rem;border-bottom:1px solid var(--border)">
+        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);margin-bottom:0.4rem">Your message</div>
+        <div style="background:var(--bg);padding:0.75rem;border-radius:8px;font-size:0.82rem;color:var(--soft);line-height:1.5;border-left:3px solid var(--accent);cursor:pointer" onclick="navigator.clipboard.writeText(this.textContent.trim());showToast('Copied','success')" title="Click to copy again">${esc(pitch)}</div>
+        <div style="font-size:0.62rem;color:var(--muted);margin-top:0.3rem">Click to re-copy \u00B7 Then Ctrl+V in the comment box \u2192</div>
+      </div>
+
+      <div style="padding:1rem;flex:1">
+        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);margin-bottom:0.5rem">Drag a screenshot into the comment \u2192</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem">
+          ${allProjects.map(p => `
+            <div style="position:relative;cursor:grab" draggable="false">
+              <img src="${p.thumb}" alt="${esc(p.name)}" draggable="true" style="width:100%;border-radius:8px;border:1px solid var(--border);cursor:grab;object-fit:cover;max-height:140px" title="Drag into comment box">
+              <div style="position:absolute;bottom:0;left:0;right:0;padding:0.4rem 0.6rem;background:linear-gradient(transparent,rgba(0,0,0,0.8));border-radius:0 0 8px 8px">
+                <div style="font-size:0.72rem;font-weight:700;color:#fff">${esc(p.name)}</div>
+                <div style="font-size:0.6rem;color:rgba(255,255,255,0.7)">${esc(p.desc)}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg)">
+      <div style="text-align:center;max-width:400px;padding:2rem">
+        <div style="font-size:3rem;margin-bottom:1rem">\u2192</div>
+        <div style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem">Post opened in new window</div>
+        <div style="font-size:0.88rem;color:var(--soft);margin-bottom:1.5rem;line-height:1.5">The Facebook post is open in a separate window. Arrange it next to this panel, then:<br><br><strong style="color:var(--text)">1.</strong> Click your message on the left to copy<br><strong style="color:var(--text)">2.</strong> Paste (Ctrl+V) in the comment box<br><strong style="color:var(--text)">3.</strong> Drag a screenshot from the left into the comment</div>
+        <a href="${esc(link)}" target="_blank" class="btn btn-primary" style="margin-bottom:0.5rem">Re-open post</a>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Open the post in a popup window positioned to the right of the panel
+  if (link) {
+    const left = 400;
+    const width = screen.width - left;
+    const height = screen.height;
+    window.open(link, 'leadpost', `left=${left},top=0,width=${width},height=${height},toolbar=yes,location=yes,scrollbars=yes`);
+  }
+}
+
+function addAutoLeadToPipeline(i) {
+  const r = scanResults[i];
+  if (!r) return;
+  const prices = getPrices();
+  const product = prices.find(p => p.id === r.matched_product);
+  document.getElementById('lead-edit-id').value = '';
+  document.getElementById('lead-biz').value = r.business_name || r.title || '';
+  document.getElementById('lead-contact').value = '';
+  document.getElementById('lead-phone').value = '';
+  document.getElementById('lead-email').value = '';
+  document.getElementById('lead-app').value = product?.name || '';
+  document.getElementById('lead-stage').value = 'new';
+  document.getElementById('lead-notes').value = `[Auto-Scanner] ${(r.confidence || 'warm').toUpperCase()}\nSource: ${r.source || 'Web'}\nPain: ${r.pain_point || 'N/A'}\nURL: ${r.link}\n${r.approach_message ? 'Approach: ' + r.approach_message : ''}`;
+  document.getElementById('lead-modal-title').textContent = 'Add Lead from Auto-Scanner';
+  document.getElementById('lead-modal').classList.add('open');
+}
+
+async function markAutoLeadsSeen() {
+  try {
+    await api('POST', '/salesperson/auto-leads/seen');
+    document.getElementById('auto-leads-section').style.display = 'none';
+    showToast('All leads marked as seen', 'success');
+  } catch {}
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  restoreSession();
+  // Enter key on login
+  document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('login-pass').focus(); });
+  // Restore admin session
+  const savedAdmin = localStorage.getItem('pwsales_admin_token');
+  if (savedAdmin) { adminToken = savedAdmin; }
+  // Close modals on overlay click
+  document.getElementById('lead-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeLeadModal(); });
+});
+</script>
+</body>
+</html>
