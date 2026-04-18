@@ -6,7 +6,7 @@ const Privacy = () => (
     <section className="page-hero">
       <div className="container">
         <h1>Privacy Policy</h1>
-        <p>Last updated: March 2026</p>
+        <p>Last updated: April 2026</p>
       </div>
     </section>
     <section className="container legal-content">
@@ -76,7 +76,20 @@ const Privacy = () => (
       <h2>10. Changes to This Policy</h2>
       <p>We may update this Privacy Policy from time to time. We will notify you of material changes via email or a prominent notice on our website.</p>
 
-      <h2>11. Contact Us</h2>
+      <h2>11. YouTube AutoFlow &mdash; YouTube API Services</h2>
+      <p>Penny Wise I.T operates an internal desktop application, "YouTube AutoFlow", used solely by the founder of Penny Wise I.T for managing YouTube channels owned by Penny Wise I.T. This application is not distributed, licensed, or made available to any third party.</p>
+      <p>When used, the application accesses YouTube Data API v3 and YouTube Analytics API data through standard OAuth 2.0 consent. Only the authenticated operator's own channels are accessed. The application:</p>
+      <ul>
+        <li>Reads channel metadata, video metadata, analytics, and the operator's own comments and playlists</li>
+        <li>Uploads, edits, and schedules videos on the operator's own channels</li>
+        <li>Stores all retrieved data locally on the operator's device only &mdash; no cloud sync, no telemetry, no third-party transmission</li>
+        <li>Does not access any data belonging to viewers of the operator's channels beyond what YouTube exposes publicly</li>
+        <li>Does not sell, share, or re-distribute any YouTube API data</li>
+      </ul>
+      <p>The operator may revoke the application's access at any time via <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener noreferrer">Google Account permissions</a>, which immediately terminates the application's ability to access YouTube data.</p>
+      <p>YouTube AutoFlow's use of YouTube API Services is subject to the <a href="https://developers.google.com/youtube/terms/api-services-terms-of-service" target="_blank" rel="noopener noreferrer">YouTube API Services Terms of Service</a> and the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a>. Penny Wise I.T complies with the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+
+      <h2>12. Contact Us</h2>
       <p>For privacy enquiries or to exercise your rights, contact us at:</p>
       <ul>
         <li><strong>Email:</strong> <a href="mailto:admin@pennywiseit.com.au">admin@pennywiseit.com.au</a></li>

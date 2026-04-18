@@ -6,7 +6,7 @@ const Terms = () => (
     <section className="page-hero">
       <div className="container">
         <h1>Terms of Service</h1>
-        <p>Last updated: March 2026</p>
+        <p>Last updated: April 2026</p>
       </div>
     </section>
     <section className="container legal-content">
@@ -59,7 +59,16 @@ const Terms = () => (
       <h2>12. Changes to Terms</h2>
       <p>We may update these Terms from time to time. Continued use of the Services after changes constitutes acceptance of the updated Terms.</p>
 
-      <h2>13. Contact</h2>
+      <h2>13. YouTube AutoFlow Application</h2>
+      <p>"YouTube AutoFlow" is a proprietary desktop application owned by Penny Wise I.T and used solely by the founder of Penny Wise I.T for internal management of YouTube channels owned by Penny Wise I.T.</p>
+      <ul>
+        <li>The application is <strong>not</strong> offered, licensed, sold, or distributed to any third party.</li>
+        <li>The operator agrees to comply with the <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer">YouTube Terms of Service</a> and the <a href="https://developers.google.com/youtube/terms/api-services-terms-of-service" target="_blank" rel="noopener noreferrer">YouTube API Services Terms of Service</a>.</li>
+        <li>The application does not attempt to circumvent any YouTube quota, rate limit, access control, or authentication mechanism.</li>
+        <li>All YouTube content and data accessed through the application remains the property of its respective owners (YouTube, Google, and the connected channel).</li>
+      </ul>
+
+      <h2>14. Contact</h2>
       <p>For questions about these Terms, contact us at <a href="mailto:admin@pennywiseit.com.au">admin@pennywiseit.com.au</a> or visit our <a href="/contact">Contact page</a>.</p>
     </section>
   </div>
