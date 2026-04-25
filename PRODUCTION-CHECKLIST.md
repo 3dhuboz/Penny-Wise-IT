@@ -8,13 +8,13 @@
 - [x] **Square invoice creation** wired into subscribe flow — customers get a real invoice
 - [x] **Helmet** security headers enabled
 - [x] **Rate limiting** on all `/api` routes (100 req / 15 min)
-- [x] **CORS** restricted to production domains + Vercel
+- [x] **CORS** restricted to production domains + Cloudflare Pages previews
 - [x] **Bcrypt** password hashing (salt rounds = 10)
 - [x] **JWT auth** with 7-day token expiry
 - [x] **Password not exposed** in API responses (toJSON strips it)
 - [x] **Error messages hidden** in production (only shown in dev)
 - [x] **.gitignore** excludes `.env`, `node_modules`, `build`
-- [x] **Vercel config** (`vercel.json`) + **SiteGround config** (`app.js` + Passenger)
+- [x] **Cloudflare Pages config** (`client/public/_redirects`) + **Railway config** (`railway.json`) + **SiteGround config** (`app.js` + Passenger)
 - [x] **FoodTruc → Food Truck** renamed in all seed data
 
 ---

@@ -144,12 +144,40 @@ To connect your SiteGround account:
 └── package.json
 ```
 
-## Deployment to SiteGround
+## Deployment
 
-1. Build the React client: `npm run build`
-2. The Express server serves the built React app in production mode
-3. Deploy to SiteGround using Node.js hosting or upload the build to a standard hosting plan
-4. Set `NODE_ENV=production` in your server environment
+### Cloudflare Pages (frontend) + Railway (backend) — current production setup
+
+The frontend and backend deploy separately:
+
+**Frontend → Cloudflare Pages**
+1. Connect this repo in Cloudflare Pages
+2. Framework preset: **Create React App**
+3. Build command: `cd client && npm install && npm run build`
+4. Build output directory: `client/build`
+5. Environment variables:
+   - `REACT_APP_API_URL` = `https://api.pennywiseit.com.au/api` (your Railway backend)
+   - `REACT_APP_GOOGLE_CLIENT_ID` = your Google OAuth client ID
+6. SPA routing is handled by `client/public/_redirects` (already in repo)
+
+**Backend → Railway**
+1. Create a Railway project from this repo (`railway.json` is the config)
+2. Set environment variables from `.env.example` — at minimum `MONGODB_URI`, `JWT_SECRET`, `NODE_ENV=production`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, plus Square/SMTP/SiteGround/Google as needed
+3. Add a custom domain (e.g. `api.pennywiseit.com.au`) and point a DNS CNAME at the Railway domain in Cloudflare DNS
+
+**DNS in Cloudflare**
+- `pennywiseit.com.au` → Cloudflare Pages
+- `www.pennywiseit.com.au` → Cloudflare Pages
+- `api.pennywiseit.com.au` → Railway (CNAME)
+
+### SiteGround (alternative — single-server deploy)
+
+The Express server can also serve the built React app on SiteGround Node.js hosting:
+1. Build the client: `npm run build`
+2. Upload the repo with `client/build` included
+3. SiteGround uses `app.js` (Passenger entry point) — already in repo
+4. Set `NODE_ENV=production` and other env vars in SiteGround's Node.js panel
+5. See [DEPLOY-SITEGROUND.md](DEPLOY-SITEGROUND.md) for detailed steps
 
 ## License
 

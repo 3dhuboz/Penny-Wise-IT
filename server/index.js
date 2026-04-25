@@ -1,5 +1,5 @@
-// Use Google DNS locally to resolve MongoDB Atlas SRV records (skip on Vercel)
-if (!process.env.VERCEL) {
+// Use Google DNS locally to resolve MongoDB Atlas SRV records (Windows dev workaround)
+if (process.env.NODE_ENV !== 'production') {
   const dns = require('dns');
   dns.setServers(['8.8.8.8', '8.8.4.4']);
 }
@@ -18,7 +18,7 @@ const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://pennywiseit.com.au', 'https://www.pennywiseit.com.au', /\.vercel\.app$/]
+    ? ['https://pennywiseit.com.au', 'https://www.pennywiseit.com.au', /\.pages\.dev$/]
     : 'http://localhost:3000',
   credentials: true
 }));
@@ -212,10 +212,8 @@ app.use('/api', async (req, res, next) => {
   }
 });
 
-// For non-serverless (local dev), connect immediately
-if (!process.env.VERCEL) {
-  connectDB().catch(err => console.error('Initial DB connect failed:', err.message));
-}
+// Connect immediately on boot (Railway / local / Passenger — all long-lived processes)
+connectDB().catch(err => console.error('Initial DB connect failed:', err.message));
 
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -271,10 +269,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!', error: process.env.NODE_ENV === 'development' ? err.message : undefined });
 });
 
-// Vercel: export only, no listen(). Passenger: use passenger socket. Otherwise: normal listen.
-if (process.env.VERCEL) {
-  // Vercel serverless — do not call listen()
-} else if (typeof(PhusionPassenger) !== 'undefined') {
+// Passenger (SiteGround) uses a socket; Railway / local use a normal port.
+if (typeof(PhusionPassenger) !== 'undefined') {
   app.listen('passenger');
   console.log('Penny Wise I.T running via Phusion Passenger');
 } else {
