@@ -172,7 +172,7 @@ GEMINI_API_KEY=
 
 # Penny Wise I.T License
 LICENSE_KEY=
-LICENSE_API_URL=https://pennywiseit.com.au/api/marketplace/validate-license
+LICENSE_API_URL=https://api.pennywiseit.com.au/api/marketplace/validate-license
 `;
   }
 
