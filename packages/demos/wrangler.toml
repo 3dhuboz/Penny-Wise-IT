@@ -1,0 +1,12 @@
+name = "pennywiseit-demos"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+
+routes = [
+  { pattern = "demos.pennywiseit.com.au", custom_domain = true }
+]
+
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+fallthrough = true

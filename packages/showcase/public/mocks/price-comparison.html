@@ -1,0 +1,34 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>m</title><style>
+html,body{margin:0;height:100%;background:#0b0f1a;font-family:system-ui,sans-serif;color:#cbd5e1;overflow:hidden}
+.app{height:100%;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px}
+.h{font-size:10px;letter-spacing:2px;font-weight:700;background:linear-gradient(90deg,#2dd4bf,#34d399,#4f8ef7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tbl{flex:1;display:flex;flex-direction:column;gap:5px;position:relative}
+.row{display:grid;grid-template-columns:1fr 90px 60px;gap:10px;padding:8px 10px;background:#111827;border:1px solid #1f2937;border-radius:5px;align-items:center;font-size:10px;position:relative;z-index:1}
+.row b{color:#e2e8f0;font-size:10px}
+.row .pr{color:#2dd4bf;font-weight:700;font-family:ui-monospace,Menlo,monospace;text-align:right}
+.row .sc{color:#fbbf24;font-weight:700;font-size:9px;text-align:right;letter-spacing:1px}
+.hdr{font-size:8px;letter-spacing:1.2px;color:#64748b;background:transparent;border:0;padding:0 10px}
+.hl{position:absolute;left:0;right:0;height:42px;background:linear-gradient(90deg,#2dd4bf22,#34d39933,#4f8ef722);border:1px solid #2dd4bf;border-radius:5px;z-index:0;top:31px;box-shadow:0 0 16px #2dd4bf55}
+.hl::after{content:'BEST';position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:8px;font-weight:700;color:#2dd4bf;letter-spacing:1.5px;background:#0b0f1a;padding:2px 6px;border-radius:3px;border:1px solid #2dd4bf}
+@media (prefers-reduced-motion:no-preference){
+.hl{animation:slide 20s ease-in-out infinite}
+@keyframes slide{0%,20%{top:31px}25%,45%{top:78px}50%,70%{top:125px}75%,95%{top:172px}100%{top:31px}}
+}
+</style></head><body>
+<div class="app">
+<div class="h">SOLAR · 6.6kW · 2026 PRICES</div>
+<div class="tbl">
+<div class="row hdr"><span>PROVIDER</span><span style="text-align:right">PRICE</span><span style="text-align:right">SCORE</span></div>
+<div class="hl"></div>
+<div class="row"><b>SunSpark Co</b><span class="pr" id="p0">$5,820</span><span class="sc">9.4&#9733;</span></div>
+<div class="row"><b>BrightVolt</b><span class="pr" id="p1">$6,140</span><span class="sc">8.9&#9733;</span></div>
+<div class="row"><b>EcoRoof</b><span class="pr" id="p2">$6,495</span><span class="sc">8.6&#9733;</span></div>
+<div class="row"><b>SolStream</b><span class="pr" id="p3">$6,890</span><span class="sc">8.2&#9733;</span></div>
+</div>
+</div>
+<script>
+const b=[5820,6140,6495,6890];
+setInterval(()=>{for(let i=0;i<4;i++){let v=b[i]+Math.floor(Math.random()*60-30);document.getElementById('p'+i).textContent='$'+v.toLocaleString()}},5000);
+</script>
+</body></html>

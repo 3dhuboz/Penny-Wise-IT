@@ -1,0 +1,41 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>m</title><style>
+html,body{margin:0;height:100%;background:#0b0f1a;font-family:system-ui,sans-serif;color:#cbd5e1;overflow:hidden}
+.app{position:relative;height:100%;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px}
+.bar{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:700;letter-spacing:1px}
+.bar span{color:#34d399}
+.cart{background:linear-gradient(90deg,#34d39922,#4f8ef722);padding:4px 9px;border-radius:99px;border:1px solid #34d39955;font-size:10px}
+#sub{color:#34d399;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;flex:1}
+.tile{border-radius:6px;background:#111827;border:1px solid #1f2937;padding:8px;display:flex;flex-direction:column;gap:6px;font-size:9px}
+.shape{flex:1;border-radius:4px}
+.t1 .shape{background:linear-gradient(135deg,#34d399,#2dd4bf)}
+.t2 .shape{background:linear-gradient(135deg,#4f8ef7,#a78bfa)}
+.t3 .shape{background:linear-gradient(135deg,#fbbf24,#fb923c)}
+.t4 .shape{background:linear-gradient(135deg,#f472b6,#a78bfa)}
+.tile b{color:#e2e8f0;font-size:9px}.tile em{color:#34d399;font-style:normal}
+.toast{position:absolute;right:14px;bottom:14px;background:#0b0f1a;border:1px solid #34d399;color:#34d399;padding:6px 10px;border-radius:6px;font-size:10px;font-weight:700;box-shadow:0 4px 12px #34d39933;opacity:0}
+@media (prefers-reduced-motion:no-preference){
+.toast{animation:pop 4s ease-in-out infinite}
+@keyframes pop{0%,80%,100%{opacity:0;transform:translateY(8px)}10%,70%{opacity:1;transform:translateY(0)}}
+.shape{animation:gl 6s ease-in-out infinite}
+@keyframes gl{50%{filter:brightness(1.15)}}
+#sub{animation:tk 4s steps(1) infinite}
+@keyframes tk{0%{}25%{}50%{}75%{}}
+}
+</style></head><body>
+<div class="app">
+<div class="bar"><span>STORE · LIVE</span><div class="cart">CART <span id="sub">$248</span></div></div>
+<div class="grid">
+<div class="tile t1"><div class="shape"></div><b>Pickle Jar</b><em>$12</em></div>
+<div class="tile t2"><div class="shape"></div><b>Hot Sauce</b><em>$9</em></div>
+<div class="tile t3"><div class="shape"></div><b>Honey 500g</b><em>$18</em></div>
+<div class="tile t4"><div class="shape"></div><b>Spice Mix</b><em>$14</em></div>
+</div>
+<div class="toast">+1 SALE · $42</div>
+</div>
+<script>
+let s=248,el=document.getElementById('sub');
+setInterval(()=>{s+=Math.floor(9+Math.random()*44);el.textContent='$'+s},4000);
+</script>
+</body></html>

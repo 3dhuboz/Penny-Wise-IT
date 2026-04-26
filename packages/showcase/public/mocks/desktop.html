@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>m</title><style>
+html,body{margin:0;height:100%;background:#0b0f1a;font-family:ui-monospace,Menlo,monospace;color:#a78bfa;overflow:hidden}
+.app{height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px;padding:14px;box-sizing:border-box}
+.lab{font-size:9px;letter-spacing:2.5px;color:#64748b}
+.key{font-size:18px;font-weight:700;letter-spacing:3px;padding:14px 22px;background:#0d1426;border:1px solid #34d39955;border-radius:6px;color:#34d399;text-shadow:0 0 12px #34d39988;box-shadow:inset 0 0 30px #34d39911,0 0 20px #34d39922;font-family:ui-monospace,Menlo,monospace}
+.cur{display:inline-block;width:8px;background:#34d399;animation:bl 1s steps(1) infinite;margin-left:2px;color:transparent}
+.stat{display:flex;gap:18px;font-size:10px;letter-spacing:1.5px}
+.stat div{text-align:center}
+.stat b{display:block;font-size:18px;color:#a78bfa;margin-top:3px}
+.stat span{color:#64748b}
+@media (prefers-reduced-motion:no-preference){
+@keyframes bl{50%{opacity:0}}
+.key{animation:gl 4s ease-in-out infinite}
+@keyframes gl{50%{box-shadow:inset 0 0 30px #34d39922,0 0 30px #34d39944}}
+}
+@media (prefers-reduced-motion:reduce){.cur{display:none}}
+</style></head><body>
+<div class="app">
+<div class="lab">LICENSE KEY</div>
+<div class="key" id="k">PWIT-7K3X-9MD2-A4FQ<span class="cur">_</span></div>
+<div class="stat">
+<div><span>TRIALS</span><b id="t">142</b></div>
+<div><span>&rarr; PAID</span><b id="p">38</b></div>
+<div><span>MRR</span><b style="color:#34d399">$3.0K</b></div>
+</div>
+</div>
+<script>
+const ks=['PWIT-7K3X-9MD2-A4FQ','PWIT-B82L-X1NV-7HMP','PWIT-Q4WE-R5TY-U6IO','PWIT-Z3X9-C2VB-N4MK'];
+let i=0,t=142,p=38;
+const ke=document.getElementById('k'),te=document.getElementById('t'),pe=document.getElementById('p');
+setInterval(()=>{i=(i+1)%ks.length;ke.innerHTML=ks[i]+'<span class="cur">_</span>'},3500);
+setInterval(()=>{t++;if(Math.random()>.6){p++;pe.textContent=p}te.textContent=t},5000);
+</script>
+</body></html>
