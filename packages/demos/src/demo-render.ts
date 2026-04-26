@@ -115,6 +115,597 @@ const DEMO_CHROME: Record<string, DemoChrome> = {
   },
 };
 
+// Per-product narrative + mockup + differentiation + trust content.
+// (Populated from the design squad's report — narrative copy verbatim.)
+type DemoContent = {
+  use_case: { scene: string; old_way: string; with_app: string; proof: string };
+  hero_mockup: string;
+  differentiation: { vs: string; points: Array<{ title: string; body: string }> };
+  trust: {
+    quote: string;
+    quote_attr: string;
+    stat_value: string;
+    stat_label: string;
+    before: string;
+    after: string;
+    icp_yes: string;
+    icp_no: string;
+  };
+};
+
+// Phone-frame chrome shared across all 8 mockups (60-540 outer bezel, 80-520 inner screen,
+// notch 240-360, status text y=112, home-indicator pill y=800). Each product picks its
+// gradient + screen content; chrome stays consistent so the page feels like a coherent set.
+const DEMO_CONTENT: Record<string, DemoContent> = {
+  'food-truck': {
+    use_case: {
+      scene:    "Friday 6:42pm. Big Red just got booked for the Yeppoon Sea Breeze Markets next Saturday — 4-hour pop-up, no second chances.",
+      old_way:  "Hope a queue forms. Pray you've prepped enough brisket. Walk-aways from 12:30 onwards because the line scares people off.",
+      with_app: "One SMS broadcast goes to 612 past customers — 'Markets Sat 11–3, pre-order now'. By Saturday morning: 73 pre-orders worth $2,140 already locked in. Each customer gets an auto-SMS at their pickup slot. No queue ever forms.",
+      proof:    "You knew exactly how much brisket to smoke Friday night. Zero waste, zero walk-aways.",
+    },
+    hero_mockup: '<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Food truck SMS lock-screen mockup">'
+      + '<defs>'
+      + '<linearGradient id="ft-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a0a05"/><stop offset="1" stop-color="#0b0f1a"/></linearGradient>'
+      + '<linearGradient id="ft-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2118"/><stop offset="1" stop-color="#0f0a06"/></linearGradient>'
+      + '<linearGradient id="ft-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a1a0a"/><stop offset="1" stop-color="#1a0a05"/></linearGradient>'
+      + '</defs>'
+      + '<rect x="60" y="40" width="480" height="820" rx="60" fill="url(#ft-bezel)" stroke="#3a2a1c" stroke-width="2"/>'
+      + '<rect x="80" y="60" width="440" height="780" rx="44" fill="url(#ft-screen)"/>'
+      + '<rect x="240" y="60" width="120" height="34" rx="17" fill="#0a0604"/>'
+      + '<text x="300" y="112" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">9:41</text>'
+      + '<text x="300" y="180" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="84" font-weight="300">Sat</text>'
+      + '<text x="300" y="240" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="64" font-weight="200">11:42</text>'
+      + '<g transform="translate(110,330)">'
+      + '<rect width="380" height="160" rx="22" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.12)"/>'
+      + '<circle cx="36" cy="36" r="18" fill="#ff6b35"/>'
+      + '<text x="36" y="42" text-anchor="middle" fill="#1a0a05" font-family="Inter,sans-serif" font-size="20">🌮</text>'
+      + '<text x="68" y="32" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="700">BIG RED&apos;S BBQ CRUISER</text>'
+      + '<text x="350" y="32" text-anchor="end" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="11">now</text>'
+      + '<text x="68" y="58" fill="rgba(255,255,255,0.7)" font-family="Inter,sans-serif" font-size="11" font-weight="600">Order #047 ready</text>'
+      + '<text x="22" y="92" fill="#e8edf5" font-family="Inter,sans-serif" font-size="16" font-weight="600">Brisket roll + slaw is up</text>'
+      + '<text x="22" y="116" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14">at the truck — pickup window</text>'
+      + '<text x="22" y="136" fill="#ff6b35" font-family="Inter,sans-serif" font-size="14" font-weight="700">11:45–11:50am · Bay 2</text>'
+      + '</g>'
+      + '<g transform="translate(110,520)">'
+      + '<rect width="380" height="80" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>'
+      + '<circle cx="36" cy="40" r="16" fill="rgba(255,107,53,0.4)"/>'
+      + '<text x="36" y="46" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif" font-size="16">📱</text>'
+      + '<text x="68" y="36" fill="rgba(255,255,255,0.7)" font-family="Inter,sans-serif" font-size="11" font-weight="700">PRE-ORDER CONFIRMED · $18.50</text>'
+      + '<text x="68" y="58" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13">Paid via Stripe · Tap to view</text>'
+      + '</g>'
+      + '<rect x="220" y="800" width="160" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>'
+      + '</svg>',
+    differentiation: {
+      vs: "Square POS, Order with Google",
+      points: [
+        { title: "Pre-orders before you arrive",
+          body: "Square needs you parked + open before customers can order; ours sells out the next pop-up while you're still loading the truck." },
+        { title: "SMS bundled, not metered",
+          body: "Square charges per text via Twilio add-ons (~5c/SMS = $50+/mo on volume); our $79 plan bundles auto 'ready in 5' SMS at zero per-message cost." },
+        { title: "Your .au domain forever",
+          body: "Customers bookmark bigredsbbq.com.au, not order.square.site/bigredsbbq — your SEO juice, no upsell to a competing van on Google's order panel." },
+      ],
+    },
+    trust: {
+      quote: "Tripled my Friday night brisket sales without yelling once. Reckon I've got my voice back.",
+      quote_attr: "Macca, Big Red's BBQ Cruiser, Rockhampton",
+      stat_value: "$680",
+      stat_label: "Average pre-order tally before the gennie even fires up",
+      before: "Cash tin overflowing, EFTPOS dropped out, three blokes giving up and walking off.",
+      after: "Phone pings, food's bagged, customer grabs it and goes. No queue, no chaos.",
+      icp_yes: "Single van or trailer doing markets, footy nights, B&S balls — 30–250 orders a service",
+      icp_no: "Sit-down food courts with waitstaff or anyone running Lightspeed/Square already",
+    },
+  },
+
+  'online-store': {
+    use_case: {
+      scene:    "Sunday night. Bay City just bottled a 48-jar batch of Ferment #14 — habanero kraut, three months in the making.",
+      old_way:  "Photograph it Monday, list on Shopify Advanced Tuesday — $79/mo plus six app subscriptions plus 2.9% + $0.30 per jar — watch it sell over a fortnight.",
+      with_app: "Photo up at 8:14pm. SMS+email blast to 2,847 subscribers at 8:30pm. By 9:15pm: 41 jars sold at $18 each. Stripe deposits $738 the next morning — no platform cut.",
+      proof:    "That's $145 you would've handed Shopify, kept. Every drop, forever.",
+    },
+    hero_mockup: '<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Online store order tracking mockup">'
+      + '<defs>'
+      + '<linearGradient id="os-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a2a25"/><stop offset="1" stop-color="#0a0f0c"/></linearGradient>'
+      + '<linearGradient id="os-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f1a14"/><stop offset="1" stop-color="#0a0f0c"/></linearGradient>'
+      + '</defs>'
+      + '<rect x="60" y="40" width="480" height="820" rx="60" fill="url(#os-bezel)" stroke="#2a3a35" stroke-width="2"/>'
+      + '<rect x="80" y="60" width="440" height="780" rx="44" fill="url(#os-screen)"/>'
+      + '<rect x="240" y="60" width="120" height="34" rx="17" fill="#000"/>'
+      + '<text x="300" y="112" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">9:41</text>'
+      + '<text x="110" y="160" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="11" font-weight="700" letter-spacing="1.5">ORDER #BC-2871</text>'
+      + '<text x="110" y="200" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="28" font-weight="700">On its way</text>'
+      + '<text x="110" y="226" fill="rgba(255,255,255,0.6)" font-family="Inter,sans-serif" font-size="13">ETA Tuesday 28 April</text>'
+      + '<g transform="translate(110,270)">'
+      + '<line x1="14" y1="14" x2="14" y2="240" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>'
+      + '<circle cx="14" cy="14" r="10" fill="#10b981"/><text x="14" y="18" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">✓</text>'
+      + '<text x="44" y="10" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1">PLACED</text>'
+      + '<text x="44" y="28" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="600">Sun 26 Apr · 8:14pm</text>'
+      + '<circle cx="14" cy="84" r="10" fill="#10b981"/><text x="14" y="88" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">✓</text>'
+      + '<text x="44" y="80" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1">PACKED</text>'
+      + '<text x="44" y="98" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="600">Mon 27 Apr · 9:02am</text>'
+      + '<circle cx="14" cy="154" r="10" fill="#10b981" stroke="#10b981" stroke-width="3" opacity="0.95"/>'
+      + '<text x="14" y="158" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">✓</text>'
+      + '<text x="44" y="150" fill="#10b981" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1">SHIPPED</text>'
+      + '<text x="44" y="168" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="700">AusPost · BCB938711</text>'
+      + '<circle cx="14" cy="224" r="10" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>'
+      + '<text x="44" y="220" fill="rgba(255,255,255,0.4)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1">DELIVERED</text>'
+      + '<text x="44" y="238" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="13">Tue 28 Apr · est.</text>'
+      + '</g>'
+      + '<g transform="translate(110,610)">'
+      + '<rect width="380" height="120" rx="18" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.2)"/>'
+      + '<text x="20" y="32" fill="rgba(16,185,129,0.85)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">3 ITEMS</text>'
+      + '<text x="20" y="60" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">2 × Habanero Kraut $36</text>'
+      + '<text x="20" y="82" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">1 × Smoky Hot Sauce $12</text>'
+      + '<text x="20" y="104" fill="#10b981" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="800">$48.00 paid · Stripe</text>'
+      + '</g>'
+      + '<rect x="220" y="800" width="160" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>'
+      + '</svg>',
+    differentiation: {
+      vs: "Shopify Advanced + apps",
+      points: [
+        { title: "Stripe direct, no 2% tax",
+          body: "Shopify charges 2% extra on top of Stripe unless you use Shopify Payments — at $10k AUD/mo revenue that's $200/mo skimmed; ours: zero platform fee, Stripe's 1.75% + 30c only." },
+        { title: "Apps included, not bolted on",
+          body: "Klaviyo ($45+), Recharge ($60), wholesale app ($39) push real Shopify cost past $200/mo — our $149 Growing Brand bundles email/SMS, B2B logins and AusPost labels native." },
+        { title: "Customer list in your D1",
+          body: "Shopify can suspend an account and the list goes with it; ours runs on a Cloudflare D1 database in your account — export, port, or quit anytime, no hostage data." },
+      ],
+    },
+    trust: {
+      quote: "Switched off Shopify on a Tuesday. Saved $430 the first month and our checkout's actually faster.",
+      quote_attr: "Jess, Bay City Pickle Co., Yeppoon",
+      stat_value: "$0",
+      stat_label: "Monthly platform fees vs ~$430/mo on Shopify Advanced + apps",
+      before: "Paying $79 USD plus six app subscriptions to sell 40 jars a week.",
+      after: "Flat hosting bill, Stripe takes its cut, the rest is mine.",
+      icp_yes: "Single-maker brands, 20–500 SKUs, doing $2k–$30k/mo, sick of platform tax",
+      icp_no: "Stores needing complex multi-warehouse, 3PL integrations, or B2B wholesale portals",
+    },
+  },
+
+  'tradie': {
+    use_case: {
+      scene:    "Tuesday 2:30pm. Sparky Mike's halfway up a ladder in Gracemere when his phone rings for the fourth time today.",
+      old_way:  "Voicemail. Caller goes to the next sparky in Google. Mike loses the job and never knows.",
+      with_app: "Customer hits the site, picks Thursday 9am from a live calendar, pays $50 deposit. Mike gets an SMS at 2:31pm: 'New booking, $50 held, address in calendar.' He keeps wiring. Auto-reminder fires Wednesday night — the customer turns up.",
+      proof:    "Three bookings landed while he was on tools today. Last week, that would've been three voicemails.",
+    },
+    hero_mockup: '<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tradie booking confirmation mockup">'
+      + '<defs>'
+      + '<linearGradient id="tr-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#252118"/><stop offset="1" stop-color="#0e0c08"/></linearGradient>'
+      + '<linearGradient id="tr-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#161310"/><stop offset="1" stop-color="#0a0908"/></linearGradient>'
+      + '</defs>'
+      + '<rect x="60" y="40" width="480" height="820" rx="60" fill="url(#tr-bezel)" stroke="#3a3424" stroke-width="2"/>'
+      + '<rect x="80" y="60" width="440" height="780" rx="44" fill="url(#tr-screen)"/>'
+      + '<rect x="240" y="60" width="120" height="34" rx="17" fill="#000"/>'
+      + '<text x="300" y="112" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">9:41</text>'
+      + '<g transform="translate(110,170)">'
+      + '<circle cx="190" cy="55" r="48" fill="rgba(34,197,94,0.18)" stroke="rgba(34,197,94,0.4)" stroke-width="2"/>'
+      + '<text x="190" y="72" text-anchor="middle" fill="#22c55e" font-family="Inter,sans-serif" font-size="48" font-weight="700">✓</text>'
+      + '<text x="190" y="150" text-anchor="middle" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="24" font-weight="700">Booking confirmed</text>'
+      + '<text x="190" y="178" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="Inter,sans-serif" font-size="13">Job #SE-118</text>'
+      + '</g>'
+      + '<g transform="translate(110,400)">'
+      + '<rect width="380" height="200" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>'
+      + '<text x="22" y="34" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">SERVICE</text>'
+      + '<text x="22" y="56" fill="#e8edf5" font-family="Inter,sans-serif" font-size="15" font-weight="600">Switchboard upgrade</text>'
+      + '<line x1="22" y1="76" x2="358" y2="76" stroke="rgba(255,255,255,0.08)"/>'
+      + '<text x="22" y="100" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">WHEN</text>'
+      + '<text x="22" y="122" fill="#e8edf5" font-family="Inter,sans-serif" font-size="15" font-weight="600">Wed 30 Apr · 10:00am</text>'
+      + '<line x1="22" y1="142" x2="358" y2="142" stroke="rgba(255,255,255,0.08)"/>'
+      + '<text x="22" y="166" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">DEPOSIT</text>'
+      + '<text x="22" y="188" fill="#22c55e" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">$50.00 paid</text>'
+      + '<text x="358" y="188" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="Inter,sans-serif" font-size="11">Stripe · ✓</text>'
+      + '</g>'
+      + '<g transform="translate(110,620)">'
+      + '<rect width="380" height="60" rx="14" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.25)"/>'
+      + '<text x="20" y="26" fill="rgba(245,158,11,0.85)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">📱 SMS REMINDER</text>'
+      + '<text x="20" y="46" fill="#e8edf5" font-family="Inter,sans-serif" font-size="12">Auto-fires Tuesday 6pm — confirms the slot</text>'
+      + '</g>'
+      + '<rect x="220" y="800" width="160" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>'
+      + '</svg>',
+    differentiation: {
+      vs: "ServiceM8, Tradify",
+      points: [
+        { title: "Per-business, not per-seat",
+          body: "ServiceM8 charges ~$29/user/month so a 4-tradie shop hits $116+/mo before SMS credits; our $199 Multi-Bay covers unlimited staff logins flat." },
+        { title: "30-second video wrap-ups",
+          body: "No incumbent ships proof-of-work video texted to the customer — flags future advisories the customer trusts, and one recovered no-show ($250 bay time) pays the platform." },
+        { title: "Rego auto-lookup native",
+          body: "ServiceM8/AroFlo make you type make/model/year manually; ours pulls it from the rego DB in 2 seconds — 30 seconds × every booking × every year." },
+      ],
+    },
+    trust: {
+      quote: "Quote out before I'm back in the ute. Cashflow's tidier than it's been in twenty years.",
+      quote_attr: "Mike, Sparky Mike's Electrical, Rockhampton",
+      stat_value: "4.2 days",
+      stat_label: "Average invoice-to-paid (was 23 on the old paper book)",
+      before: "Saturday morning at the kitchen table chasing invoices and arguing with the missus about it.",
+      after: "Quote sent on the driveway, invoice goes the second I'm packed up.",
+      icp_yes: "Sole trader or 2–4 hand crew — sparkies, plumbers, chippies doing residential + small commercial",
+      icp_no: "Big builders running ServiceM8 + Xero already, or anyone needing detailed job costing across 50+ staff",
+    },
+  },
+
+  'festival': {
+    use_case: {
+      scene:    "Saturday 3:14pm at Gladstone Summer Fest. A storm cell rolls in from the harbour — main stage needs to shift indoors in 20 minutes.",
+      old_way:  "Run around with a megaphone. Post on Facebook. Hope 4,200 punters check their feeds in time. Refund threats start by 4pm.",
+      with_app: "One push alert + SMS fallback fires to every ticket holder. 3,940 phones buzz at once with the new stage map. The schedule updates live in the app. Vendors see the notice and shuffle stock.",
+      proof:    "Zero refund requests Monday. The sponsors saw 93% click-through on the alert and re-booked for next year on the spot.",
+    },
+    hero_mockup: '<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Festival ticket scan mockup">'
+      + '<defs>'
+      + '<linearGradient id="fs-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f1525"/><stop offset="1" stop-color="#0a0610"/></linearGradient>'
+      + '<linearGradient id="fs-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#170d20"/><stop offset="1" stop-color="#08040c"/></linearGradient>'
+      + '</defs>'
+      + '<rect x="60" y="40" width="480" height="820" rx="60" fill="url(#fs-bezel)" stroke="#2e1d3a" stroke-width="2"/>'
+      + '<rect x="80" y="60" width="440" height="780" rx="44" fill="url(#fs-screen)"/>'
+      + '<rect x="240" y="60" width="120" height="34" rx="17" fill="#000"/>'
+      + '<text x="300" y="112" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">9:41</text>'
+      + '<text x="300" y="160" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11" font-weight="700" letter-spacing="2">YOUR TICKET</text>'
+      + '<text x="300" y="190" text-anchor="middle" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="700">Gladstone Summer Fest</text>'
+      + '<g transform="translate(160,220)">'
+      + '<rect width="280" height="280" rx="20" fill="#fff"/>'
+      + '<g fill="#000">'
+      + '<rect x="20" y="20" width="60" height="60"/><rect x="200" y="20" width="60" height="60"/><rect x="20" y="200" width="60" height="60"/>'
+      + '<rect x="32" y="32" width="36" height="36" fill="#fff"/><rect x="40" y="40" width="20" height="20"/>'
+      + '<rect x="212" y="32" width="36" height="36" fill="#fff"/><rect x="220" y="40" width="20" height="20"/>'
+      + '<rect x="32" y="212" width="36" height="36" fill="#fff"/><rect x="40" y="220" width="20" height="20"/>'
+      + '<rect x="100" y="20" width="12" height="12"/><rect x="120" y="32" width="12" height="12"/><rect x="140" y="20" width="12" height="12"/><rect x="160" y="40" width="12" height="12"/>'
+      + '<rect x="100" y="60" width="12" height="12"/><rect x="140" y="60" width="12" height="12"/><rect x="180" y="80" width="12" height="12"/>'
+      + '<rect x="100" y="100" width="20" height="20"/><rect x="140" y="100" width="12" height="12"/><rect x="180" y="120" width="12" height="12"/>'
+      + '<rect x="100" y="140" width="12" height="12"/><rect x="120" y="140" width="20" height="20"/><rect x="160" y="160" width="12" height="12"/>'
+      + '<rect x="100" y="180" width="12" height="20"/><rect x="140" y="180" width="20" height="12"/><rect x="180" y="200" width="20" height="20"/>'
+      + '<rect x="100" y="220" width="12" height="12"/><rect x="140" y="220" width="12" height="20"/><rect x="180" y="240" width="12" height="12"/>'
+      + '<rect x="220" y="100" width="20" height="20"/><rect x="220" y="140" width="12" height="12"/><rect x="220" y="180" width="12" height="12"/><rect x="220" y="220" width="20" height="20"/>'
+      + '</g>'
+      + '</g>'
+      + '<g transform="translate(110,540)">'
+      + '<rect width="380" height="60" rx="30" fill="#22c55e"/>'
+      + '<text x="190" y="38" text-anchor="middle" fill="#0a0908" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="800">✓ ADMIT — VALID</text>'
+      + '</g>'
+      + '<g transform="translate(110,630)">'
+      + '<text x="0" y="20" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">3-DAY PASS · SECTION A4</text>'
+      + '<text x="0" y="50" fill="#e8edf5" font-family="Inter,sans-serif" font-size="15" font-weight="600">Sarah Mitchell</text>'
+      + '<text x="0" y="74" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="12">Ticket #GSF-26-01-A412</text>'
+      + '</g>'
+      + '<rect x="220" y="800" width="160" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>'
+      + '</svg>',
+    differentiation: {
+      vs: "Eventbrite, Humanitix",
+      points: [
+        { title: "Flat fee beats per-ticket cut",
+          body: "Eventbrite is 3.5% + $1.79/ticket — at 500 × $40 tickets that's $895 in fees; our $399/mo Festival tier is less than half that and scales unlimited." },
+        { title: "Push alerts, not 'check our socials'",
+          body: "Eventbrite has no day-of comms layer; weather shifts and stage changes go via Instagram and miss half the crowd — ours pushes notifications + SMS fallback to every attendee instantly." },
+        { title: "Sponsor pages with click data",
+          body: "Eventbrite gives sponsors a logo at the bottom of an email; ours gives each sponsor a tracked in-app page — clickthroughs become next year's sponsorship pitch deck." },
+      ],
+    },
+    trust: {
+      quote: "Sold 1,400 tickets without paying Eventbrite a cent. Vendors paid up front for stalls — game changer.",
+      quote_attr: "Kel, Gladstone Summer Fest committee",
+      stat_value: "$4,100",
+      stat_label: "Saved on ticketing fees across one weekend (vs Eventbrite at 3.5% + $1.79/ticket)",
+      before: "Spreadsheet of stallholders, eight unpaid invoices, ticket platform clipping every sale.",
+      after: "Stallholders pay through the app, tickets scanned at the gate, money in our account same day.",
+      icp_yes: "Community/regional fests — 500–5,000 attendees, 20–80 stalls, run by a committee not a corporate",
+      icp_no: "Multi-day ticketed music festivals needing wristband cashless, or anything over 10k attendance",
+    },
+  },
+
+  'delivery': {
+    use_case: {
+      scene:    "Wednesday 10am. Central QLD Courier Co. has 34 drops between Rockhampton and Emerald, two drivers, a 7-hour window.",
+      old_way:  "Sharon spends 90 minutes with a paper map and sticky notes plotting the run. Phones ring all day with 'where's my order?' — Sharon answers 27 of them.",
+      with_app: "Route optimiser sorts both runs in 12 seconds. Customers get a live tracker link via SMS. Sharon's phone rings 3 times all day — and two were sales.",
+      proof:    "Drivers finished by 4:50pm instead of 6:30pm. That's an extra 9 drops a week, $480 in margin.",
+    },
+    hero_mockup: '<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Delivery driver tracking mockup">'
+      + '<defs>'
+      + '<linearGradient id="dl-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c2530"/><stop offset="1" stop-color="#080c10"/></linearGradient>'
+      + '<linearGradient id="dl-map" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a2438"/><stop offset="1" stop-color="#0e1422"/></linearGradient>'
+      + '</defs>'
+      + '<rect x="60" y="40" width="480" height="820" rx="60" fill="url(#dl-bezel)" stroke="#2a3848" stroke-width="2"/>'
+      + '<rect x="80" y="60" width="440" height="780" rx="44" fill="#0a0f1a"/>'
+      + '<rect x="240" y="60" width="120" height="34" rx="17" fill="#000"/>'
+      + '<text x="300" y="112" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">9:41</text>'
+      + '<g transform="translate(80,140)">'
+      + '<rect width="440" height="500" fill="url(#dl-map)"/>'
+      + '<g stroke="rgba(255,255,255,0.06)" stroke-width="1">'
+      + '<line x1="0" y1="80" x2="440" y2="80"/><line x1="0" y1="160" x2="440" y2="160"/><line x1="0" y1="240" x2="440" y2="240"/>'
+      + '<line x1="0" y1="320" x2="440" y2="320"/><line x1="0" y1="400" x2="440" y2="400"/>'
+      + '<line x1="80" y1="0" x2="80" y2="500"/><line x1="160" y1="0" x2="160" y2="500"/><line x1="240" y1="0" x2="240" y2="500"/>'
+      + '<line x1="320" y1="0" x2="320" y2="500"/><line x1="400" y1="0" x2="400" y2="500"/>'
+      + '</g>'
+      + '<g stroke="rgba(255,255,255,0.12)" stroke-width="3" fill="none">'
+      + '<path d="M 60 420 Q 120 380, 180 340 T 280 240 Q 320 180, 360 140"/>'
+      + '<path d="M 0 280 L 440 280" stroke-width="6" stroke="rgba(255,255,255,0.08)"/>'
+      + '<path d="M 220 0 L 220 500" stroke-width="6" stroke="rgba(255,255,255,0.08)"/>'
+      + '</g>'
+      + '<g stroke="#06b6d4" stroke-width="4" fill="none" stroke-linecap="round">'
+      + '<path d="M 60 420 Q 120 380, 180 340 T 280 240 Q 320 180, 360 140"/>'
+      + '</g>'
+      + '<circle cx="60" cy="420" r="8" fill="#06b6d4"/>'
+      + '<circle cx="360" cy="140" r="14" fill="#06b6d4" stroke="#fff" stroke-width="3"/>'
+      + '<circle cx="240" cy="280" r="20" fill="rgba(6,182,212,0.3)" opacity="0.7"><animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite"/></circle>'
+      + '<circle cx="240" cy="280" r="12" fill="#06b6d4" stroke="#fff" stroke-width="3"/>'
+      + '<g transform="translate(232,272)" fill="#fff">'
+      + '<path d="M0 8 L8 0 L16 8 L13 8 L13 16 L3 16 L3 8 Z" transform="scale(0.7)"/>'
+      + '</g>'
+      + '</g>'
+      + '<g transform="translate(110,670)">'
+      + '<rect width="380" height="100" rx="20" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)"/>'
+      + '<circle cx="40" cy="50" r="22" fill="#06b6d4"/>'
+      + '<text x="40" y="58" text-anchor="middle" fill="#0b0f1a" font-family="Inter,sans-serif" font-size="20" font-weight="800">J</text>'
+      + '<text x="80" y="34" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">YOUR DRIVER</text>'
+      + '<text x="80" y="56" fill="#e8edf5" font-family="Inter,sans-serif" font-size="16" font-weight="700">Joe · Van #3</text>'
+      + '<text x="80" y="80" fill="#06b6d4" font-family="Inter,sans-serif" font-size="13" font-weight="600">ETA 12 min · 2 stops away</text>'
+      + '</g>'
+      + '<rect x="220" y="800" width="160" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>'
+      + '</svg>',
+    differentiation: {
+      vs: "DoorDash Drive, Uber Direct",
+      points: [
+        { title: "Keep the 30%",
+          body: "DoorDash Drive takes ~30% per delivery — on $50k/mo delivery volume that's $15,000/mo gone; our $349 flat covers unlimited deliveries with your drivers, your margin." },
+        { title: "Recurring routes, not gig dispatch",
+          body: "DoorDash/Uber are one-shot — they can't book a customer's standing Tuesday 9am drop; ours auto-schedules recurring runs (produce boxes, ag supply, laundry) the gig apps refuse." },
+        { title: "Photo + signature POD built-in",
+          body: "Uber Direct offers signature only via API at extra cost; ours captures photo + signature + auto-emails the customer, killing ~90% of 'I never got it' chargebacks." },
+      ],
+    },
+    trust: {
+      quote: "We were quoting from memory and losing money on long runs. Now every job pays for itself.",
+      quote_attr: "Davo, Central QLD Courier Co., Rockhampton",
+      stat_value: "28 jobs/day",
+      stat_label: "Per driver, up from 19 — same fleet, smarter routing",
+      before: "Drivers ringing dispatch every drop, paper run-sheets, no idea where anyone is.",
+      after: "Live map, auto-allocated runs, customer gets an SMS the moment we leave the depot.",
+      icp_yes: "Regional courier firms, 3–15 vans, B2B deliveries + pallets, owner-operator dispatch",
+      icp_no: "Last-mile parcel resellers fronting for Auspost/StarTrack, or anyone running a fleet over 50",
+    },
+  },
+
+  'desktop': {
+    use_case: {
+      scene:    "Friday 11pm. Hexpaint Studio just shipped v2.4 of its cross-platform digital painting app with a long-asked-for animation panel.",
+      old_way:  "Email 1,400 customers a download link. Field 60 'my key won't work' tickets over the weekend. Watch piracy hit the torrents by Monday.",
+      with_app: "Push to the CDN at 11:04pm. Every paid user's app phones home at next launch and self-updates. Trial users get a day-3 nudge email auto-sent. By Sunday: 38 trial-to-paid conversions at $79 — $3,002 while you were at the beach.",
+      proof:    "Zero key-reset emails. The customer portal handled 12 of them on its own.",
+    },
+    hero_mockup: '<svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Desktop laptop with Hexpaint Studio mockup">'
+      + '<defs>'
+      + '<linearGradient id="dt-laptop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3a44"/><stop offset="1" stop-color="#1a1a22"/></linearGradient>'
+      + '<linearGradient id="dt-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f2937"/><stop offset="1" stop-color="#0f172a"/></linearGradient>'
+      + '<linearGradient id="dt-canvas" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="0.5" stop-color="#a78bfa"/><stop offset="1" stop-color="#06b6d4"/></linearGradient>'
+      + '</defs>'
+      + '<rect x="80" y="60" width="740" height="440" rx="14" fill="url(#dt-laptop)" stroke="#4a4a55" stroke-width="2"/>'
+      + '<rect x="100" y="80" width="700" height="400" rx="6" fill="url(#dt-screen)"/>'
+      + '<g transform="translate(100,80)">'
+      + '<rect width="700" height="32" fill="rgba(0,0,0,0.5)"/>'
+      + '<circle cx="20" cy="16" r="6" fill="#ef4444"/><circle cx="40" cy="16" r="6" fill="#f59e0b"/><circle cx="60" cy="16" r="6" fill="#22c55e"/>'
+      + '<text x="350" y="22" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="Inter,sans-serif" font-size="12" font-weight="600">Hexpaint Studio Pro — untitled-3.hexp</text>'
+      + '<g transform="translate(0,32)">'
+      + '<rect width="60" height="368" fill="rgba(0,0,0,0.4)"/>'
+      + '<g fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="20">'
+      + '<text x="30" y="35" text-anchor="middle">✏</text><text x="30" y="75" text-anchor="middle">▣</text><text x="30" y="115" text-anchor="middle">○</text>'
+      + '<text x="30" y="155" text-anchor="middle">⬢</text><text x="30" y="195" text-anchor="middle">▼</text><text x="30" y="235" text-anchor="middle">◇</text>'
+      + '<text x="30" y="275" text-anchor="middle">✦</text><text x="30" y="315" text-anchor="middle">⌬</text>'
+      + '</g>'
+      + '<rect x="0" y="20" width="60" height="40" fill="rgba(167,139,250,0.18)" stroke="#a78bfa" stroke-width="0" stroke-opacity="0.5"/>'
+      + '</g>'
+      + '<g transform="translate(60,32)">'
+      + '<rect width="640" height="368" fill="#0c1422"/>'
+      + '<g transform="translate(80,40)">'
+      + '<polygon points="240,0 320,40 320,120 240,160 160,120 160,40" fill="url(#dt-canvas)" opacity="0.95"/>'
+      + '<polygon points="240,0 320,40 240,80 160,40" fill="rgba(255,255,255,0.18)"/>'
+      + '<g fill="rgba(124,58,237,0.7)">'
+      + '<polygon points="80,80 130,105 130,155 80,180 30,155 30,105"/>'
+      + '<polygon points="380,80 430,105 430,155 380,180 330,155 330,105"/>'
+      + '<polygon points="180,200 230,225 230,275 180,300 130,275 130,225"/>'
+      + '</g>'
+      + '<g fill="rgba(6,182,212,0.5)">'
+      + '<polygon points="280,200 330,225 330,275 280,300 230,275 230,225"/>'
+      + '</g>'
+      + '<g stroke="rgba(255,255,255,0.08)" stroke-width="1" fill="none">'
+      + '<polygon points="40,140 90,165 90,215 40,240 -10,215 -10,165" stroke-dasharray="3 3"/>'
+      + '</g>'
+      + '</g>'
+      + '<g transform="translate(380,260)">'
+      + '<rect width="240" height="100" rx="10" fill="rgba(0,0,0,0.85)" stroke="rgba(34,197,94,0.4)" stroke-width="2"/>'
+      + '<text x="20" y="28" fill="#22c55e" font-family="Inter,sans-serif" font-size="10" font-weight="800" letter-spacing="1.5">✓ LICENSE ACTIVE</text>'
+      + '<text x="20" y="54" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="600">Hexpaint Pro — Lifetime</text>'
+      + '<text x="20" y="76" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">Active until 15 May 2026</text>'
+      + '</g>'
+      + '</g>'
+      + '</g>'
+      + '<polygon points="40,500 860,500 900,540 0,540" fill="url(#dt-laptop)" stroke="#4a4a55" stroke-width="2"/>'
+      + '<rect x="380" y="500" width="140" height="14" rx="3" fill="#1a1a22"/>'
+      + '</svg>',
+    differentiation: {
+      vs: "Paddle, Gumroad, FastSpring",
+      points: [
+        { title: "Subscription, not 5–10% cut",
+          body: "Paddle takes 5% + 50c, Gumroad 10% — on $5k MRR that's $250–500/mo skimmed forever; our $179 flat fee saves $100s once you cross $4k MRR." },
+        { title: "Auto-update channel included",
+          body: "Paddle/Gumroad sell licenses but you wire your own update mechanism (Sparkle, Squirrel); ours ships CDN-backed auto-updates so users are always on latest without you babysitting installers." },
+        { title: "Trial-to-paid funnel native",
+          body: "Gumroad has no trial flow; you cobble it together — ours builds the temp-key trial, day-3/6/10 nudge emails, and paywall trigger as one feature, typical 8x conversion lift." },
+      ],
+    },
+    trust: {
+      quote: "Native macOS app, no Electron bloat, doesn't cook my MacBook. That's all I needed.",
+      quote_attr: "Priya, Hexpaint Studio",
+      stat_value: "180 MB",
+      stat_label: "RAM idle (vs 1.4 GB on the Electron equivalent we replaced)",
+      before: "Fans spinning, battery dead by 2pm, app stuttering through a 4K canvas.",
+      after: "Quiet machine, 8 hours unplugged, brushes respond like the OS apps do.",
+      icp_yes: "Indie devs, designers, small studios who want a real native app and ship offline-first",
+      icp_no: "Teams needing browser-based collab, real-time multi-user canvas, or Figma-style cloud sync",
+    },
+  },
+
+  'ai-social': {
+    use_case: {
+      scene:    "Saturday 2pm. Rotary Mates — the rotary-engine community Dave runs out of Rocky — 340 members, used to live in a Facebook Group that buried 92% of posts. Sunday cruise to Mt Archer is on for sunrise.",
+      old_way:  "Dave posts the meet-up at 2pm Saturday. FB algorithm shows it to 47 people. 8 cars turn up at the BP at sunrise. Half hear about it Monday on Messenger.",
+      with_app: "Same post hits 100% of members via push. RSVP button right there — 23 cars confirmed within the hour. Paid memberships ($12/mo Garage tier) auto-renew via Stripe. AI moderation nuked two For-Sale spam posts overnight before anyone saw them.",
+      proof:    "Sunday's cruise: 38 cars at the BP, biggest turnout since the chapter started. Dues collect themselves now — Stripe handles it monthly.",
+    },
+    hero_mockup: '<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AI social community feed mockup">'
+      + '<defs>'
+      + '<linearGradient id="ai-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#171a2e"/><stop offset="1" stop-color="#08091a"/></linearGradient>'
+      + '<linearGradient id="ai-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1024"/><stop offset="1" stop-color="#06081a"/></linearGradient>'
+      + '</defs>'
+      + '<rect x="60" y="40" width="480" height="820" rx="60" fill="url(#ai-bezel)" stroke="#252846" stroke-width="2"/>'
+      + '<rect x="80" y="60" width="440" height="780" rx="44" fill="url(#ai-screen)"/>'
+      + '<rect x="240" y="60" width="120" height="34" rx="17" fill="#000"/>'
+      + '<text x="300" y="112" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">9:41</text>'
+      + '<text x="110" y="160" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="700">Rotary Mates</text>'
+      + '<text x="490" y="160" text-anchor="end" fill="rgba(99,102,241,0.85)" font-family="Inter,sans-serif" font-size="11" font-weight="700">340 members</text>'
+      + '<g transform="translate(110,190)">'
+      + '<rect width="380" height="160" rx="18" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>'
+      + '<circle cx="32" cy="32" r="18" fill="#6366f1"/>'
+      + '<text x="32" y="38" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif" font-size="14" font-weight="800">J</text>'
+      + '<text x="62" y="28" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="700">Dave · Admin</text>'
+      + '<text x="62" y="46" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="11">2h ago · Pinned 📌</text>'
+      + '<text x="20" y="80" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="600">Sun cruise — Mt Archer 7am sharp.</text>'
+      + '<text x="20" y="100" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="600">Meet at the BP servo on Bruce Hwy.</text>'
+      + '<text x="20" y="120" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13">Tap RSVP if you&apos;re bringing a car.</text>'
+      + '<rect x="20" y="132" width="100" height="22" rx="11" fill="#6366f1"/>'
+      + '<text x="70" y="148" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif" font-size="11" font-weight="700">✓ RSVP YES</text>'
+      + '<text x="140" y="148" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">23 cars going</text>'
+      + '</g>'
+      + '<g transform="translate(110,370)" opacity="0.45">'
+      + '<rect width="380" height="60" rx="14" fill="rgba(239,68,68,0.06)" stroke="rgba(239,68,68,0.2)" stroke-dasharray="4 3"/>'
+      + '<text x="20" y="26" fill="rgba(239,68,68,0.85)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">🚫 AUTO-HIDDEN · SPAM</text>'
+      + '<text x="20" y="46" fill="rgba(255,255,255,0.4)" font-family="Inter,sans-serif" font-size="11" text-decoration="line-through">FREE BITCOIN!!! Click here to claim your...</text>'
+      + '</g>'
+      + '<g transform="translate(110,450)">'
+      + '<rect width="380" height="120" rx="18" fill="rgba(99,102,241,0.08)" stroke="rgba(99,102,241,0.3)"/>'
+      + '<circle cx="32" cy="32" r="18" fill="rgba(99,102,241,0.3)" stroke="#6366f1" stroke-width="2"/>'
+      + '<text x="32" y="38" text-anchor="middle" fill="#6366f1" font-family="Inter,sans-serif" font-size="16">🤖</text>'
+      + '<text x="62" y="28" fill="#a5b4fc" font-family="Inter,sans-serif" font-size="11" font-weight="700" letter-spacing="1">AI MODERATOR</text>'
+      + '<text x="62" y="46" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="11">Last 24 hours</text>'
+      + '<text x="20" y="80" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="700">Hid 3 spam posts overnight</text>'
+      + '<text x="20" y="102" fill="#22c55e" font-family="Inter,sans-serif" font-size="12" font-weight="600">0 false flags · 1 review queued</text>'
+      + '</g>'
+      + '<g transform="translate(110,590)">'
+      + '<rect width="380" height="100" rx="18" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>'
+      + '<circle cx="32" cy="32" r="18" fill="#10b981"/>'
+      + '<text x="32" y="38" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif" font-size="14" font-weight="800">D</text>'
+      + '<text x="62" y="28" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="700">Dave</text>'
+      + '<text x="62" y="46" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="11">5h ago</text>'
+      + '<text x="20" y="78" fill="rgba(255,255,255,0.85)" font-family="Inter,sans-serif" font-size="12">Anyone got a 13B bridgeport intake</text>'
+      + '<text x="20" y="94" fill="rgba(255,255,255,0.85)" font-family="Inter,sans-serif" font-size="12">to spare? Building a new daily.</text>'
+      + '</g>'
+      + '<rect x="220" y="800" width="160" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>'
+      + '</svg>',
+    differentiation: {
+      vs: "Circle, Patreon, Discord",
+      points: [
+        { title: "Creators keep ~98%, not 88–92%",
+          body: "Patreon takes 8–12% of every paid sub forever; ours takes 0% — Stripe processing only (~1.75% AU) — on $10k/mo memberships that's $800–1200/mo back in your pocket." },
+        { title: "AI moderation 24/7 included",
+          body: "Circle's $99 Basic has no AI mod — you pay humans or watch spam; ours scores every post for spam/abuse in milliseconds, auto-quarantining the junk overnight while you sleep." },
+        { title: "Members in your DB, not Meta's",
+          body: "Facebook Group reach is 5–10% organic and Meta can shadow-ban tomorrow; your member list lives in your Cloudflare D1, exportable, never throttled, never shadow-banned." },
+      ],
+    },
+    trust: {
+      quote: "Cruise turnouts have doubled since we left Facebook. Algorithm's not eating our posts anymore — every member sees every meet-up.",
+      quote_attr: "Dave, Rotary Mates Rockhampton chapter admin",
+      stat_value: "+312%",
+      stat_label: "Average post engagement vs the Facebook Group it replaced",
+      before: "Members miss the meet-up because Facebook hides the post. Dues chased on Messenger one-by-one.",
+      after: "Push hits 100% of the chapter. RSVP, pay dues, browse classifieds in one app. AI moderates the spam.",
+      icp_yes: "Enthusiast communities — car clubs, motorsport tribes, hobby groups — 100–10,000 members",
+      icp_no: "Open public communities (Discord works fine), or anything needing real-time voice/video calls",
+    },
+  },
+
+  'price-comparison': {
+    use_case: {
+      scene:    "Wednesday morning. A Mackay homeowner Googles 'best solar installer Mackay 2026' and lands on Solar Compare QLD.",
+      old_way:  "They click three installer sites, get three different quote forms, fill out two before giving up. You don't exist in this story.",
+      with_app: "5-question quiz → ranked list of 11 verified QLD installers with live pricing scraped overnight. Customer picks 'AAA Solar — $6,890 for 10kW', clicks through. Affiliate fee logs: $140. Prices refresh themselves at 3am every night.",
+      proof:    "You earned $140 from one click while asleep. The page ranks page-one for 47 '[town] solar' searches and growing.",
+    },
+    hero_mockup: '<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Price comparison ranked solar quotes mockup">'
+      + '<defs>'
+      + '<linearGradient id="pc-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1a08"/><stop offset="1" stop-color="#0f0a04"/></linearGradient>'
+      + '<linearGradient id="pc-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1208"/><stop offset="1" stop-color="#0a0704"/></linearGradient>'
+      + '</defs>'
+      + '<rect x="60" y="40" width="480" height="820" rx="60" fill="url(#pc-bezel)" stroke="#3d2a14" stroke-width="2"/>'
+      + '<rect x="80" y="60" width="440" height="780" rx="44" fill="url(#pc-screen)"/>'
+      + '<rect x="240" y="60" width="120" height="34" rx="17" fill="#000"/>'
+      + '<text x="300" y="112" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">9:41</text>'
+      + '<text x="110" y="160" fill="rgba(245,158,11,0.85)" font-family="Inter,sans-serif" font-size="11" font-weight="700" letter-spacing="2">3 RANKED FOR YOU</text>'
+      + '<text x="110" y="190" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="700">10kW solar · 4700</text>'
+      + '<g transform="translate(110,220)">'
+      + '<rect width="380" height="170" rx="18" fill="rgba(245,158,11,0.1)" stroke="#f59e0b" stroke-width="2"/>'
+      + '<rect x="0" y="0" width="170" height="26" rx="13" fill="#f59e0b"/>'
+      + '<text x="85" y="18" text-anchor="middle" fill="#0a0704" font-family="Inter,sans-serif" font-size="11" font-weight="800" letter-spacing="1">★ BEST FOR YOU</text>'
+      + '<text x="20" y="60" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">AAA Solar QLD</text>'
+      + '<text x="20" y="82" fill="rgba(255,255,255,0.6)" font-family="Inter,sans-serif" font-size="12">10kW · Tier-1 panels · 25yr warranty</text>'
+      + '<text x="360" y="60" text-anchor="end" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="700">$/W</text>'
+      + '<text x="360" y="80" text-anchor="end" fill="#f59e0b" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">$0.69</text>'
+      + '<line x1="20" y1="100" x2="360" y2="100" stroke="rgba(255,255,255,0.08)"/>'
+      + '<text x="20" y="124" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">After STC rebate</text>'
+      + '<text x="20" y="152" fill="#22c55e" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="900">$6,890</text>'
+      + '<text x="360" y="152" text-anchor="end" fill="#22c55e" font-family="Inter,sans-serif" font-size="11" font-weight="700">SAVES $1,840</text>'
+      + '</g>'
+      + '<g transform="translate(110,410)">'
+      + '<rect width="380" height="120" rx="16" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>'
+      + '<text x="20" y="34" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="700">#2 · LOWEST $/W</text>'
+      + '<text x="20" y="62" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="700">SunRight Solar</text>'
+      + '<text x="20" y="82" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">10kW · Trina + Fronius · 10yr</text>'
+      + '<text x="360" y="62" text-anchor="end" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">$0.65/W</text>'
+      + '<text x="360" y="92" text-anchor="end" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">$7,420</text>'
+      + '</g>'
+      + '<g transform="translate(110,550)">'
+      + '<rect width="380" height="120" rx="16" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>'
+      + '<text x="20" y="34" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="700">#3 · BEST WARRANTY</text>'
+      + '<text x="20" y="62" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="700">QLD Solar Pros</text>'
+      + '<text x="20" y="82" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">10kW · LONGi · 25yr full</text>'
+      + '<text x="360" y="62" text-anchor="end" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">$0.78/W</text>'
+      + '<text x="360" y="92" text-anchor="end" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">$8,180</text>'
+      + '</g>'
+      + '<g transform="translate(110,690)">'
+      + '<rect width="380" height="60" rx="30" fill="#f59e0b"/>'
+      + '<text x="190" y="38" text-anchor="middle" fill="#0a0704" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="800">Get my AAA Solar quote →</text>'
+      + '</g>'
+      + '<rect x="220" y="800" width="160" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>'
+      + '</svg>',
+    differentiation: {
+      vs: "Finder.com.au, iSelect, Canstar",
+      points: [
+        { title: "Niche the giants ignore",
+          body: "Finder/iSelect optimise for high-volume verticals (insurance, credit cards) and skip narrow ones like commercial solar, regional NBN, B2B gas — exactly where AU affiliate fees are $40–200/lead and competition is thin." },
+        { title: "You own the domain authority",
+          body: "List on Finder and they own the SEO — once they delist you, traffic dies; your own .au site compounds backlinks for years, and the comparison data lives in your scraper." },
+        { title: "Hourly scraper, not partner-only",
+          body: "Canstar relies on partner data feeds (slow, paywalled); ours runs an hourly public-page scraper plus optional partner APIs — prices stay current even with providers who refuse a feed." },
+      ],
+    },
+    trust: {
+      quote: "Punters trust us because we show every quote, not just the ones paying us. Conversion's gone up, not down.",
+      quote_attr: "Trent, Solar Compare QLD founder",
+      stat_value: "11.4%",
+      stat_label: "Lead-to-install rate (industry average sits around 4–6%)",
+      before: "Lead form, three random installer calls in 20 minutes, prospect ghosts.",
+      after: "Side-by-side quotes, real reviews, prospect picks the installer themselves and books in.",
+      icp_yes: "Niche regional comparison sites — solar, insurance, fencing, asphalt — 20–200 partner suppliers",
+      icp_no: "National aggregators competing with Canstar/Finder, or affiliate-only sites with no supplier relationships",
+    },
+  },
+};
+
 // The interactive demo IS the proposal. One link.
 export function renderDemo(p: ProductConfig, ref: string = ''): string {
   const b = SAMPLE_BRAND[p.id] || { name: p.brand, tagline: p.sell_point, suburb: 'Somewhere', phone: '0412 345 000', logo_emoji: '🏢' };
@@ -125,6 +716,15 @@ export function renderDemo(p: ProductConfig, ref: string = ''): string {
     secondary_cta: { label: 'Get in touch', href: '#book' },
     trust_pill: '✨ Local business',
     nav_links: [{ label: 'Explore', href: '#demo' }, { label: 'Contact', href: '#book' }],
+  };
+  const content: DemoContent = DEMO_CONTENT[p.id] || {
+    use_case: { scene: '', old_way: '', with_app: '', proof: '' },
+    hero_mockup: '',
+    differentiation: { vs: 'the incumbents', points: [] },
+    trust: {
+      quote: '', quote_attr: '', stat_value: '', stat_label: '',
+      before: '', after: '', icp_yes: '', icp_no: '',
+    },
   };
   const nonStateSuburb = b.suburb === 'Online' || b.suburb === 'Global' || b.suburb === 'Queensland';
   const suburbLabel = `${b.suburb}${nonStateSuburb ? '' : ', QLD'}`;
@@ -295,6 +895,72 @@ section.panel, section.hero, section.evidence { padding-top:clamp(2.5rem,4vw,3.5
 .foot-bottom { max-width:1100px; margin:2rem auto 0; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; font-size:0.78rem; color:var(--muted); }
 .foot-bottom a { color:var(--soft); }
 
+/* Hero mockup SVG container — replaces the old blob artwork */
+.hero-mockup { position:relative; max-width:480px; margin:0 auto; width:100%; filter: drop-shadow(0 24px 60px rgba(0,0,0,0.55)) drop-shadow(0 0 80px ${g1}33); display:none; }
+.hero-mockup svg { width:100%; height:auto; display:block; }
+@media (min-width:720px) { .hero-mockup { display:block; max-width:380px; } }
+@media (min-width:1000px) { .hero-mockup { max-width:480px; } }
+
+/* Use-case narrative panel — one moment in a week */
+.use-case-panel { padding:1.75rem 2rem; max-width:780px; margin:0 auto 1.5rem; }
+.use-case-row { display:grid; grid-template-columns:auto 1fr; gap:1.1rem; align-items:start; padding:0.85rem 0; border-bottom:1px dashed rgba(255,255,255,0.06); }
+.use-case-row:last-child { border-bottom:none; }
+.use-case-kicker { font-size:0.62rem; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; padding:0.4rem 0.7rem; border-radius:8px; white-space:nowrap; align-self:start; min-width:120px; text-align:center; line-height:1.2; }
+.use-case-kicker.k-scene { background:rgba(160,174,192,0.1); color:#a0aec0; border:1px solid rgba(160,174,192,0.22); }
+.use-case-kicker.k-old { background:rgba(248,113,113,0.1); color:#f87171; border:1px solid rgba(248,113,113,0.28); }
+.use-case-kicker.k-app { background:linear-gradient(135deg,${g1}26,${g2}1a); color:${p.cta_color}; border:1px solid ${p.cta_color}55; }
+.use-case-kicker.k-proof { background:rgba(52,211,153,0.12); color:#34d399; border:1px solid rgba(52,211,153,0.32); }
+.use-case-body { font-family:var(--body-font); line-height:1.65; color:var(--soft); font-size:0.95rem; }
+.use-case-body.b-app { color:var(--text); font-size:1rem; }
+.use-case-body.b-proof { color:var(--text); font-size:1rem; font-weight:600; }
+@media (max-width:640px) {
+  .use-case-row { grid-template-columns:1fr; gap:0.45rem; }
+  .use-case-kicker { min-width:0; width:max-content; }
+}
+
+/* Differentiation grid — "Why X beats Y" */
+.diff-section { margin-top:1.5rem; }
+.diff-section .section-head { text-align:center; margin-bottom:1.5rem; }
+.diff-section .section-head h2 { font-size:clamp(1.5rem,3.5vw,2.1rem); }
+.diff-section .section-head .kicker { font-size:0.7rem; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:${p.cta_color}; margin-bottom:0.4rem; }
+.diff-grid { display:grid; grid-template-columns:1fr; gap:1rem; }
+@media (min-width:760px) { .diff-grid { grid-template-columns:repeat(3, 1fr); gap:1.1rem; } }
+.diff-card { background:linear-gradient(160deg, var(--card), var(--surface)); border:1px solid ${p.cta_color}33; border-radius:16px; padding:1.4rem 1.5rem; box-shadow:0 1px 0 rgba(255,255,255,0.04) inset, 0 12px 30px -12px rgba(0,0,0,0.5); position:relative; }
+.diff-card .diff-tick { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,${g1},${g2}); display:flex; align-items:center; justify-content:center; color:#0b0f1a; font-weight:900; font-size:1.05rem; box-shadow:0 6px 18px ${p.cta_color}44; margin-bottom:0.85rem; }
+.diff-card h3 { font-family:var(--display-font); font-size:1.05rem; font-weight:700; line-height:1.25; margin-bottom:0.55rem; color:var(--text); }
+.diff-card p { font-family:var(--body-font); font-size:0.88rem; line-height:1.55; color:var(--soft); }
+
+/* Trust block — quote, stat, before/after, ICP fit */
+.trust-block { margin-top:1.5rem; }
+.trust-quote { background:linear-gradient(135deg,${g1}10,${g2}08,${g3}10); border:1px solid ${p.cta_color}33; border-radius:18px; padding:2rem 2.25rem; text-align:center; max-width:820px; margin:0 auto 1.5rem; position:relative; }
+.trust-quote::before { content:'\\201C'; position:absolute; top:-6px; left:18px; font-family:var(--display-font); font-size:5rem; font-weight:700; color:${p.cta_color}55; line-height:1; }
+.trust-quote blockquote { font-family:var(--display-font); font-size:clamp(1.15rem,2.2vw,1.5rem); font-style:italic; font-weight:500; line-height:1.4; color:var(--text); margin-bottom:0.85rem; }
+.trust-quote cite { font-style:normal; font-size:0.82rem; color:var(--soft); font-weight:600; letter-spacing:0.01em; }
+.trust-stat-grid { display:grid; grid-template-columns:1fr; gap:1rem; max-width:820px; margin:0 auto 1.25rem; }
+@media (min-width:680px) { .trust-stat-grid { grid-template-columns:1fr 1.4fr; } }
+.trust-stat-tile { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.5rem 1.75rem; }
+.trust-stat-tile.tile-stat { display:flex; flex-direction:column; justify-content:center; align-items:flex-start; }
+.trust-stat-tile .t-stat-val { font-family:var(--display-font); font-size:clamp(2.4rem,5vw,3.4rem); font-weight:800; line-height:1; letter-spacing:-0.02em; background:linear-gradient(135deg,${g1},${g2} 55%,${g3}); -webkit-background-clip:text; background-clip:text; color:transparent; margin-bottom:0.5rem; font-variant-numeric:tabular-nums; }
+.trust-stat-tile .t-stat-lbl { font-size:0.85rem; color:var(--soft); line-height:1.45; }
+.trust-stat-tile.tile-compare { display:flex; flex-direction:column; gap:0.85rem; }
+.trust-compare-row { display:grid; grid-template-columns:auto 1fr; gap:0.85rem; align-items:start; }
+.trust-compare-icon { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; flex-shrink:0; }
+.trust-compare-row.row-before .trust-compare-icon { background:rgba(248,113,113,0.16); color:#f87171; border:1px solid rgba(248,113,113,0.3); }
+.trust-compare-row.row-after .trust-compare-icon { background:rgba(52,211,153,0.16); color:#34d399; border:1px solid rgba(52,211,153,0.3); }
+.trust-compare-text { font-size:0.92rem; line-height:1.5; }
+.trust-compare-row.row-before .trust-compare-text { color:var(--muted); text-decoration:line-through; text-decoration-color:rgba(248,113,113,0.5); }
+.trust-compare-row.row-after .trust-compare-text { color:var(--text); }
+.trust-compare-row .t-row-label { display:block; font-size:0.62rem; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:0.25rem; }
+.trust-compare-row.row-before .t-row-label { color:#f87171; }
+.trust-compare-row.row-after .t-row-label { color:#34d399; }
+.trust-icp-strip { background:rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.16); border-radius:14px; padding:1rem 1.25rem; max-width:820px; margin:0 auto; display:grid; grid-template-columns:1fr; gap:0.75rem; }
+@media (min-width:680px) { .trust-icp-strip { grid-template-columns:1fr 1fr; gap:1.5rem; } }
+.trust-icp-cell { display:grid; grid-template-columns:auto 1fr; gap:0.7rem; align-items:start; }
+.trust-icp-cell .icp-tag { font-size:0.62rem; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; padding:0.35rem 0.6rem; border-radius:8px; white-space:nowrap; align-self:start; }
+.trust-icp-cell.cell-yes .icp-tag { background:rgba(52,211,153,0.14); color:#34d399; border:1px solid rgba(52,211,153,0.3); }
+.trust-icp-cell.cell-no  .icp-tag { background:rgba(248,113,113,0.12); color:#f87171; border:1px solid rgba(248,113,113,0.26); }
+.trust-icp-cell .icp-text { font-size:0.85rem; line-height:1.5; color:var(--soft); }
+
 /* Reduced-motion guard */
 @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation: none !important; transition-duration: 0.01ms !important; scroll-behavior:auto !important; } }
 </style>
@@ -330,15 +996,92 @@ section.panel, section.hero, section.evidence { padding-top:clamp(2.5rem,4vw,3.5
         <span>\ud83d\udccd <strong>${esc(suburbLabel)}</strong></span>
       </div>
     </div>
-    <div class="hero-art" aria-hidden="true">
-      <div class="blob b1"></div>
-      <div class="blob b2"></div>
-      <div class="blob b3"></div>
-      <div class="stamp">${b.logo_emoji}</div>
+    <div class="hero-mockup">
+      ${content.hero_mockup || `<div class="hero-art" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="stamp">${b.logo_emoji}</div></div>`}
     </div>
   </section>
 
+  ${content.use_case.scene ? `
+  <section class="panel use-case-panel" id="use-case">
+    <div class="kicker">A real moment</div>
+    <h2 class="display" style="margin-bottom:1.25rem">How ${esc(b.name)} actually uses this</h2>
+    <div class="use-case-row">
+      <span class="use-case-kicker k-scene">🎬 Scene</span>
+      <div class="use-case-body">${esc(content.use_case.scene)}</div>
+    </div>
+    <div class="use-case-row">
+      <span class="use-case-kicker k-old">🚫 The old way</span>
+      <div class="use-case-body">${esc(content.use_case.old_way)}</div>
+    </div>
+    <div class="use-case-row">
+      <span class="use-case-kicker k-app">✨ With the app</span>
+      <div class="use-case-body b-app">${esc(content.use_case.with_app)}</div>
+    </div>
+    <div class="use-case-row">
+      <span class="use-case-kicker k-proof">🎯 The proof</span>
+      <div class="use-case-body b-proof">${esc(content.use_case.proof)}</div>
+    </div>
+  </section>
+  ` : ''}
+
   ${renderDemoBody(p, b)}
+
+  ${content.differentiation.points.length ? `
+  <section class="diff-section" id="differentiation">
+    <div class="section-head">
+      <div class="kicker">Head-to-head</div>
+      <h2 class="display">Why ${esc(b.name)} beats ${esc(content.differentiation.vs)}</h2>
+    </div>
+    <div class="diff-grid">
+      ${content.differentiation.points.map(pt => `
+        <div class="diff-card">
+          <div class="diff-tick" aria-hidden="true">✓</div>
+          <h3>${esc(pt.title)}</h3>
+          <p>${esc(pt.body)}</p>
+        </div>
+      `).join('')}
+    </div>
+  </section>
+  ` : ''}
+
+  ${content.trust.quote ? `
+  <section class="trust-block" id="real-results">
+    <div class="section-head" style="text-align:center;margin-bottom:1.5rem">
+      <div class="kicker" style="font-size:0.7rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:${p.cta_color};margin-bottom:0.4rem">Real results</div>
+      <h2 class="display" style="font-size:clamp(1.5rem,3.5vw,2.1rem)">From people running this today</h2>
+    </div>
+    <div class="trust-quote">
+      <blockquote>${esc(content.trust.quote)}</blockquote>
+      <cite>— ${esc(content.trust.quote_attr)}</cite>
+    </div>
+    <div class="trust-stat-grid">
+      <div class="trust-stat-tile tile-stat">
+        <div class="t-stat-val">${esc(content.trust.stat_value)}</div>
+        <div class="t-stat-lbl">${esc(content.trust.stat_label)}</div>
+      </div>
+      <div class="trust-stat-tile tile-compare">
+        <div class="trust-compare-row row-before">
+          <div class="trust-compare-icon" aria-hidden="true">✕</div>
+          <div class="trust-compare-text"><span class="t-row-label">Before</span>${esc(content.trust.before)}</div>
+        </div>
+        <div class="trust-compare-row row-after">
+          <div class="trust-compare-icon" aria-hidden="true">✓</div>
+          <div class="trust-compare-text"><span class="t-row-label">After</span>${esc(content.trust.after)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="trust-icp-strip">
+      <div class="trust-icp-cell cell-yes">
+        <span class="icp-tag">✓ Right for</span>
+        <div class="icp-text">${esc(content.trust.icp_yes)}</div>
+      </div>
+      <div class="trust-icp-cell cell-no">
+        <span class="icp-tag">✕ Not right for</span>
+        <div class="icp-text">${esc(content.trust.icp_no)}</div>
+      </div>
+    </div>
+  </section>
+  ` : ''}
 
   <section class="evidence" id="why">
     <div class="section-head">
