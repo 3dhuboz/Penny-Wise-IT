@@ -146,38 +146,37 @@ To connect your SiteGround account:
 
 ## Deployment
 
-### Cloudflare Pages (frontend) + Railway (backend) — current production setup
+> **Status: this branch is the legacy Express + MongoDB monolith.**
+> Production has moved to a **Cloudflare Workers monorepo** (Hono + D1 + R2 + Workers AI). See the `claude/trusting-bose` branch for the live architecture.
 
-The frontend and backend deploy separately:
+### Production architecture (Cloudflare-only)
 
-**Frontend → Cloudflare Pages**
-1. Connect this repo in Cloudflare Pages
-2. Framework preset: **Create React App**
-3. Build command: `cd client && npm install && npm run build`
-4. Build output directory: `client/build`
-5. Environment variables:
-   - `REACT_APP_API_URL` = `https://api.pennywiseit.com.au/api` (your Railway backend)
-   - `REACT_APP_GOOGLE_CLIENT_ID` = your Google OAuth client ID
-6. SPA routing is handled by `client/public/_redirects` (already in repo)
+Every public surface is a Cloudflare Worker. There is no Vercel, Railway, Heroku, or any third-party host in the stack.
 
-**Backend → Railway**
-1. Create a Railway project from this repo (`railway.json` is the config)
-2. Set environment variables from `.env.example` — at minimum `MONGODB_URI`, `JWT_SECRET`, `NODE_ENV=production`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, plus Square/SMTP/SiteGround/Google as needed
-3. Add a custom domain (e.g. `api.pennywiseit.com.au`) and point a DNS CNAME at the Railway domain in Cloudflare DNS
+| Domain | Backed by | Source |
+|---|---|---|
+| `pennywiseit.com.au` + `www.` | Showcase Worker | `packages/showcase` (Hono + Wrangler, static assets via `[assets]` binding) |
+| `sales.pennywiseit.com.au` | Sales Worker | `packages/sales` |
+| Validator API | Validator Worker (D1 + R2 + Workers AI + cron) | `packages/validator` |
+| Dashboard, registry, demos | Workers | `packages/dashboard`, `packages/registry`, `packages/demos` |
 
-**DNS in Cloudflare**
-- `pennywiseit.com.au` → Cloudflare Pages
-- `www.pennywiseit.com.au` → Cloudflare Pages
-- `api.pennywiseit.com.au` → Railway (CNAME)
+Each package has its own `wrangler.toml` with `routes` declaring the custom domain and zone. Deployment is a per-package `wrangler deploy` — no CI/CD platform required.
 
-### SiteGround (alternative — single-server deploy)
+### How the showcase deploys
 
-The Express server can also serve the built React app on SiteGround Node.js hosting:
-1. Build the client: `npm run build`
-2. Upload the repo with `client/build` included
-3. SiteGround uses `app.js` (Passenger entry point) — already in repo
-4. Set `NODE_ENV=production` and other env vars in SiteGround's Node.js panel
-5. See [DEPLOY-SITEGROUND.md](DEPLOY-SITEGROUND.md) for detailed steps
+```bash
+cd packages/showcase
+npm install
+npm run deploy   # = wrangler deploy
+```
+
+Pre-bind `pennywiseit.com.au` and `www.pennywiseit.com.au` as Custom Domains in the Cloudflare dashboard before the first deploy.
+
+### Migrating off this legacy code
+
+The Express + MongoDB code in `server/` and `client/` predates the Cloudflare Workers architecture. Anything still served by it (customer portal, ticket management, admin dashboard, marketplace) needs to be ported to a new Workers package using the same patterns as `packages/validator` (Hono routes + D1 for relational data + R2 for blobs).
+
+`app.js` (Passenger) and `DEPLOY-SITEGROUND.md` are kept for reference only — SiteGround is no longer in use either.
 
 ## License
 

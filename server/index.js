@@ -18,7 +18,7 @@ const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://pennywiseit.com.au', 'https://www.pennywiseit.com.au', /\.pages\.dev$/]
+    ? ['https://pennywiseit.com.au', 'https://www.pennywiseit.com.au']
     : 'http://localhost:3000',
   credentials: true
 }));
@@ -47,7 +47,7 @@ app.use(express.urlencoded({ extended: true }));
 // Static uploads folder
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Database connection — cached for serverless (Vercel cold starts)
+// Database connection — cached so repeated requests reuse the same pool
 let dbConnected = false;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/pennywise-it';
 
@@ -212,7 +212,7 @@ app.use('/api', async (req, res, next) => {
   }
 });
 
-// Connect immediately on boot (Railway / local / Passenger — all long-lived processes)
+// Connect immediately on boot — long-lived process, single shared pool
 connectDB().catch(err => console.error('Initial DB connect failed:', err.message));
 
 // API Routes
@@ -269,7 +269,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!', error: process.env.NODE_ENV === 'development' ? err.message : undefined });
 });
 
-// Passenger (SiteGround) uses a socket; Railway / local use a normal port.
+// Passenger (legacy SiteGround) uses a socket; everything else uses a normal port.
 if (typeof(PhusionPassenger) !== 'undefined') {
   app.listen('passenger');
   console.log('Penny Wise I.T running via Phusion Passenger');

@@ -14,7 +14,7 @@
 - [x] **Password not exposed** in API responses (toJSON strips it)
 - [x] **Error messages hidden** in production (only shown in dev)
 - [x] **.gitignore** excludes `.env`, `node_modules`, `build`
-- [x] **Cloudflare Pages config** (`client/public/_redirects`) + **Railway config** (`railway.json`) + **SiteGround config** (`app.js` + Passenger)
+- [x] **Stack normalised to Cloudflare Workers** — production is now a Workers monorepo (`packages/showcase`, `packages/sales`, `packages/validator`, etc.) on the `claude/trusting-bose` branch. No Vercel, Railway, or SiteGround dependency.
 - [x] **FoodTruc → Food Truck** renamed in all seed data
 
 ---
@@ -87,8 +87,8 @@ In `client/src/components/Footer.js`:
 ## 🟡 RECOMMENDED — Before Launch
 
 ### Domain & SSL
-- [ ] Point `pennywiseit.com.au` DNS to your hosting (SiteGround or Vercel)
-- [ ] Ensure SSL/HTTPS is active (SiteGround provides free Let's Encrypt)
+- [ ] `pennywiseit.com.au` and `www.pennywiseit.com.au` pre-bound as Custom Domains on the showcase Cloudflare Worker
+- [ ] SSL automatic via Cloudflare (Universal SSL — no Let's Encrypt setup required)
 - [ ] Test that `https://www.pennywiseit.com.au` loads correctly
 
 ### MongoDB

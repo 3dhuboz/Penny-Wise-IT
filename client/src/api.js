@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
 
 if (process.env.NODE_ENV === 'production' && !process.env.REACT_APP_API_URL) {
-  console.warn('[api] REACT_APP_API_URL is not set; falling back to relative "/api". Set it to your Railway backend URL (e.g. https://api.pennywiseit.com.au/api).');
+  console.warn('[api] REACT_APP_API_URL is not set; falling back to relative "/api". Set it to your Cloudflare Worker API URL (e.g. https://api.pennywiseit.com.au/api).');
 }
 
 const api = axios.create({
