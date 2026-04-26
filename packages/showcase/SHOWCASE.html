@@ -32,8 +32,9 @@
   <!-- Canonical + PWA -->
   <link rel="canonical" href="https://www.pennywiseit.com.au/">
   <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" href="/icons/icon-192.png" type="image/png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -208,9 +209,9 @@
       pointer-events: none;
       z-index: 0;
       background:
-        radial-gradient(ellipse 700px 500px at 80% 5%, rgba(251, 146, 60, 0.10), transparent 60%),
-        radial-gradient(ellipse 600px 400px at 10% 35%, rgba(79, 142, 247, 0.08), transparent 60%),
-        radial-gradient(ellipse 500px 400px at 90% 75%, rgba(167, 139, 250, 0.08), transparent 60%);
+        radial-gradient(ellipse 700px 500px at 80% 5%, rgba(212, 146, 62, 0.12), transparent 60%),
+        radial-gradient(ellipse 600px 400px at 10% 35%, rgba(79, 142, 247, 0.07), transparent 60%),
+        radial-gradient(ellipse 500px 400px at 90% 75%, rgba(167, 139, 250, 0.07), transparent 60%);
     }
 
     /* ─── Typography ─── */
@@ -328,11 +329,10 @@
       color: var(--text);
       text-decoration: none;
     }
-    .wordmark .wm-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 4px;
-      background: linear-gradient(135deg, var(--orange), var(--yellow), var(--green));
+    .wordmark .wm-mark {
+      width: 28px;
+      height: 28px;
+      display: block;
     }
     .primary-nav {
       display: flex;
@@ -447,7 +447,7 @@
       margin: 1rem 0 1.25rem;
     }
     #hero h1 .grad {
-      background: linear-gradient(135deg, var(--orange) 0%, var(--yellow) 50%, var(--green) 100%);
+      background: linear-gradient(135deg, #e8a665 0%, #d4923e 45%, #c67a3c 100%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -504,7 +504,7 @@
       width: 6px;
       height: 24px;
       border-radius: 3px;
-      background: linear-gradient(180deg, var(--orange), var(--yellow));
+      background: linear-gradient(180deg, #e8a665, #c67a3c);
     }
 
     .product-grid {
@@ -613,7 +613,7 @@
       font-size: clamp(2.25rem, 4vw, 3rem);
       line-height: 1;
       letter-spacing: -0.02em;
-      background: linear-gradient(135deg, var(--orange), var(--yellow), var(--green));
+      background: linear-gradient(135deg, #e8a665, #d4923e, #c67a3c);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -924,10 +924,10 @@
     #cta .cta-card {
       background:
         linear-gradient(135deg,
-          rgba(251, 146, 60, 0.10),
-          rgba(251, 191, 36, 0.08),
-          rgba(52, 211, 153, 0.10));
-      border: 1px solid rgba(251, 146, 60, 0.25);
+          rgba(232, 166, 101, 0.12),
+          rgba(212, 146, 62, 0.10),
+          rgba(168, 100, 40, 0.10));
+      border: 1px solid rgba(212, 146, 62, 0.30);
       padding: 3rem 2rem;
     }
     #cta h2 { font-size: clamp(1.75rem, 4vw, 2.6rem); }
@@ -987,7 +987,7 @@
   <header class="site-header" role="banner">
     <div class="site-header-inner">
       <a href="#hero" class="wordmark" aria-label="Penny Wise I.T home">
-        <span class="wm-dot" aria-hidden="true"></span>
+        <img src="/icon-mark.svg" alt="" class="wm-mark" width="28" height="28" aria-hidden="true">
         <span>Penny Wise I.T</span>
       </a>
 
@@ -1070,7 +1070,7 @@
                 <iframe
                   class="product-mock"
                   data-mock
-                  src="/mocks/food-truck.html"
+                  src="/mocks/food-truck"
                   loading="lazy"
                   sandbox="allow-scripts"
                   title="Food-Truck App interactive demo"
@@ -1088,7 +1088,7 @@
                 <iframe
                   class="product-mock"
                   data-mock
-                  src="/mocks/tradie.html"
+                  src="/mocks/tradie"
                   loading="lazy"
                   sandbox="allow-scripts"
                   title="Tradie Field Service interactive demo"
@@ -1112,7 +1112,7 @@
                 <iframe
                   class="product-mock"
                   data-mock
-                  src="/mocks/online-store.html"
+                  src="/mocks/online-store"
                   loading="lazy"
                   sandbox="allow-scripts"
                   title="Online Store interactive demo"
@@ -1130,7 +1130,7 @@
                 <iframe
                   class="product-mock"
                   data-mock
-                  src="/mocks/ai-social.html"
+                  src="/mocks/ai-social"
                   loading="lazy"
                   sandbox="allow-scripts"
                   title="AI Social Platform interactive demo"
@@ -1154,7 +1154,7 @@
                 <iframe
                   class="product-mock"
                   data-mock
-                  src="/mocks/festival.html"
+                  src="/mocks/festival"
                   loading="lazy"
                   sandbox="allow-scripts"
                   title="Festival & Event App interactive demo"
@@ -1172,7 +1172,7 @@
                 <iframe
                   class="product-mock"
                   data-mock
-                  src="/mocks/delivery.html"
+                  src="/mocks/delivery"
                   loading="lazy"
                   sandbox="allow-scripts"
                   title="Delivery & Logistics interactive demo"
@@ -1196,7 +1196,7 @@
                 <iframe
                   class="product-mock"
                   data-mock
-                  src="/mocks/desktop.html"
+                  src="/mocks/desktop"
                   loading="lazy"
                   sandbox="allow-scripts"
                   title="Desktop Software Licensing interactive demo"
@@ -1214,7 +1214,7 @@
                 <iframe
                   class="product-mock"
                   data-mock
-                  src="/mocks/price-comparison.html"
+                  src="/mocks/price-comparison"
                   loading="lazy"
                   sandbox="allow-scripts"
                   title="Price Comparison App interactive demo"
