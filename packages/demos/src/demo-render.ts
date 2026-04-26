@@ -16,42 +16,178 @@ const SAMPLE_BRAND: Record<string, { name: string; tagline: string; suburb: stri
   'price-comparison': { name: 'Solar Compare QLD',      tagline: 'Compare 40+ solar installers across Queensland',        suburb: 'Queensland',   phone: '0412 345 007', logo_emoji: '☀️' },
 };
 
+// Per-product hero/nav configuration — defines the BUSINESS-side framing
+// (what a real homepage for this kind of company would actually say).
+type DemoChrome = {
+  hero_benefit: string;
+  primary_cta: { label: string; href: string };
+  secondary_cta: { label: string; href: string };
+  trust_pill: string;
+  nav_links: { label: string; href: string }[];
+};
+const DEMO_CHROME: Record<string, DemoChrome> = {
+  'food-truck': {
+    hero_benefit: 'Pre-order before you arrive, skip the queue, get a text the moment it’s ready.',
+    primary_cta:   { label: 'Order now ↓',    href: '#demo' },
+    secondary_cta: { label: 'Book catering',  href: '#book' },
+    trust_pill: '🟢 Open now · Ready in 10–15 min',
+    nav_links: [
+      { label: 'Menu',     href: '#demo' },
+      { label: 'Find Us',  href: '#location' },
+      { label: 'Catering', href: '#book' },
+    ],
+  },
+  'online-store': {
+    hero_benefit: 'Small-batch ferments, made in Yeppoon, shipped Australia-wide. Free over $60.',
+    primary_cta:   { label: 'Shop the drop ↓', href: '#demo' },
+    secondary_cta: { label: 'Get drop alerts', href: '#book' },
+    trust_pill: '🚚 Free shipping over $60 · Ships Aus-wide',
+    nav_links: [
+      { label: 'Shop',       href: '#demo' },
+      { label: 'Shipping',   href: '#shipping' },
+      { label: 'Newsletter', href: '#book' },
+    ],
+  },
+  'tradie': {
+    hero_benefit: 'Licensed sparkies, real-time bookings, SMS confirmations. No phone tag.',
+    primary_cta:   { label: 'Book a sparky ↓',       href: '#book' },
+    secondary_cta: { label: 'After-hours emergency', href: '#demo' },
+    trust_pill: '📅 Available this week · Licensed & insured',
+    nav_links: [
+      { label: 'Services', href: '#demo' },
+      { label: 'Book Now', href: '#book' },
+      { label: 'Reviews',  href: '#reviews' },
+    ],
+  },
+  'festival': {
+    hero_benefit: 'Three days of food, music & market stalls on the Gladstone Marina. 8–10 January.',
+    primary_cta:   { label: 'Buy tickets ↓',  href: '#demo' },
+    secondary_cta: { label: 'View schedule',  href: '#schedule' },
+    trust_pill: '🎟 Early bird ends 1 Dec',
+    nav_links: [
+      { label: 'Tickets',  href: '#demo' },
+      { label: 'Schedule', href: '#schedule' },
+      { label: 'Vendors',  href: '#book' },
+    ],
+  },
+  'delivery': {
+    hero_benefit: 'Same-day pickup, live driver tracking, no DoorDash margin grab. Rocky to Yeppoon and back.',
+    primary_cta:   { label: 'Track my order',    href: '#demo' },
+    secondary_cta: { label: 'Schedule a pickup', href: '#book' },
+    trust_pill: '🚚 Same-day Rocky–Yeppoon · Live tracking',
+    nav_links: [
+      { label: 'Track',       href: '#demo' },
+      { label: 'Book Pickup', href: '#book' },
+      { label: 'Drivers',     href: '#drivers' },
+    ],
+  },
+  'desktop': {
+    hero_benefit: 'Pro-grade digital painting, signed-key licensing, no piracy headaches. Mac, Windows, Linux.',
+    primary_cta:   { label: 'Download free trial ↓', href: '#demo' },
+    secondary_cta: { label: 'Pricing',                href: '#book' },
+    trust_pill: '💾 Win/Mac/Linux · 14-day trial · No card',
+    nav_links: [
+      { label: 'Download',        href: '#demo' },
+      { label: 'Pricing',         href: '#book' },
+      { label: 'Customer Portal', href: '#portal' },
+    ],
+  },
+  'ai-social': {
+    hero_benefit: 'Rotary-engine talk for people who actually run them. No ads, no algorithm, no shadow-bans.',
+    primary_cta:   { label: 'Join the Mates ↓', href: '#book' },
+    secondary_cta: { label: 'Browse the feed',  href: '#demo' },
+    trust_pill: '👥 1,247 members · 0 ads · 0 algorithm',
+    nav_links: [
+      { label: 'Feed',       href: '#demo' },
+      { label: 'Join',       href: '#book' },
+      { label: 'Moderation', href: '#moderation' },
+    ],
+  },
+  'price-comparison': {
+    hero_benefit: 'Compare 40+ Queensland solar installers in 30 seconds. Side-by-side, after rebates, no fluff.',
+    primary_cta:   { label: 'Get my quote ↓',   href: '#demo' },
+    secondary_cta: { label: 'Browse providers', href: '#book' },
+    trust_pill: '🏆 Compared 40+ installers · Updated daily',
+    nav_links: [
+      { label: 'Compare',   href: '#demo' },
+      { label: 'Top Picks', href: '#book' },
+    ],
+  },
+};
+
 // The interactive demo IS the proposal. One link.
 export function renderDemo(p: ProductConfig, ref: string = ''): string {
   const b = SAMPLE_BRAND[p.id] || { name: p.brand, tagline: p.sell_point, suburb: 'Somewhere', phone: '0412 345 000', logo_emoji: '🏢' };
   const [g1, g2, g3] = p.accent_gradient;
+  const chrome = DEMO_CHROME[p.id] || {
+    hero_benefit: p.sell_point,
+    primary_cta:   { label: 'Explore ↓',    href: '#demo' },
+    secondary_cta: { label: 'Get in touch', href: '#book' },
+    trust_pill: '✨ Local business',
+    nav_links: [{ label: 'Explore', href: '#demo' }, { label: 'Contact', href: '#book' }],
+  };
+  const nonStateSuburb = b.suburb === 'Online' || b.suburb === 'Global' || b.suburb === 'Queensland';
+  const suburbLabel = `${b.suburb}${nonStateSuburb ? '' : ', QLD'}`;
+  const cleanTagline = b.tagline.replace(/&amp;/g, '&');
 
   return `<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${esc(b.name)} — Interactive Demo</title>
+<title>${esc(b.name)} — ${esc(cleanTagline)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">
 <style>
 :root {
   --bg:#0b0f1a; --surface:#141b2d; --card:#1a2338; --border:#1f2d45;
   --text:#e8edf5; --muted:#6b7fa3; --soft:#a0aec0;
   --brand:${p.cta_color}; --g1:${g1}; --g2:${g2}; --g3:${g3};
+  --display-font:"Space Grotesk","Inter",system-ui,sans-serif;
+  --body-font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; min-height: 100vh; line-height: 1.55; padding-bottom: 90px; }
+html { scroll-behavior:smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--body-font); min-height: 100vh; line-height: 1.55; padding-bottom: 90px; -webkit-font-smoothing:antialiased; }
 body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:0; background: radial-gradient(ellipse 600px 400px at 80% 10%, ${g1}18, transparent 60%), radial-gradient(ellipse 500px 300px at 15% 80%, ${g2}15, transparent 60%); }
 .demo-banner { position:sticky; top:0; z-index:60; background:${p.cta_color}; color:#0b0f1a; text-align:center; font-size:0.72rem; font-weight:800; letter-spacing:0.03em; padding:0.3rem 1rem; }
 
-nav { position:sticky; top:22px; z-index:50; background:rgba(11,15,26,0.92); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.05); padding:0.85rem 1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
-.brand { display:flex; align-items:center; gap:0.65rem; font-weight:800; font-size:1rem; }
-.brand-logo { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,${g1},${g2}); display:flex; align-items:center; justify-content:center; font-size:1.15rem; box-shadow:0 4px 16px ${g1}55; }
-.nav-cta { background:var(--brand); color:#0b0f1a; padding:0.5rem 1rem; border-radius:999px; font-weight:800; font-size:0.82rem; text-decoration:none; box-shadow:0 4px 16px ${p.cta_color}55; cursor:pointer; border:none; font-family:inherit; }
+/* Real-business top nav */
+.site-nav { position:sticky; top:22px; z-index:50; background:rgba(11,15,26,0.92); backdrop-filter:blur(14px); border-bottom:1px solid rgba(255,255,255,0.06); padding:0.85rem 1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1.25rem; flex-wrap:wrap; }
+.brand { display:flex; align-items:center; gap:0.7rem; font-weight:800; font-size:1rem; color:var(--text); text-decoration:none; }
+.brand-logo { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,${g1},${g2} 55%,${g3}); display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow:0 4px 14px ${g1}55, inset 0 0 0 1px rgba(255,255,255,0.18); }
+.brand-name { display:none; }
+@media (min-width:560px) { .brand-name { display:inline; } }
+.site-links { display:flex; gap:0.25rem; align-items:center; flex-wrap:wrap; }
+.site-links a { color:var(--soft); text-decoration:none; font-weight:600; font-size:0.88rem; padding:0.45rem 0.75rem; border-radius:10px; transition:color 0.15s, background 0.15s; }
+.site-links a:hover { color:var(--text); background:rgba(255,255,255,0.05); }
+.site-links a.nav-meta { color:var(--muted); font-size:0.75rem; font-weight:700; opacity:0.85; margin-left:0.5rem; padding:0.4rem 0.7rem; border:1px dashed rgba(255,255,255,0.12); }
+.site-links a.nav-meta:hover { color:${p.cta_color}; border-color:${p.cta_color}55; }
+.nav-cta { background:var(--brand); color:#0b0f1a; padding:0.5rem 1rem; border-radius:999px; font-weight:700; font-size:0.82rem; text-decoration:none; box-shadow:0 4px 16px ${p.cta_color}55; cursor:pointer; border:none; font-family:inherit; }
 
-main { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 4rem; position:relative; z-index:1; }
-.display { font-family:"Impact","Haettenschweiler","Franklin Gothic Bold",system-ui,sans-serif; font-weight:900; letter-spacing:-0.01em; text-transform:uppercase; line-height:0.95; }
+main { max-width:1100px; margin:0 auto; padding:clamp(2rem,4vw,3rem) 1.5rem 2rem; position:relative; z-index:1; }
+section.panel, section.hero, section.evidence { padding-top:clamp(2.5rem,4vw,3.5rem); padding-bottom:clamp(2.5rem,4vw,3.5rem); }
+.display { font-family:var(--display-font); font-weight:700; letter-spacing:-0.015em; line-height:1.05; }
 
-.hero { padding:2rem 0 3rem; }
-.hero .pill { display:inline-flex; gap:0.4rem; align-items:center; background:${g1}14; color:${g1}; padding:0.35rem 0.85rem; border-radius:999px; font-size:0.7rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:1rem; border:1px solid ${g1}33; }
-.hero h1 { font-size:clamp(2.5rem,6vw,4.5rem); margin-bottom:0.5rem; }
+/* Hero - real business homepage feel */
+.hero { display:grid; grid-template-columns:1fr; gap:2.5rem; align-items:center; padding:clamp(2.5rem,5vw,4rem) 0 clamp(2rem,4vw,3rem); }
+@media (min-width:880px) { .hero { grid-template-columns:1.15fr 1fr; gap:3rem; } }
+.hero-trust { display:inline-flex; align-items:center; gap:0.45rem; padding:0.4rem 0.9rem; border-radius:999px; font-size:0.78rem; font-weight:600; color:var(--text); background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.25); margin-bottom:1.25rem; width:max-content; max-width:100%; }
+.hero h1 { font-size:clamp(2.25rem,5.5vw,3.75rem); margin-bottom:1rem; color:var(--text); }
 .hero h1 .grad { background:linear-gradient(135deg,${g1},${g2} 50%,${g3}); -webkit-background-clip:text; background-clip:text; color:transparent; }
-.hero .subbrand { font-size:0.95rem; color:var(--muted); margin-top:0.5rem; font-style:italic; }
-.hero .tagline { font-size:1.1rem; color:var(--soft); max-width:640px; margin:1rem 0 1.5rem; }
-.hero-ctas { display:flex; gap:0.6rem; flex-wrap:wrap; }
+.hero .hero-sub { font-size:1.05rem; color:var(--soft); max-width:560px; margin:0 0 1.75rem; }
+.hero-ctas { display:flex; gap:0.7rem; flex-wrap:wrap; }
+.hero-ctas .btn-brand, .hero-ctas .btn-ghost { padding:0.85rem 1.5rem; font-size:0.95rem; }
+.hero-meta { display:flex; gap:1.25rem; flex-wrap:wrap; align-items:center; margin-top:1.75rem; font-size:0.85rem; color:var(--muted); }
+.hero-meta strong { color:var(--soft); font-weight:600; }
+
+/* Hero artwork - geometric brand-coloured backdrop, no fake photo */
+.hero-art { position:relative; aspect-ratio:1.05/1; max-width:480px; margin:0 auto; width:100%; }
+.hero-art .blob { position:absolute; border-radius:50%; filter:blur(2px); }
+.hero-art .b1 { top:5%; left:8%; width:62%; height:62%; background:radial-gradient(circle at 30% 30%, ${g1}cc, ${g1}22 70%); }
+.hero-art .b2 { bottom:8%; right:5%; width:55%; height:55%; background:radial-gradient(circle at 60% 40%, ${g2}cc, ${g2}22 70%); mix-blend-mode:screen; }
+.hero-art .b3 { top:38%; left:38%; width:42%; height:42%; background:radial-gradient(circle at 50% 50%, ${g3}aa, ${g3}11 75%); mix-blend-mode:screen; }
+.hero-art .stamp { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:140px; height:140px; border-radius:50%; background:rgba(11,15,26,0.55); backdrop-filter:blur(14px); display:flex; align-items:center; justify-content:center; font-size:3.2rem; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.12), 0 12px 40px rgba(0,0,0,0.4); }
 
 /* Benefit callout — attached to every section */
 .benefit {
@@ -67,7 +203,15 @@ main { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 4rem; position:relat
 .benefit .b-text { font-size:0.82rem; color:var(--soft); line-height:1.55; }
 .benefit .b-text strong { color:var(--text); }
 
-.panel { background:linear-gradient(160deg,rgba(26,35,56,0.95),rgba(20,27,45,0.92)); border:1px solid rgba(255,255,255,0.06); border-radius:18px; padding:1.75rem 2rem; margin-bottom:1.5rem; }
+/* Panels with real depth */
+.panel {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 35%), linear-gradient(160deg, var(--card), var(--surface));
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:18px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 18px 40px -16px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35);
+  padding:1.75rem 2rem;
+  margin-bottom:1.5rem;
+}
 .panel h2 { font-size:clamp(1.4rem,3.5vw,2rem); margin-bottom:0.75rem; }
 .panel .kicker { font-size:0.68rem; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:${p.cta_color}; margin-bottom:0.4rem; }
 
@@ -77,10 +221,11 @@ main { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 4rem; position:relat
 .menu-item .item-name { font-weight:700; font-size:1rem; }
 .menu-item .item-desc { font-size:0.82rem; color:var(--soft); flex:1; }
 .menu-item .item-row { display:flex; justify-content:space-between; align-items:center; margin-top:0.4rem; }
-.menu-item .item-price { font-weight:900; font-size:1.15rem; color:${p.cta_color}; }
-.btn-brand { background:var(--brand); color:#0b0f1a; border:none; padding:0.45rem 0.9rem; border-radius:999px; font-weight:800; cursor:pointer; font-family:inherit; font-size:0.8rem; transition:transform 0.1s; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; }
-.btn-brand:hover { transform:scale(1.03); }
-.btn-ghost { background:rgba(255,255,255,0.06); color:var(--text); border:1px solid rgba(255,255,255,0.1); padding:0.45rem 0.9rem; border-radius:999px; font-weight:700; cursor:pointer; font-family:inherit; font-size:0.8rem; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; }
+.menu-item .item-price { font-weight:800; font-size:1.15rem; color:${p.cta_color}; font-variant-numeric:tabular-nums; }
+.btn-brand { background:var(--brand); color:#0b0f1a; border:none; padding:0.45rem 0.9rem; border-radius:999px; font-weight:700; cursor:pointer; font-family:inherit; font-size:0.8rem; transition:transform 0.1s, box-shadow 0.1s; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; box-shadow:0 6px 18px ${p.cta_color}55, inset 0 0 0 1px rgba(0,0,0,0.05); }
+.btn-brand:hover { transform:translateY(-1px); box-shadow:0 9px 24px ${p.cta_color}88, inset 0 0 0 1px rgba(0,0,0,0.05); }
+.btn-ghost { background:rgba(255,255,255,0.05); color:var(--text); border:1px solid rgba(255,255,255,0.12); padding:0.45rem 0.9rem; border-radius:999px; font-weight:600; cursor:pointer; font-family:inherit; font-size:0.8rem; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; transition:background 0.15s, border-color 0.15s; }
+.btn-ghost:hover { background:rgba(255,255,255,0.09); border-color:rgba(255,255,255,0.22); }
 
 .status-pill { display:inline-flex; align-items:center; gap:0.4rem; padding:0.3rem 0.75rem; border-radius:999px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; }
 .status-open { background:rgba(52,211,153,0.12); color:#34d399; }
@@ -97,18 +242,19 @@ main { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 4rem; position:relat
 .toast { position:fixed; bottom:6.5rem; left:50%; transform:translateX(-50%) translateY(40px); background:var(--brand); color:#0b0f1a; padding:0.75rem 1.25rem; border-radius:10px; font-weight:800; opacity:0; transition:all 0.3s; z-index:200; box-shadow:0 8px 30px ${p.cta_color}88; pointer-events:none; }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-/* Sticky "I want this" CTA bar \u2014 always visible */
+/* Sticky bottom CTA bar \u2014 quieter than before, supportive not screaming */
 .get-bar {
   position:fixed; left:0; right:0; bottom:0; z-index:90;
-  background:rgba(11,15,26,0.95); backdrop-filter:blur(12px);
-  border-top:1px solid ${p.cta_color}55;
-  padding:0.75rem 1.25rem;
-  display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
-  box-shadow:0 -8px 30px rgba(0,0,0,0.4);
+  background:rgba(11,15,26,0.92); backdrop-filter:blur(14px);
+  border-top:1px solid rgba(255,255,255,0.06);
+  padding:0.65rem 1.25rem;
+  display:flex; align-items:center; justify-content:flex-end; gap:1rem; flex-wrap:wrap;
+  box-shadow:0 -6px 24px rgba(0,0,0,0.35);
 }
-.get-bar-label { font-size:0.85rem; color:var(--soft); }
-.get-bar-label strong { color:var(--text); }
-.get-bar-cta { background:var(--brand); color:#0b0f1a; padding:0.75rem 1.5rem; border-radius:999px; font-weight:800; border:none; cursor:pointer; font-family:inherit; font-size:0.92rem; box-shadow:0 4px 20px ${p.cta_color}88; }
+.get-bar-label { font-size:0.82rem; color:var(--soft); flex:1; text-align:left; min-width:200px; }
+.get-bar-label strong { color:var(--text); font-weight:700; }
+.get-bar-cta { background:transparent; color:${p.cta_color}; padding:0.55rem 1.1rem; border-radius:999px; font-weight:700; border:1px solid ${p.cta_color}66; cursor:pointer; font-family:inherit; font-size:0.85rem; transition:background 0.15s, border-color 0.15s; }
+.get-bar-cta:hover { background:${p.cta_color}14; border-color:${p.cta_color}; }
 
 /* Get-this modal */
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:300; align-items:center; justify-content:center; backdrop-filter:blur(8px); padding:1rem; overflow-y:auto; }
@@ -116,12 +262,16 @@ main { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 4rem; position:relat
 .modal-card { background:linear-gradient(160deg,rgba(26,35,56,0.97),rgba(20,27,45,0.95)); border:1px solid ${p.cta_color}33; border-radius:20px; padding:2rem; max-width:500px; width:100%; position:relative; box-shadow:0 20px 80px rgba(0,0,0,0.6), 0 0 80px ${p.cta_color}22; }
 .modal-close { position:absolute; top:1rem; right:1rem; background:rgba(255,255,255,0.08); border:none; width:32px; height:32px; border-radius:50%; color:var(--soft); cursor:pointer; font-size:1.1rem; }
 
-/* ROI summary strip \u2014 at top so prospect sees benefit early */
-.roi-strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.75rem; margin-top:1.5rem; }
-.roi-tile { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1rem 1.25rem; text-align:left; }
-.roi-val { font-size:1.75rem; font-weight:900; line-height:1; letter-spacing:-0.02em; }
-.roi-lbl { font-size:0.65rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--text); margin-top:0.5rem; }
-.roi-sub { font-size:0.72rem; color:var(--muted); margin-top:0.2rem; }
+/* "Why this works" evidence panel \u2014 moved to bottom, supporting evidence */
+.evidence { margin-top:1.5rem; }
+.evidence .section-head { text-align:center; margin-bottom:1.5rem; }
+.evidence .section-head .kicker { font-size:0.7rem; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:${p.cta_color}; margin-bottom:0.4rem; }
+.evidence .section-head h2 { font-size:clamp(1.5rem,3.5vw,2.1rem); }
+.roi-strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:0.85rem; }
+.roi-tile { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.1rem 1.25rem; text-align:left; }
+.roi-val { font-size:1.85rem; font-weight:800; line-height:1; letter-spacing:-0.025em; font-variant-numeric:tabular-nums; font-family:var(--display-font); }
+.roi-lbl { font-size:0.68rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--text); margin-top:0.55rem; }
+.roi-sub { font-size:0.72rem; color:var(--muted); margin-top:0.25rem; }
 
 /* Rep card */
 .rep-card { background:linear-gradient(135deg,${g1}14,${g2}10); border:1px solid ${p.cta_color}33; border-radius:14px; padding:1.1rem 1.25rem; margin-top:1rem; display:flex; align-items:center; gap:0.85rem; }
@@ -130,8 +280,23 @@ main { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 4rem; position:relat
 .rep-info strong { display:block; color:var(--text); }
 .rep-info .sub { color:var(--soft); font-size:0.78rem; margin-top:0.1rem; }
 
-footer { text-align:center; padding:2rem 1.5rem; color:var(--muted); font-size:0.82rem; border-top:1px solid rgba(255,255,255,0.05); margin-top:3rem; margin-bottom:-30px; }
-footer a { color:var(--soft); }
+/* Real business footer — 3-column NAP */
+.site-footer { margin-top:3rem; padding:clamp(2.5rem,4vw,3.5rem) 1.5rem 2rem; border-top:1px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.18)); }
+.site-footer-inner { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr; gap:2rem; }
+@media (min-width:760px) { .site-footer-inner { grid-template-columns:1.2fr 1fr 1.2fr; gap:3rem; } }
+.foot-col h4 { font-family:var(--display-font); font-size:1rem; color:var(--text); margin-bottom:0.7rem; font-weight:700; }
+.foot-col p, .foot-col li { color:var(--soft); font-size:0.88rem; line-height:1.6; }
+.foot-col ul { list-style:none; }
+.foot-col li { padding:0.2rem 0; }
+.foot-col a { color:var(--soft); text-decoration:none; }
+.foot-col a:hover { color:var(--text); }
+.foot-disclaimer { background:rgba(255,255,255,0.04); border:1px dashed rgba(255,255,255,0.15); border-radius:12px; padding:1rem 1.15rem; }
+.foot-disclaimer strong { color:var(--text); }
+.foot-bottom { max-width:1100px; margin:2rem auto 0; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; font-size:0.78rem; color:var(--muted); }
+.foot-bottom a { color:var(--soft); }
+
+/* Reduced-motion guard */
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation: none !important; transition-duration: 0.01ms !important; scroll-behavior:auto !important; } }
 </style>
 </head><body>
 
@@ -139,25 +304,47 @@ footer a { color:var(--soft); }
   \ud83e\uddea You're playing with a sample version of <strong>${esc(p.brand)}</strong>. Tap around \u2014 it all works. Your version would use <strong>your</strong> brand, data, and domain.
 </div>
 
-<nav>
-  <div class="brand">
+<nav class="site-nav" aria-label="Main">
+  <a href="#" class="brand">
     <div class="brand-logo">${b.logo_emoji}</div>
-    <div>${esc(b.name)}</div>
+    <span class="brand-name">${esc(b.name)}</span>
+  </a>
+  <div class="site-links">
+    ${chrome.nav_links.map(l => `<a href="${esc(l.href)}">${esc(l.label)}</a>`).join('')}
+    <a href="#" class="nav-meta" onclick="event.preventDefault();openGetThis()">\u{1F680} Get this for my business</a>
   </div>
-  <button class="nav-cta" onclick="openGetThis()">\u{1F680} Get this for my business</button>
 </nav>
 
 <main>
   <section class="hero">
-    <div class="pill">${esc(b.suburb.toUpperCase())} \u00b7 ${esc(p.kicker)}</div>
-    <h1 class="display"><span class="grad">${esc(b.name)}</span></h1>
-    <div class="subbrand">\u2014 example of a real ${esc(p.brand)} deployment</div>
-    <div class="tagline">${b.tagline}</div>
-    <div class="hero-ctas">
-      <a href="#demo" class="btn-brand" style="padding:0.75rem 1.5rem">\ud83d\udc47 Play with the demo</a>
-      <button class="btn-ghost" style="padding:0.75rem 1.5rem" onclick="openGetThis()">\u{1F680} I want this for my business</button>
+    <div class="hero-copy">
+      <div class="hero-trust">${chrome.trust_pill}</div>
+      <h1 class="display"><span class="grad">${esc(cleanTagline)}</span></h1>
+      <p class="hero-sub">${esc(chrome.hero_benefit)}</p>
+      <div class="hero-ctas">
+        <a href="${esc(chrome.primary_cta.href)}" class="btn-brand">${esc(chrome.primary_cta.label)}</a>
+        <a href="${esc(chrome.secondary_cta.href)}" class="btn-ghost">${esc(chrome.secondary_cta.label)}</a>
+      </div>
+      <div class="hero-meta">
+        ${b.phone !== '\u2014' ? `<span>\ud83d\udcde <strong>${esc(b.phone)}</strong></span>` : ''}
+        <span>\ud83d\udccd <strong>${esc(suburbLabel)}</strong></span>
+      </div>
     </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+      <div class="stamp">${b.logo_emoji}</div>
+    </div>
+  </section>
 
+  ${renderDemoBody(p, b)}
+
+  <section class="evidence" id="why">
+    <div class="section-head">
+      <div class="kicker">Behind the scenes</div>
+      <h2 class="display">Why this works for businesses like yours</h2>
+    </div>
     <div class="roi-strip">
       ${p.stats.map(s => `
         <div class="roi-tile" style="color:${s.color}">
@@ -169,9 +356,7 @@ footer a { color:var(--soft); }
     </div>
   </section>
 
-  ${renderDemoBody(p, b)}
-
-  <section class="panel" style="background:linear-gradient(135deg,${g1}14,${g2}10,${g3}14);border:1px solid ${p.cta_color}33;text-align:center">
+  <section class="panel" style="background:linear-gradient(135deg,${g1}14,${g2}10,${g3}14);border:1px solid ${p.cta_color}33;text-align:center;margin-top:1.5rem">
     <div class="kicker">Ready for yours?</div>
     <h2 class="display">Stop watching. Start running yours.</h2>
     <p style="color:var(--soft);max-width:600px;margin:0.5rem auto 1.25rem">${esc(p.sell_point)} All the value above, branded to <em>your</em> business, live within the week.</p>
@@ -183,8 +368,8 @@ footer a { color:var(--soft); }
 <div id="toast" class="toast"></div>
 
 <div class="get-bar">
-  <div class="get-bar-label">Loving it? <strong>Get your own version.</strong></div>
-  <button class="get-bar-cta" onclick="openGetThis()">\u{1F680} Get this</button>
+  <div class="get-bar-label">Want this for your business? <strong>Send me a tailored plan →</strong></div>
+  <button class="get-bar-cta" onclick="openGetThis()">Get a plan</button>
 </div>
 
 <div id="get-modal" class="modal-overlay" onclick="if(event.target===this)closeGetThis()">
@@ -210,9 +395,30 @@ footer a { color:var(--soft); }
   </div>
 </div>
 
-<footer>
-  <div><strong>${esc(b.name)}</strong> is a <em>sample business</em> for Penny Wise I.T's <strong>${esc(p.brand)}</strong> whitelabel.</div>
-  <div style="margin-top:0.5rem">Your version would use your brand, your colours, your customer list.</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="foot-col">
+      <h4 style="display:flex;align-items:center;gap:0.55rem"><span style="display:inline-flex;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,${g1},${g2});align-items:center;justify-content:center;font-size:0.92rem">${b.logo_emoji}</span>${esc(b.name)}</h4>
+      <p style="margin-bottom:0.5rem">${b.tagline}</p>
+      <p>${b.phone !== '—' ? `📞 ${esc(b.phone)} · ` : ''}📍 ${esc(suburbLabel)}</p>
+    </div>
+    <div class="foot-col">
+      <h4>Explore</h4>
+      <ul>
+        ${chrome.nav_links.map(l => `<li><a href="${esc(l.href)}">${esc(l.label)}</a></li>`).join('')}
+      </ul>
+    </div>
+    <div class="foot-col">
+      <div class="foot-disclaimer">
+        <h4 style="margin-bottom:0.5rem">🏷 This is a sample.</h4>
+        <p><strong>${esc(b.name)}</strong> is a sample business showcasing the <strong>${esc(p.brand)}</strong> whitelabel platform. Your version would use <em>your</em> brand, <em>your</em> colours, <em>your</em> customer list.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div>© 2026 ${esc(b.name)} · Built on Penny Wise I.T whitelabel</div>
+    <div><a href="#" onclick="event.preventDefault();openGetThis()">Get this for my business →</a></div>
+  </div>
 </footer>
 
 <script>
@@ -369,7 +575,7 @@ export function foodTruckDemo(b: any): string {
   ${bf('\ud83d\udcc8', 'Live menu', '<strong>Pre-orders on quiet hours</strong> = revenue when the window is dead. <strong>Stripe payments in your account</strong> not ours. When items sell out, one tap marks them sold. No yelling &ldquo;we&rsquo;re out of ribs&rdquo; to the queue.')}
 </section>
 
-<section class="panel">
+<section id="location" class="panel">
   <div class="kicker">\ud83d\udccd Where's the truck today</div>
   <h2 class="display">Riverside Markets \u00b7 till 2pm</h2>
   <p style="color:var(--soft);margin-bottom:0.5rem">Tomorrow: <strong>Yeppoon Main Beach</strong> \u00b7 Friday: <strong>Gracemere Pub</strong></p>
@@ -432,7 +638,7 @@ export function onlineStoreDemo(b: any): string {
   ${bf('\ud83d\udcb3', 'Own your store, keep your customers', 'Stripe \u2192 <strong>your bank, same day</strong>. No Shopify 2.9% tax. Customer list = <strong>your</strong> database, not someone else&rsquo;s. At $10k/mo revenue you save <strong>$290/mo in fees alone</strong> \u2014 covers 3\u00d7 the monthly hosting.')}
 </section>
 
-<section class="panel">
+<section id="shipping" class="panel">
   <div class="kicker">\ud83d\ude9a Shipping</div>
   <h2 class="display">Delivered to your door</h2>
   <ul style="list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem">
@@ -509,7 +715,7 @@ export function tradieDemo(b: any): string {
   ${bf('\ud83d\udcbc', 'No-shows cost $250+ of bay time each', 'SMS reminders + optional deposit-on-booking <strong>cut no-shows by ~40%</strong>. Recovering <strong>one no-show per month pays the whole platform 2.5\u00d7 over</strong>.')}
 </section>
 
-<section class="panel">
+<section id="reviews" class="panel">
   <div class="kicker">\u2b50 Real reviews</div>
   <h2 class="display">What Rocky locals say</h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem">
@@ -552,7 +758,7 @@ export function festivalDemo(b: any): string {
   ${bf('\ud83d\udcb0', 'Eventbrite fees eat 3-5% of ticket revenue', 'At $40 \u00d7 500 tickets = <strong>$895 in Eventbrite fees alone</strong>. Our platform costs less than fees on a single event. Your Stripe, your account, your money same-day.')}
 </section>
 
-<section class="panel">
+<section id="schedule" class="panel">
   <div class="kicker">\ud83d\udcc5 Schedule</div>
   <h2 class="display">What's on</h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem">
@@ -623,7 +829,7 @@ export function deliveryDemo(b: any, p: ProductConfig): string {
   ${bf('\ud83d\udcb5', 'No DoorDash / Uber 30% cut', 'On $20k/mo delivery revenue <strong>that&rsquo;s $6,000/mo you keep</strong>. Platform pays itself 47\u00d7 over. Your drivers, your customers, your margins.')}
 </section>
 
-<section class="panel">
+<section id="drivers" class="panel">
   <div class="kicker">Route today</div>
   <h2 class="display">Driver dashboard (your team view)</h2>
   <div style="display:flex;flex-direction:column;gap:0.5rem">
@@ -678,7 +884,7 @@ export function desktopDemo(b: any): string {
   ${bf('\ud83d\udd13', '100% licensed = 0% piracy loss', 'Signed keys + phone-home validation. <strong>Every paid copy stays paid</strong>. Without this, one paid licence typically becomes 10 shared copies. Your server = your rules.')}
 </section>
 
-<section class="panel">
+<section id="portal" class="panel">
   <div class="kicker">Your customer portal</div>
   <h2 class="display">Keys, billing, updates \u2014 in one place</h2>
   <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem">
@@ -733,7 +939,7 @@ export function aiSocialDemo(b: any): string {
   ${bf('\ud83d\udcb3', 'Patreon takes 8-12%. We take 0.', '<strong>100 members \u00d7 $12/mo = $1,200/mo</strong>. Patreon takes ~$120. Ours \u2014 Stripe fee only. You keep $1,150. Monthly platform cost covers itself by member 9.')}
 </section>
 
-<section class="panel">
+<section id="moderation" class="panel">
   <div class="kicker">\ud83e\udd16 AI moderation</div>
   <h2 class="display">Spam? Gone before you see it</h2>
   <p style="color:var(--soft)">Every post scored for spam, abuse, and off-topic in milliseconds. Your community stays tidy while you sleep.</p>
