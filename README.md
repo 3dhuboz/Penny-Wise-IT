@@ -144,12 +144,39 @@ To connect your SiteGround account:
 └── package.json
 ```
 
-## Deployment to SiteGround
+## Deployment
 
-1. Build the React client: `npm run build`
-2. The Express server serves the built React app in production mode
-3. Deploy to SiteGround using Node.js hosting or upload the build to a standard hosting plan
-4. Set `NODE_ENV=production` in your server environment
+> **Status: this branch is the legacy Express + MongoDB monolith.**
+> Production has moved to a **Cloudflare Workers monorepo** (Hono + D1 + R2 + Workers AI). See the `claude/trusting-bose` branch for the live architecture.
+
+### Production architecture (Cloudflare-only)
+
+Every public surface is a Cloudflare Worker. There is no Vercel, Railway, Heroku, or any third-party host in the stack.
+
+| Domain | Backed by | Source |
+|---|---|---|
+| `pennywiseit.com.au` + `www.` | Showcase Worker | `packages/showcase` (Hono + Wrangler, static assets via `[assets]` binding) |
+| `sales.pennywiseit.com.au` | Sales Worker | `packages/sales` |
+| Validator API | Validator Worker (D1 + R2 + Workers AI + cron) | `packages/validator` |
+| Dashboard, registry, demos | Workers | `packages/dashboard`, `packages/registry`, `packages/demos` |
+
+Each package has its own `wrangler.toml` with `routes` declaring the custom domain and zone. Deployment is a per-package `wrangler deploy` — no CI/CD platform required.
+
+### How the showcase deploys
+
+```bash
+cd packages/showcase
+npm install
+npm run deploy   # = wrangler deploy
+```
+
+Pre-bind `pennywiseit.com.au` and `www.pennywiseit.com.au` as Custom Domains in the Cloudflare dashboard before the first deploy.
+
+### Migrating off this legacy code
+
+The Express + MongoDB code in `server/` and `client/` predates the Cloudflare Workers architecture. Anything still served by it (customer portal, ticket management, admin dashboard, marketplace) needs to be ported to a new Workers package using the same patterns as `packages/validator` (Hono routes + D1 for relational data + R2 for blobs).
+
+`app.js` (Passenger) and `DEPLOY-SITEGROUND.md` are kept for reference only — SiteGround is no longer in use either.
 
 ## License
 

@@ -172,7 +172,7 @@ GEMINI_API_KEY=
 
 # Penny Wise I.T License
 LICENSE_KEY=
-LICENSE_API_URL=https://pennywiseit.com.au/api/marketplace/validate-license
+LICENSE_API_URL=https://api.pennywiseit.com.au/api/marketplace/validate-license
 `;
   }
 
@@ -560,7 +560,7 @@ This project is managed via the Penny Wise I.T admin panel.
 router.post('/:projectId', auth, adminOnly, async (req, res) => {
   try {
     // Only works locally — need filesystem + git access
-    if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production') {
       return res.status(400).json({
         message: 'Scaffolding only works when running locally. Start the server on your dev machine.'
       });
@@ -854,7 +854,7 @@ router.get('/pending', auth, adminOnly, async (req, res) => {
 // POST /api/scaffold/:projectId/sync
 // ═══════════════════════════════════════════
 router.post('/:projectId/sync', auth, adminOnly, async (req, res) => {
-  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production') {
     return res.status(400).json({ message: 'Sync only works when running locally.' });
   }
   try {
@@ -967,7 +967,7 @@ const CLIENT_PROTECTED = [
 ];
 
 router.post('/push-update/:appSlug', auth, adminOnly, async (req, res) => {
-  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production') {
     return res.status(400).json({ message: 'Update push only works locally.' });
   }
 

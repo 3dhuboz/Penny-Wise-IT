@@ -116,7 +116,7 @@ const Home = () => {
               <p>Car dealerships manually sorting thousands of photos by colour. Our AI does it in minutes — 40+ hours saved per month.</p>
               <div className="example-actions">
                 <Link to="/autohue" className="service-link">See How It Works <ArrowRight size={14} /></Link>
-                <a href="https://autohue.vercel.app" target="_blank" rel="noopener noreferrer" className="service-link">Try It Free <ExternalLink size={14} /></a>
+                <a href="https://autohue.app" target="_blank" rel="noopener noreferrer" className="service-link">Try It Free <ExternalLink size={14} /></a>
               </div>
             </div>
             <div className="example-card">
