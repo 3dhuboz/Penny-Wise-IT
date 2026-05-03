@@ -6119,9 +6119,9 @@ async function adminSection(section) {
     el.innerHTML = '<p style="color:var(--muted)">Loading invoicing...</p>';
     try {
       const [dash, clients, invoices] = await Promise.all([
-        api('GET', '/api/personal/dashboard', null, true),
-        api('GET', '/api/personal/clients', null, true),
-        api('GET', '/api/personal/invoices', null, true),
+        api('GET', '/api/personal/dashboard', null),
+        api('GET', '/api/personal/clients', null),
+        api('GET', '/api/personal/invoices', null),
       ]);
       window._piClients = clients.clients || [];
       window._piInvoices = invoices.invoices || [];
@@ -6193,9 +6193,9 @@ async function loadInvoicingTab() {
   el.innerHTML = '<p style="color:var(--muted)">Loading invoicing...</p>';
   try {
     const [dash, clients, invoices] = await Promise.all([
-      api('GET', '/api/personal/dashboard', null, true),
-      api('GET', '/api/personal/clients', null, true),
-      api('GET', '/api/personal/invoices', null, true),
+      api('GET', '/api/personal/dashboard', null),
+      api('GET', '/api/personal/clients', null),
+      api('GET', '/api/personal/invoices', null),
     ]);
     window._piClients = clients.clients || [];
     window._piInvoices = invoices.invoices || [];
@@ -6300,8 +6300,8 @@ async function piSaveClient(existingId) {
   };
   if (!body.name) { showToast('Name required', 'error'); return; }
   try {
-    if (existingId) await api('PUT', '/api/personal/clients/' + existingId, body, true);
-    else await api('POST', '/api/personal/clients', body, true);
+    if (existingId) await api('PUT', '/api/personal/clients/' + existingId, body);
+    else await api('POST', '/api/personal/clients', body);
     showToast(existingId ? 'Client updated' : 'Client added', 'success');
     await piRefresh();
   } catch (e) { showToast('Failed: ' + e.message, 'error'); }
@@ -6420,13 +6420,13 @@ async function piSaveInvoice(existingId, alsoSend) {
   try {
     let id = existingId;
     if (existingId) {
-      await api('PUT', '/api/personal/invoices/' + existingId, body, true);
+      await api('PUT', '/api/personal/invoices/' + existingId, body);
     } else {
-      const res = await api('POST', '/api/personal/invoices', body, true);
+      const res = await api('POST', '/api/personal/invoices', body);
       id = res.id;
     }
     if (alsoSend) {
-      const sendRes = await api('POST', '/api/personal/invoices/' + id + '/send', {}, true);
+      const sendRes = await api('POST', '/api/personal/invoices/' + id + '/send', {});
       showToast('Invoice sent! Public URL: ' + sendRes.public_url, 'success');
     } else {
       showToast('Draft saved', 'success');
@@ -6439,7 +6439,7 @@ async function piOpenInvoice(id) {
   const c = document.getElementById('pi-content');
   c.innerHTML = '<p style="color:var(--muted)">Loading...</p>';
   try {
-    const data = await api('GET', '/api/personal/invoices/' + id, null, true);
+    const data = await api('GET', '/api/personal/invoices/' + id, null);
     const inv = data.invoice;
     const cl = data.client;
     const items = data.items || [];
@@ -6503,7 +6503,7 @@ async function piOpenInvoice(id) {
 
 async function piEditInvoice(id) {
   try {
-    const data = await api('GET', '/api/personal/invoices/' + id, null, true);
+    const data = await api('GET', '/api/personal/invoices/' + id, null);
     window._piEditingInvoice = {
       client_id: data.invoice.client_id,
       subject: data.invoice.subject || '',
@@ -6519,7 +6519,7 @@ async function piEditInvoice(id) {
 async function piSendInvoiceFromDetail(id) {
   if (!confirm('Send this invoice to the client now?')) return;
   try {
-    const res = await api('POST', '/api/personal/invoices/' + id + '/send', {}, true);
+    const res = await api('POST', '/api/personal/invoices/' + id + '/send', {});
     showToast('Sent! Public URL: ' + res.public_url, 'success');
     await piRefresh();
   } catch (e) { showToast('Failed: ' + e.message, 'error'); }
@@ -6531,7 +6531,7 @@ async function piMarkPaidPrompt(id, defaultAmount) {
   const amount = Number(input);
   if (isNaN(amount) || amount <= 0) { showToast('Invalid amount', 'error'); return; }
   try {
-    await api('POST', '/api/personal/invoices/' + id + '/mark-paid', { amount }, true);
+    await api('POST', '/api/personal/invoices/' + id + '/mark-paid', { amount });
     showToast('Recorded payment', 'success');
     await piRefresh();
   } catch (e) { showToast('Failed: ' + e.message, 'error'); }
@@ -6540,7 +6540,7 @@ async function piMarkPaidPrompt(id, defaultAmount) {
 async function piCancelInvoice(id) {
   if (!confirm('Cancel this invoice? It will no longer be payable. This cannot be undone.')) return;
   try {
-    await api('POST', '/api/personal/invoices/' + id + '/cancel', {}, true);
+    await api('POST', '/api/personal/invoices/' + id + '/cancel', {});
     showToast('Cancelled', 'success');
     await piRefresh();
   } catch (e) { showToast('Failed: ' + e.message, 'error'); }
@@ -6552,7 +6552,7 @@ async function piShowQuotes() {
   const c = document.getElementById('pi-content');
   c.innerHTML = '<p style="color:var(--muted)">Loading quotes...</p>';
   try {
-    const data = await api('GET', '/api/personal/quotes', null, true);
+    const data = await api('GET', '/api/personal/quotes', null);
     const quotes = data.quotes || [];
     window._piQuotes = quotes;
     if (!quotes.length) {
@@ -6683,13 +6683,13 @@ async function piSaveQuote(existingId, alsoSend) {
   try {
     let id = existingId;
     if (existingId) {
-      await api('PUT', '/api/personal/quotes/' + existingId, body, true);
+      await api('PUT', '/api/personal/quotes/' + existingId, body);
     } else {
-      const res = await api('POST', '/api/personal/quotes', body, true);
+      const res = await api('POST', '/api/personal/quotes', body);
       id = res.id;
     }
     if (alsoSend) {
-      const r = await api('POST', '/api/personal/quotes/' + id + '/send', {}, true);
+      const r = await api('POST', '/api/personal/quotes/' + id + '/send', {});
       showToast('Quote sent! ' + r.public_url, 'success');
     } else {
       showToast('Draft saved', 'success');
@@ -6702,7 +6702,7 @@ async function piOpenQuote(id) {
   const c = document.getElementById('pi-content');
   c.innerHTML = '<p style="color:var(--muted)">Loading...</p>';
   try {
-    const data = await api('GET', '/api/personal/quotes/' + id, null, true);
+    const data = await api('GET', '/api/personal/quotes/' + id, null);
     const q = data.quote;
     const cl = data.client;
     const items = data.items || [];
@@ -6744,7 +6744,7 @@ async function piOpenQuote(id) {
 
 async function piEditQuote(id) {
   try {
-    const data = await api('GET', '/api/personal/quotes/' + id, null, true);
+    const data = await api('GET', '/api/personal/quotes/' + id, null);
     window._piEditingQuote = {
       client_id: data.quote.client_id,
       subject: data.quote.subject || '',
@@ -6760,7 +6760,7 @@ async function piEditQuote(id) {
 async function piSendQuoteFromDetail(id) {
   if (!confirm('Send this quote to the client now?')) return;
   try {
-    const r = await api('POST', '/api/personal/quotes/' + id + '/send', {}, true);
+    const r = await api('POST', '/api/personal/quotes/' + id + '/send', {});
     showToast('Quote sent: ' + r.public_url, 'success');
     await piShowQuotes();
   } catch (e) { showToast('Failed: ' + e.message, 'error'); }
@@ -6772,7 +6772,7 @@ async function piShowRecurring() {
   const c = document.getElementById('pi-content');
   c.innerHTML = '<p style="color:var(--muted)">Loading recurring...</p>';
   try {
-    const data = await api('GET', '/api/personal/recurring', null, true);
+    const data = await api('GET', '/api/personal/recurring', null);
     const recurring = data.recurring || [];
     if (!recurring.length) {
       c.innerHTML = `
@@ -6916,8 +6916,8 @@ async function piSaveRecurring(existingId) {
   if (!body.name) { showToast('Name required', 'error'); return; }
   if (!body.items.length) { showToast('Add at least one line item', 'error'); return; }
   try {
-    if (existingId) await api('PUT', '/api/personal/recurring/' + existingId, body, true);
-    else await api('POST', '/api/personal/recurring', body, true);
+    if (existingId) await api('PUT', '/api/personal/recurring/' + existingId, body);
+    else await api('POST', '/api/personal/recurring', body);
     showToast(existingId ? 'Saved' : 'Recurring created', 'success');
     await piShowRecurring();
   } catch (e) { showToast('Failed: ' + e.message, 'error'); }
@@ -6925,7 +6925,7 @@ async function piSaveRecurring(existingId) {
 
 async function piEditRecurring(id) {
   try {
-    const data = await api('GET', '/api/personal/recurring', null, true);
+    const data = await api('GET', '/api/personal/recurring', null);
     const r = (data.recurring || []).find(x => x.id === id);
     if (!r) { showToast('Not found', 'error'); return; }
     let items = []; try { items = JSON.parse(r.template_items_json || '[]'); } catch {}
@@ -6937,7 +6937,7 @@ async function piEditRecurring(id) {
 
 async function piTogglePauseRecurring(id, paused) {
   try {
-    await api('PUT', '/api/personal/recurring/' + id, { paused }, true);
+    await api('PUT', '/api/personal/recurring/' + id, { paused });
     showToast(paused ? 'Paused' : 'Resumed', 'success');
     await piShowRecurring();
   } catch (e) { showToast('Failed: ' + e.message, 'error'); }
@@ -6946,7 +6946,7 @@ async function piTogglePauseRecurring(id, paused) {
 async function piDeleteRecurring(id) {
   if (!confirm('Delete this recurring template? Existing invoices stay; only future auto-issues stop.')) return;
   try {
-    await api('DELETE', '/api/personal/recurring/' + id, null, true);
+    await api('DELETE', '/api/personal/recurring/' + id, null);
     showToast('Deleted', 'success');
     await piShowRecurring();
   } catch (e) { showToast('Failed: ' + e.message, 'error'); }
@@ -6957,7 +6957,7 @@ async function piDeleteRecurring(id) {
 async function piShowPortalLink(clientId) {
   // Generate or fetch the magic-link portal URL for a client.
   try {
-    const r = await api('POST', '/api/personal/clients/' + clientId + '/portal-link', {}, true);
+    const r = await api('POST', '/api/personal/clients/' + clientId + '/portal-link', {});
     const url = r.portal_url;
     const wrap = document.createElement('div');
     wrap.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;display:flex;align-items:center;justify-content:center;padding:1rem';
