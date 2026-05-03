@@ -574,6 +574,93 @@ const STYLES = `
 
     #scrollbar { position: fixed; top: 0; left: 0; right: 0; height: 2px; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, var(--copper-hi), var(--copper)); z-index: 80; pointer-events: none; transition: transform .08s linear; }
 
+    /* Lead-capture modal */
+    .lead-modal-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: clamp(1rem, 5vh, 4rem) 1rem; background: rgba(8, 6, 14, 0.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); overflow-y: auto; }
+    .lead-modal-overlay[hidden] { display: none; }
+    .lead-modal-card { position: relative; width: 100%; max-width: 540px; background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 35%), linear-gradient(160deg, var(--card), var(--surface)); border: 1px solid rgba(232, 166, 101, 0.25); border-radius: 18px; padding: 2.25rem 1.75rem 1.75rem; box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 30px 80px -20px rgba(0,0,0,0.7); }
+    .lead-modal-close { position: absolute; top: 0.85rem; right: 0.85rem; width: 32px; height: 32px; border: 0; border-radius: 8px; background: rgba(255,255,255,0.06); color: var(--text); font-size: 1.4rem; line-height: 1; cursor: pointer; }
+    .lead-modal-eyebrow { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; color: var(--copper-hi); margin-bottom: 0.4rem; }
+    .lead-modal-title { font-size: clamp(1.4rem, 3.5vw, 1.85rem); margin: 0 0 0.65rem; }
+    .lead-modal-sub { color: var(--soft); font-size: 0.95rem; margin: 0 0 1.25rem; line-height: 1.55; }
+    .lf-row { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.85rem; }
+    .lf-row label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--soft); }
+    .lf-optional { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+    .lf-row input, .lf-row textarea { width: 100%; padding: 0.7rem 0.85rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text); font-family: inherit; font-size: 0.95rem; }
+    .lf-row input:focus, .lf-row textarea:focus { outline: 2px solid var(--copper-hi); outline-offset: 1px; border-color: rgba(232,166,101,0.45); }
+    .lf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+    @media (max-width: 540px) { .lf-grid { grid-template-columns: 1fr; } }
+    .lf-grid > div { display: flex; flex-direction: column; gap: 0.4rem; }
+    .lead-honeypot { position: absolute !important; left: -9999px !important; }
+    .lead-submit { width: 100%; margin-top: 0.5rem; }
+    .lead-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+    .lead-status { margin-top: 0.65rem; font-size: 0.85rem; color: var(--soft); min-height: 1.4em; }
+    .lead-status.is-error { color: #f87171; }
+    .lead-status.is-success { color: #34d399; }
+
+    /* Live deployments band */
+    .live-deployments { padding: clamp(2.5rem, 5vw, 5rem) 0; border-top: 1px solid rgba(255,255,255,0.04); }
+    .deploy-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; }
+    @media (min-width: 720px) { .deploy-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1100px) { .deploy-grid { grid-template-columns: repeat(3, 1fr); } }
+    .deploy-card { background: linear-gradient(160deg, var(--card), var(--surface)); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1.1rem 1.25rem; }
+    .deploy-vertical { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--copper-hi); margin-bottom: 0.5rem; }
+    .deploy-stat { font-family: var(--display-font); font-size: 1.2rem; font-weight: 600; color: var(--text); margin-bottom: 0.4rem; line-height: 1.3; }
+    .deploy-meta { font-size: 0.8rem; color: var(--muted); }
+
+    /* Comparison strip */
+    .comparison { padding: clamp(2.5rem, 5vw, 5rem) 0; }
+    .compare-table { background: var(--card); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; }
+    .compare-row { display: grid; grid-template-columns: 1.4fr 1.6fr 1.4fr 1.2fr; gap: 0.75rem; padding: 0.85rem 1.25rem; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.92rem; }
+    .compare-row:last-child { border-bottom: 0; }
+    .compare-row.compare-head { background: rgba(255,255,255,0.02); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--muted); }
+    .compare-row.compare-us { background: linear-gradient(90deg, rgba(232,166,101,0.08), transparent); }
+    .compare-row.compare-us .compare-name { color: var(--copper-hi); }
+    .compare-name { font-weight: 700; color: var(--text); }
+    @media (max-width: 720px) {
+      .compare-row { grid-template-columns: 1fr; gap: 0.4rem; padding: 0.85rem 1rem; }
+      .compare-row.compare-head { display: none; }
+      .compare-name { font-size: 1rem; }
+    }
+
+    /* Risk reversal strip */
+    .risk-reversal { padding: clamp(2rem, 4vw, 3.5rem) 0; border-top: 1px solid rgba(255,255,255,0.04); }
+    .risk-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media (min-width: 720px) { .risk-grid { grid-template-columns: repeat(3, 1fr); } }
+    .risk-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(232,166,101,0.18); border-radius: 14px; padding: 1.25rem; }
+    .risk-eyebrow { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; color: #34d399; margin-bottom: 0.5rem; }
+    .risk-card p { color: var(--soft); font-size: 0.92rem; line-height: 1.55; margin: 0; }
+
+    /* Pricing per-row 'Get this set up' link */
+    .p-setup-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; font-weight: 600; color: var(--soft); text-decoration: none; white-space: nowrap; margin-top: 0.4rem; cursor: pointer; background: none; border: 0; padding: 0; font-family: inherit; }
+    .p-setup-link:hover { color: var(--copper-hi); }
+
+    /* Numbers bridge */
+    .numbers-bridge { padding: 0 0 clamp(2rem, 4vw, 4rem); text-align: center; }
+    .bridge-link { display: inline-block; padding: 0.85rem 1.5rem; background: rgba(232,166,101,0.08); border: 1px solid rgba(232,166,101,0.25); border-radius: 999px; color: var(--copper-hi); text-decoration: none; font-weight: 700; font-size: 1rem; }
+    .bridge-link:hover { background: rgba(232,166,101,0.14); }
+
+    /* ROI post-calc CTA */
+    .roi-post-cta { margin-top: 1.25rem; }
+    .roi-post-cta[hidden] { display: none; }
+
+    /* About inline 'Talk to Steve' button */
+    .about-inline-cta { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+    /* Footer trust + newsletter */
+    .footer-newsletter { padding: 1.25rem 0 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; gap: 0.65rem; align-items: center; text-align: center; }
+    .footer-newsletter-blurb { color: var(--soft); font-size: 0.92rem; max-width: 540px; margin: 0; }
+    .footer-newsletter-form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; max-width: 540px; width: 100%; }
+    .footer-newsletter-form input { flex: 1 1 240px; padding: 0.7rem 0.85rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text); font-size: 0.95rem; }
+    .footer-newsletter-form button { padding: 0.7rem 1.25rem; flex: 0 0 auto; }
+    .newsletter-status { width: 100%; font-size: 0.82rem; color: var(--soft); min-height: 1em; }
+    .newsletter-status.is-success { color: #34d399; }
+    .newsletter-status.is-error { color: #f87171; }
+    .footer-trust { padding: 1rem 0 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: center; font-size: 0.78rem; color: var(--muted); }
+    .footer-trust > span:nth-child(2n) { opacity: 0.4; }
+    @media (max-width: 720px) {
+      .footer-trust > span:nth-child(2n) { display: none; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -675,7 +762,10 @@ const ROI_SCRIPT = `
           '<strong>Estimated annual time saving:</strong> ~$' + weeklySaving.toFixed(0) + ' / week — $' + Math.round(annualSaving).toLocaleString() + ' / year in reclaimed hours<br><br>' +
           '<strong>First-year platform cost:</strong> $' + annualCost.toLocaleString() + ' (including setup)<br><br>' +
           '<strong>Net benefit year one:</strong> $' + Math.round(netBenefit).toLocaleString() + '<br><br>' +
-          '<em>This is a rough guide. Real savings depend on your volume and existing process. Ready to chat? <a href="mailto:hello@pennywiseit.com.au?subject=ROI enquiry" style="color:var(--accent)">hello@pennywiseit.com.au</a></em>';
+          '<em>This is a rough guide. Real savings depend on your volume and existing process.</em>';
+
+        var postCta = document.getElementById('roi-post-cta');
+        if (postCta) postCta.hidden = false;
       }
 
       industry.addEventListener('change', calculate);
@@ -727,6 +817,10 @@ const COMMON_SCRIPTS = `
         form.addEventListener('submit', function () { engaged(); });
         form.addEventListener('roi-completed', engaged);
       }
+      var leadForm = document.getElementById('lead-form');
+      if (leadForm) leadForm.addEventListener('submit', function () { engaged(); });
+      var nlForm = document.getElementById('newsletter-form');
+      if (nlForm) nlForm.addEventListener('submit', function () { engaged(); });
       if (btn) {
         btn.addEventListener('click', function () {
           if (!deferred) return;
@@ -755,25 +849,170 @@ const COMMON_SCRIPTS = `
 })();
   </script>`;
 
-/** Final CTA panel — same on every page (above footer). */
-export const CTA_SECTION = `
+/** Final CTA panel — copy + secondary CTA rotate per page. */
+const CTA_BY_PAGE: Record<PageId, { primary: string; secondary: { label: string; href: string } }> = {
+  home:    { primary: 'Talk to Steve',                                  secondary: { label: 'Browse the apps',  href: '/apps' } },
+  apps:    { primary: 'Get a tailored plan',                            secondary: { label: 'See pricing',      href: '/pricing' } },
+  numbers: { primary: 'See what these numbers look like for me',        secondary: { label: 'Calculate my savings', href: '/roi' } },
+  roi:     { primary: 'Lock this estimate — talk to Steve',             secondary: { label: 'See pricing',      href: '/pricing' } },
+  pricing: { primary: 'Get this set up',                                secondary: { label: 'Browse the apps',  href: '/apps' } },
+  about:   { primary: 'Send Steve a message',                           secondary: { label: 'See pricing',      href: '/pricing' } },
+  faq:     { primary: 'Still on the fence — message me',                secondary: { label: 'See pricing',      href: '/pricing' } },
+  '404':   { primary: 'Talk to Steve',                                  secondary: { label: 'Browse the apps',  href: '/apps' } },
+};
+
+export function ctaSection(page: PageId): string {
+  const cfg = CTA_BY_PAGE[page] || CTA_BY_PAGE.home;
+  return `
     <section id="cta" aria-labelledby="cta-heading">
       <div class="container">
         <div class="panel cta-card">
           <span class="kicker" style="color: var(--orange);">LET'S BUILD</span>
           <h2 id="cta-heading" class="display">READY WHEN YOU ARE</h2>
-          <p class="cta-sub">Drop me an email. Tell me your industry and the roughest idea of what you need. I'll reply within one business day with an honest assessment.</p>
+          <p class="cta-sub">Tell me your industry and the roughest idea of what you need. I'll reply within one business day with an honest assessment.</p>
           <div class="cta-buttons">
-            <a href="mailto:hello@pennywiseit.com.au?subject=App enquiry" class="btn btn-primary" aria-label="Email Steve at Penny Wise I.T">
-              Email Steve
-            </a>
-            <a href="/apps" class="btn btn-ghost" aria-label="Browse all 9 apps">
-              Browse the apps
+            <button type="button" data-open-lead data-source="${page}-cta" class="btn btn-primary" aria-label="${cfg.primary}">
+              ${cfg.primary}
+            </button>
+            <a href="${cfg.secondary.href}" class="btn btn-ghost" aria-label="${cfg.secondary.label}">
+              ${cfg.secondary.label}
             </a>
           </div>
         </div>
       </div>
     </section>`;
+}
+
+const LEAD_MODAL_SCRIPT = `
+  <script>
+  (function(){
+    var modal = document.getElementById('lead-modal');
+    if (!modal) return;
+    var formState = modal.querySelector('[data-lead-state="form"]');
+    var successState = modal.querySelector('[data-lead-state="success"]');
+    var form = document.getElementById('lead-form');
+    var status = modal.querySelector('.lead-status');
+    var lastFocus;
+
+    function open(sourceLabel){
+      lastFocus = document.activeElement;
+      var sourceInput = form.querySelector('input[name="source_page"]');
+      if (sourceInput) sourceInput.value = sourceLabel || location.pathname;
+      var refInput = form.querySelector('input[name="ref"]');
+      if (refInput) {
+        try { refInput.value = (new URLSearchParams(location.search)).get('ref') || ''; } catch(e){}
+      }
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      setTimeout(function(){ var n = form.querySelector('#lf-name'); if (n) n.focus(); }, 50);
+    }
+    function close(){
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+    function showSuccess(name, email){
+      formState.hidden = true;
+      successState.hidden = false;
+      var n = successState.querySelector('[data-lead-success-name]');
+      var e = successState.querySelector('[data-lead-success-email]');
+      if (n) n.textContent = name || '';
+      if (e) e.textContent = email || '';
+    }
+
+    document.addEventListener('click', function(ev){
+      var trigger = ev.target.closest('[data-open-lead]');
+      if (trigger) {
+        ev.preventDefault();
+        open(trigger.getAttribute('data-source') || location.pathname);
+        return;
+      }
+      if (ev.target.closest('[data-lead-close]')) {
+        close();
+        return;
+      }
+      if (ev.target === modal) close();
+    });
+    document.addEventListener('keydown', function(ev){
+      if (!modal.hidden && ev.key === 'Escape') close();
+    });
+
+    form.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      if (form.elements.website && form.elements.website.value) return;
+      var btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true; btn.textContent = 'Sending...';
+      status.className = 'lead-status'; status.textContent = '';
+      var data = {
+        product_id: 'general',
+        product_name: 'General inquiry',
+        name: form.elements.name.value.trim(),
+        business_name: form.elements.business_name.value.trim(),
+        phone: form.elements.phone.value.trim(),
+        email: form.elements.email.value.trim(),
+        note: '[Source: ' + (form.elements.source_page.value || '/') + '] ' + form.elements.note.value.trim(),
+        ref: form.elements.ref.value.trim(),
+      };
+      fetch('https://pennywiseit-validator.steve-700.workers.dev/api/public/demo-interest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }).then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
+        .then(function(res){
+          if (!res.ok) throw new Error(res.j && res.j.error || 'Send failed');
+          showSuccess(data.name, data.email);
+        })
+        .catch(function(err){
+          status.classList.add('is-error');
+          status.textContent = "Couldn't send — please email hello@pennywiseit.com.au directly.";
+          btn.disabled = false; btn.textContent = 'Send — Steve replies within 1 business day';
+        });
+    });
+
+    var timeForm = document.getElementById('lead-time-form');
+    if (timeForm) {
+      timeForm.addEventListener('submit', function(ev){
+        ev.preventDefault();
+        var btn = timeForm.querySelector('button[type="submit"]');
+        btn.disabled = true; btn.textContent = 'Sending...';
+        var times = timeForm.elements.times.value.trim();
+        if (!times) { btn.disabled = false; btn.textContent = 'Send my times'; return; }
+        fetch('https://pennywiseit-validator.steve-700.workers.dev/api/public/demo-interest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            product_id: 'general-booking',
+            product_name: 'Call booking request',
+            name: (form.elements.name.value||'').trim(),
+            business_name: (form.elements.business_name.value||'').trim(),
+            phone: (form.elements.phone.value||'').trim(),
+            email: (form.elements.email.value||'').trim(),
+            note: 'Booking times: ' + times,
+            ref: (form.elements.ref.value||'').trim(),
+          }),
+        }).then(function(){ btn.textContent = 'Got it — booking now'; })
+          .catch(function(){ btn.textContent = 'Failed — email hello@pennywiseit.com.au'; });
+      });
+    }
+
+    var nlForm = document.getElementById('newsletter-form');
+    if (nlForm) {
+      var nlStatus = nlForm.querySelector('.newsletter-status');
+      nlForm.addEventListener('submit', function(ev){
+        ev.preventDefault();
+        var btn = nlForm.querySelector('button[type="submit"]');
+        var email = nlForm.elements.email.value.trim();
+        if (!email) return;
+        btn.disabled = true; btn.textContent = 'Subscribing...'; nlStatus.className = 'newsletter-status'; nlStatus.textContent = '';
+        fetch('https://pennywiseit-validator.steve-700.workers.dev/api/public/demo-interest', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ product_id: 'newsletter', product_name: 'Newsletter signup', name: '', business_name: '', phone: '', email: email, note: 'Newsletter signup from ' + location.pathname, ref: '' }),
+        }).then(function(r){ return r.ok ? r.json().then(function(){ nlStatus.classList.add('is-success'); nlStatus.textContent = "You're in. First note in your inbox by month end."; nlForm.elements.email.value=''; btn.textContent = 'Subscribed'; }) : Promise.reject(); })
+          .catch(function(){ nlStatus.classList.add('is-error'); nlStatus.textContent = "Couldn't subscribe — please email hello@pennywiseit.com.au."; btn.disabled = false; btn.textContent = 'Get the monthly note'; });
+      });
+    }
+  })();
+  </script>`;
 
 function navHtml(activePage: PageId, mobile = false): string {
   const containerClass = mobile ? 'mobile-nav-panel' : 'primary-nav';
@@ -788,7 +1027,7 @@ function navHtml(activePage: PageId, mobile = false): string {
     return `          <a href="${href}"${classes}${aria}>${label}</a>`;
   }).join('\n');
   const mobileExtra = mobile
-    ? `\n          <a href="mailto:hello@pennywiseit.com.au?subject=App enquiry">Start a project</a>`
+    ? `\n          <a href="#" data-open-lead data-source="mobile-nav">Talk to Steve</a>`
     : '';
   return `${containerOpen}\n${links}${mobileExtra}\n        ${containerClose}`;
 }
@@ -881,11 +1120,11 @@ ${ORGANIZATION_LD}${productLd}
         type="button"
         class="install-button"
         data-install-button
-        aria-label="Install Penny Wise I.T as an app"
+        aria-label="Save Penny Wise I.T to your home screen"
         hidden
       >
         <span aria-hidden="true">⬇</span>
-        <span>Install app</span>
+        <span>Save to home screen</span>
       </button>
 
       <details class="mobile-nav" aria-label="Mobile navigation">
@@ -900,6 +1139,25 @@ ${body}
   </main>
 
   <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-newsletter">
+        <p class="footer-newsletter-blurb">Once a month, I send a short note about what I shipped + what I learned. No spam.</p>
+        <form id="newsletter-form" class="footer-newsletter-form" novalidate>
+          <input type="email" name="email" required placeholder="you@business.com.au" maxlength="200" autocomplete="email" aria-label="Email address">
+          <button type="submit" class="btn btn-primary">Get the monthly note</button>
+          <span class="newsletter-status" role="status" aria-live="polite"></span>
+        </form>
+      </div>
+      <div class="footer-trust">
+        <span>📍 Built and supported by Steve in Queensland</span>
+        <span>·</span>
+        <span>💳 GST included · tax invoice via Stripe</span>
+        <span>·</span>
+        <span>🔒 Cloudflare Sydney edge · Australian Privacy Act</span>
+        <span>·</span>
+        <span>⏱ Replies within 1 business day</span>
+      </div>
+    </div>
     <div class="footer-inner">
       <div>
         <strong>Penny Wise I.T</strong> &middot;
@@ -909,11 +1167,47 @@ ${body}
       <nav class="footer-links" aria-label="Footer">
         <a href="/privacy.html">Privacy</a>
         <a href="/terms.html">Terms</a>
-        <a href="mailto:hello@pennywiseit.com.au">Contact</a>
+        <a href="#" data-open-lead data-source="footer-contact">Contact</a>
       </nav>
     </div>
   </footer>
-${counterScript}${roiScript}${COMMON_SCRIPTS}
+
+  <div id="lead-modal" class="lead-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="lead-modal-title" hidden>
+    <div class="lead-modal-card">
+      <button type="button" class="lead-modal-close" data-lead-close aria-label="Close">×</button>
+
+      <div data-lead-state="form">
+        <div class="lead-modal-eyebrow">Talk to Steve</div>
+        <h2 id="lead-modal-title" class="display lead-modal-title">Tell me about your business.</h2>
+        <p class="lead-modal-sub">Five fields. I'll reply personally within one business day.</p>
+
+        <form id="lead-form" novalidate>
+          <input type="hidden" name="ref" value="">
+          <input type="hidden" name="source_page" value="">
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="lead-honeypot">
+
+          <div class="lf-row"><label for="lf-name">Your name</label><input id="lf-name" name="name" type="text" required minlength="2" maxlength="80" placeholder="Jane Smith" autocomplete="name"></div>
+          <div class="lf-row"><label for="lf-business">Business name</label><input id="lf-business" name="business_name" type="text" required minlength="2" maxlength="120" placeholder="Acme Cafe" autocomplete="organization"></div>
+          <div class="lf-row lf-grid"><div><label for="lf-email">Email</label><input id="lf-email" name="email" type="email" required maxlength="200" placeholder="jane@acme.com.au" autocomplete="email"></div><div><label for="lf-phone">Phone <span class="lf-optional">(optional)</span></label><input id="lf-phone" name="phone" type="tel" placeholder="0412 345 678" autocomplete="tel"></div></div>
+          <div class="lf-row"><label for="lf-note">What are you trying to solve?</label><textarea id="lf-note" name="note" maxlength="1000" rows="4" placeholder="e.g. cutting POS fees, replacing Eventbrite, killing the $200 Shopify bill..."></textarea></div>
+
+          <button type="submit" class="btn btn-primary lead-submit">Send — Steve replies within 1 business day</button>
+          <div class="lead-status" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <div data-lead-state="success" hidden>
+        <div class="lead-modal-eyebrow">Got it.</div>
+        <h2 class="display lead-modal-title">Thanks <span data-lead-success-name>—</span></h2>
+        <p class="lead-modal-sub">Steve will reply to <strong data-lead-success-email>—</strong> within 1 business day. <br>If you'd rather lock in a 15-min call, list a few times that work below and I'll book one in.</p>
+        <form id="lead-time-form" novalidate>
+          <div class="lf-row"><label for="lf-times">3 times that work</label><textarea id="lf-times" name="times" rows="3" placeholder="e.g. Tue 9–11am, Wed afternoon, Fri 4pm"></textarea></div>
+          <button type="submit" class="btn btn-primary lead-submit">Send my times</button>
+        </form>
+      </div>
+    </div>
+  </div>
+${counterScript}${roiScript}${COMMON_SCRIPTS}${LEAD_MODAL_SCRIPT}
 
 </body></html>`;
 }

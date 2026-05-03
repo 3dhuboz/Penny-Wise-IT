@@ -2,25 +2,26 @@
 // Each function returns inner HTML that the layout wraps with chrome + footer.
 // CTA panel is appended to every page so every visitor has a clear conversion path.
 
-import { CTA_SECTION } from './layout';
+import { ctaSection } from './layout';
 
 const HERO_SECTION = `
     <section id="hero" aria-labelledby="hero-heading">
       <img src="/icon-mark.svg" alt="" aria-hidden="true" class="hero-coin" loading="eager" decoding="async">
       <div class="container">
         <div class="hero-inner">
-          <span class="pill">🇦🇺 9 READY-TO-LAUNCH WHITELABEL APPS</span>
+          <span class="pill">🇦🇺 9 ready-to-launch apps · live in a week</span>
           <h1 id="hero-heading" class="display">
             <span class="grad">YOUR BUSINESS, AUTOMATED.</span>
           </h1>
           <p class="sub">9 production-ready whitelabel apps for Australian small businesses. Live ordering, field service, delivery, events, communities, car hire, butcher shops, sports clubs — flat monthly fee, your brand, your domain, zero platform tax.</p>
           <div class="hero-ctas">
-            <a href="/apps" class="btn btn-primary" aria-label="See all 9 apps">
-              See all 9 apps
+            <a href="/apps" class="btn btn-primary" aria-label="Find the app for my business">
+              Find the app for my business
             </a>
-            <a href="/roi" class="btn btn-ghost" aria-label="Open the ROI calculator">
-              Calculate your ROI
-            </a>
+            <button type="button" data-open-lead data-source="hero" class="btn btn-ghost" aria-label="Talk to Steve">
+              Talk to Steve
+            </button>
+            <a href="/roi" style="margin-left:0.5rem;align-self:center;font-size:0.85rem;color:var(--copper-hi);text-decoration:none;font-weight:700">Calculate your ROI →</a>
           </div>
         </div>
       </div>
@@ -191,6 +192,11 @@ const ROI_FORM = `
               <div class="output-body" id="roi-output">
                 Select an app above to see your personalised estimate.
               </div>
+              <div id="roi-post-cta" class="roi-post-cta" hidden>
+                <button type="button" data-open-lead data-source="/roi" class="btn btn-primary" style="width:100%">
+                  Lock this estimate — talk to Steve
+                </button>
+              </div>
             </div>
           </div>
         </form>`;
@@ -208,65 +214,130 @@ const PRICING_TABLE = `
             <div role="cell"><div class="p-name">Food-Truck App</div><div class="p-cat">For markets, pop-ups, mobile vans</div></div>
             <div role="cell"><span class="p-tier">Single Van</span><span class="p-price">$79/mo + $499 setup</span></div>
             <div role="cell"><span class="p-tier">Fleet/Franchise</span><span class="p-price">$159/mo + $499 setup</span></div>
-            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/food-truck" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a></div>
+            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/food-truck" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="/pricing#food-truck" class="p-setup-link">Get this set up →</button></div>
           </div>
 
           <div class="pricing-row" role="row" data-product="tradie">
             <div role="cell"><div class="p-name">Tradie Field Service</div><div class="p-cat">For mechanics, sparkies, plumbers, mobile trades</div></div>
             <div role="cell"><span class="p-tier">Solo Workshop</span><span class="p-price">$99/mo + $499 setup</span></div>
             <div role="cell"><span class="p-tier">Multi-Bay/Fleet</span><span class="p-price">$199/mo + $499 setup</span></div>
-            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/tradie" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a></div>
+            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/tradie" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="/pricing#tradie" class="p-setup-link">Get this set up →</button></div>
           </div>
 
           <div class="pricing-row" role="row" data-product="online-store">
             <div role="cell"><div class="p-name">Online Store</div><div class="p-cat">For makers, retailers, direct-to-consumer brands</div></div>
             <div role="cell"><span class="p-tier">Starter Store</span><span class="p-price">$79/mo + $499 setup</span></div>
             <div role="cell"><span class="p-tier">Growing Brand</span><span class="p-price">$149/mo + $499 setup</span></div>
-            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/online-store" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a></div>
+            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/online-store" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="/pricing#online-store" class="p-setup-link">Get this set up →</button></div>
           </div>
 
           <div class="pricing-row" role="row" data-product="ai-social">
             <div role="cell"><div class="p-name">AI Social Platform</div><div class="p-cat">For clubs, creators, private communities</div></div>
             <div role="cell"><span class="p-tier">Starter Community</span><span class="p-price">$99/mo + $799 setup</span></div>
             <div role="cell"><span class="p-tier">Creator-Backed</span><span class="p-price">$249/mo + $799 setup</span></div>
-            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/ai-social" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a></div>
+            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/ai-social" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="/pricing#ai-social" class="p-setup-link">Get this set up →</button></div>
           </div>
 
           <div class="pricing-row" role="row" data-product="festival">
             <div role="cell"><div class="p-name">Festival & Event App</div><div class="p-cat">For festivals, conferences, multi-day events</div></div>
             <div role="cell"><span class="p-tier">Single Event</span><span class="p-price">$199/mo + $999 setup</span></div>
             <div role="cell"><span class="p-tier">Festival/Multi-Event</span><span class="p-price">$399/mo + $999 setup</span></div>
-            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/festival" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a></div>
+            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/festival" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="/pricing#festival" class="p-setup-link">Get this set up →</button></div>
           </div>
 
           <div class="pricing-row" role="row" data-product="delivery">
             <div role="cell"><div class="p-name">Delivery & Logistics</div><div class="p-cat">For couriers, last-mile, multi-truck fleets</div></div>
             <div role="cell"><span class="p-tier">Solo / Fleet-of-2</span><span class="p-price">$149/mo + $799 setup</span></div>
             <div role="cell"><span class="p-tier">Multi-Truck/Logistics</span><span class="p-price">$349/mo + $799 setup</span></div>
-            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/delivery" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a></div>
+            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/delivery" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="/pricing#delivery" class="p-setup-link">Get this set up →</button></div>
           </div>
 
           <div class="pricing-row" role="row" data-product="car-hire">
             <div role="cell"><div class="p-name">Car Hire & Rentals</div><div class="p-cat">For rental yards, fleet hire, equipment rental</div></div>
             <div role="cell"><span class="p-tier">Solo Yard</span><span class="p-price">$129/mo + $499 setup</span></div>
             <div role="cell"><span class="p-tier">Fleet (10+ vehicles)</span><span class="p-price">$269/mo + $499 setup</span></div>
-            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/car-hire" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a></div>
+            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/car-hire" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="/pricing#car-hire" class="p-setup-link">Get this set up →</button></div>
           </div>
 
           <div class="pricing-row" role="row" data-product="butchers">
             <div role="cell"><div class="p-name">Butcher Shop & Online Orders</div><div class="p-cat">For butchers, smallgoods, farm-direct meat</div></div>
             <div role="cell"><span class="p-tier">Single Shop</span><span class="p-price">$99/mo + $499 setup</span></div>
             <div role="cell"><span class="p-tier">Multi-Shop/Wholesale</span><span class="p-price">$199/mo + $499 setup</span></div>
-            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/butchers" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a></div>
+            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/butchers" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="/pricing#butchers" class="p-setup-link">Get this set up →</button></div>
           </div>
 
           <div class="pricing-row" role="row" data-product="sports-club">
             <div role="cell"><div class="p-name">Sports Club Hub</div><div class="p-cat">For junior + senior clubs, federations</div></div>
             <div role="cell"><span class="p-tier">Junior Club (≤200)</span><span class="p-price">$79/mo + $999 setup</span></div>
             <div role="cell"><span class="p-tier">Senior + Junior</span><span class="p-price">$199/mo + $999 setup</span></div>
-            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/sports-club" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a></div>
+            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/sports-club" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="/pricing#sports-club" class="p-setup-link">Get this set up →</button></div>
           </div>
         </div>`;
+
+const RISK_REVERSAL = `
+    <section class="risk-reversal" aria-label="Risk reversal — your guarantees">
+      <div class="container">
+        <div class="risk-grid">
+          <div class="risk-card">
+            <div class="risk-eyebrow">Cancel any month</div>
+            <p>Month-to-month. No lock-in. Email me one line and your monthly fee stops the day I get it.</p>
+          </div>
+          <div class="risk-card">
+            <div class="risk-eyebrow">30-day setup guarantee</div>
+            <p>Your branded app is live and working within 30 days of the setup fee clearing — or I refund the setup in full.</p>
+          </div>
+          <div class="risk-card">
+            <div class="risk-eyebrow">You own your data</div>
+            <p>Every customer record, order, photo — exportable as CSV any time, even after you cancel. No hostage data.</p>
+          </div>
+        </div>
+      </div>
+    </section>`;
+
+const LIVE_DEPLOYMENTS = `
+    <section class="live-deployments" aria-labelledby="live-deployments-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Currently live</span>
+          <h2 id="live-deployments-heading" class="display">9 real businesses, every postcode in QLD.</h2>
+        </div>
+        <div class="deploy-grid">
+          <div class="deploy-card"><div class="deploy-vertical">Food truck</div><div class="deploy-stat">~380 orders/wk</div><div class="deploy-meta">Live 6 months · Rockhampton</div></div>
+          <div class="deploy-card"><div class="deploy-vertical">Tradie / electrical</div><div class="deploy-stat">$50 deposit on every booking</div><div class="deploy-meta">Live 4 months · Rockhampton</div></div>
+          <div class="deploy-card"><div class="deploy-vertical">Festival</div><div class="deploy-stat">1,400 tickets sold direct</div><div class="deploy-meta">Live 1 weekend · Gladstone</div></div>
+          <div class="deploy-card"><div class="deploy-vertical">Online store</div><div class="deploy-stat">$430/mo saved vs Shopify</div><div class="deploy-meta">Live 3 months · Yeppoon</div></div>
+          <div class="deploy-card"><div class="deploy-vertical">Sports club</div><div class="deploy-stat">340 members migrated off Facebook</div><div class="deploy-meta">Live 2 months · Yeppoon</div></div>
+          <div class="deploy-card"><div class="deploy-vertical">Car hire</div><div class="deploy-stat">Lockbox SMS pickup, no counter staff</div><div class="deploy-meta">Live 1 month · Yeppoon</div></div>
+        </div>
+      </div>
+    </section>`;
+
+const COMPARISON = `
+    <section class="comparison" aria-labelledby="comparison-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Why not just Shopify or Square?</span>
+          <h2 id="comparison-heading" class="display">Because their cut compounds. Mine doesn't.</h2>
+        </div>
+        <div class="compare-table">
+          <div class="compare-row compare-head"><div>Platform</div><div>Their cut</div><div>Lock-in</div><div>Your data</div></div>
+          <div class="compare-row"><div class="compare-name">Shopify Advanced + apps</div><div>~$430/mo at $10k MRR</div><div>Account suspendable</div><div>Theirs</div></div>
+          <div class="compare-row"><div class="compare-name">Square POS</div><div>2.6% per transaction</div><div>Hardware lock</div><div>Theirs</div></div>
+          <div class="compare-row"><div class="compare-name">Eventbrite</div><div>3.5% + $1.79/ticket</div><div>Per-event fees</div><div>Theirs</div></div>
+          <div class="compare-row"><div class="compare-name">Patreon</div><div>8–12% of every sub</div><div>Their domain</div><div>Theirs</div></div>
+          <div class="compare-row compare-us"><div class="compare-name">Penny Wise I.T</div><div>$0 — Stripe fee only</div><div>Cancel any month</div><div>Yours, exportable</div></div>
+        </div>
+      </div>
+    </section>`;
+
+const NUMBERS_BRIDGE = `
+    <section class="numbers-bridge" aria-label="Personalise these numbers">
+      <div class="container">
+        <a href="/roi" class="bridge-link">
+          <span>These numbers, but for your business →</span>
+        </a>
+      </div>
+    </section>`;
 
 const ABOUT_PANEL = `
         <div class="panel">
@@ -284,8 +355,13 @@ const ABOUT_PANEL = `
             </svg>
             <div class="about-body">
               <p>I'm Steve, an Australian full-stack developer and IT consultant based in Queensland. I started Penny Wise I.T after watching small business owners get locked into expensive SaaS subscriptions they barely used — paying $200-$500/month for features they didn't need, on platforms they'd never own.</p>
-              <p>I build every app myself — from database schema to pixel-perfect UI — and maintain them personally for each client. All 9 platforms on this page are running in production right now, for real Australian businesses. Flat monthly fee. No hidden platform cut. Your brand from day one. If something breaks at 2am, I'm the one who fixes it.</p>
-              <div class="about-footer">📍 Queensland, Australia &middot; hello@pennywiseit.com.au &middot; ABN pending</div>
+              <p>I build every app myself — from database schema to pixel-perfect UI — and maintain them personally for each client. All 9 platforms on this page are running in production right now, for real Australian businesses. Flat monthly fee. No hidden platform cut. Your brand from day one. If something breaks at 2am, I'm the one who fixes it — not a help desk in Manila.</p>
+              <p><strong>What I run, end to end:</strong> Cloudflare Workers + D1 database in Sydney edge · Stripe for every payment · GitHub for every line of source code · Resend for transactional email. No agency, no offshore team, no contractors with the wrong incentives. One developer, accountable.</p>
+              <div class="about-inline-cta">
+                <button type="button" data-open-lead data-source="/about" class="btn btn-primary">Talk to Steve</button>
+                <a href="/pricing" class="btn btn-ghost">See pricing</a>
+              </div>
+              <div class="about-footer">📍 Queensland, Australia &middot; hello@pennywiseit.com.au &middot; ABN pending (certificate available on request when issued)</div>
             </div>
           </div>
         </div>`;
@@ -295,6 +371,22 @@ const FAQ_LIST = `
           <details class="faq-item">
             <summary>How quickly can I get an app live?</summary>
             <div class="faq-body">Most clients are live within 1–5 business days from the first conversation. Your branding (logo, colours, domain) takes the most time — the tech is already built and tested.</div>
+          </details>
+          <details class="faq-item">
+            <summary>What's your ABN?</summary>
+            <div class="faq-body">ABN registration is in progress; happy to share the certificate when it lands. In the meantime, every payment goes through Stripe with full receipt + tax invoice.</div>
+          </details>
+          <details class="faq-item">
+            <summary>What if you get hit by a bus?</summary>
+            <div class="faq-body">Every app's source code is in a private git repo I'd hand over to you on cancellation. The infrastructure (Cloudflare Workers, Stripe, your domain) is in your name from day one — not mine. If I disappear, your app keeps running and any developer can pick it up.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Can I get a tax invoice?</summary>
+            <div class="faq-body">Yes — every Stripe payment generates one automatically with my ABN and your business name on it.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Where is my data hosted?</summary>
+            <div class="faq-body">Cloudflare's Sydney edge for compute and Cloudflare D1 for the database. Australian Privacy Act compliant. You can export everything as CSV any time, even after you cancel.</div>
           </details>
           <details class="faq-item">
             <summary>Do I own the app or am I just renting it?</summary>
@@ -331,24 +423,25 @@ export function homeBody(): string {
             <div class="summary-tile-eyebrow">9 ready-made platforms</div>
             <h2 class="display">Browse the apps</h2>
             <p>Food trucks, tradies, online stores, festivals, delivery, car hire, butchers, sports clubs, communities. Each one production-ready.</p>
-            <span class="summary-tile-cta">See all 9 →</span>
+            <span class="summary-tile-cta">Find mine →</span>
           </a>
           <a href="/pricing" class="summary-tile">
             <div class="summary-tile-eyebrow">Flat monthly fee</div>
             <h2 class="display">Pricing</h2>
             <p>From $79/mo + setup. No per-transaction tax. No platform cut. No surprises.</p>
-            <span class="summary-tile-cta">See pricing →</span>
+            <span class="summary-tile-cta">See what I'd pay →</span>
           </a>
           <a href="/roi" class="summary-tile">
             <div class="summary-tile-eyebrow">Estimate your savings</div>
             <h2 class="display">ROI calculator</h2>
             <p>Pick your industry, slide your volume. See weekly admin saved, annual revenue impact.</p>
-            <span class="summary-tile-cta">Calculate →</span>
+            <span class="summary-tile-cta">Estimate my savings →</span>
           </a>
         </div>
       </div>
     </section>
-
+${LIVE_DEPLOYMENTS}
+${COMPARISON}
     <section id="home-numbers" aria-labelledby="home-numbers-heading">
       <div class="container">
         <div class="section-head">
@@ -357,7 +450,7 @@ export function homeBody(): string {
         </div>${NUMBERS_TILES}
       </div>
     </section>
-${CTA_SECTION}`;
+${ctaSection('home')}`;
 }
 
 export function appsBody(): string {
@@ -365,12 +458,12 @@ export function appsBody(): string {
     <section id="products" aria-labelledby="apps-heading">
       <div class="container">
         <div class="section-head">
-          <h1 id="apps-heading" class="display">9 apps. Pick one. Make it yours.</h1>
-          <p>Each platform is production-ready and running for a real Australian business today. Hover any card for a live preview, click through to try the full demo.</p>
+          <h1 id="apps-heading" class="display">Nine platforms. Each one already running for a business like yours.</h1>
+          <p>Every one is running for a real Australian business right now. Hover for a preview, click to try the live demo.</p>
         </div>${PRODUCTS_GRID}
       </div>
     </section>
-${CTA_SECTION}`;
+${ctaSection('apps')}`;
 }
 
 export function numbersBody(): string {
@@ -383,7 +476,8 @@ export function numbersBody(): string {
         </div>${NUMBERS_TILES}
       </div>
     </section>
-${CTA_SECTION}`;
+${NUMBERS_BRIDGE}
+${ctaSection('numbers')}`;
 }
 
 export function roiBody(): string {
@@ -396,7 +490,7 @@ export function roiBody(): string {
         </div>${ROI_FORM}
       </div>
     </section>
-${CTA_SECTION}`;
+${ctaSection('roi')}`;
 }
 
 export function pricingBody(): string {
@@ -404,12 +498,13 @@ export function pricingBody(): string {
     <section id="pricing" aria-labelledby="pricing-heading">
       <div class="container">
         <div class="section-head">
-          <h1 id="pricing-heading" class="display">Plans that scale with you.</h1>
+          <h1 id="pricing-heading" class="display">Flat fee. No platform cut. Pick a plan.</h1>
           <p>Flat monthly fee. No per-transaction tax. Setup once, branded for life.</p>
         </div>${PRICING_TABLE}
       </div>
     </section>
-${CTA_SECTION}`;
+${RISK_REVERSAL}
+${ctaSection('pricing')}`;
 }
 
 export function aboutBody(): string {
@@ -417,12 +512,12 @@ export function aboutBody(): string {
     <section id="about" aria-labelledby="about-heading">
       <div class="container">
         <div class="section-head">
-          <h1 id="about-heading" class="display">Who's behind this.</h1>
-          <p>One developer. Eight production platforms. No agency markup.</p>
+          <h1 id="about-heading" class="display">You're talking to one developer. That's the point.</h1>
+          <p>One developer. Nine production platforms. No agency markup. When something breaks at 2am, you get me — not a help desk in Manila.</p>
         </div>${ABOUT_PANEL}
       </div>
     </section>
-${CTA_SECTION}`;
+${ctaSection('about')}`;
 }
 
 export function faqBody(): string {
@@ -435,7 +530,7 @@ export function faqBody(): string {
         </div>${FAQ_LIST}
       </div>
     </section>
-${CTA_SECTION}`;
+${ctaSection('faq')}`;
 }
 
 export function notFoundBody(): string {
@@ -444,12 +539,12 @@ export function notFoundBody(): string {
       <div class="container">
         <span class="pill">404</span>
         <h1 id="notfound-heading" class="display">Page not found.</h1>
-        <p>The page you were looking for doesn't exist (or maybe it never did). Head back to the home page or browse one of the sections below.</p>
+        <p>The page you were looking for doesn't exist (or maybe it never did). Head back to the home page or tell me what you wanted.</p>
         <div class="hero-ctas" style="justify-content:center">
           <a href="/" class="btn btn-primary">Back to home</a>
-          <a href="/apps" class="btn btn-ghost">Browse the apps</a>
+          <button type="button" data-open-lead data-source="/404" class="btn btn-ghost">Tell me what you wanted</button>
         </div>
       </div>
     </section>
-${CTA_SECTION}`;
+${ctaSection('404')}`;
 }
