@@ -5091,7 +5091,7 @@ app.get('/api/public/recent-wins', async (c) => {
             l.app_type, l.setup_value, l.monthly_value,
             s.name as rep_name
      FROM customers c
-     LEFT JOIN leads l ON l.id = c.lead_id
+     LEFT JOIN leads l ON l.id = c.source_lead_id
      LEFT JOIN salespeople s ON s.id = c.salesperson_id
      WHERE c.testimonial_opt_in = 1
        AND c.testimonial_quote IS NOT NULL
