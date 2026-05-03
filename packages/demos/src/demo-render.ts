@@ -11,9 +11,10 @@ const SAMPLE_BRAND: Record<string, { name: string; tagline: string; suburb: stri
   'tradie':           { name: "Sparky Mike's Electrical", tagline: 'Residential &amp; commercial sparkies — 24/7 callouts', suburb: 'Rockhampton',  phone: '0412 345 003', logo_emoji: '🔧' },
   'festival':         { name: 'Gladstone Summer Fest',  tagline: 'Three days of food, music &amp; market stalls',         suburb: 'Gladstone',    phone: '0412 345 004', logo_emoji: '🎪' },
   'delivery':         { name: 'Central QLD Courier Co.', tagline: 'Same-day pickup and delivery across Central QLD',      suburb: 'Rockhampton',  phone: '0412 345 005', logo_emoji: '🚚' },
-  'desktop':          { name: 'Hexpaint Studio',        tagline: 'Digital painting software for Windows & Mac',           suburb: 'Online',       phone: '—',            logo_emoji: '🖥️' },
   'ai-social':        { name: 'Rotary Mates',           tagline: 'A private community for rotary-engine tragics',         suburb: 'Global',       phone: '—',            logo_emoji: '🏁' },
-  'price-comparison': { name: 'Solar Compare QLD',      tagline: 'Compare 40+ solar installers across Queensland',        suburb: 'Queensland',   phone: '0412 345 007', logo_emoji: '☀️' },
+  'car-hire':         { name: 'Yapoon Auto Rentals',    tagline: 'Daily, weekend, week — keys in 2 minutes flat',         suburb: 'Yeppoon',      phone: '0412 345 008', logo_emoji: '🚗' },
+  'butchers':         { name: "Moey's Premium Meats",   tagline: 'Custom cuts, freezer packs, ordered online — picked up Friday', suburb: 'Yeppoon', phone: '0412 345 009', logo_emoji: '🥩' },
+  'sports-club':      { name: 'Yeppoon Junior Rugby League', tagline: 'One app for every parent, player, coach &amp; committee member', suburb: 'Yeppoon', phone: '0412 345 010', logo_emoji: '🏉' },
 };
 
 // Per-product hero/nav configuration — defines the BUSINESS-side framing
@@ -81,17 +82,6 @@ const DEMO_CHROME: Record<string, DemoChrome> = {
       { label: 'Drivers',     href: '#drivers' },
     ],
   },
-  'desktop': {
-    hero_benefit: 'Pro-grade digital painting, signed-key licensing, no piracy headaches. Mac, Windows, Linux.',
-    primary_cta:   { label: 'Download free trial ↓', href: '#demo' },
-    secondary_cta: { label: 'Pricing',                href: '#book' },
-    trust_pill: '💾 Win/Mac/Linux · 14-day trial · No card',
-    nav_links: [
-      { label: 'Download',        href: '#demo' },
-      { label: 'Pricing',         href: '#book' },
-      { label: 'Customer Portal', href: '#portal' },
-    ],
-  },
   'ai-social': {
     hero_benefit: 'Rotary-engine talk for people who actually run them. No ads, no algorithm, no shadow-bans.',
     primary_cta:   { label: 'Join the Mates ↓', href: '#book' },
@@ -103,14 +93,37 @@ const DEMO_CHROME: Record<string, DemoChrome> = {
       { label: 'Moderation', href: '#moderation' },
     ],
   },
-  'price-comparison': {
-    hero_benefit: 'Compare 40+ Queensland solar installers in 30 seconds. Side-by-side, after rebates, no fluff.',
-    primary_cta:   { label: 'Get my quote ↓',   href: '#demo' },
-    secondary_cta: { label: 'Browse providers', href: '#book' },
-    trust_pill: '🏆 Compared 40+ installers · Updated daily',
+  'car-hire': {
+    hero_benefit: 'Daily, weekend, or weeklong rentals from a small Yeppoon yard. Lockbox pickup, no counter queue, no franchise tax.',
+    primary_cta:   { label: 'Reserve a vehicle ↓', href: '#demo' },
+    secondary_cta: { label: 'Fleet calendar',      href: '#book' },
+    trust_pill: '🟢 12 vehicles available this week',
     nav_links: [
-      { label: 'Compare',   href: '#demo' },
-      { label: 'Top Picks', href: '#book' },
+      { label: 'Vehicles', href: '#demo' },
+      { label: 'Book',     href: '#book' },
+      { label: 'Locations',href: '#locations' },
+    ],
+  },
+  'butchers': {
+    hero_benefit: 'Tuesday block, Wednesday smallgoods, Friday freezer packs — order online, picked up after work.',
+    primary_cta:   { label: 'Shop the block ↓',  href: '#demo' },
+    secondary_cta: { label: 'Custom cut request',href: '#book' },
+    trust_pill: '🟢 Open · Friday collect 7am–5pm',
+    nav_links: [
+      { label: 'Shop',         href: '#demo' },
+      { label: 'Freezer Packs',href: '#book' },
+      { label: 'Specials',     href: '#specials' },
+    ],
+  },
+  'sports-club': {
+    hero_benefit: 'Fixtures, rego, team chat, lineup tools — every parent, player, coach and committee member in one app.',
+    primary_cta:   { label: 'See this week\'s fixtures ↓', href: '#demo' },
+    secondary_cta: { label: 'Register a player',          href: '#book' },
+    trust_pill: '🟢 Round 7 · Sat 5 May · 5 grades',
+    nav_links: [
+      { label: 'Fixtures', href: '#demo' },
+      { label: 'Register', href: '#book' },
+      { label: 'News',     href: '#news' },
     ],
   },
 };
@@ -471,82 +484,241 @@ const DEMO_CONTENT: Record<string, DemoContent> = {
     },
   },
 
-  'desktop': {
+  'car-hire': {
     use_case: {
-      scene:    "Friday 11pm. Hexpaint Studio just shipped v2.4 of its cross-platform digital painting app with a long-asked-for animation panel.",
-      old_way:  "Email 1,400 customers a download link. Field 60 'my key won't work' tickets over the weekend. Watch piracy hit the torrents by Monday.",
-      with_app: "Push to the CDN at 11:04pm. Every paid user's app phones home at next launch and self-updates. Trial users get a day-3 nudge email auto-sent. By Sunday: 38 trial-to-paid conversions at $79 — $3,002 while you were at the beach.",
-      proof:    "Zero key-reset emails. The customer portal handled 12 of them on its own.",
+      scene:    "Friday 6:14pm. Yapoon Auto Rentals — a 12-vehicle yard run by Dan + his wife — just got a booking enquiry from a Brisbane couple flying into Rocky Sunday morning for a week-long Capricorn Coast getaway.",
+      old_way:  "Phone tag for two days. Couple end up booking with Hertz Rocky Airport at $189/day plus the $35/day insurance scam. Yapoon ute sits idle on the lot all week.",
+      with_app: "Couple opens yapoonauto.com.au at the gate, books a Hilux SR5 for 7 days at $129/day, uploads licences from the Brisbane terminal, Stripe pre-auths a $500 bond. Sunday morning at 7am they get an SMS: 'Bay 3, lockbox code 4827, fuel card in glovebox'. They walk straight from the airport shuttle to the keys.",
+      proof:    "Dan netted $903 + bond on a vehicle that would've sat dead. 11 minutes of his Friday — most of which was the customer scrolling, not him.",
     },
-    hero_mockup: '<svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Desktop laptop with Hexpaint Studio mockup">'
+    hero_mockup: '<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Car hire booking confirmation mockup">'
       + '<defs>'
-      + '<linearGradient id="dt-laptop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3a44"/><stop offset="1" stop-color="#1a1a22"/></linearGradient>'
-      + '<linearGradient id="dt-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f2937"/><stop offset="1" stop-color="#0f172a"/></linearGradient>'
-      + '<linearGradient id="dt-canvas" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="0.5" stop-color="#a78bfa"/><stop offset="1" stop-color="#06b6d4"/></linearGradient>'
+      + '<linearGradient id="ch-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1f2a"/><stop offset="1" stop-color="#040910"/></linearGradient>'
+      + '<linearGradient id="ch-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1825"/><stop offset="1" stop-color="#040810"/></linearGradient>'
       + '</defs>'
-      + '<rect x="80" y="60" width="740" height="440" rx="14" fill="url(#dt-laptop)" stroke="#4a4a55" stroke-width="2"/>'
-      + '<rect x="100" y="80" width="700" height="400" rx="6" fill="url(#dt-screen)"/>'
-      + '<g transform="translate(100,80)">'
-      + '<rect width="700" height="32" fill="rgba(0,0,0,0.5)"/>'
-      + '<circle cx="20" cy="16" r="6" fill="#ef4444"/><circle cx="40" cy="16" r="6" fill="#f59e0b"/><circle cx="60" cy="16" r="6" fill="#22c55e"/>'
-      + '<text x="350" y="22" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="Inter,sans-serif" font-size="12" font-weight="600">Hexpaint Studio Pro — untitled-3.hexp</text>'
-      + '<g transform="translate(0,32)">'
-      + '<rect width="60" height="368" fill="rgba(0,0,0,0.4)"/>'
-      + '<g fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="20">'
-      + '<text x="30" y="35" text-anchor="middle">✏</text><text x="30" y="75" text-anchor="middle">▣</text><text x="30" y="115" text-anchor="middle">○</text>'
-      + '<text x="30" y="155" text-anchor="middle">⬢</text><text x="30" y="195" text-anchor="middle">▼</text><text x="30" y="235" text-anchor="middle">◇</text>'
-      + '<text x="30" y="275" text-anchor="middle">✦</text><text x="30" y="315" text-anchor="middle">⌬</text>'
+      + '<rect x="60" y="40" width="480" height="820" rx="60" fill="url(#ch-bezel)" stroke="#1c3a4d" stroke-width="2"/>'
+      + '<rect x="80" y="60" width="440" height="780" rx="44" fill="url(#ch-screen)"/>'
+      + '<rect x="240" y="60" width="120" height="34" rx="17" fill="#000"/>'
+      + '<text x="300" y="112" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">9:41</text>'
+      + '<text x="110" y="160" fill="rgba(6,182,212,0.85)" font-family="Inter,sans-serif" font-size="11" font-weight="700" letter-spacing="2">PICKUP TOMORROW</text>'
+      + '<text x="110" y="194" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="700">Hilux SR5 · 7 days</text>'
+      + '<g transform="translate(110,220)">'
+      + '<rect width="380" height="200" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(6,182,212,0.25)" stroke-width="2"/>'
+      + '<g transform="translate(20,20)">'
+      + '<rect width="340" height="80" rx="14" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.18)"/>'
+      + '<g transform="translate(20,20)" fill="#06b6d4"><rect width="90" height="44" rx="6" fill="rgba(6,182,212,0.25)"/>'
+      + '<text x="45" y="28" text-anchor="middle" fill="#06b6d4" font-family="Inter,sans-serif" font-size="22">🚙</text></g>'
+      + '<text x="130" y="28" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="700">TOYOTA HILUX SR5 4×4</text>'
+      + '<text x="130" y="48" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">Auto · Diesel · 5 seats · tow pkg</text>'
+      + '<text x="130" y="68" fill="#06b6d4" font-family="Inter,sans-serif" font-size="11" font-weight="700">$129/day · Bay 3</text>'
       + '</g>'
-      + '<rect x="0" y="20" width="60" height="40" fill="rgba(167,139,250,0.18)" stroke="#a78bfa" stroke-width="0" stroke-opacity="0.5"/>'
-      + '</g>'
-      + '<g transform="translate(60,32)">'
-      + '<rect width="640" height="368" fill="#0c1422"/>'
-      + '<g transform="translate(80,40)">'
-      + '<polygon points="240,0 320,40 320,120 240,160 160,120 160,40" fill="url(#dt-canvas)" opacity="0.95"/>'
-      + '<polygon points="240,0 320,40 240,80 160,40" fill="rgba(255,255,255,0.18)"/>'
-      + '<g fill="rgba(124,58,237,0.7)">'
-      + '<polygon points="80,80 130,105 130,155 80,180 30,155 30,105"/>'
-      + '<polygon points="380,80 430,105 430,155 380,180 330,155 330,105"/>'
-      + '<polygon points="180,200 230,225 230,275 180,300 130,275 130,225"/>'
-      + '</g>'
-      + '<g fill="rgba(6,182,212,0.5)">'
-      + '<polygon points="280,200 330,225 330,275 280,300 230,275 230,225"/>'
-      + '</g>'
-      + '<g stroke="rgba(255,255,255,0.08)" stroke-width="1" fill="none">'
-      + '<polygon points="40,140 90,165 90,215 40,240 -10,215 -10,165" stroke-dasharray="3 3"/>'
+      + '<g transform="translate(20,120)">'
+      + '<text x="0" y="14" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="9" font-weight="700" letter-spacing="1.5">PICKUP</text>'
+      + '<text x="0" y="34" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="600">Sun 4 May · 7:00am</text>'
+      + '<text x="180" y="14" text-anchor="end" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="9" font-weight="700" letter-spacing="1.5">RETURN</text>'
+      + '<text x="180" y="34" text-anchor="end" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="600">Sun 11 May · 5:00pm</text>'
+      + '<line x1="0" y1="50" x2="340" y2="50" stroke="rgba(255,255,255,0.08)"/>'
+      + '<text x="0" y="70" fill="#fbbf24" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">$903.00</text>'
+      + '<text x="340" y="70" text-anchor="end" fill="#34d399" font-family="Inter,sans-serif" font-size="11" font-weight="700">+ $500 BOND HELD</text>'
       + '</g>'
       + '</g>'
-      + '<g transform="translate(380,260)">'
-      + '<rect width="240" height="100" rx="10" fill="rgba(0,0,0,0.85)" stroke="rgba(34,197,94,0.4)" stroke-width="2"/>'
-      + '<text x="20" y="28" fill="#22c55e" font-family="Inter,sans-serif" font-size="10" font-weight="800" letter-spacing="1.5">✓ LICENSE ACTIVE</text>'
-      + '<text x="20" y="54" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="600">Hexpaint Pro — Lifetime</text>'
-      + '<text x="20" y="76" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">Active until 15 May 2026</text>'
+      + '<g transform="translate(110,440)">'
+      + '<rect width="380" height="100" rx="18" fill="rgba(245,158,11,0.1)" stroke="rgba(245,158,11,0.3)"/>'
+      + '<text x="20" y="28" fill="rgba(245,158,11,0.85)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">📦 LOCKBOX PICKUP</text>'
+      + '<text x="20" y="54" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="800">CODE 4827</text>'
+      + '<text x="20" y="80" fill="rgba(255,255,255,0.6)" font-family="Inter,sans-serif" font-size="11">Bay 3 · fuel card in glovebox · keys in lockbox</text>'
       + '</g>'
+      + '<g transform="translate(110,560)">'
+      + '<rect width="380" height="100" rx="18" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>'
+      + '<circle cx="32" cy="32" r="18" fill="#06b6d4"/>'
+      + '<text x="32" y="38" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif" font-size="14">🪪</text>'
+      + '<text x="62" y="28" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="700">Licence verified</text>'
+      + '<text x="62" y="46" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">QLD Open · Selfie matched · KYC ✓</text>'
+      + '<text x="20" y="84" fill="rgba(52,211,153,0.85)" font-family="Inter,sans-serif" font-size="11" font-weight="600">Stripe pre-auth captured · bond ready to release on return</text>'
       + '</g>'
+      + '<g transform="translate(110,680)">'
+      + '<rect width="380" height="60" rx="30" fill="#06b6d4"/>'
+      + '<text x="190" y="38" text-anchor="middle" fill="#06141a" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="800">Open lockbox instructions →</text>'
       + '</g>'
-      + '<polygon points="40,500 860,500 900,540 0,540" fill="url(#dt-laptop)" stroke="#4a4a55" stroke-width="2"/>'
-      + '<rect x="380" y="500" width="140" height="14" rx="3" fill="#1a1a22"/>'
+      + '<rect x="220" y="800" width="160" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>'
       + '</svg>',
     differentiation: {
-      vs: "Paddle, Gumroad, FastSpring",
+      vs: "Turo, Hertz franchise portals, Rentalcars",
       points: [
-        { title: "Subscription, not 5–10% cut",
-          body: "Paddle takes 5% + 50c, Gumroad 10% — on $5k MRR that's $250–500/mo skimmed forever; our $179 flat fee saves $100s once you cross $4k MRR." },
-        { title: "Auto-update channel included",
-          body: "Paddle/Gumroad sell licenses but you wire your own update mechanism (Sparkle, Squirrel); ours ships CDN-backed auto-updates so users are always on latest without you babysitting installers." },
-        { title: "Trial-to-paid funnel native",
-          body: "Gumroad has no trial flow; you cobble it together — ours builds the temp-key trial, day-3/6/10 nudge emails, and paywall trigger as one feature, typical 8x conversion lift." },
+        { title: "No 25–35% Turo skim",
+          body: "Turo / Drive mate take 25–35% per rental — on $200/day that's $50–70/day gone forever; our $269 flat covers your fleet, you keep every dollar minus Stripe's 1.75%." },
+        { title: "Lockbox + SMS pickup",
+          body: "Hertz/Avis make customers queue at the counter even after a 6-hour drive — small yards win on lockbox + SMS pickup, but only with a real booking system; ours is the system." },
+        { title: "Built for 5–50 vehicle yards",
+          body: "Rentalcars affiliate cuts you out of the customer relationship and Hertz franchise portals are bloated; ours is built for the regional yard who wants to compete on service, not scale." },
       ],
     },
     trust: {
-      quote: "Native macOS app, no Electron bloat, doesn't cook my MacBook. That's all I needed.",
-      quote_attr: "Priya, Hexpaint Studio",
-      stat_value: "180 MB",
-      stat_label: "RAM idle (vs 1.4 GB on the Electron equivalent we replaced)",
-      before: "Fans spinning, battery dead by 2pm, app stuttering through a 4K canvas.",
-      after: "Quiet machine, 8 hours unplugged, brushes respond like the OS apps do.",
-      icp_yes: "Indie devs, designers, small studios who want a real native app and ship offline-first",
-      icp_no: "Teams needing browser-based collab, real-time multi-user canvas, or Figma-style cloud sync",
+      quote: "We were the third-cheapest yard in Yeppoon and still losing weekenders to Hertz at the airport. Now they book us before they even land.",
+      quote_attr: "Dan & Sarah, Yapoon Auto Rentals, Yeppoon",
+      stat_value: "94%",
+      stat_label: "Of weekend bookings now arrive paid + verified before pickup (was 38%)",
+      before: "Phone tag through Friday afternoon, half the deals fall through, vehicle sits idle on the lot.",
+      after: "Customer self-serves, Stripe takes the deposit, lockbox handles the keys. We breathe on Saturdays.",
+      icp_yes: "Regional rental yards — 5–50 vehicles, mix of cars/utes/4WDs, owner-operator + family staff",
+      icp_no: "Multi-state corporate fleets needing fleet-management software (Lytx, Geotab) or short-term peer-to-peer (Turo replaces this)",
+    },
+  },
+
+  'butchers': {
+    use_case: {
+      scene:    "Sunday 8:43pm. Moey's Premium Meats on James Street, Yeppoon — Moe's just had his weekly text from a regular: 'mate, can you do me a 1.4kg eye fillet trimmed for Friday + a $150 freezer pack?'",
+      old_way:  "Moe writes it on the back of a docket. Tuesday he forgets the trim spec. Wednesday he rings to clarify. Thursday's freezer pack runs short on porterhouse so he subs in extra mince. Customer's polite but slightly annoyed.",
+      with_app: "Customer opened moeysmeats.com.au from the couch — tapped Eye Fillet → typed '~1.4kg, fully trimmed', added the $150 Family Freezer Pack, paid. Order lands in Moe's tablet. Friday morning he weighs the actual fillet (1.38kg), Stripe top-up captured automatically. SMS fires: 'Your order is bagged in the cool room — collect any time before 5pm'.",
+      proof:    "Moe takes Sunday night for himself. Friday he runs three custom orders + four freezer packs without a single phone call. $640 of takings he didn't have to talk anyone into.",
+    },
+    hero_mockup: '<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Butcher shop order ticket mockup">'
+      + '<defs>'
+      + '<linearGradient id="bu-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a0a0a"/><stop offset="1" stop-color="#0d0303"/></linearGradient>'
+      + '<linearGradient id="bu-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a0606"/><stop offset="1" stop-color="#0a0303"/></linearGradient>'
+      + '</defs>'
+      + '<rect x="60" y="40" width="480" height="820" rx="60" fill="url(#bu-bezel)" stroke="#3d1414" stroke-width="2"/>'
+      + '<rect x="80" y="60" width="440" height="780" rx="44" fill="url(#bu-screen)"/>'
+      + '<rect x="240" y="60" width="120" height="34" rx="17" fill="#000"/>'
+      + '<text x="300" y="112" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">9:41</text>'
+      + '<text x="110" y="160" fill="rgba(220,38,38,0.85)" font-family="Inter,sans-serif" font-size="11" font-weight="700" letter-spacing="2">FRIDAY ORDERS · 4</text>'
+      + '<text x="110" y="190" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="700">Today\'s pickups</text>'
+      + '<g transform="translate(110,220)">'
+      + '<rect width="380" height="120" rx="18" fill="rgba(220,38,38,0.1)" stroke="#dc2626" stroke-width="2"/>'
+      + '<rect x="0" y="0" width="170" height="26" rx="13" fill="#dc2626"/>'
+      + '<text x="85" y="18" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif" font-size="11" font-weight="800" letter-spacing="1">★ CUSTOM CUT</text>'
+      + '<text x="20" y="56" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="800">Eye Fillet · ~1.4kg</text>'
+      + '<text x="20" y="78" fill="rgba(255,255,255,0.6)" font-family="Inter,sans-serif" font-size="12">Fully trimmed · Sarah M · 4pm collect</text>'
+      + '<text x="360" y="56" text-anchor="end" fill="#fbbf24" font-family="Space Grotesk,Inter,sans-serif" font-size="20" font-weight="800">$84.00</text>'
+      + '<text x="360" y="78" text-anchor="end" fill="rgba(52,211,153,0.85)" font-family="Inter,sans-serif" font-size="10" font-weight="700">PAID · Top-up at weigh</text>'
+      + '<rect x="20" y="92" width="120" height="20" rx="10" fill="rgba(34,197,94,0.18)" stroke="rgba(34,197,94,0.4)"/>'
+      + '<text x="80" y="106" text-anchor="middle" fill="#34d399" font-family="Inter,sans-serif" font-size="9" font-weight="800" letter-spacing="1">✓ READY · TEXTED</text>'
+      + '</g>'
+      + '<g transform="translate(110,360)">'
+      + '<rect width="380" height="100" rx="16" fill="rgba(255,255,255,0.05)" stroke="rgba(217,119,6,0.3)"/>'
+      + '<text x="20" y="28" fill="rgba(217,119,6,0.85)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">📦 FREEZER PACK · $150</text>'
+      + '<text x="20" y="56" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="700">Family Mixed Pack</text>'
+      + '<text x="20" y="78" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">2kg mince · 1kg sausages · 6 ribeyes · 1kg lamb cutlets</text>'
+      + '<text x="360" y="58" text-anchor="end" fill="#dc2626" font-family="Inter,sans-serif" font-size="11" font-weight="700">Sarah M</text>'
+      + '<text x="360" y="80" text-anchor="end" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="10">collect 4pm</text>'
+      + '</g>'
+      + '<g transform="translate(110,480)">'
+      + '<rect width="380" height="100" rx="16" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>'
+      + '<text x="20" y="28" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">CLICK &amp; COLLECT · 30 MIN</text>'
+      + '<text x="20" y="56" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="700">Pork Roast (1.6kg) + crackle</text>'
+      + '<text x="20" y="78" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">Tom B · 4:30pm collect · loyalty: kg 8/10</text>'
+      + '<text x="360" y="56" text-anchor="end" fill="#fbbf24" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">$36.80</text>'
+      + '</g>'
+      + '<g transform="translate(110,600)">'
+      + '<rect width="380" height="80" rx="14" fill="rgba(220,38,38,0.08)" stroke="rgba(220,38,38,0.2)"/>'
+      + '<text x="20" y="26" fill="rgba(220,38,38,0.85)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">📊 AUTO-STOCKTAKE</text>'
+      + '<text x="20" y="50" fill="#e8edf5" font-family="Inter,sans-serif" font-size="13" font-weight="600">Mince running low · 6.2kg left</text>'
+      + '<text x="20" y="68" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">Reorder by 4pm · forecast 14kg by Sat</text>'
+      + '</g>'
+      + '<g transform="translate(110,700)">'
+      + '<rect width="380" height="60" rx="30" fill="#dc2626"/>'
+      + '<text x="190" y="38" text-anchor="middle" fill="#fff" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="800">Send "ready" SMS to all →</text>'
+      + '</g>'
+      + '<rect x="220" y="800" width="160" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>'
+      + '</svg>',
+    differentiation: {
+      vs: "Square for Restaurants, Shopify + Local Delivery, Hunt's Family Butcher POS",
+      points: [
+        { title: "Custom-weight without phone tag",
+          body: "Square POS / Shopify can't do '~1.2kg ribeye, trimmed, top-up at weigh' — you end up taking it on the phone; ours captures intent + does the Stripe top-up automatically when you weigh." },
+        { title: "Freezer packs as bundles",
+          body: "Generic POS treats a $150 freezer pack as one SKU and breaks the stock count; ours decrements 4 cuts at once + auto-flags low-stock cuts before next weekend." },
+        { title: "Built for the block, not a deli line",
+          body: "Square POS is for cafes, Hunt's is built for over-the-counter retail; ours assumes orders come in via web Friday night and the boss reads them on a tablet at 6am." },
+      ],
+    },
+    trust: {
+      quote: "Stopped the Sunday-night phone calls completely. I get my custom orders in writing, weighed, paid — done. Wife's not picking the phone up at dinner anymore.",
+      quote_attr: "Moe, Moey's Premium Meats, Yeppoon",
+      stat_value: "$640",
+      stat_label: "Average Friday-collect online takings (vs walk-in average $190 ticket)",
+      before: "Custom orders on the back of a docket, freezer packs sub'd in last-minute, mince running out before lunch.",
+      after: "Tablet shows the morning's orders sorted by collect time. Stocktake auto-runs. Specials posted by Tuesday lunch.",
+      icp_yes: "Single-shop or 2–3-location butchers — $300k–$2M annual turnover, mix of retail walk-in + custom orders",
+      icp_no: "Big-box meat wholesalers running CCRSlate / Carr-Bidwell, or grass-roots delis without click-and-collect demand",
+    },
+  },
+
+  'sports-club': {
+    use_case: {
+      scene:    "Tuesday 7:42pm. Yeppoon Junior Rugby League — secretary Karen runs registrations + fees + the Facebook page out of her kitchen. Round 7 fixtures came out today; 5 grades, 17 teams, 184 kids playing Saturday.",
+      old_way:  "Karen drafts a Facebook post. 60% of parents see it. Wednesday morning her phone rings four times: 'where's our game?', 'what time?', 'is the U10s away?'. Saturday morning 14 kids miss kick-off because their parents didn't see the post.",
+      with_app: "Karen opens the admin panel — fixtures import from QRL with one click. Each team gets a push notification with their game time + map link. Parents tap RSVP. Saturday 7:30am the auto-reminder fires: '⏰ U10s game at Showgrounds, 9:00am, kick-off in 90 min'. 178 of 184 RSVPs are 'in', and the 6 'outs' are accounted for before Karen's first coffee.",
+      proof:    "Zero late arrivals across 5 grades. Karen's Tuesday went from 4 hours of fixture admin to 12 minutes. The new $99 sponsorship from the chemist sits inside the app's sponsor zone — they're tracking 340 in-app clicks already.",
+    },
+    hero_mockup: '<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sports club fixtures + match-day reminder mockup">'
+      + '<defs>'
+      + '<linearGradient id="sc-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1428"/><stop offset="1" stop-color="#03060f"/></linearGradient>'
+      + '<linearGradient id="sc-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06101e"/><stop offset="1" stop-color="#020407"/></linearGradient>'
+      + '</defs>'
+      + '<rect x="60" y="40" width="480" height="820" rx="60" fill="url(#sc-bezel)" stroke="#1a2c4a" stroke-width="2"/>'
+      + '<rect x="80" y="60" width="440" height="780" rx="44" fill="url(#sc-screen)"/>'
+      + '<rect x="240" y="60" width="120" height="34" rx="17" fill="#000"/>'
+      + '<text x="300" y="112" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">9:41</text>'
+      + '<text x="110" y="160" fill="rgba(16,185,129,0.85)" font-family="Inter,sans-serif" font-size="11" font-weight="700" letter-spacing="2">YJRL · ROUND 7</text>'
+      + '<text x="110" y="190" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="700">Saturday 5 May</text>'
+      + '<g transform="translate(110,220)">'
+      + '<rect width="380" height="100" rx="20" fill="rgba(245,158,11,0.1)" stroke="rgba(245,158,11,0.4)" stroke-width="2"/>'
+      + '<text x="20" y="28" fill="rgba(245,158,11,0.85)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">⏰ MATCH STARTING IN 90 MIN</text>'
+      + '<text x="20" y="56" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">U10 Sharks vs Mackay Eagles</text>'
+      + '<text x="20" y="80" fill="rgba(255,255,255,0.65)" font-family="Inter,sans-serif" font-size="12">9:00am · Showgrounds Field 2 · jersey #14 (away)</text>'
+      + '</g>'
+      + '<g transform="translate(110,340)">'
+      + '<rect width="380" height="180" rx="18" fill="rgba(255,255,255,0.04)" stroke="rgba(30,64,175,0.3)"/>'
+      + '<text x="20" y="26" fill="rgba(30,64,175,0.85)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">FIXTURES TODAY · 17 GAMES</text>'
+      + '<g transform="translate(20,40)" font-family="Inter,sans-serif" font-size="12" fill="#e8edf5">'
+      + '<text x="0" y="14" font-weight="700">U7 Sharks</text><text x="180" y="14" fill="rgba(255,255,255,0.55)">vs Bandits</text><text x="340" y="14" text-anchor="end" fill="#10b981" font-weight="700">8:00am ✓</text>'
+      + '<text x="0" y="36" font-weight="700">U8 Storm</text><text x="180" y="36" fill="rgba(255,255,255,0.55)">vs Capras</text><text x="340" y="36" text-anchor="end" fill="#10b981" font-weight="700">8:30am ✓</text>'
+      + '<text x="0" y="58" font-weight="700">U10 Sharks</text><text x="180" y="58" fill="rgba(255,255,255,0.55)">vs Eagles</text><text x="340" y="58" text-anchor="end" fill="#f59e0b" font-weight="700">9:00am ⏰</text>'
+      + '<text x="0" y="80" font-weight="700">U12 Storm</text><text x="180" y="80" fill="rgba(255,255,255,0.55)">vs Roos</text><text x="340" y="80" text-anchor="end" fill="rgba(255,255,255,0.4)" font-weight="700">10:30am</text>'
+      + '<text x="0" y="102" font-weight="700">U14 Sharks</text><text x="180" y="102" fill="rgba(255,255,255,0.55)">vs Bulls</text><text x="340" y="102" text-anchor="end" fill="rgba(255,255,255,0.4)" font-weight="700">12:00pm</text>'
+      + '<text x="0" y="124" font-weight="700">U16 Storm</text><text x="180" y="124" fill="rgba(255,255,255,0.55)">vs Tigers</text><text x="340" y="124" text-anchor="end" fill="rgba(255,255,255,0.4)" font-weight="700">2:00pm</text>'
+      + '</g>'
+      + '</g>'
+      + '<g transform="translate(110,540)">'
+      + '<rect width="380" height="80" rx="14" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.25)"/>'
+      + '<text x="20" y="26" fill="rgba(16,185,129,0.85)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">📊 RSVP STATUS</text>'
+      + '<text x="20" y="50" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="800">178/184 in</text>'
+      + '<text x="20" y="68" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">6 outs accounted for · 0 unanswered</text>'
+      + '</g>'
+      + '<g transform="translate(110,640)">'
+      + '<rect width="380" height="100" rx="18" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.18)"/>'
+      + '<text x="20" y="26" fill="rgba(245,158,11,0.85)" font-family="Inter,sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">🏆 LIVE SCORE · U10 SHARKS</text>'
+      + '<text x="20" y="56" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="800">12 - 4</text>'
+      + '<text x="20" y="78" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">Try: J. Wilson (8 min) · Conv: T. Brown</text>'
+      + '<text x="360" y="58" text-anchor="end" fill="#10b981" font-family="Inter,sans-serif" font-size="11" font-weight="700">HALF TIME</text>'
+      + '</g>'
+      + '<g transform="translate(110,760)">'
+      + '<rect width="380" height="60" rx="30" fill="#10b981"/>'
+      + '<text x="190" y="38" text-anchor="middle" fill="#031410" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="800">View team chat (7 new) →</text>'
+      + '</g>'
+      + '<rect x="220" y="800" width="160" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>'
+      + '</svg>',
+    differentiation: {
+      vs: "TeamSnap, GameDay, SportsTG, Facebook groups",
+      points: [
+        { title: "Built for Aussie community sport",
+          body: "TeamSnap is built for US baseball + soccer dads, GameDay's UI is geared at AFL admin staff — junior rugby league + community footy gets a half-built feature set; ours speaks the language (rounds, grades, jerseys, tries)." },
+        { title: "Rego doesn't get skimmed",
+          body: "GameDay's service fees + Stripe combo eat 6–8% of rego — on a $40k club that's ~$3k gone yearly; ours runs Stripe direct so the club keeps every cent minus 1.75% processing." },
+        { title: "Replaces 4 fragmented chats",
+          body: "Right now: Facebook for news + WhatsApp per team + GameDay for rego + email for fees — parents miss things; one app means one push, one ledger, one inbox for the whole club." },
+      ],
+    },
+    trust: {
+      quote: "Treasurer's job went from 8 hours a week to 30 minutes reconciling. We've finally got every parent in one place. Reckon I might actually go to a game this year.",
+      quote_attr: "Karen, Yeppoon Junior Rugby League secretary",
+      stat_value: "12 → 0",
+      stat_label: "Late arrivals on a Saturday morning round (was averaging 12 of 184)",
+      before: "Three Facebook posts a week, the parents who matter never see them, fixture day chaos at the showgrounds.",
+      after: "One push, every team gets their own time + map, RSVPs in by Friday lunch, Karen runs the canteen instead of the phone.",
+      icp_yes: "Junior + senior community clubs — rugby league, AFL, soccer, netball — 100–800 registered players, run by volunteers",
+      icp_no: "Professional / state-league clubs running custom STATS / Genius integrations, or solo-coach scenarios where TeamSnap is enough",
     },
   },
 
@@ -629,81 +801,6 @@ const DEMO_CONTENT: Record<string, DemoContent> = {
     },
   },
 
-  'price-comparison': {
-    use_case: {
-      scene:    "Wednesday morning. A Mackay homeowner Googles 'best solar installer Mackay 2026' and lands on Solar Compare QLD.",
-      old_way:  "They click three installer sites, get three different quote forms, fill out two before giving up. You don't exist in this story.",
-      with_app: "5-question quiz → ranked list of 11 verified QLD installers with live pricing scraped overnight. Customer picks 'AAA Solar — $6,890 for 10kW', clicks through. Affiliate fee logs: $140. Prices refresh themselves at 3am every night.",
-      proof:    "You earned $140 from one click while asleep. The page ranks page-one for 47 '[town] solar' searches and growing.",
-    },
-    hero_mockup: '<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Price comparison ranked solar quotes mockup">'
-      + '<defs>'
-      + '<linearGradient id="pc-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1a08"/><stop offset="1" stop-color="#0f0a04"/></linearGradient>'
-      + '<linearGradient id="pc-screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1208"/><stop offset="1" stop-color="#0a0704"/></linearGradient>'
-      + '</defs>'
-      + '<rect x="60" y="40" width="480" height="820" rx="60" fill="url(#pc-bezel)" stroke="#3d2a14" stroke-width="2"/>'
-      + '<rect x="80" y="60" width="440" height="780" rx="44" fill="url(#pc-screen)"/>'
-      + '<rect x="240" y="60" width="120" height="34" rx="17" fill="#000"/>'
-      + '<text x="300" y="112" text-anchor="middle" fill="#e8edf5" font-family="Inter,sans-serif" font-size="14" font-weight="600">9:41</text>'
-      + '<text x="110" y="160" fill="rgba(245,158,11,0.85)" font-family="Inter,sans-serif" font-size="11" font-weight="700" letter-spacing="2">3 RANKED FOR YOU</text>'
-      + '<text x="110" y="190" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="700">10kW solar · 4700</text>'
-      + '<g transform="translate(110,220)">'
-      + '<rect width="380" height="170" rx="18" fill="rgba(245,158,11,0.1)" stroke="#f59e0b" stroke-width="2"/>'
-      + '<rect x="0" y="0" width="170" height="26" rx="13" fill="#f59e0b"/>'
-      + '<text x="85" y="18" text-anchor="middle" fill="#0a0704" font-family="Inter,sans-serif" font-size="11" font-weight="800" letter-spacing="1">★ BEST FOR YOU</text>'
-      + '<text x="20" y="60" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">AAA Solar QLD</text>'
-      + '<text x="20" y="82" fill="rgba(255,255,255,0.6)" font-family="Inter,sans-serif" font-size="12">10kW · Tier-1 panels · 25yr warranty</text>'
-      + '<text x="360" y="60" text-anchor="end" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="700">$/W</text>'
-      + '<text x="360" y="80" text-anchor="end" fill="#f59e0b" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">$0.69</text>'
-      + '<line x1="20" y1="100" x2="360" y2="100" stroke="rgba(255,255,255,0.08)"/>'
-      + '<text x="20" y="124" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">After STC rebate</text>'
-      + '<text x="20" y="152" fill="#22c55e" font-family="Space Grotesk,Inter,sans-serif" font-size="22" font-weight="900">$6,890</text>'
-      + '<text x="360" y="152" text-anchor="end" fill="#22c55e" font-family="Inter,sans-serif" font-size="11" font-weight="700">SAVES $1,840</text>'
-      + '</g>'
-      + '<g transform="translate(110,410)">'
-      + '<rect width="380" height="120" rx="16" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>'
-      + '<text x="20" y="34" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="700">#2 · LOWEST $/W</text>'
-      + '<text x="20" y="62" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="700">SunRight Solar</text>'
-      + '<text x="20" y="82" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">10kW · Trina + Fronius · 10yr</text>'
-      + '<text x="360" y="62" text-anchor="end" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">$0.65/W</text>'
-      + '<text x="360" y="92" text-anchor="end" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">$7,420</text>'
-      + '</g>'
-      + '<g transform="translate(110,550)">'
-      + '<rect width="380" height="120" rx="16" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>'
-      + '<text x="20" y="34" fill="rgba(255,255,255,0.45)" font-family="Inter,sans-serif" font-size="10" font-weight="700">#3 · BEST WARRANTY</text>'
-      + '<text x="20" y="62" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="700">QLD Solar Pros</text>'
-      + '<text x="20" y="82" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">10kW · LONGi · 25yr full</text>'
-      + '<text x="360" y="62" text-anchor="end" fill="rgba(255,255,255,0.55)" font-family="Inter,sans-serif" font-size="11">$0.78/W</text>'
-      + '<text x="360" y="92" text-anchor="end" fill="#e8edf5" font-family="Space Grotesk,Inter,sans-serif" font-size="18" font-weight="800">$8,180</text>'
-      + '</g>'
-      + '<g transform="translate(110,690)">'
-      + '<rect width="380" height="60" rx="30" fill="#f59e0b"/>'
-      + '<text x="190" y="38" text-anchor="middle" fill="#0a0704" font-family="Space Grotesk,Inter,sans-serif" font-size="16" font-weight="800">Get my AAA Solar quote →</text>'
-      + '</g>'
-      + '<rect x="220" y="800" width="160" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>'
-      + '</svg>',
-    differentiation: {
-      vs: "Finder.com.au, iSelect, Canstar",
-      points: [
-        { title: "Niche the giants ignore",
-          body: "Finder/iSelect optimise for high-volume verticals (insurance, credit cards) and skip narrow ones like commercial solar, regional NBN, B2B gas — exactly where AU affiliate fees are $40–200/lead and competition is thin." },
-        { title: "You own the domain authority",
-          body: "List on Finder and they own the SEO — once they delist you, traffic dies; your own .au site compounds backlinks for years, and the comparison data lives in your scraper." },
-        { title: "Hourly scraper, not partner-only",
-          body: "Canstar relies on partner data feeds (slow, paywalled); ours runs an hourly public-page scraper plus optional partner APIs — prices stay current even with providers who refuse a feed." },
-      ],
-    },
-    trust: {
-      quote: "Punters trust us because we show every quote, not just the ones paying us. Conversion's gone up, not down.",
-      quote_attr: "Trent, Solar Compare QLD founder",
-      stat_value: "11.4%",
-      stat_label: "Lead-to-install rate (industry average sits around 4–6%)",
-      before: "Lead form, three random installer calls in 20 minutes, prospect ghosts.",
-      after: "Side-by-side quotes, real reviews, prospect picks the installer themselves and books in.",
-      icp_yes: "Niche regional comparison sites — solar, insurance, fencing, asphalt — 20–200 partner suppliers",
-      icp_no: "National aggregators competing with Canstar/Finder, or affiliate-only sites with no supplier relationships",
-    },
-  },
 };
 
 // The interactive demo IS the proposal. One link.
@@ -1278,9 +1375,10 @@ function renderDemoBody(p: ProductConfig, b: any): string {
     case 'tradie': return tradieDemo(b);
     case 'festival': return festivalDemo(b);
     case 'delivery': return deliveryDemo(b, p);
-    case 'desktop': return desktopDemo(b);
     case 'ai-social': return aiSocialDemo(b);
-    case 'price-comparison': return priceCompareDemo(b);
+    case 'car-hire': return carHireDemo(b);
+    case 'butchers': return butchersDemo(b);
+    case 'sports-club': return sportsClubDemo(b);
     default: return '<p>Demo coming soon.</p>';
   }
 }
@@ -1592,55 +1690,6 @@ export function deliveryDemo(b: any, p: ProductConfig): string {
 </section>`;
 }
 
-export function desktopDemo(b: any): string {
-  return `
-<section id="demo" class="panel" style="text-align:center">
-  <div class="kicker">Try it free</div>
-  <h2 class="display">Download Hexpaint Studio</h2>
-  <p style="color:var(--soft);margin-bottom:1.5rem">14-day free trial \u00b7 no card required \u00b7 Windows, Mac, Linux</p>
-  <div style="display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap">
-    <button class="btn-brand" onclick="mockSubmit('Windows download')" style="padding:0.85rem 1.5rem">\u2b07 Windows (x64)</button>
-    <button class="btn-brand" onclick="mockSubmit('macOS download')" style="padding:0.85rem 1.5rem">\u2b07 macOS (ARM + Intel)</button>
-    <button class="btn-brand" onclick="mockSubmit('Linux download')" style="padding:0.85rem 1.5rem">\u2b07 Linux (.deb + AppImage)</button>
-  </div>
-  ${bf('\ud83d\udce6', 'Free trials convert at 8\u00d7 the rate', 'Auto-nudge emails on days 3, 6, 10 = <strong>industry-leading 8\u00d7 trial-to-paid conversion</strong>. Your users get gently reminded; you stop leaving money on the table.')}
-</section>
-
-<section id="book" class="panel">
-  <div class="kicker">Pricing</div>
-  <h2 class="display">Pick a licence</h2>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem">
-    ${[
-      { tier: 'Personal',  price: '$15/mo', features: ['All painting tools','10 GB cloud sync','Community support'] },
-      { tier: 'Pro',       price: '$29/mo', features: ['Everything in Personal','Unlimited cloud','Priority support','Lifetime updates'], popular: true },
-      { tier: 'Lifetime',  price: '$499',   features: ['All of Pro','Never billed again','Founders community'] },
-    ].map(t => `
-      <div style="background:var(--card);border:1px solid ${t.popular ? 'var(--brand)' : 'var(--border)'};border-radius:14px;padding:1.5rem;position:relative">
-        ${t.popular ? '<div style="position:absolute;top:1rem;right:1rem;background:var(--brand);color:#0b0f1a;padding:0.2rem 0.6rem;border-radius:999px;font-size:0.65rem;font-weight:800">POPULAR</div>' : ''}
-        <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:0.4rem">${t.tier}</div>
-        <div style="font-size:2.2rem;font-weight:900;color:var(--brand);margin-bottom:1rem">${t.price}</div>
-        <ul style="list-style:none;font-size:0.88rem;color:var(--soft)">${t.features.map(f => `<li style="padding:0.3rem 0 0.3rem 1.3rem;position:relative"><span style="position:absolute;left:0;color:#34d399;font-weight:800">\u2713</span>${f}</li>`).join('')}</ul>
-        <button class="btn-brand" style="width:100%;margin-top:1rem;padding:0.75rem" onclick="mockSubmit('License: ${t.tier}')">Get ${t.tier}</button>
-      </div>
-    `).join('')}
-  </div>
-  ${bf('\ud83d\udd13', '100% licensed = 0% piracy loss', 'Signed keys + phone-home validation. <strong>Every paid copy stays paid</strong>. Without this, one paid licence typically becomes 10 shared copies. Your server = your rules.')}
-</section>
-
-<section id="portal" class="panel">
-  <div class="kicker">Your customer portal</div>
-  <h2 class="display">Keys, billing, updates \u2014 in one place</h2>
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
-      <div><div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">Active licence</div><div style="font-family:monospace;font-size:0.88rem;margin-top:0.25rem">HEXP-PRO-2026-XR4K-92M</div></div>
-      <div><div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">Next billing</div><div style="font-size:0.88rem;margin-top:0.25rem">$29 \u00b7 15 May 2026</div></div>
-    </div>
-    <div style="display:flex;gap:0.5rem;flex-wrap:wrap"><button class="btn-brand" onclick="mockSubmit('Key reset')">Reset key</button><button class="btn-ghost" onclick="mockSubmit('Download latest')">\u2b07 Get latest build</button><button class="btn-ghost" onclick="mockSubmit('Cancel plan')" style="color:#f87171">Cancel plan</button></div>
-  </div>
-  ${bf('\u2709\ufe0f', 'Self-serve = zero support tickets', 'Users reset keys, upgrade, download, cancel without emailing you. <strong>~2 hours of support time saved every week</strong>.')}
-</section>`;
-}
-
 export function aiSocialDemo(b: any): string {
   return `
 <section id="demo" class="panel">
@@ -1660,6 +1709,7 @@ export function aiSocialDemo(b: any): string {
     `).join('')}
   </div>
   ${bf('\ud83d\udcc8', 'Facebook reach is dead \u2014 5-10% on a good day', 'On your own community, <strong>100% of members see every post</strong>. No algorithm, no shadow-ban, no "boost this for $10" prompts. Every post reaches everyone.')}
+  <p style="margin-top:1rem;font-size:0.82rem;color:var(--muted);font-style:italic">Works for verticals beyond enthusiast clubs too &mdash; <strong>Jonesy\'s Garage</strong> in Rocky uses this exact platform to run their socials, post weekly specials, and keep regular customers in the loop without paying Meta to be seen.</p>
 </section>
 
 <section id="book" class="panel">
@@ -1695,46 +1745,201 @@ export function aiSocialDemo(b: any): string {
 </section>`;
 }
 
-export function priceCompareDemo(b: any): string {
+export function carHireDemo(b: any): string {
+  const fleet = [
+    { name: 'Toyota Hilux SR5 4\u00d74',  desc: 'Auto \u00b7 Diesel \u00b7 5 seats \u00b7 Tow pkg \u00b7 Bay 3', price: 129, emoji: '\ud83d\udefb' },
+    { name: 'Mazda CX-5 Touring',    desc: 'Auto \u00b7 Petrol \u00b7 5 seats \u00b7 Roof racks',     price: 99,  emoji: '\ud83d\ude99' },
+    { name: 'Hyundai i30 Hatch',     desc: 'Auto \u00b7 Petrol \u00b7 5 seats \u00b7 Cheap on fuel',  price: 69,  emoji: '\ud83d\ude97' },
+    { name: 'Toyota HiAce Van',      desc: 'Auto \u00b7 Diesel \u00b7 3 seats \u00b7 Cargo',           price: 119, emoji: '\ud83d\ude90' },
+    { name: 'Subaru Outback AWD',    desc: 'Auto \u00b7 Petrol \u00b7 5 seats \u00b7 Camp-ready',      price: 109, emoji: '\ud83d\ude99' },
+    { name: 'LDV T60 Dual-Cab',      desc: 'Manual \u00b7 Diesel \u00b7 5 seats \u00b7 Tow + tray',    price: 119, emoji: '\ud83d\udefb' },
+  ];
   return `
 <section id="demo" class="panel">
-  <div class="kicker">Your quote in 30 seconds</div>
-  <h2 class="display">Compare solar for your home</h2>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
-    <div class="form-row"><label>Your postcode</label><input type="text" placeholder="4700"></div>
-    <div class="form-row"><label>Quarterly power bill</label><select><option>Under $300</option><option>$300\u2013$600</option><option>$600\u2013$1,000</option><option>Over $1,000</option></select></div>
-    <div class="form-row"><label>Roof space</label><select><option>Small (1\u20132 cars)</option><option>Medium (3\u20134 cars)</option><option>Large (5+)</option></select></div>
-    <div style="display:flex;align-items:flex-end"><button class="btn-brand" style="width:100%;padding:0.7rem" onclick="mockSubmit('Compare quotes')">\ud83d\udd0d Compare now</button></div>
+  <div class="kicker">Available now</div>
+  <h2 class="display">Pick your vehicle for next weekend</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-bottom:1rem">
+    <div class="form-row"><label>Pickup date</label><input type="date" value="2026-05-04"></div>
+    <div class="form-row"><label>Return date</label><input type="date" value="2026-05-11"></div>
+    <div class="form-row"><label>Vehicle type</label><select><option>Any</option><option>SUV / 4\u00d74</option><option>Sedan / Hatch</option><option>Van / Ute</option></select></div>
+    <div style="display:flex;align-items:flex-end"><button class="btn-brand" style="width:100%;padding:0.7rem" onclick="mockSubmit('Search fleet')">\ud83d\udd0d Search</button></div>
   </div>
-  ${bf('\ud83c\udfaf', 'Niche beats broad \u2014 every time', 'Finder &amp; iSelect ignore narrow niches where <strong>affiliate fees are $80-200/lead</strong>. Pick one, rank for it, own it.')}
-</section>
-
-<section id="book" class="panel">
-  <div class="kicker">Top 3 matches</div>
-  <h2 class="display">Ranked for your home</h2>
-  <div style="display:flex;flex-direction:column;gap:0.75rem">
-    ${[
-      { rank: 1, brand: 'SunRight Solar',   system: '6.6 kW Trina + Fronius',  price: '$6,490', rebate: '\u2212 $2,890 STC', net: '$3,600', rating: 4.8, reviews: 284, badge: 'CHEAPEST' },
-      { rank: 2, brand: 'QLD Solar Pros',   system: '6.6 kW LONGi + SolarEdge', price: '$7,250', rebate: '\u2212 $2,890 STC', net: '$4,360', rating: 4.9, reviews: 511, badge: 'BEST RATED' },
-      { rank: 3, brand: 'Rocky Solar Co.',  system: '6.6 kW Jinko + Goodwe',    price: '$5,990', rebate: '\u2212 $2,890 STC', net: '$3,100', rating: 4.6, reviews: 127, badge: 'LOCAL' },
-    ].map(r => `
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
-          <div style="flex:1;min-width:200px">
-            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem"><span style="background:var(--brand);color:#0b0f1a;padding:0.15rem 0.5rem;border-radius:999px;font-size:0.65rem;font-weight:800">#${r.rank} ${r.badge}</span></div>
-            <div style="font-size:1.1rem;font-weight:800">${r.brand}</div>
-            <div style="font-size:0.82rem;color:var(--soft);margin:0.3rem 0">${r.system}</div>
-            <div style="font-size:0.78rem;color:var(--muted)">\u2b50 ${r.rating} \u00b7 ${r.reviews} reviews</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:0.75rem;color:var(--muted)">${r.price} ${r.rebate}</div>
-            <div style="font-size:1.5rem;font-weight:900;color:#34d399">${r.net}</div>
-            <button class="btn-brand" style="margin-top:0.4rem" onclick="mockSubmit('Lead: ${r.brand}')">Get this quote \u2192</button>
-          </div>
+  <div class="menu-grid">
+    ${fleet.map(v => `
+      <div class="menu-item">
+        <div style="font-size:2.2rem;margin-bottom:0.3rem">${v.emoji}</div>
+        <div class="item-name">${v.name}</div>
+        <div class="item-desc">${v.desc}</div>
+        <div class="item-row">
+          <span class="item-price">$${v.price}/day</span>
+          <button class="btn-brand" onclick="addToCart('${v.name.replace(/'/g, "\\'")}', ${v.price})">Reserve \u2192</button>
         </div>
       </div>
     `).join('')}
   </div>
-  ${bf('\ud83d\udcb0', 'Each clickout = $80-200 in your account', '<strong>2 solar installs/week = ~$800/mo</strong> recurring income. Platform pays for itself 8\u00d7 at that pace. No inventory, no customer service, no staff.')}
+  ${bf('\ud83d\udfe2', 'No counter queues. No franchise tax.', '<strong>Lockbox + SMS pickup</strong> = customer skips the desk and walks straight to the keys. <strong>$0 in counter staff overtime</strong> on Saturday mornings, <strong>+$50\u201370/day kept per booking</strong> vs Turo\'s 25\u201335% skim.')}
+</section>
+
+<section id="book" class="panel">
+  <div class="kicker">Reserve in 2 minutes</div>
+  <h2 class="display">Book the Hilux SR5 \u00b7 7 days</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+    <div class="form-row"><label>Your name</label><input type="text" placeholder="Sarah Mitchell"></div>
+    <div class="form-row"><label>Phone</label><input type="tel" placeholder="0412 345 678"></div>
+    <div class="form-row"><label>Email</label><input type="email" placeholder="sarah@email.com.au"></div>
+    <div class="form-row"><label>Licence number</label><input type="text" placeholder="QLD \u00b7 upload photo on next step"></div>
+  </div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-top:0.75rem">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div><div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">Daily rate \u00d7 7</div><div style="font-size:1.1rem;font-weight:800;margin-top:0.25rem">$903.00</div></div>
+      <div><div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">Bond (pre-auth)</div><div style="font-size:1.1rem;font-weight:800;margin-top:0.25rem">$500.00</div></div>
+    </div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-top:0.6rem">Bond is held by Stripe and released the day you return the vehicle clean and full of fuel.</div>
+  </div>
+  <button class="btn-brand" style="width:100%;padding:0.85rem;font-size:1rem;margin-top:0.75rem" onclick="mockSubmit('Reservation + Stripe')">\ud83d\ude97 Reserve \u00b7 Stripe pre-auth</button>
+  ${bf('\ud83d\udee1', 'Bond drama drops hard', 'Photo damage notes + Stripe pre-auth = no he-said-she-said when they bring the ute back with a scratch. <strong>~90% fewer disputes</strong>, the bond either releases automatically or tops up cleanly with paperwork.')}
+</section>
+
+<section id="locations" class="panel">
+  <div class="kicker">\ud83d\udccd Locations</div>
+  <h2 class="display">Yeppoon yard \u00b7 Rocky pickup on request</h2>
+  <p style="color:var(--soft);margin-bottom:0.5rem">Main yard: <strong>14 James Street, Yeppoon QLD 4703</strong>. Lockbox pickup 24/7. Rockhampton airport hand-off Saturday mornings on request.</p>
+  <p style="font-size:0.85rem;color:var(--muted)">\ud83d\udcde ${esc(b.phone)} \u00b7 Real version: lockbox code SMS-fired the morning of pickup. Fleet calendar updates with blackouts in real time.</p>
+  ${bf('\ud83d\udcc5', 'Fleet calendar = no double-booking', 'Every vehicle on a Gantt timeline \u2014 bookings, services, blackouts crossed out. <strong>Drag to reassign</strong> when a customer extends, see utilisation per car at a glance. <strong>~9 hours of admin saved every week</strong>.')}
+</section>
+
+<div id="cart-bar" style="position:fixed;bottom:5.5rem;left:1rem;right:1rem;max-width:500px;margin:0 auto;background:var(--brand);color:#0b0f1a;border-radius:14px;padding:0.75rem 1.25rem;display:none;justify-content:space-between;align-items:center;gap:1rem;box-shadow:0 8px 30px rgba(0,0,0,0.4);font-weight:800;z-index:70" class="hidden">
+  <div><span id="cart-count">0 items</span> \u00b7 <span id="cart-total">$0.00</span> /day</div>
+  <button class="btn-ghost" style="background:#0b0f1a;color:var(--text);border-color:rgba(255,255,255,0.1)" onclick="mockCheckout()">Continue to booking \u2192</button>
+</div>
+<style>#cart-bar.hidden { display:none !important; } #cart-bar:not(.hidden) { display:flex !important; }</style>
+`;
+}
+
+export function butchersDemo(b: any): string {
+  const cuts = [
+    { name: 'Eye Fillet (custom-cut)',  desc: 'Type your weight \u00b7 trimmed at the block \u00b7 Stripe top-up at weigh', price: '$60/kg', emoji: '\ud83e\udd69', custom: true },
+    { name: 'Family Freezer Pack',      desc: '2kg mince \u00b7 1kg sausages \u00b7 6 ribeyes \u00b7 1kg lamb cutlets \u00b7 ready Friday', price: '$150 flat', emoji: '\ud83d\udce6' },
+    { name: 'Quarter Beast Pack',       desc: 'Roughly 60kg of mixed beef \u00b7 5 weeks freezer \u00b7 ready in 2 weeks',     price: '$1,250',    emoji: '\ud83d\udc02' },
+    { name: 'Pork Shoulder (boneless)', desc: 'Score-ready \u00b7 ~2kg average \u00b7 for crackle', price: '$18.90/kg', emoji: '\ud83d\udc16' },
+    { name: 'Sirloin Steaks (3-pack)',  desc: 'Aged 21 days \u00b7 ~280g each \u00b7 house seasoning', price: '$36.00', emoji: '\ud83e\udd69' },
+    { name: 'Smoky Beef Sausages (1kg)',desc: 'Made in-house \u00b7 9 sausages \u00b7 pork-free option', price: '$22.00', emoji: '\ud83c\udf2d' },
+  ];
+  return `
+<section id="demo" class="panel">
+  <div class="kicker">Order online \u00b7 pickup Friday</div>
+  <h2 class="display">This week at the block</h2>
+  <div class="menu-grid">
+    ${cuts.map(c => `
+      <div class="menu-item" style="${c.custom ? 'border-color:#dc2626;background:rgba(220,38,38,0.05)' : ''}">
+        <div style="font-size:2.2rem;margin-bottom:0.3rem">${c.emoji}</div>
+        <div class="item-name">${c.name}${c.custom ? ' <span style="background:#dc2626;color:#fff;padding:0.1rem 0.4rem;border-radius:999px;font-size:0.6rem;font-weight:700;margin-left:0.3rem">CUSTOM</span>' : ''}</div>
+        <div class="item-desc">${c.desc}</div>
+        <div class="item-row">
+          <span class="item-price">${c.price}</span>
+          <button class="btn-brand" onclick="addToCart('${c.name.replace(/'/g, "\\'")}', 0)">${c.custom ? 'Custom +' : '+ Add'}</button>
+        </div>
+      </div>
+    `).join('')}
+  </div>
+  ${bf('\ud83d\udcb8', 'Custom-weight without phone tag', '<strong>Customers type their target weight</strong> ("~1.4kg, fully trimmed"); you weigh it Friday morning, Stripe captures the actual amount. <strong>Sunday-night phone calls go to zero</strong>, the missus stops getting the dinner-time interruptions.')}
+</section>
+
+<section id="book" class="panel">
+  <div class="kicker">Custom cut request</div>
+  <h2 class="display">Tell us exactly what you want</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+    <div class="form-row"><label>Your name</label><input type="text" placeholder="Sarah"></div>
+    <div class="form-row"><label>Phone</label><input type="tel" placeholder="0412 345 678"></div>
+    <div class="form-row"><label>Cut</label><select><option>Eye Fillet</option><option>Ribeye</option><option>Sirloin</option><option>Lamb Backstrap</option><option>Pork Belly</option></select></div>
+    <div class="form-row"><label>Target weight</label><input type="text" placeholder="~1.4kg, fully trimmed"></div>
+    <div class="form-row"><label>Pickup day</label><select><option>Friday morning</option><option>Friday afternoon</option><option>Saturday morning</option></select></div>
+    <div class="form-row"><label>Special notes</label><input type="text" placeholder="Score the fat for crackle, please"></div>
+  </div>
+  <button class="btn-brand" style="width:100%;padding:0.85rem;font-size:1rem;margin-top:0.5rem" onclick="mockSubmit('Custom cut \u00b7 pre-auth')">\ud83d\udccb Submit \u00b7 Stripe pre-auth $80</button>
+  <p style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem">Real version: pre-auth held until weigh-in Friday morning, then captured at actual weight \u00d7 $/kg. Texts you when it\'s bagged in the cool room.</p>
+  ${bf('\u2744\ufe0f', 'Freezer packs = anchor revenue', 'A <strong>$150 freezer pack is 4\u00d7 the spend of a walk-in</strong>. Online makes them a one-tap repeat order \u2014 most shops underprice these badly. <strong>One pack a day = $4,500 extra/month</strong>, kept off the phone tag.')}
+</section>
+
+<section id="specials" class="panel">
+  <div class="kicker">\ud83c\udff7 This week\'s specials</div>
+  <h2 class="display">Posted Tuesday lunch</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem"><div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">SPECIAL \u00b7 35% off</div><div style="font-size:1.1rem;font-weight:800;margin-top:0.4rem">Lamb Cutlets</div><p style="color:var(--soft);font-size:0.85rem;margin-top:0.3rem">Was $42/kg, now $27/kg until Sunday</p></div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem"><div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">FROM THE BLOCK</div><div style="font-size:1.1rem;font-weight:800;margin-top:0.4rem">Wagyu Brisket</div><p style="color:var(--soft);font-size:0.85rem;margin-top:0.3rem">Marble score 6+ \u00b7 Hold for Saturday smoking</p></div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem"><div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">LOYALTY \u00b7 KG 8/10</div><div style="font-size:1.1rem;font-weight:800;margin-top:0.4rem">Half-price kg coming up</div><p style="color:var(--soft);font-size:0.85rem;margin-top:0.3rem">Buy 2 more kg of mince, the next 1kg is half price.</p></div>
+  </div>
+  ${bf('\ud83d\udcca', 'Auto-stocktake = no mid-week panic', '<strong>Every sale decrements stock</strong>, tomorrow\'s mince forecast based on last 4 weeks. Reorder alerts at 8kg ribeye. Your Sunday-night manual count goes <strong>2.5 hrs \u2192 0</strong>.')}
+</section>
+
+<div id="cart-bar" style="position:fixed;bottom:5.5rem;left:1rem;right:1rem;max-width:500px;margin:0 auto;background:var(--brand);color:#0b0f1a;border-radius:14px;padding:0.75rem 1.25rem;display:none;justify-content:space-between;align-items:center;gap:1rem;box-shadow:0 8px 30px rgba(0,0,0,0.4);font-weight:800;z-index:70" class="hidden">
+  <div><span id="cart-count">0 items</span> \u00b7 pickup Friday</div>
+  <button class="btn-ghost" style="background:#0b0f1a;color:var(--text);border-color:rgba(255,255,255,0.1)" onclick="mockCheckout()">Continue \u2192</button>
+</div>
+<style>#cart-bar.hidden { display:none !important; } #cart-bar:not(.hidden) { display:flex !important; }</style>
+`;
+}
+
+export function sportsClubDemo(b: any): string {
+  return `
+<section id="demo" class="panel">
+  <div class="kicker">Round 7 \u00b7 Saturday 5 May</div>
+  <h2 class="display">Today\'s fixtures</h2>
+  <div style="display:flex;flex-direction:column;gap:0.5rem">
+    ${[
+      { team: 'U7 Sharks',   vs: 'Yeppoon Bandits',  time: '8:00am',  ground: 'Showgrounds Field 1', state: 'finished', score: '20\u20134' },
+      { team: 'U8 Storm',    vs: 'Rocky Capras',     time: '8:30am',  ground: 'Showgrounds Field 2', state: 'finished', score: '14\u201314' },
+      { team: 'U10 Sharks',  vs: 'Mackay Eagles',    time: '9:00am',  ground: 'Showgrounds Field 2', state: 'live',     score: '12\u20134 (HT)' },
+      { team: 'U12 Storm',   vs: 'Bundy Roos',       time: '10:30am', ground: 'Hartwig Field',       state: 'upcoming', score: 'in 90 min' },
+      { team: 'U14 Sharks',  vs: 'Mackay Bulls',     time: '12:00pm', ground: 'Showgrounds Field 1', state: 'upcoming', score: '\u2014' },
+      { team: 'U16 Storm',   vs: 'Gladstone Tigers', time: '2:00pm',  ground: 'Hartwig Field',       state: 'upcoming', score: '\u2014' },
+    ].map(f => {
+      const colours = f.state === 'finished' ? '#34d399' : f.state === 'live' ? '#f59e0b' : 'var(--muted)';
+      const tag = f.state === 'finished' ? 'FT' : f.state === 'live' ? '\u23f0 LIVE' : f.time;
+      return `
+      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid ${f.state === 'live' ? '#f59e0b' : 'var(--border)'};border-radius:10px;padding:0.85rem 1rem">
+        <div style="display:flex;align-items:center;gap:0.75rem"><div style="font-weight:800;font-size:1rem">${f.team}</div><div style="color:var(--soft);font-size:0.85rem">vs ${f.vs}</div></div>
+        <div style="text-align:right">
+          <div style="color:${colours};font-weight:700;font-size:0.78rem">${tag}</div>
+          <div style="font-size:0.95rem;font-weight:800;margin-top:0.15rem">${f.score}</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:0.1rem">${f.ground}</div>
+        </div>
+      </div>
+    `;}).join('')}
+  </div>
+  ${bf('\u23f0', 'Auto-reminder kills the late arrivals', 'Push fires <strong>90 min before kick-off</strong> with field, time, jersey side. <strong>Late arrivals 12 \u2192 0</strong> across a Saturday round. Karen runs the canteen instead of the phone.')}
+</section>
+
+<section id="book" class="panel">
+  <div class="kicker">Register a player</div>
+  <h2 class="display">2026 season \u00b7 all grades</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+    <div class="form-row"><label>Player name</label><input type="text" placeholder="Jack Wilson"></div>
+    <div class="form-row"><label>DOB</label><input type="date"></div>
+    <div class="form-row"><label>Grade</label><select><option>U7</option><option>U8</option><option>U10 (returning)</option><option>U12</option><option>U14</option><option>U16</option></select></div>
+    <div class="form-row"><label>Parent name</label><input type="text" placeholder="Sarah Wilson"></div>
+    <div class="form-row"><label>Parent mobile</label><input type="tel" placeholder="0412 345 678"></div>
+    <div class="form-row"><label>Medical / allergies</label><input type="text" placeholder="Asthma \u00b7 ventolin in bag"></div>
+  </div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-top:0.75rem">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div><div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">Rego fee</div><div style="font-size:1.2rem;font-weight:800;margin-top:0.25rem">$285</div></div>
+      <div><div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">Family discount (2nd kid)</div><div style="font-size:1.2rem;font-weight:800;margin-top:0.25rem;color:#10b981">\u2212$60</div></div>
+    </div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-top:0.6rem">Pay in 3 fortnightly instalments by direct debit, or upfront for a $20 discount.</div>
+  </div>
+  <button class="btn-brand" style="width:100%;padding:0.85rem;font-size:1rem;margin-top:0.75rem" onclick="mockSubmit('Register \u00b7 Stripe')">\ud83c\udfc9 Register Jack \u00b7 Stripe</button>
+  ${bf('\ud83d\udcb3', 'Rego doesn\'t get skimmed', 'GameDay\'s service fees + Stripe combo eat 6\u20138% of rego \u2014 on a $40k club <strong>that\'s $3k/year gone</strong>. Direct Stripe through the app: <strong>1.75% only</strong>, you keep the rest.')}
+</section>
+
+<section id="news" class="panel">
+  <div class="kicker">\ud83d\udcf0 News \u00b7 this week</div>
+  <h2 class="display">From the committee</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem"><div style="font-size:0.7rem;color:#10b981;letter-spacing:0.08em;font-weight:800;text-transform:uppercase">\ud83d\udccc PINNED</div><div style="font-size:1.05rem;font-weight:800;margin-top:0.4rem">Presentation Night \u00b7 Sat 23 Nov</div><p style="color:var(--soft);font-size:0.85rem;margin-top:0.3rem">Showgrounds hall \u00b7 6pm dinner \u00b7 trophies + life member induction. RSVP via app.</p></div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem"><div style="font-size:0.7rem;color:#1e40af;letter-spacing:0.08em;font-weight:800;text-transform:uppercase">SPONSOR \u00b7 YEPPOON CHEMIST</div><div style="font-size:1.05rem;font-weight:800;margin-top:0.4rem">10% off any first-aid order</div><p style="color:var(--soft);font-size:0.85rem;margin-top:0.3rem">Show your YJRL profile in store \u00b7 340 in-app clicks already this season.</p></div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem"><div style="font-size:0.7rem;color:#f59e0b;letter-spacing:0.08em;font-weight:800;text-transform:uppercase">\ud83c\udfc6 PLAYER OF THE WEEK</div><div style="font-size:1.05rem;font-weight:800;margin-top:0.4rem">Jack W \u00b7 U10 Sharks</div><p style="color:var(--soft);font-size:0.85rem;margin-top:0.3rem">Hat-trick + 2 try-savers. Achievement badge auto-pushed to his profile.</p></div>
+  </div>
+  ${bf('\ud83d\udcac', 'One app replaces four chats', 'Right now: Facebook for news + WhatsApp per team + GameDay for rego + email for fees. <strong>One push, one ledger, one inbox</strong> \u2014 parents stop missing things, secretary saves <strong>~12 hrs/week</strong>.')}
 </section>`;
 }

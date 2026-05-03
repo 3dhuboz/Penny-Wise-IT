@@ -7,7 +7,7 @@ import { PRODUCTS, type ProductConfig } from '../products';
 import {
   bf,
   foodTruckDemo, onlineStoreDemo, tradieDemo, festivalDemo,
-  deliveryDemo, desktopDemo, aiSocialDemo, priceCompareDemo,
+  deliveryDemo, aiSocialDemo, carHireDemo, butchersDemo, sportsClubDemo,
 } from './demo-render';
 
 const esc = (s: string) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c] || c));
@@ -88,9 +88,10 @@ const PRODUCT_NAV_LABEL: Record<string, string> = {
   'tradie': 'Job Booking & Quotes',
   'festival': 'Event App',
   'delivery': 'Delivery Dispatch',
-  'desktop': 'Desktop Software',
   'ai-social': 'Community Platform',
-  'price-comparison': 'Comparison Tool',
+  'car-hire': 'Vehicle Rentals',
+  'butchers': 'Butcher Online Orders',
+  'sports-club': 'Sports Club Hub',
 };
 
 function brandedSampleFor(productId: string, draft: DraftPayload) {
@@ -98,7 +99,7 @@ function brandedSampleFor(productId: string, draft: DraftPayload) {
   // Logo emoji is used only when no logo_url is given.
   const emojiByProduct: Record<string, string> = {
     'food-truck': '🌮', 'online-store': '🛒', 'tradie': '🔧', 'festival': '🎪',
-    'delivery': '🚚', 'desktop': '🖥️', 'ai-social': '💬', 'price-comparison': '⚖️',
+    'delivery': '🚚', 'ai-social': '💬', 'car-hire': '🚗', 'butchers': '🥩', 'sports-club': '🏉',
   };
   return {
     name: draft.prospect_name,
@@ -120,9 +121,10 @@ function renderProductSection(productId: string, draft: DraftPayload): string {
     case 'tradie':           body = tradieDemo(sample); break;
     case 'festival':         body = festivalDemo(sample); break;
     case 'delivery':         body = deliveryDemo(sample, product); break;
-    case 'desktop':          body = desktopDemo(sample); break;
     case 'ai-social':        body = aiSocialDemo(sample); break;
-    case 'price-comparison': body = priceCompareDemo(sample); break;
+    case 'car-hire':         body = carHireDemo(sample); break;
+    case 'butchers':         body = butchersDemo(sample); break;
+    case 'sports-club':      body = sportsClubDemo(sample); break;
     default: body = '<p>Demo coming soon.</p>';
   }
   const navLabel = PRODUCT_NAV_LABEL[productId] || product.brand;
@@ -607,16 +609,17 @@ export function renderDraftFlyer(draft: DraftPayload): string {
     'tradie':           { headline: '+40% fewer no-shows; ~8 hrs/wk admin saved', per_year: 24000, payback_months: '< 1' },
     'festival':         { headline: '$0 platform fees vs Eventbrite ($895/event)', per_year: 8950, payback_months: '< 1' },
     'delivery':         { headline: 'Skip 30% DoorDash cut; on $20k/mo = $6,000 kept', per_year: 72000, payback_months: '< 1' },
-    'desktop':          { headline: '8\u00d7 trial-to-paid via license activation', per_year: 12000, payback_months: '< 1' },
     'ai-social':        { headline: 'AI moderates 94% of posts; 4-5 hrs/wk back', per_year: 9000, payback_months: '< 1' },
-    'price-comparison': { headline: '$40\u2013$200 per affiliate lead; auto-updated 24/7', per_year: 30000, payback_months: '< 1' },
+    'car-hire':         { headline: '+45% direct bookings; skip 25-35% Turo skim', per_year: 24000, payback_months: '< 1' },
+    'butchers':         { headline: '+38% AOV via freezer packs; ~7 hrs/wk admin saved', per_year: 22000, payback_months: '< 1' },
+    'sports-club':      { headline: '~12 hrs/wk secretary admin back; rego stops bleeding 6-8%', per_year: 14000, payback_months: '< 1' },
   };
 
   const totalAnnualValue = productList.reduce((s, p) => s + (ROI_MATHS[p.id]?.per_year || 0), 0);
   const annualCost = totalSetup + (totalMonthly * 12);
   const roi = annualCost > 0 ? Math.round((totalAnnualValue / annualCost) * 10) / 10 : 0;
 
-  const iconFor = (id: string) => ({ 'food-truck':'🌮','online-store':'🛒','tradie':'🔧','festival':'🎪','delivery':'🚚','desktop':'🖥️','ai-social':'💬','price-comparison':'⚖️' } as any)[id] || '🏢';
+  const iconFor = (id: string) => ({ 'food-truck':'🌮','online-store':'🛒','tradie':'🔧','festival':'🎪','delivery':'🚚','ai-social':'💬','car-hire':'🚗','butchers':'🥩','sports-club':'🏉' } as any)[id] || '🏢';
 
   const logoHtml = draft.logo_url
     ? `<img src="${esc(draft.logo_url)}" alt="${esc(draft.prospect_name)}" style="width:80px;height:80px;border-radius:14px;object-fit:cover;border:1px solid #e2e8f0">`

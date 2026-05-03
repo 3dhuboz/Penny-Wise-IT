@@ -8,26 +8,26 @@
   <meta name="format-detection" content="telephone=no">
 
   <title>Whitelabel Apps for Australian Small Business — Penny Wise I.T</title>
-  <meta name="description" content="Penny Wise I.T builds custom whitelabel apps for Australian small businesses — food trucks, tradies, online stores, events, delivery and more. Monthly flat fee. Your brand. Your data.">
+  <meta name="description" content="Penny Wise I.T builds custom whitelabel apps for Australian small businesses — food trucks, tradies, online stores, events, delivery, car hire, butchers, sports clubs and more. Monthly flat fee. Your brand. Your data.">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Penny Wise I.T">
-  <meta property="og:title" content="8 Ready-to-Launch Apps for Your Business — Penny Wise I.T">
-  <meta property="og:description" content="Penny Wise I.T builds custom whitelabel apps for Australian small businesses — food trucks, tradies, online stores, events, delivery and more. Monthly flat fee. Your brand. Your data.">
+  <meta property="og:title" content="9 Ready-to-Launch Apps for Your Business — Penny Wise I.T">
+  <meta property="og:description" content="Penny Wise I.T builds custom whitelabel apps for Australian small businesses — food trucks, tradies, online stores, events, delivery, car hire, butchers, sports clubs and more. Monthly flat fee. Your brand. Your data.">
   <meta property="og:url" content="https://www.pennywiseit.com.au/">
   <meta property="og:image" content="https://www.pennywiseit.com.au/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Penny Wise I.T — 8 whitelabel apps for Australian small business">
+  <meta property="og:image:alt" content="Penny Wise I.T — 9 whitelabel apps for Australian small business">
   <meta property="og:locale" content="en_AU">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="8 Ready-to-Launch Apps for Your Business — Penny Wise I.T">
-  <meta name="twitter:description" content="Penny Wise I.T builds custom whitelabel apps for Australian small businesses — food trucks, tradies, online stores, events, delivery and more. Monthly flat fee. Your brand. Your data.">
+  <meta name="twitter:title" content="9 Ready-to-Launch Apps for Your Business — Penny Wise I.T">
+  <meta name="twitter:description" content="Penny Wise I.T builds custom whitelabel apps for Australian small businesses — food trucks, tradies, online stores, events, delivery, car hire, butchers, sports clubs and more. Monthly flat fee. Your brand. Your data.">
   <meta name="twitter:image" content="https://www.pennywiseit.com.au/og.png">
-  <meta name="twitter:image:alt" content="Penny Wise I.T — 8 whitelabel apps for Australian small business">
+  <meta name="twitter:image:alt" content="Penny Wise I.T — 9 whitelabel apps for Australian small business">
 
   <!-- Canonical + PWA -->
   <link rel="canonical" href="https://www.pennywiseit.com.au/">
@@ -73,7 +73,7 @@
   }
   </script>
 
-  <!-- Structured data: 8 Product nodes graph -->
+  <!-- Structured data: 9 Product nodes graph -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -134,21 +134,30 @@
       },
       {
         "@type": "Product",
-        "@id": "https://www.pennywiseit.com.au/#product-desktop",
-        "name": "Desktop Software Licensing",
-        "description": "License key management and Stripe subscription billing for desktop applications",
+        "@id": "https://www.pennywiseit.com.au/#product-car-hire",
+        "name": "Car Hire & Rentals",
+        "description": "Vehicle rental platform with date-range booking, license upload, Stripe deposits, lockbox SMS pickup, and a fleet calendar",
         "brand": { "@id": "https://www.pennywiseit.com.au/#organization" },
-        "category": "SaaS Infrastructure",
-        "url": "https://www.pennywiseit.com.au/#product-desktop"
+        "category": "Vehicle Rental Software",
+        "url": "https://www.pennywiseit.com.au/#product-car-hire"
       },
       {
         "@type": "Product",
-        "@id": "https://www.pennywiseit.com.au/#product-price-comparison",
-        "name": "Price Comparison App",
-        "description": "Niche price comparison platform with affiliate tracking and auto-updating scraper",
+        "@id": "https://www.pennywiseit.com.au/#product-butchers",
+        "name": "Butcher Shop & Online Orders",
+        "description": "Online ordering for butcher shops — custom-cut requests, freezer pack bundles, click & collect, local delivery, auto-stocktake",
         "brand": { "@id": "https://www.pennywiseit.com.au/#organization" },
-        "category": "Comparison & Affiliate Software",
-        "url": "https://www.pennywiseit.com.au/#product-price-comparison"
+        "category": "Food Retail Software",
+        "url": "https://www.pennywiseit.com.au/#product-butchers"
+      },
+      {
+        "@type": "Product",
+        "@id": "https://www.pennywiseit.com.au/#product-sports-club",
+        "name": "Sports Club Hub",
+        "description": "All-in-one community sports club app — fixtures, registrations, team chat, lineup tools, committee financials",
+        "brand": { "@id": "https://www.pennywiseit.com.au/#organization" },
+        "category": "Sports Club Software",
+        "url": "https://www.pennywiseit.com.au/#product-sports-club"
       }
     ]
   }
@@ -188,9 +197,10 @@
       --grad-online-store: linear-gradient(135deg, #34d399, #2dd4bf, #4f8ef7);
       --grad-festival: linear-gradient(135deg, #a78bfa, #f472b6, #f87171);
       --grad-delivery: linear-gradient(135deg, #4f8ef7, #2dd4bf, #34d399);
-      --grad-desktop: linear-gradient(135deg, #a78bfa, #4f8ef7, #2dd4bf);
       --grad-ai-social: linear-gradient(135deg, #f472b6, #a78bfa, #4f8ef7);
-      --grad-price-comparison: linear-gradient(135deg, #2dd4bf, #34d399, #4f8ef7);
+      --grad-car-hire: linear-gradient(135deg, #0ea5e9, #06b6d4, #fbbf24);
+      --grad-butchers: linear-gradient(135deg, #dc2626, #b91c1c, #d97706);
+      --grad-sports-club: linear-gradient(135deg, #1e40af, #10b981, #f59e0b);
     }
 
     * { box-sizing: border-box; }
@@ -624,8 +634,9 @@
     .product-card[data-product="ai-social"] { --card-grad: var(--grad-ai-social); }
     .product-card[data-product="festival"] { --card-grad: var(--grad-festival); }
     .product-card[data-product="delivery"] { --card-grad: var(--grad-delivery); }
-    .product-card[data-product="desktop"] { --card-grad: var(--grad-desktop); }
-    .product-card[data-product="price-comparison"] { --card-grad: var(--grad-price-comparison); }
+    .product-card[data-product="car-hire"] { --card-grad: var(--grad-car-hire); }
+    .product-card[data-product="butchers"] { --card-grad: var(--grad-butchers); }
+    .product-card[data-product="sports-club"] { --card-grad: var(--grad-sports-club); }
 
     .product-card .pc-kicker { color: var(--soft); }
     .product-card[data-product="food-truck"] .pc-kicker { color: var(--orange); }
@@ -634,8 +645,9 @@
     .product-card[data-product="ai-social"] .pc-kicker { color: var(--pink); }
     .product-card[data-product="festival"] .pc-kicker { color: var(--purple); }
     .product-card[data-product="delivery"] .pc-kicker { color: var(--accent); }
-    .product-card[data-product="desktop"] .pc-kicker { color: var(--purple); }
-    .product-card[data-product="price-comparison"] .pc-kicker { color: var(--teal); }
+    .product-card[data-product="car-hire"] .pc-kicker { color: #06b6d4; }
+    .product-card[data-product="butchers"] .pc-kicker { color: #dc2626; }
+    .product-card[data-product="sports-club"] .pc-kicker { color: #10b981; }
 
     .product-card h4 {
       font-size: 1.125rem;
@@ -838,8 +850,9 @@
     .deepdive-product[data-product="ai-social"] .dd-kicker { color: var(--pink); }
     .deepdive-product[data-product="festival"] .dd-kicker { color: var(--purple); }
     .deepdive-product[data-product="delivery"] .dd-kicker { color: var(--accent); }
-    .deepdive-product[data-product="desktop"] .dd-kicker { color: var(--purple); }
-    .deepdive-product[data-product="price-comparison"] .dd-kicker { color: var(--teal); }
+    .deepdive-product[data-product="car-hire"] .dd-kicker { color: #06b6d4; }
+    .deepdive-product[data-product="butchers"] .dd-kicker { color: #dc2626; }
+    .deepdive-product[data-product="sports-club"] .dd-kicker { color: #10b981; }
 
     .deepdive-product h3 {
       font-size: clamp(1.6rem, 3vw, 2.1rem);
@@ -1169,14 +1182,14 @@
       <img src="/icon-mark.svg" alt="" aria-hidden="true" class="hero-coin" loading="eager" decoding="async">
       <div class="container">
         <div class="hero-inner">
-          <span class="pill">🇦🇺 8 READY-TO-LAUNCH WHITELABEL APPS</span>
+          <span class="pill">🇦🇺 9 READY-TO-LAUNCH WHITELABEL APPS</span>
           <h1 id="hero-heading" class="display">
             <span class="grad">YOUR BUSINESS, AUTOMATED.</span>
           </h1>
-          <p class="sub">8 production-ready whitelabel apps for Australian small businesses. Live ordering, field service, delivery, events, communities — flat monthly fee, your brand, your domain, zero platform tax.</p>
+          <p class="sub">9 production-ready whitelabel apps for Australian small businesses. Live ordering, field service, delivery, events, communities, car hire, butcher shops, sports clubs — flat monthly fee, your brand, your domain, zero platform tax.</p>
           <div class="hero-ctas">
             <a href="#products" class="btn btn-primary" aria-label="Jump to products section">
-              See all 8 apps
+              See all 9 apps
             </a>
             <a href="#calculator" class="btn btn-ghost" aria-label="Jump to ROI calculator">
               Calculate your ROI
@@ -1195,9 +1208,9 @@
           <p>Every app is production-ready and running for real Australian businesses. Your branding replaces ours on day one.</p>
         </div>
 
-        <!-- Hands-on trades & food -->
-        <div class="industry-block" aria-labelledby="industry-trades-food">
-          <h3 id="industry-trades-food">Hospitality & Food</h3>
+        <!-- Hospitality & food -->
+        <div class="industry-block" aria-labelledby="industry-hospitality-food">
+          <h3 id="industry-hospitality-food">Hospitality & Food</h3>
           <div class="product-grid">
             <article class="product-card" data-product="food-truck">
               <span class="kicker pc-kicker">FOOD-TRUCK PLATFORM</span>
@@ -1217,22 +1230,22 @@
               <a href="#dd-food-truck" class="pc-cta" aria-label="See Food-Truck App live">Full details →</a>
             </article>
 
-            <article class="product-card" data-product="tradie">
-              <span class="kicker pc-kicker">FIELD SERVICE PLATFORM</span>
-              <h4>Tradie Field Service</h4>
-              <p class="pc-pitch">Online booking, rego lookup, video wrap-ups. Quote on site. Invoice before you leave the driveway.</p>
+            <article class="product-card" data-product="butchers">
+              <span class="kicker pc-kicker">BUTCHER SHOP PLATFORM</span>
+              <h4>Butcher Shop & Online Orders</h4>
+              <p class="pc-pitch">Custom-cut requests, freezer pack bundles, click & collect. Sunday-night phone calls go to zero.</p>
               <div class="iframe-wrap">
                 <iframe
                   class="product-mock"
                   data-mock
-                  src="/mocks/tradie"
+                  src="/mocks/butchers"
                   loading="lazy"
                   sandbox="allow-scripts"
-                  title="Tradie Field Service interactive demo"
+                  title="Butcher Shop & Online Orders interactive demo"
                   referrerpolicy="no-referrer"
                 ></iframe>
               </div>
-              <a href="#dd-tradie" class="pc-cta" aria-label="See Tradie Field Service live">Full details →</a>
+              <a href="#dd-butchers" class="pc-cta" aria-label="See Butcher Shop & Online Orders live">Full details →</a>
             </article>
           </div>
         </div>
@@ -1279,6 +1292,48 @@
           </div>
         </div>
 
+        <!-- Trades & auto -->
+        <div class="industry-block" aria-labelledby="industry-trades-auto">
+          <h3 id="industry-trades-auto">Trades & Auto</h3>
+          <div class="product-grid">
+            <article class="product-card" data-product="tradie">
+              <span class="kicker pc-kicker">FIELD SERVICE PLATFORM</span>
+              <h4>Tradie Field Service</h4>
+              <p class="pc-pitch">Online booking, rego lookup, video wrap-ups. Quote on site. Invoice before you leave the driveway.</p>
+              <div class="iframe-wrap">
+                <iframe
+                  class="product-mock"
+                  data-mock
+                  src="/mocks/tradie"
+                  loading="lazy"
+                  sandbox="allow-scripts"
+                  title="Tradie Field Service interactive demo"
+                  referrerpolicy="no-referrer"
+                ></iframe>
+              </div>
+              <a href="#dd-tradie" class="pc-cta" aria-label="See Tradie Field Service live">Full details →</a>
+            </article>
+
+            <article class="product-card" data-product="car-hire">
+              <span class="kicker pc-kicker">CAR-HIRE PLATFORM</span>
+              <h4>Car Hire & Rentals</h4>
+              <p class="pc-pitch">Daily, weekend, week — keys in 2 minutes flat. Date-range booking, license upload, lockbox SMS pickup.</p>
+              <div class="iframe-wrap">
+                <iframe
+                  class="product-mock"
+                  data-mock
+                  src="/mocks/car-hire"
+                  loading="lazy"
+                  sandbox="allow-scripts"
+                  title="Car Hire & Rentals interactive demo"
+                  referrerpolicy="no-referrer"
+                ></iframe>
+              </div>
+              <a href="#dd-car-hire" class="pc-cta" aria-label="See Car Hire & Rentals live">Full details →</a>
+            </article>
+          </div>
+        </div>
+
         <!-- Events & logistics -->
         <div class="industry-block" aria-labelledby="industry-events-logistics">
           <h3 id="industry-events-logistics">Events & Logistics</h3>
@@ -1321,44 +1376,26 @@
           </div>
         </div>
 
-        <!-- Software & comparison -->
-        <div class="industry-block" aria-labelledby="industry-software-comparison">
-          <h3 id="industry-software-comparison">Software & Comparison</h3>
+        <!-- Community -->
+        <div class="industry-block" aria-labelledby="industry-community">
+          <h3 id="industry-community">Community</h3>
           <div class="product-grid">
-            <article class="product-card" data-product="desktop">
-              <span class="kicker pc-kicker">DESKTOP SAAS PLATFORM</span>
-              <h4>Desktop Software Licensing</h4>
-              <p class="pc-pitch">License keys, auto-updates, trial-to-paid. Monetise your Windows or Mac app properly.</p>
+            <article class="product-card" data-product="sports-club">
+              <span class="kicker pc-kicker">SPORTS CLUB PLATFORM</span>
+              <h4>Sports Club Hub</h4>
+              <p class="pc-pitch">One app for every parent, player, coach and committee member. Fixtures, rego, team chat, lineup tools — replaces TeamSnap + GameDay + the Facebook page.</p>
               <div class="iframe-wrap">
                 <iframe
                   class="product-mock"
                   data-mock
-                  src="/mocks/desktop"
+                  src="/mocks/sports-club"
                   loading="lazy"
                   sandbox="allow-scripts"
-                  title="Desktop Software Licensing interactive demo"
+                  title="Sports Club Hub interactive demo"
                   referrerpolicy="no-referrer"
                 ></iframe>
               </div>
-              <a href="#dd-desktop" class="pc-cta" aria-label="See Desktop Software Licensing live">Full details →</a>
-            </article>
-
-            <article class="product-card" data-product="price-comparison">
-              <span class="kicker pc-kicker">COMPARISON PLATFORM</span>
-              <h4>Price Comparison App</h4>
-              <p class="pc-pitch">Niche price comparison with affiliate tracking. Pick your vertical. Out-rank the generics.</p>
-              <div class="iframe-wrap">
-                <iframe
-                  class="product-mock"
-                  data-mock
-                  src="/mocks/price-comparison"
-                  loading="lazy"
-                  sandbox="allow-scripts"
-                  title="Price Comparison App interactive demo"
-                  referrerpolicy="no-referrer"
-                ></iframe>
-              </div>
-              <a href="#dd-price-comparison" class="pc-cta" aria-label="See Price Comparison App live">Full details →</a>
+              <a href="#dd-sports-club" class="pc-cta" aria-label="See Sports Club Hub live">Full details →</a>
             </article>
           </div>
         </div>
@@ -1371,7 +1408,7 @@
         <div class="section-head">
           <span class="kicker" style="color: var(--green);">THE NUMBERS</span>
           <h2 id="numbers-heading" class="display">WHAT IT ACTUALLY SAVES</h2>
-          <p>Averaged across all 8 platforms in production.</p>
+          <p>Averaged across all 9 platforms in production.</p>
         </div>
         <div class="numbers-grid">
           <div class="panel number-tile">
@@ -1425,9 +1462,10 @@
                   <option value="online-store">Online Store</option>
                   <option value="festival">Festival & Event App</option>
                   <option value="delivery">Delivery & Logistics</option>
-                  <option value="desktop">Desktop Software Licensing</option>
                   <option value="ai-social">AI Social Platform</option>
-                  <option value="price-comparison">Price Comparison App</option>
+                  <option value="car-hire">Car Hire & Rentals</option>
+                  <option value="butchers">Butcher Shop & Online Orders</option>
+                  <option value="sports-club">Sports Club Hub</option>
                 </select>
               </div>
 
@@ -1627,33 +1665,6 @@
           </div>
         </article>
 
-        <!-- Desktop -->
-        <article id="dd-desktop" class="panel deepdive-product" data-product="desktop" aria-labelledby="dd-desktop-heading">
-          <div class="dd-head">
-            <span class="kicker dd-kicker">MODERN DESKTOP SAAS</span>
-            <h3 id="dd-desktop-heading" class="display">Desktop Software Licensing</h3>
-            <p class="dd-tagline">Your Desktop App, With Real Licensing. License keys. Auto-updates. Stripe subscriptions. Trial-to-paid funnels. Stop losing money to "mate, share me your install".</p>
-          </div>
-          <div class="dd-stats">
-            <div class="dd-stat"><div class="dd-stat-val">8×</div><div class="dd-stat-lbl">Trial-To-Paid</div></div>
-            <div class="dd-stat"><div class="dd-stat-val">0%</div><div class="dd-stat-lbl">Piracy Loss</div></div>
-            <div class="dd-stat"><div class="dd-stat-val">&lt;1 Day</div><div class="dd-stat-lbl">Update Ship Time</div></div>
-            <div class="dd-stat"><div class="dd-stat-val">100%</div><div class="dd-stat-lbl">Your Pricing</div></div>
-          </div>
-          <div class="dd-features">
-            <div class="dd-feature"><h4>License Key Generation</h4><p>Issue, revoke, and transfer license keys from a simple admin dashboard. Tied to Stripe — cancellation auto-revokes within minutes, no manual intervention.</p></div>
-            <div class="dd-feature"><h4>Stripe Subscriptions</h4><p>Monthly or annual billing built in. Customers manage their own subscription from a self-serve portal — fewer support emails, more recurring revenue.</p></div>
-            <div class="dd-feature"><h4>Trial-To-Paid Funnel</h4><p>Set a time-limited or feature-limited trial. When the trial ends, the app prompts to upgrade — conversion rates 8x higher than "email me and I'll sort it".</p></div>
-          </div>
-          <div class="dd-pricing">
-            <div class="dd-price-tile"><span class="pt-tier">Indie Developer</span><span class="pt-price">$79 / mo + $699 setup</span></div>
-            <div class="dd-price-tile"><span class="pt-tier">Commercial Shop</span><span class="pt-price">$179 / mo + $699 setup</span></div>
-          </div>
-          <div class="dd-cta-row">
-            <a href="https://demos.pennywiseit.com.au/demo/desktop" class="btn btn-primary" target="_blank" rel="noopener noreferrer" aria-label="Try the Desktop Software Licensing demo">Try the demo →</a>
-          </div>
-        </article>
-
         <!-- AI Social -->
         <article id="dd-ai-social" class="panel deepdive-product" data-product="ai-social" aria-labelledby="dd-ai-social-heading">
           <div class="dd-head">
@@ -1671,6 +1682,7 @@
             <div class="dd-feature"><h4>Feed + Threads</h4><p>A clean, chronological feed under your brand. Members post, reply, and react without being served ads or pushed toward competitors. Your community, your conversation.</p></div>
             <div class="dd-feature"><h4>AI Moderation</h4><p>Automated content review catches spam, hate speech, and policy violations before you see them. 24/7 coverage with human-readable explanations and one-click appeals.</p></div>
             <div class="dd-feature"><h4>Paid Memberships</h4><p>Gate premium content or the whole community behind a Stripe subscription. Members pay you directly — no platform taking a cut of your creator revenue.</p></div>
+            <div class="dd-feature"><h4>Works for verticals beyond enthusiast clubs</h4><p>Jonesy's Garage in Rocky uses this exact platform to run their socials and keep regulars in the loop without paying Meta to be seen. Mechanic shops, gyms, dance studios, supper clubs — the model travels.</p></div>
           </div>
           <div class="dd-pricing">
             <div class="dd-price-tile"><span class="pt-tier">Starter Community</span><span class="pt-price">$99 / mo + $799 setup</span></div>
@@ -1681,30 +1693,84 @@
           </div>
         </article>
 
-        <!-- Price comparison -->
-        <article id="dd-price-comparison" class="panel deepdive-product" data-product="price-comparison" aria-labelledby="dd-price-comparison-heading">
+        <!-- Car hire -->
+        <article id="dd-car-hire" class="panel deepdive-product" data-product="car-hire" aria-labelledby="dd-car-hire-heading">
           <div class="dd-head">
-            <span class="kicker dd-kicker">MODERN COMPARISON PLATFORM</span>
-            <h3 id="dd-price-comparison-heading" class="display">Price Comparison App</h3>
-            <p class="dd-tagline">Your Niche, Your Comparison King. Scrape, compare, convert. Customers pick the best deal — you pick up the affiliate fee. Built for narrow, profitable niches.</p>
+            <span class="kicker dd-kicker">MODERN CAR-HIRE PLATFORM</span>
+            <h3 id="dd-car-hire-heading" class="display">Car Hire & Rentals</h3>
+            <p class="dd-tagline">Your Rental Yard, Keys In 2 Minutes Flat. Vehicle browsing. Date-range booking. License upload. Stripe deposit. SMS at pickup. Auto-invoice on return. Drop-in for an existing rental yard.</p>
           </div>
           <div class="dd-stats">
-            <div class="dd-stat"><div class="dd-stat-val">$40–$200</div><div class="dd-stat-lbl">Affiliate / Lead</div></div>
-            <div class="dd-stat"><div class="dd-stat-val">24/7</div><div class="dd-stat-lbl">Auto Price Updates</div></div>
-            <div class="dd-stat"><div class="dd-stat-val">1 Niche</div><div class="dd-stat-lbl">Pick It. Own It.</div></div>
-            <div class="dd-stat"><div class="dd-stat-val">100%</div><div class="dd-stat-lbl">Your Domain</div></div>
+            <div class="dd-stat"><div class="dd-stat-val">+45%</div><div class="dd-stat-lbl">Direct Bookings</div></div>
+            <div class="dd-stat"><div class="dd-stat-val">~9 hrs</div><div class="dd-stat-lbl">Admin Saved / Wk</div></div>
+            <div class="dd-stat"><div class="dd-stat-val">24/7</div><div class="dd-stat-lbl">Reserve & Pay</div></div>
+            <div class="dd-stat"><div class="dd-stat-val">100%</div><div class="dd-stat-lbl">Your Fleet</div></div>
           </div>
           <div class="dd-features">
-            <div class="dd-feature"><h4>Quote Comparison Engine</h4><p>Side-by-side comparison of providers in your niche — solar, NBN, insurance, gas, or anything with competing offers. Customers see the best deal, you capture the lead.</p></div>
-            <div class="dd-feature"><h4>Auto Scraper + API</h4><p>Prices update automatically via scraper or provider API. Your comparison table is never stale — no manual data entry, no embarrassing out-of-date quotes shown to prospects.</p></div>
-            <div class="dd-feature"><h4>Affiliate Tracking</h4><p>Every referral is tracked end-to-end. Commission events fire when a lead converts, giving you an audit trail that's clean enough to dispute missed payouts with confidence.</p></div>
+            <div class="dd-feature"><h4>Date-Range Booking</h4><p>Real calendar with blackouts, services, and existing bookings already crossed off. Customer picks dates, sees total + bond up-front, pays in two minutes — no counter queue.</p></div>
+            <div class="dd-feature"><h4>License Upload + KYC</h4><p>Customer photographs licence + selfie at booking, you approve from the admin app. Pickup is faster because the paperwork already happened on the phone, not at the desk.</p></div>
+            <div class="dd-feature"><h4>Lockbox SMS Pickup</h4><p>Auto-text the morning of pickup with your address, gate code, and vehicle bay. Customer skips the counter — keys are already in the lockbox. Saturday mornings stop being a queue.</p></div>
           </div>
           <div class="dd-pricing">
-            <div class="dd-price-tile"><span class="pt-tier">Single Niche</span><span class="pt-price">$99 / mo + $999 setup</span></div>
-            <div class="dd-price-tile"><span class="pt-tier">Multi-Vertical</span><span class="pt-price">$249 / mo + $999 setup</span></div>
+            <div class="dd-price-tile"><span class="pt-tier">Solo Yard</span><span class="pt-price">$129 / mo + $499 setup</span></div>
+            <div class="dd-price-tile"><span class="pt-tier">Fleet (10+ vehicles)</span><span class="pt-price">$269 / mo + $499 setup</span></div>
           </div>
           <div class="dd-cta-row">
-            <a href="https://demos.pennywiseit.com.au/demo/price-comparison" class="btn btn-primary" target="_blank" rel="noopener noreferrer" aria-label="Try the Price Comparison App demo">Try the demo →</a>
+            <a href="https://demos.pennywiseit.com.au/demo/car-hire" class="btn btn-primary" target="_blank" rel="noopener noreferrer" aria-label="Try the Car Hire & Rentals demo">Try the demo →</a>
+          </div>
+        </article>
+
+        <!-- Butchers -->
+        <article id="dd-butchers" class="panel deepdive-product" data-product="butchers" aria-labelledby="dd-butchers-heading">
+          <div class="dd-head">
+            <span class="kicker dd-kicker">MODERN BUTCHER SHOP PLATFORM</span>
+            <h3 id="dd-butchers-heading" class="display">Butcher Shop & Online Orders</h3>
+            <p class="dd-tagline">Your Butcher Shop, Open While You're Breaking Down. Browse cuts by category. Custom-weight requests. Freezer pack bundles. Click & collect or local delivery. SMS when ready. Loyalty per kilo.</p>
+          </div>
+          <div class="dd-stats">
+            <div class="dd-stat"><div class="dd-stat-val">+38%</div><div class="dd-stat-lbl">Avg Order Value</div></div>
+            <div class="dd-stat"><div class="dd-stat-val">~7 hrs</div><div class="dd-stat-lbl">Admin Saved / Wk</div></div>
+            <div class="dd-stat"><div class="dd-stat-val">24/7</div><div class="dd-stat-lbl">Storefront Open</div></div>
+            <div class="dd-stat"><div class="dd-stat-val">100%</div><div class="dd-stat-lbl">Your Margin</div></div>
+          </div>
+          <div class="dd-features">
+            <div class="dd-feature"><h4>Custom-Weight Requests</h4><p>"~1.2kg ribeye, fully trimmed". Customer types the target weight; you weigh at the block, Stripe captures the actual amount. Sunday-night phone calls go to zero.</p></div>
+            <div class="dd-feature"><h4>Freezer Pack Bundles</h4><p>$150 mixed pack, $250 family pack, $400 quarter beast. Build templates once, sell every week. Stock-controlled — every sale decrements 4 cuts at once.</p></div>
+            <div class="dd-feature"><h4>Auto-Stocktake + Specials Editor</h4><p>Every sale decrements stock. Tomorrow's mince forecast based on last 4 weeks. Drag-and-drop weekly specials, posts auto-share to Facebook + Instagram with one button.</p></div>
+          </div>
+          <div class="dd-pricing">
+            <div class="dd-price-tile"><span class="pt-tier">Single Shop</span><span class="pt-price">$99 / mo + $499 setup</span></div>
+            <div class="dd-price-tile"><span class="pt-tier">Multi-Shop / Wholesale</span><span class="pt-price">$199 / mo + $499 setup</span></div>
+          </div>
+          <div class="dd-cta-row">
+            <a href="https://demos.pennywiseit.com.au/demo/butchers" class="btn btn-primary" target="_blank" rel="noopener noreferrer" aria-label="Try the Butcher Shop & Online Orders demo">Try the demo →</a>
+          </div>
+        </article>
+
+        <!-- Sports club -->
+        <article id="dd-sports-club" class="panel deepdive-product" data-product="sports-club" aria-labelledby="dd-sports-club-heading">
+          <div class="dd-head">
+            <span class="kicker dd-kicker">MODERN SPORTS CLUB PLATFORM</span>
+            <h3 id="dd-sports-club-heading" class="display">Sports Club Hub</h3>
+            <p class="dd-tagline">Your Club, In Every Parent's Pocket. Player profiles + stats + achievements. Fixtures with auto match-day reminders. Team chat. News + announcements. Parent rego + payments. Coach team-sheets. Committee financials.</p>
+          </div>
+          <div class="dd-stats">
+            <div class="dd-stat"><div class="dd-stat-val">+72%</div><div class="dd-stat-lbl">Parent Engagement</div></div>
+            <div class="dd-stat"><div class="dd-stat-val">~12 hrs</div><div class="dd-stat-lbl">Secretary Hrs / Wk</div></div>
+            <div class="dd-stat"><div class="dd-stat-val">0</div><div class="dd-stat-lbl">No-Show Parents</div></div>
+            <div class="dd-stat"><div class="dd-stat-val">100%</div><div class="dd-stat-lbl">Club-Owned Data</div></div>
+          </div>
+          <div class="dd-features">
+            <div class="dd-feature"><h4>Fixtures + Auto Match-Day Reminders</h4><p>Round-by-round draw, ground addresses with maps, auto push 90 minutes before kick-off. "Where do I drop them?" calls go to zero, late arrivals drop from a dozen to zero across a Saturday round.</p></div>
+            <div class="dd-feature"><h4>Stripe Rego + Sub-Fee Billing</h4><p>Parents register kids end-to-end on the app. Stripe handles rego fee + photo + medical. Sub-fee instalments by direct debit. Secretary stops chasing — and the club keeps the 6–8% GameDay would have skimmed.</p></div>
+            <div class="dd-feature"><h4>Coach Team-Sheet + Committee Financials</h4><p>Coach drags players into Saturday's lineup, submits to ref via PDF. Treasurer gets a live view of rego, fees outstanding, sponsor income, canteen takings. The Tuesday committee meeting becomes a 20-minute thing.</p></div>
+          </div>
+          <div class="dd-pricing">
+            <div class="dd-price-tile"><span class="pt-tier">Junior Club (≤200 players)</span><span class="pt-price">$79 / mo + $999 setup</span></div>
+            <div class="dd-price-tile"><span class="pt-tier">Senior + Junior (Federation)</span><span class="pt-price">$199 / mo + $999 setup</span></div>
+          </div>
+          <div class="dd-cta-row">
+            <a href="https://demos.pennywiseit.com.au/demo/sports-club" class="btn btn-primary" target="_blank" rel="noopener noreferrer" aria-label="Try the Sports Club Hub demo">Try the demo →</a>
           </div>
         </article>
 
@@ -1734,7 +1800,7 @@
             </svg>
             <div class="about-body">
               <p>I'm Steve, an Australian full-stack developer and IT consultant based in Queensland. I started Penny Wise I.T after watching small business owners get locked into expensive SaaS subscriptions they barely used — paying $200-$500/month for features they didn't need, on platforms they'd never own.</p>
-              <p>I build every app myself — from database schema to pixel-perfect UI — and maintain them personally for each client. All 8 platforms on this page are running in production right now, for real Australian businesses. Flat monthly fee. No hidden platform cut. Your brand from day one. If something breaks at 2am, I'm the one who fixes it.</p>
+              <p>I build every app myself — from database schema to pixel-perfect UI — and maintain them personally for each client. All 9 platforms on this page are running in production right now, for real Australian businesses. Flat monthly fee. No hidden platform cut. Your brand from day one. If something breaks at 2am, I'm the one who fixes it.</p>
               <div class="about-footer">📍 Queensland, Australia &middot; hello@pennywiseit.com.au &middot; ABN pending</div>
             </div>
           </div>
@@ -1877,14 +1943,15 @@
   <script>
     (function () {
       var pricing = {
-        'food-truck':       { monthly: 79,  setup: 499 },
-        'tradie':           { monthly: 99,  setup: 499 },
-        'online-store':     { monthly: 79,  setup: 499 },
-        'festival':         { monthly: 199, setup: 999 },
-        'delivery':         { monthly: 149, setup: 799 },
-        'desktop':          { monthly: 79,  setup: 699 },
-        'ai-social':        { monthly: 99,  setup: 799 },
-        'price-comparison': { monthly: 99,  setup: 999 }
+        'food-truck':   { monthly: 79,  setup: 499 },
+        'tradie':       { monthly: 99,  setup: 499 },
+        'online-store': { monthly: 79,  setup: 499 },
+        'festival':     { monthly: 199, setup: 999 },
+        'delivery':     { monthly: 149, setup: 799 },
+        'ai-social':    { monthly: 99,  setup: 799 },
+        'car-hire':     { monthly: 129, setup: 499 },
+        'butchers':     { monthly: 99,  setup: 499 },
+        'sports-club':  { monthly: 79,  setup: 999 }
       };
 
       var form     = document.getElementById('roi-form');
