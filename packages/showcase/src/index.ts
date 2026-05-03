@@ -11,7 +11,9 @@ import {
   notFoundBody,
   numbersBody,
   pricingBody,
+  privacyBody,
   roiBody,
+  termsBody,
 } from './pages';
 
 type Env = {
@@ -132,6 +134,34 @@ app.get('/faq', () =>
       description:
         'Common questions about Penny Wise I.T whitelabel apps: ownership, customisation, deployment timelines, payments, contracts.',
       body: faqBody(),
+    })
+  )
+);
+
+// ─── Privacy ───
+app.get('/privacy', () =>
+  htmlResponse(
+    renderLayout({
+      page: 'privacy',
+      pathname: '/privacy',
+      title: 'Privacy Policy · Penny Wise I.T',
+      description:
+        'How Penny Wise I.T handles your personal information — plain English, Australian Privacy Act 1988 aligned. We collect what we need to reply, store nothing we don’t use, and never sell your data.',
+      body: privacyBody(),
+    })
+  )
+);
+
+// ─── Terms ───
+app.get('/terms', () =>
+  htmlResponse(
+    renderLayout({
+      page: 'terms',
+      pathname: '/terms',
+      title: 'Terms of Service · Penny Wise I.T',
+      description:
+        'The contract between you and Penny Wise I.T in plain English. Flat monthly fee, no lock-in, your data stays yours, 30-day setup guarantee.',
+      body: termsBody(),
     })
   )
 );

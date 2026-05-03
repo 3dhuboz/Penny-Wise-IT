@@ -123,7 +123,7 @@ const PRODUCTS_GRID = `
 const NUMBERS_TILES = `
         <div class="numbers-grid">
           <div class="panel number-tile">
-            <div class="num-value display" data-counter="62" data-counter-suffix=" hrs">~62 hrs</div>
+            <div class="num-value display" data-counter="62" data-counter-suffix=" hrs" data-counter-prefix="~">~62 hrs</div>
             <div class="num-label">Admin hours saved per week</div>
             <div class="num-sub">Across ordering, bookings, tracking, and delivery admin</div>
           </div>
@@ -361,7 +361,7 @@ const ABOUT_PANEL = `
                 <button type="button" data-open-lead data-source="/about" class="btn btn-primary">Talk to Steve</button>
                 <a href="/pricing" class="btn btn-ghost">See pricing</a>
               </div>
-              <div class="about-footer">📍 Queensland, Australia &middot; hello@pennywiseit.com.au &middot; ABN pending (certificate available on request when issued)</div>
+              <div class="about-footer">📍 Queensland, Australia &middot; hello@pennywiseit.com.au &middot; ABN registration in progress &mdash; full tax invoice as soon as it&rsquo;s issued</div>
             </div>
           </div>
         </div>`;
@@ -374,7 +374,7 @@ const FAQ_LIST = `
           </details>
           <details class="faq-item">
             <summary>What's your ABN?</summary>
-            <div class="faq-body">ABN registration is in progress; happy to share the certificate when it lands. In the meantime, every payment goes through Stripe with full receipt + tax invoice.</div>
+            <div class="faq-body">ABN registration is in progress. Until it lands, every Stripe payment generates a receipt with my legal name + business address; once the ABN is issued I'll re-issue any earlier receipts as full tax invoices automatically. Nothing's hidden — happy to share the application reference if you want to verify.</div>
           </details>
           <details class="faq-item">
             <summary>What if you get hit by a bus?</summary>
@@ -382,7 +382,7 @@ const FAQ_LIST = `
           </details>
           <details class="faq-item">
             <summary>Can I get a tax invoice?</summary>
-            <div class="faq-body">Yes — every Stripe payment generates one automatically with my ABN and your business name on it.</div>
+            <div class="faq-body">Every Stripe payment generates a detailed receipt with my legal name, business address, and your business details. Once my ABN registration completes (in progress now), every receipt becomes a fully GST-compliant tax invoice automatically — including any earlier ones, re-issued.</div>
           </details>
           <details class="faq-item">
             <summary>Where is my data hosted?</summary>
@@ -415,9 +415,8 @@ const FAQ_LIST = `
 export function homeBody(): string {
   return `${HERO_SECTION}
 
-    <section class="home-summary" aria-labelledby="home-summary-heading">
+    <section class="home-summary" aria-label="Quick links">
       <div class="container">
-        <h2 id="home-summary-heading" class="sr-only-focusable" aria-hidden="true">Quick links</h2>
         <div class="home-summary-grid">
           <a href="/apps" class="summary-tile">
             <div class="summary-tile-eyebrow">9 ready-made platforms</div>
@@ -547,4 +546,134 @@ export function notFoundBody(): string {
       </div>
     </section>
 ${ctaSection('404')}`;
+}
+
+/** Privacy Policy page. Plain-English, AU Privacy Act-aligned. Steve should review and amend. */
+export function privacyBody(): string {
+  return `
+    <section id="hero" aria-labelledby="privacy-heading">
+      <div class="container">
+        <div class="hero-inner legal-inner">
+          <span class="kicker">Privacy</span>
+          <h1 id="privacy-heading" class="display">Privacy policy.</h1>
+          <p class="hero-sub">Last updated 4 May 2026. Plain-English summary at the top, the rest is the detail.</p>
+
+          <div class="legal-callout">
+            <strong>The short version:</strong> I collect only what I need to send you a reply or run your app. I don't sell, share, or profile your data. You can ask for it back or wiped any time. The rest is the detail required by the Australian Privacy Act 1988.
+          </div>
+
+          <h2>Who I am</h2>
+          <p>This site (pennywiseit.com.au) and the apps under it are operated by Steve, trading as Penny Wise I.T, based in Queensland, Australia. Email: <a href="mailto:hello@pennywiseit.com.au">hello@pennywiseit.com.au</a>.</p>
+
+          <h2>What I collect</h2>
+          <ul>
+            <li><strong>When you fill the contact form or newsletter</strong>: your name, business name, email, phone (if provided), and any free-text note. Stored in a Cloudflare D1 database in Australia.</li>
+            <li><strong>When you use one of the apps I build</strong>: only what that specific app needs to function (orders, bookings, customer details, etc.). Each app's privacy policy lives on that app's own domain.</li>
+            <li><strong>When you visit any page</strong>: standard server logs (IP, user agent, referrer, timestamps) for fraud/abuse protection. Cloudflare retains these per their terms.</li>
+          </ul>
+
+          <h2>How I use it</h2>
+          <ul>
+            <li>To reply to your inquiry or send the newsletter you signed up for. Nothing else.</li>
+            <li>I don't run marketing automation, retargeting pixels, behavioural profiling, or any third-party analytics that share your data with ad networks.</li>
+            <li>I'll never sell your contact details or your customer data. Period.</li>
+          </ul>
+
+          <h2>Who I share it with</h2>
+          <ul>
+            <li><strong>Cloudflare</strong> (compute, hosting, edge): page requests pass through Cloudflare's Sydney edge.</li>
+            <li><strong>Stripe</strong> (payments, when you subscribe): standard PCI-compliant payment processing.</li>
+            <li><strong>Resend</strong> (email): for sending you the confirmation email or newsletter you opted into.</li>
+            <li>That's it. No advertising networks, no data brokers, no enrichment services.</li>
+          </ul>
+
+          <h2>How long I keep it</h2>
+          <p>Contact-form submissions: kept while we're in active conversation, then archived for 7 years for tax/audit purposes per ATO requirements. Newsletter sign-ups: kept until you unsubscribe. Server logs: ~30 days.</p>
+
+          <h2>Your rights</h2>
+          <ul>
+            <li><strong>Access</strong>: ask me what I have on you, I'll tell you within 30 days.</li>
+            <li><strong>Correction</strong>: I'll fix anything inaccurate, free.</li>
+            <li><strong>Deletion</strong>: ask me to wipe your record and I'll do it within 7 days, except where I'm legally required to retain it (e.g. payment records).</li>
+            <li><strong>Export</strong>: ask me for everything I have on you in CSV/JSON and I'll send it.</li>
+          </ul>
+
+          <h2>How to ask</h2>
+          <p>One email. <a href="mailto:hello@pennywiseit.com.au">hello@pennywiseit.com.au</a>. Subject line "Privacy request" + what you want. I reply within 1 business day.</p>
+
+          <h2>Complaints</h2>
+          <p>If you're not happy with how I've handled your data, contact me first — I'll fix it. If we can't agree, you can complain to the <a href="https://www.oaic.gov.au/" target="_blank" rel="noopener noreferrer">Office of the Australian Information Commissioner (OAIC)</a>.</p>
+
+          <h2>Changes to this policy</h2>
+          <p>If anything material changes, I'll update this page and email anyone whose contact details I have. The version date at the top of this page is the canonical reference.</p>
+        </div>
+      </div>
+    </section>
+${ctaSection('home')}`;
+}
+
+/** Terms of Service. Plain-English, AU SMB-appropriate. Steve should review and amend. */
+export function termsBody(): string {
+  return `
+    <section id="hero" aria-labelledby="terms-heading">
+      <div class="container">
+        <div class="hero-inner legal-inner">
+          <span class="kicker">Terms</span>
+          <h1 id="terms-heading" class="display">Terms of service.</h1>
+          <p class="hero-sub">Last updated 4 May 2026. The contract between you and me, in plain English.</p>
+
+          <div class="legal-callout">
+            <strong>The short version:</strong> You pay a flat monthly fee. I deliver a working app under your brand. Either of us can cancel any month with 30 days' notice. Your data is yours, your domain is yours, and if I disappear, your app keeps running.
+          </div>
+
+          <h2>1. Who's offering what</h2>
+          <p>Penny Wise I.T (operated by Steve, Queensland Australia) provides whitelabel software-as-a-service apps to small businesses. By using this site or signing up to one of the apps, you agree to these terms.</p>
+
+          <h2>2. The service</h2>
+          <p>I build, host, and maintain a custom-branded version of one of my published whitelabel apps for your business, on a domain you own (or one I help you register), running on infrastructure in your name where possible (Stripe, Cloudflare).</p>
+
+          <h2>3. Fees</h2>
+          <ul>
+            <li><strong>Setup fee</strong>: one-off, charged at the start. Covers branding, domain, configuration, content migration.</li>
+            <li><strong>Monthly fee</strong>: flat, charged on the same date each month via Stripe. Covers hosting, support, updates, and backups.</li>
+            <li><strong>Stripe processing fees</strong>: pass-through (Stripe's standard ~1.7% + 30c per AU transaction). I take no platform fee on top.</li>
+            <li>Prices on the <a href="/pricing">/pricing</a> page are AUD, GST-exclusive while my ABN registration is pending. Once issued, GST becomes payable on top of the listed price and full tax invoices are re-issued.</li>
+          </ul>
+
+          <h2>4. Cancellation</h2>
+          <p>Either of us can cancel at any time by emailing the other. The monthly fee stops on the next billing cycle, no questions asked. The setup fee is non-refundable except under the 30-day setup guarantee (see below). I'll provide a final data export in CSV format within 7 days of cancellation.</p>
+
+          <h2>5. 30-day setup guarantee</h2>
+          <p>If your branded app isn't live and working in production within 30 days of the setup fee clearing — and it's because of something I haven't done on my side — I refund the setup fee in full. Delays caused by your side (waiting for your domain, branding assets, content) don't count toward the 30 days.</p>
+
+          <h2>6. Your data ownership</h2>
+          <p>Every record stored in your app — customers, orders, bookings, photos, files — is yours. You can export it as CSV/JSON any time, even after cancellation. I don't claim ownership, sell, or share your business data. Ever.</p>
+
+          <h2>7. My code ownership</h2>
+          <p>The underlying app source code is mine (covered by my own private licence). You licence it on a subscription basis while you're a paying customer. On cancellation, you keep your data and your domain; the running app instance is shut down. If you need a permanent independent copy of the source code for continuity, ask — I'll grant a one-off perpetual licence for a negotiated fee.</p>
+
+          <h2>8. Continuity</h2>
+          <p>Every app's infrastructure is set up so you're not locked to me: your Cloudflare account, your Stripe account, your domain. If I'm hit by a bus, the apps keep running and any developer can take over. I keep a hand-over document that I'd send to my partner with instructions if I'm out of action longer than 7 days.</p>
+
+          <h2>9. Service level</h2>
+          <p>I aim to reply to support emails within 1 business day. Production outages: I aim to respond within 4 hours during AEST work hours, 24 hours otherwise. I don't promise specific uptime SLAs — Cloudflare's SLA covers the underlying infrastructure (typically 99.99%). If something material breaks, I'll fix it.</p>
+
+          <h2>10. Liability</h2>
+          <p>I do my best and stand behind my work, but I can't accept liability for indirect, consequential, or speculative damages (lost revenue, lost customers, etc.). My total liability for any claim is capped at the fees you've paid me in the previous 12 months. This doesn't override any rights you have under the Australian Consumer Law that can't be excluded.</p>
+
+          <h2>11. Acceptable use</h2>
+          <p>Don't use the app for anything illegal, fraudulent, or designed to harass others. Don't try to break the platform, scrape it, or resell it. If you do, I'll terminate without refund.</p>
+
+          <h2>12. Governing law</h2>
+          <p>These terms are governed by the laws of Queensland, Australia. Any dispute that can't be resolved by talking it out goes to a Queensland court.</p>
+
+          <h2>13. Changes</h2>
+          <p>If I update these terms in a way that materially affects you, I'll email you with at least 30 days' notice. You can cancel before the new terms take effect.</p>
+
+          <h2>14. Contact</h2>
+          <p>One email: <a href="mailto:hello@pennywiseit.com.au">hello@pennywiseit.com.au</a>. I reply.</p>
+        </div>
+      </div>
+    </section>
+${ctaSection('home')}`;
 }

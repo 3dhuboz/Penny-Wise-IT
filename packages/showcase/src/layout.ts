@@ -14,6 +14,8 @@ export type PageId =
   | 'pricing'
   | 'about'
   | 'faq'
+  | 'privacy'
+  | 'terms'
   | '404';
 
 export interface RenderLayoutOptions {
@@ -646,6 +648,19 @@ const STYLES = `
     /* About inline 'Talk to Steve' button */
     .about-inline-cta { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
+    /* Legal pages (Privacy, Terms) — narrow column, generous reading rhythm */
+    .legal-inner { max-width: 720px; margin: 0 auto; }
+    .legal-inner h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 0.75rem; }
+    .legal-inner h2 { font-family: var(--display-font); font-size: 1.15rem; margin: 2rem 0 0.5rem; color: var(--copper-hi); letter-spacing: -0.01em; }
+    .legal-inner p, .legal-inner ul { color: var(--soft); font-size: 1rem; line-height: 1.65; margin-bottom: 1rem; }
+    .legal-inner ul { padding-left: 1.4rem; }
+    .legal-inner li { margin-bottom: 0.4rem; }
+    .legal-inner a { color: var(--copper-hi); text-decoration: underline; text-underline-offset: 3px; }
+    .legal-inner a:hover { color: var(--text); }
+    .legal-inner strong { color: var(--text); }
+    .legal-callout { margin: 1.5rem 0 2rem; padding: 1rem 1.25rem; background: rgba(232,166,101,0.06); border: 1px solid rgba(232,166,101,0.2); border-radius: 12px; color: var(--soft); font-size: 0.95rem; line-height: 1.6; }
+    .legal-callout strong { color: var(--copper-hi); }
+
     /* Footer trust + newsletter */
     .footer-newsletter { padding: 1.25rem 0 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; gap: 0.65rem; align-items: center; text-align: center; }
     .footer-newsletter-blurb { color: var(--soft); font-size: 0.92rem; max-width: 540px; margin: 0; }
@@ -678,13 +693,14 @@ const COUNTER_SCRIPT = `
       function animate(el) {
         var target = parseFloat(el.getAttribute('data-counter')) || 0;
         var suffix = el.getAttribute('data-counter-suffix') || '';
-        if (prefersReduced) { el.textContent = target + suffix; return; }
+        var prefix = el.getAttribute('data-counter-prefix') || '';
+        if (prefersReduced) { el.textContent = prefix + target + suffix; return; }
         var start = performance.now();
         var dur = 1100;
         function tick(now) {
           var t = Math.min(1, (now - start) / dur);
           var eased = 1 - Math.pow(1 - t, 3);
-          el.textContent = Math.round(target * eased) + suffix;
+          el.textContent = prefix + Math.round(target * eased) + suffix;
           if (t < 1) requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);
@@ -858,6 +874,8 @@ const CTA_BY_PAGE: Record<PageId, { primary: string; secondary: { label: string;
   pricing: { primary: 'Get this set up',                                secondary: { label: 'Browse the apps',  href: '/apps' } },
   about:   { primary: 'Send Steve a message',                           secondary: { label: 'See pricing',      href: '/pricing' } },
   faq:     { primary: 'Still on the fence — message me',                secondary: { label: 'See pricing',      href: '/pricing' } },
+  privacy: { primary: 'Talk to Steve',                                  secondary: { label: 'Back to home',     href: '/' } },
+  terms:   { primary: 'Talk to Steve',                                  secondary: { label: 'Back to home',     href: '/' } },
   '404':   { primary: 'Talk to Steve',                                  secondary: { label: 'Browse the apps',  href: '/apps' } },
 };
 
@@ -894,8 +912,19 @@ const LEAD_MODAL_SCRIPT = `
     var status = modal.querySelector('.lead-status');
     var lastFocus;
 
+    function resetForm(){
+      // Reset state so re-opens always show a fresh form
+      formState.hidden = false;
+      successState.hidden = true;
+      status.className = 'lead-status';
+      status.textContent = '';
+      try { form.reset(); } catch(e){}
+      var btn = form.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = false; btn.textContent = 'Send — Steve replies within 1 business day'; }
+    }
     function open(sourceLabel){
       lastFocus = document.activeElement;
+      resetForm();
       var sourceInput = form.querySelector('input[name="source_page"]');
       if (sourceInput) sourceInput.value = sourceLabel || location.pathname;
       var refInput = form.querySelector('input[name="ref"]');
@@ -934,22 +963,45 @@ const LEAD_MODAL_SCRIPT = `
       if (ev.target === modal) close();
     });
     document.addEventListener('keydown', function(ev){
-      if (!modal.hidden && ev.key === 'Escape') close();
+      if (modal.hidden) return;
+      if (ev.key === 'Escape') { close(); return; }
+      if (ev.key !== 'Tab') return;
+      // Focus trap inside modal
+      var focusables = modal.querySelectorAll('button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])');
+      var visibles = [];
+      for (var i = 0; i < focusables.length; i++) {
+        var el = focusables[i];
+        if (el.offsetParent === null) continue; // skip hidden
+        if (el.disabled) continue;
+        visibles.push(el);
+      }
+      if (!visibles.length) return;
+      var first = visibles[0], last = visibles[visibles.length - 1];
+      if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+      else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
     });
 
     form.addEventListener('submit', function(ev){
       ev.preventDefault();
       if (form.elements.website && form.elements.website.value) return;
       var btn = form.querySelector('button[type="submit"]');
-      btn.disabled = true; btn.textContent = 'Sending...';
       status.className = 'lead-status'; status.textContent = '';
+      // Client-side validation
+      var name = form.elements.name.value.trim();
+      var business = form.elements.business_name.value.trim();
+      var email = form.elements.email.value.trim();
+      var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!name) { status.classList.add('is-error'); status.textContent = 'Please enter your name.'; form.elements.name.focus(); return; }
+      if (!business) { status.classList.add('is-error'); status.textContent = 'Please enter your business name.'; form.elements.business_name.focus(); return; }
+      if (!email || !emailRe.test(email)) { status.classList.add('is-error'); status.textContent = 'Please enter a valid email address.'; form.elements.email.focus(); return; }
+      btn.disabled = true; btn.textContent = 'Sending...';
       var data = {
         product_id: 'general',
         product_name: 'General inquiry',
-        name: form.elements.name.value.trim(),
-        business_name: form.elements.business_name.value.trim(),
+        name: name,
+        business_name: business,
         phone: form.elements.phone.value.trim(),
-        email: form.elements.email.value.trim(),
+        email: email,
         note: '[Source: ' + (form.elements.source_page.value || '/') + '] ' + form.elements.note.value.trim(),
         ref: form.elements.ref.value.trim(),
       };
@@ -1151,7 +1203,7 @@ ${body}
       <div class="footer-trust">
         <span>📍 Built and supported by Steve in Queensland</span>
         <span>·</span>
-        <span>💳 GST included · tax invoice via Stripe</span>
+        <span>💳 Receipts via Stripe · tax invoices once ABN issues</span>
         <span>·</span>
         <span>🔒 Cloudflare Sydney edge · Australian Privacy Act</span>
         <span>·</span>
@@ -1165,8 +1217,8 @@ ${body}
         <span>&copy; <span id="footer-year">2026</span> Penny Wise I.T. All rights reserved.</span>
       </div>
       <nav class="footer-links" aria-label="Footer">
-        <a href="/privacy.html">Privacy</a>
-        <a href="/terms.html">Terms</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
         <a href="#" data-open-lead data-source="footer-contact">Contact</a>
       </nav>
     </div>
