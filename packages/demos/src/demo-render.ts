@@ -1058,13 +1058,44 @@ section.panel, section.hero, section.evidence { padding-top:clamp(2.5rem,4vw,3.5
 .trust-icp-cell.cell-no  .icp-tag { background:rgba(248,113,113,0.12); color:#f87171; border:1px solid rgba(248,113,113,0.26); }
 .trust-icp-cell .icp-text { font-size:0.85rem; line-height:1.5; color:var(--soft); }
 
+/* Hero risk-reversal pill row + price subline (added in conversion overhaul) */
+.hero-trust-row { display: flex; flex-wrap: wrap; gap: 0.5rem 0.85rem; margin: 0.85rem 0 0.5rem; align-items: center; font-size: 0.78rem; color: var(--soft); }
+.hero-trust-pill { display: inline-flex; align-items: center; padding: 0.3rem 0.65rem; background: rgba(52, 211, 153, 0.08); border: 1px solid rgba(52, 211, 153, 0.25); border-radius: 999px; color: #34d399; font-weight: 600; }
+.hero-price-line { display: inline-flex; align-items: center; padding: 0.4rem 0.7rem; font-size: 0.78rem; color: var(--soft); font-weight: 500; }
+@media (max-width: 720px) { .hero-trust-row { gap: 0.35rem; } .hero-trust-pill { font-size: 0.72rem; padding: 0.25rem 0.55rem; } }
+
+/* Inline mid-page CTA strip */
+.inline-cta { display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 1.25rem 1.5rem; margin: 1.5rem 0; background: linear-gradient(135deg, ${g1}10, ${g2}08); border: 1px solid ${p.cta_color}33; border-radius: 14px; }
+.inline-cta > span { color: var(--text); font-weight: 600; font-size: 1rem; }
+.inline-cta .btn-brand { white-space: nowrap; }
+@media (max-width: 720px) { .inline-cta { padding: 1rem; } .inline-cta > span { font-size: 0.95rem; flex-basis: 100%; } }
+
+/* "Your first week" timeline */
+.week-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin-top: 0.5rem; }
+@media (min-width: 720px) { .week-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1100px) { .week-grid { grid-template-columns: repeat(4, 1fr); } }
+.week-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.15rem; }
+.week-day { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; color: ${p.cta_color}; margin-bottom: 0.45rem; }
+.week-task { font-size: 0.88rem; color: var(--soft); line-height: 1.5; }
+
+/* Modal risk-reversal strip */
+.modal-reassurance { display: flex; flex-wrap: wrap; gap: 0.4rem 0.75rem; padding: 0.65rem 0; margin: 0.5rem 0 0.85rem; border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); justify-content: center; font-size: 0.78rem; color: #34d399; font-weight: 600; }
+
+/* Modal post-submit success card */
+.modal-success-card { text-align: center; padding: 0.5rem 0; }
+.modal-success-tick { width: 56px; height: 56px; margin: 0 auto 1rem; background: linear-gradient(135deg, #34d399, #10b981); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; color: #0b0f1a; box-shadow: 0 8px 24px rgba(52, 211, 153, 0.35); }
+.modal-success-card h3 { margin: 0 0 0.5rem; }
+.modal-success-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+.modal-success-btn { width: 100%; padding: 0.75rem 1.25rem !important; font-size: 0.92rem !important; text-align: center; justify-content: center; }
+.hidden { display: none !important; }
+
 /* Reduced-motion guard */
 @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation: none !important; transition-duration: 0.01ms !important; scroll-behavior:auto !important; } }
 </style>
 </head><body>
 
 <div class="demo-banner">
-  \ud83e\uddea You're playing with a sample version of <strong>${esc(p.brand)}</strong>. Tap around \u2014 it all works. Your version would use <strong>your</strong> brand, data, and domain.
+  \ud83d\ude80 This is a real, working app \u2014 branded for <strong>${esc(b.name)}</strong>. Yours could go live like this in 7 days. Tap around \u2192
 </div>
 
 <nav class="site-nav" aria-label="Main">
@@ -1087,6 +1118,13 @@ section.panel, section.hero, section.evidence { padding-top:clamp(2.5rem,4vw,3.5
       <div class="hero-ctas">
         <a href="${esc(chrome.primary_cta.href)}" class="btn-brand">${esc(chrome.primary_cta.label)}</a>
         <a href="${esc(chrome.secondary_cta.href)}" class="btn-ghost">${esc(chrome.secondary_cta.label)}</a>
+        <button type="button" class="btn-brand hero-modal-cta" onclick="openGetThis()">\u{1F680} I want this \u2014 show me a plan</button>
+        <span class="hero-price-line">From $${p.pricing[0]?.setup || 499} setup + $${p.pricing[0]?.price_per_month || 79}/mo \u00b7 live in 1 week</span>
+      </div>
+      <div class="hero-trust-row">
+        <span class="hero-trust-pill">\u2713 Cancel any month \u00b7 no lock-in</span>
+        <span class="hero-trust-pill">\u2713 30-day setup guarantee</span>
+        <span class="hero-trust-pill">\u2713 Your data, exportable any time</span>
       </div>
       <div class="hero-meta">
         ${b.phone !== '\u2014' ? `<span>\ud83d\udcde <strong>${esc(b.phone)}</strong></span>` : ''}
@@ -1119,6 +1157,10 @@ section.panel, section.hero, section.evidence { padding-top:clamp(2.5rem,4vw,3.5
       <div class="use-case-body b-proof">${esc(content.use_case.proof)}</div>
     </div>
   </section>
+  <div class="inline-cta">
+    <span>Want this kind of week for your business?</span>
+    <button type="button" class="btn-brand" onclick="openGetThis()">Get a tailored plan →</button>
+  </div>
   ` : ''}
 
   ${renderDemoBody(p, b)}
@@ -1139,6 +1181,10 @@ section.panel, section.hero, section.evidence { padding-top:clamp(2.5rem,4vw,3.5
       `).join('')}
     </div>
   </section>
+  <div class="inline-cta">
+    <span>Stop paying ${p.id === 'tradie' ? 'ServiceM8' : p.id === 'online-store' ? 'Shopify' : p.id === 'festival' ? 'Eventbrite' : p.id === 'ai-social' ? 'Patreon' : 'them'}.</span>
+    <button type="button" class="btn-brand" onclick="openGetThis()">Switch in a week →</button>
+  </div>
   ` : ''}
 
   ${content.trust.quote ? `
@@ -1178,6 +1224,10 @@ section.panel, section.hero, section.evidence { padding-top:clamp(2.5rem,4vw,3.5
       </div>
     </div>
   </section>
+  <div class="inline-cta">
+    <span>Become the next ${esc(b.name)}.</span>
+    <button type="button" class="btn-brand" onclick="openGetThis()">Get started →</button>
+  </div>
   ` : ''}
 
   <section class="evidence" id="why">
@@ -1194,6 +1244,45 @@ section.panel, section.hero, section.evidence { padding-top:clamp(2.5rem,4vw,3.5
         </div>
       `).join('')}
     </div>
+  </section>
+
+  <section class="panel" style="background:linear-gradient(135deg,${g1}10,${g2}08);border:1px solid ${p.cta_color}33">
+    <div class="kicker">Your first week</div>
+    <h2 class="display">From "yes" to live in 7 days.</h2>
+    <p style="color:var(--soft);max-width:600px;margin:0.5rem 0 1.25rem">No lock-in contracts. No surprise fees. Here's exactly what happens once you reply:</p>
+    <div class="week-grid">
+      <div class="week-card"><div class="week-day">Day 1</div><div class="week-task">You send: logo, brand colours, 3 sample listings, your domain (or we register one for you).</div></div>
+      <div class="week-card"><div class="week-day">Day 2\u20133</div><div class="week-task">I configure your branded version, set up Stripe in your name, wire your domain.</div></div>
+      <div class="week-card"><div class="week-day">Day 4\u20135</div><div class="week-task">You preview, request changes, we tweak. Test orders + SMS together.</div></div>
+      <div class="week-card"><div class="week-day">Day 6\u20137</div><div class="week-task">Live. You start taking orders. I'm on Slack/SMS for any questions.</div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="kicker">What you actually pay for</div>
+    <h2 class="display">$${p.pricing[0]?.price_per_month || 79}/month, all-in.</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0">
+      <div>
+        <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#34d399;margin-bottom:0.5rem">\u2713 Included flat</div>
+        <ul style="list-style:none;padding:0;color:var(--soft);font-size:0.92rem;line-height:1.7">
+          <li>\u2022 Hosting (Cloudflare Sydney edge)</li>
+          <li>\u2022 Your .au domain</li>
+          <li>\u2022 Branded site + admin app</li>
+          <li>\u2022 Auto-SMS to customers (fair-use bundle)</li>
+          <li>\u2022 Unlimited content changes</li>
+          <li>\u2022 Same-day support replies</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem">\u2192 Pass-through (your accounts)</div>
+        <ul style="list-style:none;padding:0;color:var(--soft);font-size:0.92rem;line-height:1.7">
+          <li>\u2022 Stripe processing (~1.75% + 30c per AU transaction)</li>
+          <li>\u2022 Domain rego if you don't have one (~$15/yr)</li>
+          <li>\u2022 That's it. No platform cut. No app store.</li>
+        </ul>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:0.82rem;margin:0;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.05)">Setup fee is one-off. After that, the only line on your invoice from me is $${p.pricing[0]?.price_per_month || 79}/mo.</p>
   </section>
 
   <section class="panel" style="background:linear-gradient(135deg,${g1}14,${g2}10,${g3}14);border:1px solid ${p.cta_color}33;text-align:center;margin-top:1.5rem">
@@ -1215,23 +1304,28 @@ section.panel, section.hero, section.evidence { padding-top:clamp(2.5rem,4vw,3.5
 <div id="get-modal" class="modal-overlay" onclick="if(event.target===this)closeGetThis()">
   <div class="modal-card">
     <button class="modal-close" onclick="closeGetThis()">\u00d7</button>
-    <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${p.cta_color};margin-bottom:0.4rem">Get ${esc(p.brand)} for your business</div>
-    <h3 class="display" style="font-size:1.5rem;margin-bottom:0.4rem">Send this to your rep.</h3>
-    <p style="color:var(--soft);font-size:0.88rem;margin-bottom:1.25rem">Drop your details \u2014 <span id="rep-name-inline">your Penny Wise I.T rep</span> will follow up within 24 hours with a tailored plan.</p>
+    <div id="g-modal-body">
+      <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${p.cta_color};margin-bottom:0.4rem">Get ${esc(p.brand)} for your business</div>
+      <h3 class="display" style="font-size:1.5rem;margin-bottom:0.4rem">Get ${esc(b.name)}, branded as yours.</h3>
+      <p style="color:var(--soft);font-size:0.88rem;margin-bottom:1rem">Drop your details. <span id="rep-name-inline">Steve</span> will email you within 1 business day with a setup plan + final price.</p>
 
-    <div id="rep-card-slot"></div>
+      <div id="rep-card-slot"></div>
 
-    <div class="form-row"><label>Your name *</label><input type="text" id="g-name" placeholder="Sarah Mitchell" required></div>
-    <div class="form-row"><label>Business name</label><input type="text" id="g-business" placeholder="Sarah\u2019s Cafe"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
-      <div class="form-row"><label>Phone</label><input type="tel" id="g-phone" placeholder="0412 345 678"></div>
+      <div class="modal-reassurance">
+        <span>\u2713 No lock-in</span>
+        <span>\u2713 Cancel any month</span>
+        <span>\u2713 Quote before you commit</span>
+      </div>
+
+      <div class="form-row"><label>Your name *</label><input type="text" id="g-name" placeholder="Sarah Mitchell" required></div>
+      <div class="form-row"><label>Business name (optional)</label><input type="text" id="g-business" placeholder="Optional"></div>
       <div class="form-row"><label>Email *</label><input type="email" id="g-email" placeholder="sarah@email.com" required></div>
-    </div>
-    <div class="form-row"><label>Anything specific? (optional)</label><textarea id="g-note" rows="2" placeholder="I\u2019d love my own online store for our bakery..."></textarea></div>
+      <div class="form-row"><label>Anything specific? (optional)</label><textarea id="g-note" rows="2" placeholder="I\u2019d love my own online store for our bakery..."></textarea></div>
 
-    <button id="g-submit" class="nav-cta" style="width:100%;padding:0.85rem;font-size:0.95rem;margin-top:0.5rem" onclick="submitGetThis()">\u{1F680} Send to my rep</button>
-    <div id="g-status" style="margin-top:0.5rem;font-size:0.82rem;text-align:center;color:var(--soft);min-height:1em"></div>
-    <div style="margin-top:0.75rem;font-size:0.68rem;color:var(--muted);text-align:center">No spam. No tricks. One human follow-up.</div>
+      <button id="g-submit" class="nav-cta" style="width:100%;padding:0.85rem;font-size:0.95rem;margin-top:0.5rem" onclick="submitGetThis()">Get my tailored plan \u2192</button>
+      <div id="g-status" style="margin-top:0.5rem;font-size:0.82rem;text-align:center;color:var(--soft);min-height:1em"></div>
+      <div style="margin-top:0.75rem;font-size:0.68rem;color:var(--muted);text-align:center">No spam. No tricks. One human follow-up.</div>
+    </div>
   </div>
 </div>
 
@@ -1301,11 +1395,46 @@ loadRep();
 
 function openGetThis() { document.getElementById('get-modal').classList.add('open'); }
 function closeGetThis() { document.getElementById('get-modal').classList.remove('open'); }
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const m = document.getElementById('get-modal');
+    if (m && m.classList.contains('open')) closeGetThis();
+  }
+});
+
+function escAttr(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] || c)); }
+
+function showSuccessCard(name, email, repFirstName) {
+  const body = document.getElementById('g-modal-body');
+  if (!body) return;
+  const safeName = escAttr(name);
+  const safeEmail = escAttr(email);
+  const productBrand = ${JSON.stringify(p.brand)};
+  const shareSubject = encodeURIComponent('Have a look at this \u2014 ' + productBrand);
+  const shareBody = encodeURIComponent('Found this \u2014 looks like a fit for our business: ' + window.location.href);
+  body.innerHTML =
+    '<div class="modal-success-card">' +
+      '<div class="modal-success-tick">\u2713</div>' +
+      '<h3 class="display">On its way, ' + safeName + '.</h3>' +
+      '<p style="color:var(--soft);font-size:0.95rem;line-height:1.55;margin:0 0 1.25rem">' +
+        (repFirstName || 'Steve') + ' will email <strong>' + safeEmail + '</strong> within 1 business day with a setup plan + final price for ' + escAttr(productBrand) + ' branded as your business. Check spam if you don\\'t see it.' +
+      '</p>' +
+      '<div class="modal-success-actions">' +
+        '<a href="#book-call" class="btn-brand modal-success-btn" onclick="event.preventDefault(); document.getElementById(\\'book-call-form\\').classList.remove(\\'hidden\\'); this.style.display=\\'none\\'">\ud83d\udcc5 Book a 15-min call instead</a>' +
+        '<a href="https://www.pennywiseit.com.au/apps" target="_blank" rel="noopener noreferrer" class="btn-ghost modal-success-btn">See the other 8 apps</a>' +
+        '<a href="mailto:?subject=' + shareSubject + '&body=' + shareBody + '" class="btn-ghost modal-success-btn">Send to a partner</a>' +
+      '</div>' +
+      '<form id="book-call-form" class="hidden" style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.06)" onsubmit="event.preventDefault();bookCall()">' +
+        '<div class="form-row"><label>Three times that work for you</label><textarea rows="3" id="bc-times" placeholder="e.g. Tue 9\u201311am, Wed afternoon, Fri 4pm" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.7rem 0.85rem;color:var(--text);font-family:inherit;font-size:0.92rem;width:100%"></textarea></div>' +
+        '<button type="button" class="btn-brand" onclick="bookCall()" style="width:100%">Send my times</button>' +
+        '<div id="bc-status" style="margin-top:0.5rem;font-size:0.82rem;text-align:center;color:var(--soft)"></div>' +
+      '</form>' +
+    '</div>';
+}
 
 async function submitGetThis() {
   const name = document.getElementById('g-name').value.trim();
   const business = document.getElementById('g-business').value.trim();
-  const phone = document.getElementById('g-phone').value.trim();
   const email = document.getElementById('g-email').value.trim();
   const note = document.getElementById('g-note').value.trim();
   const btn = document.getElementById('g-submit');
@@ -1319,18 +1448,41 @@ async function submitGetThis() {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         product_id: PRODUCT_ID, product_name: PRODUCT_NAME,
-        name, business_name: business, phone, email, note, ref: REF,
+        name, business_name: business, email, note, ref: REF,
       }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Something went wrong');
-    status.innerHTML = '\u2705 Sent to ' + (data.rep_first_name || 'Steve') + '. They\\'ll be in touch within 24 hours.';
-    status.style.color = '#34d399';
-    btn.textContent = 'On its way';
+    showSuccessCard(name, email, data.rep_first_name || 'Steve');
   } catch (e) {
     status.textContent = e.message || 'Failed. Please try again.';
     status.style.color = '#f87171';
-    btn.disabled = false; btn.textContent = '\u{1F680} Send to my rep';
+    btn.disabled = false; btn.textContent = 'Get my tailored plan \u2192';
+  }
+}
+
+async function bookCall() {
+  const times = document.getElementById('bc-times').value.trim();
+  const status = document.getElementById('bc-status');
+  if (!times) { status.textContent = 'Enter at least one time.'; status.style.color = '#f87171'; return; }
+  status.textContent = 'Sending...'; status.style.color = '#a0aec0';
+  try {
+    const res = await fetch('${VALIDATOR_URL}/api/public/demo-interest', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        product_id: PRODUCT_ID + '-booking', product_name: PRODUCT_NAME,
+        name: 'Booking request', email: '', note: 'Booking: ' + times, ref: REF,
+      }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Something went wrong');
+    }
+    status.textContent = '\u2705 Times sent. Steve will confirm by email shortly.';
+    status.style.color = '#34d399';
+  } catch (e) {
+    status.textContent = e.message || 'Failed. Please try again.';
+    status.style.color = '#f87171';
   }
 }
 
