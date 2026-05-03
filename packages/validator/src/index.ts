@@ -1094,7 +1094,7 @@ Lead: ${text}
     const t = (r.response || '').trim();
     const m = t.match(/\{[\s\S]*\}/);
     if (!m) return;
-    const tags = JSON.parse(m[0]);
+    const tags = safeParse<any>(m[0], {});
     const compact = {
       industry: tags.industry || 'other',
       size: tags.size || 'unknown',
@@ -1306,7 +1306,7 @@ ${wrapForLLM(text, 3000)}
     const t = (r.response || '').trim();
     const m = t.match(/\{[\s\S]*\}/);
     if (!m) return c.json({ error: 'AI parse failed' }, 502);
-    return c.json({ success: true, ...JSON.parse(m[0]), source_url: url });
+    return c.json({ success: true, ...safeParse<any>(m[0], {}), source_url: url });
   } catch (e: any) {
     return c.json({ error: 'AI failed: ' + e.message }, 502);
   }
@@ -1481,7 +1481,7 @@ Output ONLY valid JSON:
     const text = (response.response || '').trim();
     const m = text.match(/\{[\s\S]*\}/);
     if (!m) return c.json({ summary: 'No summary available', next_action: '' });
-    const parsed = JSON.parse(m[0]);
+    const parsed = safeParse<any>(m[0], { summary: '', next_action: '' });
     return c.json({ summary: parsed.summary || '', next_action: parsed.next_action || '' });
   } catch (e: any) {
     return c.json({ summary: '', next_action: '', error: e.message });
@@ -5262,8 +5262,8 @@ app.post('/salesperson/extract-lead-from-image', async (c) => {
   const sp = await getSalespersonFromToken(c.env.DB, c.req.header('Authorization'));
   if (!sp) return c.json({ error: 'Unauthorized' }, 401);
   const blocked = await aiRateLimit(c, sp); if (blocked) return blocked;
-  const body = await c.req.json();
-  const imageBase64 = body.image_base64; // expects raw base64 (no data: prefix)
+  const body = await c.req.json().catch(() => ({}));
+  const imageBase64 = (body as any).image_base64; // expects raw base64 (no data: prefix)
   if (!imageBase64) return c.json({ error: 'image_base64 required' }, 400);
   // Decode to byte array for Workers AI
   let bytes: Uint8Array;
@@ -5300,7 +5300,7 @@ If is_a_lead is false (they're a competitor offering services), set everything e
     const text = (response.response || '').trim();
     const m = text.match(/\{[\s\S]*\}/);
     if (!m) return c.json({ error: 'Could not parse AI response', raw: text });
-    const parsed = JSON.parse(m[0]);
+    const parsed = safeParse<any>(m[0], { is_a_lead: false, error: 'AI output unparseable' });
     return c.json({ success: true, ...parsed });
   } catch (e: any) {
     return c.json({ error: 'Vision AI failed: ' + e.message }, 502);
