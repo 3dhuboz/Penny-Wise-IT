@@ -16,7 +16,16 @@ export type PageId =
   | 'faq'
   | 'privacy'
   | 'terms'
-  | '404';
+  | '404'
+  | 'food-trucks'
+  | 'tradies'
+  | 'store'
+  | 'festivals'
+  | 'butchers'
+  | 'sports-clubs'
+  | 'car-hire'
+  | 'community'
+  | 'delivery';
 
 export interface RenderLayoutOptions {
   page: PageId;
@@ -877,6 +886,17 @@ const CTA_BY_PAGE: Record<PageId, { primary: string; secondary: { label: string;
   privacy: { primary: 'Talk to Steve',                                  secondary: { label: 'Back to home',     href: '/' } },
   terms:   { primary: 'Talk to Steve',                                  secondary: { label: 'Back to home',     href: '/' } },
   '404':   { primary: 'Talk to Steve',                                  secondary: { label: 'Browse the apps',  href: '/apps' } },
+  // Vertical landing pages — each rotates a vertical-specific primary CTA
+  // and links the secondary to the live demo for that product.
+  'food-trucks':  { primary: 'Get my food-truck app set up',  secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/food-truck' } },
+  'tradies':      { primary: 'Get my tradie app set up',      secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/tradie' } },
+  'store':        { primary: 'Get my online store set up',    secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/online-store' } },
+  'festivals':    { primary: 'Get my festival app set up',    secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/festival' } },
+  'butchers':     { primary: 'Get my butcher shop set up',    secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/butchers' } },
+  'sports-clubs': { primary: 'Get my sports-club app set up', secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/sports-club' } },
+  'car-hire':     { primary: 'Get my car-hire app set up',    secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/car-hire' } },
+  'community':    { primary: 'Get my community app set up',   secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/ai-social' } },
+  'delivery':     { primary: 'Get my delivery app set up',    secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/delivery' } },
 };
 
 export function ctaSection(page: PageId): string {
@@ -1084,6 +1104,69 @@ function navHtml(activePage: PageId, mobile = false): string {
   return `${containerOpen}\n${links}${mobileExtra}\n        ${containerClose}`;
 }
 
+// Breadcrumb metadata keyed by pathname. Last item is the current page.
+// Two-tier verticals (under /apps) get an explicit Apps parent; everything
+// else sits directly under Home. The 404 page is intentionally absent.
+type BreadcrumbInfo = { name: string; underApps?: boolean };
+const BREADCRUMB_MAP: Readonly<Record<string, BreadcrumbInfo>> = {
+  '/apps': { name: 'Apps' },
+  '/numbers': { name: 'Numbers' },
+  '/roi': { name: 'ROI Calculator' },
+  '/pricing': { name: 'Pricing' },
+  '/about': { name: 'About' },
+  '/faq': { name: 'FAQ' },
+  '/privacy': { name: 'Privacy Policy' },
+  '/terms': { name: 'Terms of Service' },
+  '/food-trucks': { name: 'Food Truck App', underApps: true },
+  '/tradies': { name: 'Tradie Field Service', underApps: true },
+  '/store': { name: 'Online Store', underApps: true },
+  '/festivals': { name: 'Festival & Event App', underApps: true },
+  '/butchers': { name: 'Butcher Shop & Online Orders', underApps: true },
+  '/sports-clubs': { name: 'Sports Club Hub', underApps: true },
+  '/car-hire': { name: 'Car Hire & Rentals', underApps: true },
+  '/community': { name: 'AI Community Platform', underApps: true },
+  '/delivery': { name: 'Delivery & Logistics', underApps: true },
+};
+
+/**
+ * Renders a JSON-LD BreadcrumbList script tag for the given pathname.
+ * Returns empty string for paths not in the map (e.g. '/' and 404).
+ */
+export function breadcrumbLd(pathname: string): string {
+  const info = BREADCRUMB_MAP[pathname];
+  if (!info) return '';
+
+  type Item = { '@type': 'ListItem'; position: number; name: string; item?: string };
+  const items: Item[] = [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_ORIGIN}/` },
+  ];
+
+  if (info.underApps) {
+    items.push({
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Apps',
+      item: `${SITE_ORIGIN}/apps`,
+    });
+    // Final breadcrumb item omits `item` per schema.org guidance for the
+    // current page, so search engines treat it as the active leaf.
+    items.push({ '@type': 'ListItem', position: 3, name: info.name });
+  } else {
+    items.push({ '@type': 'ListItem', position: 2, name: info.name });
+  }
+
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items,
+  };
+
+  return `
+  <script type="application/ld+json">
+  ${JSON.stringify(ld)}
+  </script>`;
+}
+
 export function renderLayout(opts: RenderLayoutOptions): string {
   const {
     page,
@@ -1101,6 +1184,8 @@ export function renderLayout(opts: RenderLayoutOptions): string {
   const productLd = includeProductSchema ? PRODUCT_GRAPH_LD : '';
   const counterScript = includeCounters ? COUNTER_SCRIPT : '';
   const roiScript = includeRoiForm ? ROI_SCRIPT : '';
+  // Home and 404 don't get breadcrumbs — home is the root, 404 isn't a real page.
+  const breadcrumbLdHtml = breadcrumbLd(pathname);
 
   return `<!doctype html>
 <html lang="en">
@@ -1144,7 +1229,7 @@ export function renderLayout(opts: RenderLayoutOptions): string {
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Penny Wise I.T">
   <meta name="application-name" content="Penny Wise I.T">
-${ORGANIZATION_LD}${productLd}
+${ORGANIZATION_LD}${productLd}${breadcrumbLdHtml}
   <style>${STYLES}
   </style>
 </head>

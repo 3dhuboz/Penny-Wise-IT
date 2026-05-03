@@ -3,6 +3,7 @@
 // CTA panel is appended to every page so every visitor has a clear conversion path.
 
 import { ctaSection } from './layout';
+import type { PageId } from './layout';
 
 const HERO_SECTION = `
     <section id="hero" aria-labelledby="hero-heading">
@@ -610,6 +611,378 @@ export function privacyBody(): string {
       </div>
     </section>
 ${ctaSection('home')}`;
+}
+
+// ─── Vertical landing pages ────────────────────────────────────────────────
+// Per-product entry pages for SEO + paid traffic. Each one is intentionally
+// short (~3 viewports): hero → big product mock → 4 bullets → pricing row →
+// use-case → CTA. No bento grid, no KPIs, no comparison strip — just the
+// vertical's pain, the proof, and a single clear next step.
+
+interface VerticalContent {
+  /** Stable slug used as the URL path (e.g. "food-trucks"). */
+  slug: PageId;
+  /** Canonical product ID inside the system (e.g. "food-truck"). */
+  productId: string;
+  /** Product short name shown in card kicker (e.g. "FOOD-TRUCK PLATFORM"). */
+  productKicker: string;
+  /** Product display name (e.g. "Food-Truck App"). */
+  productName: string;
+  h1: string;
+  intro: string;
+  bullets: string[];
+  useCase: string;
+  /** Entry-tier label (e.g. "Single Van"). */
+  entryTier: string;
+  /** Entry-tier price (e.g. "$79/mo + $499 setup"). */
+  entryPrice: string;
+  /** Top-tier label (e.g. "Fleet/Franchise"). */
+  topTier: string;
+  /** Top-tier price (e.g. "$159/mo + $499 setup"). */
+  topPrice: string;
+  /** Short product description for JSON-LD + meta. */
+  productDescription: string;
+  /** Schema.org category (matches the existing PRODUCT_GRAPH_LD). */
+  category: string;
+}
+
+const VERTICAL_CONTENT: Record<string, VerticalContent> = {
+  'food-trucks': {
+    slug: 'food-trucks',
+    productId: 'food-truck',
+    productKicker: 'FOOD-TRUCK PLATFORM',
+    productName: 'Food-Truck App',
+    h1: "Pre-orders before the queue. SMS the moment it's ready.",
+    intro: "A food-truck app, branded as yours, live in a week. Customers pre-order on their phone before they arrive, get a text the moment their burger's up. No hardware, no Square cut, no walk-aways.",
+    bullets: [
+      'Live online ordering with auto-SMS pickup alerts',
+      'Customers pre-order at quiet times, you cook with confidence',
+      'Stripe direct — keep every dollar Square would have skimmed',
+      'Your domain, your customer list, your SEO — not order.square.site/yourtruck',
+    ],
+    useCase:
+      "Friday 6:42pm. Big Red just got booked for the Yeppoon Sea Breeze Markets next Saturday — 4-hour pop-up, no second chances. One SMS broadcast goes to 612 past customers. By Saturday morning: 73 pre-orders worth $2,140 already locked in. You knew exactly how much brisket to smoke Friday night. Zero waste, zero walk-aways.",
+    entryTier: 'Single Van',
+    entryPrice: '$79/mo + $499 setup',
+    topTier: 'Fleet/Franchise',
+    topPrice: '$159/mo + $499 setup',
+    productDescription:
+      'Live online ordering platform for food trucks with SMS updates, QR menus, and pickup alerts',
+    category: 'Food & Hospitality Software',
+  },
+  'tradies': {
+    slug: 'tradies',
+    productId: 'tradie',
+    productKicker: 'FIELD SERVICE PLATFORM',
+    productName: 'Tradie Field Service',
+    h1: 'Online booking, deposit captured, SMS reminders. Quote-to-invoice in one app.',
+    intro: 'A field-service app branded for your trade, live in a week. Customers self-book a slot from your live calendar, pay a deposit upfront, and get auto-SMS reminders before you arrive. No more voicemail-to-the-next-sparky-in-Google.',
+    bullets: [
+      'Live booking calendar with deposit hold (no more no-shows)',
+      'Auto-SMS confirmations, day-before reminders, "I\'m 30 mins away"',
+      '30-second video wrap-ups texted as proof of work',
+      'Rego auto-lookup → quote → invoice → paid in one flow',
+    ],
+    useCase:
+      "Tuesday 2:30pm. Sparky Mike's halfway up a ladder in Gracemere when his phone rings for the fourth time. Voicemail. The next sparky in Google gets the job. With the app: customer hits the site, picks Thursday 9am from a live calendar, pays $50 deposit. Mike gets an SMS at 2:31pm. Three bookings landed today while he was on tools.",
+    entryTier: 'Solo Workshop',
+    entryPrice: '$99/mo + $499 setup',
+    topTier: 'Multi-Bay/Fleet',
+    topPrice: '$199/mo + $499 setup',
+    productDescription:
+      'Field service management platform for tradies with online booking, rego lookup, and video wrap-ups',
+    category: 'Field Service Software',
+  },
+  'store': {
+    slug: 'store',
+    productId: 'online-store',
+    productKicker: 'ONLINE STORE PLATFORM',
+    productName: 'Online Store',
+    h1: 'Stripe direct, no Shopify tax. Your domain, your customer list, your data.',
+    intro: 'A custom-branded online store, live in a week. Stripe checkout (no platform cut), built-in SMS shipping updates, customer list lives in your D1 — exportable any time, even after you cancel.',
+    bullets: [
+      'Stripe direct — Shopify Advanced + apps would skim ~$430/mo',
+      'Built-in SMS order updates (no Klaviyo subscription needed)',
+      'Wholesale/B2B logins on the same site as retail',
+      'Your customer list in your Cloudflare D1, never hostage to a platform',
+    ],
+    useCase:
+      "Sunday night. Bay City just bottled a 48-jar batch of Ferment #14 — habanero kraut, three months in the making. Photo up at 8:14pm. SMS+email blast to 2,847 subscribers at 8:30pm. By 9:15pm: 41 jars sold at $18 each. Stripe deposits $738 the next morning — no platform cut. That's $145 you would've handed Shopify, kept.",
+    entryTier: 'Starter Store',
+    entryPrice: '$79/mo + $499 setup',
+    topTier: 'Growing Brand',
+    topPrice: '$149/mo + $499 setup',
+    productDescription:
+      'Custom branded online store with Stripe checkout and zero platform fees',
+    category: 'E-commerce Software',
+  },
+  'festivals': {
+    slug: 'festivals',
+    productId: 'festival',
+    productKicker: 'EVENT PLATFORM',
+    productName: 'Festival & Event App',
+    h1: 'Tickets, schedule, QR scan, push alerts — all under your branding.',
+    intro: 'An event app, your branding, live before your next pop-up. Sell tickets via Stripe (no Eventbrite cut), update the schedule live, push alerts when the stage changes, scan QR codes at the gate.',
+    bullets: [
+      'Tickets via Stripe — no $1.79/ticket Eventbrite tax',
+      'Push alerts to every attendee when weather/stage changes',
+      'QR ticket scanning at the gate (works offline, syncs later)',
+      'Vendor stalls + maps + post-event survey, all in one app',
+    ],
+    useCase:
+      'Saturday 3:14pm at Gladstone Summer Fest. A storm cell rolls in. Main stage shifts indoors in 20 minutes. One push alert + SMS fallback fires to every ticket holder. 3,940 phones buzz at once with the new stage map. Zero refund requests Monday. Sponsors saw 93% click-through and re-booked for next year on the spot.',
+    entryTier: 'Single Event',
+    entryPrice: '$199/mo + $999 setup',
+    topTier: 'Festival/Multi-Event',
+    topPrice: '$399/mo + $999 setup',
+    productDescription:
+      'Event management platform with ticketing, live schedule, and QR gate scanning',
+    category: 'Event Management Software',
+  },
+  'butchers': {
+    slug: 'butchers',
+    productId: 'butchers',
+    productKicker: 'BUTCHER SHOP PLATFORM',
+    productName: 'Butcher Shop & Online Orders',
+    h1: 'Custom cuts, freezer packs, click & collect — Sunday phone calls go to zero.',
+    intro: 'An online ordering app for a real butcher shop, branded as yours, live in a week. Custom cuts with weight-tolerance, freezer packs, click & collect, auto-stocktake from sales. Your customers stop ringing Sunday afternoon.',
+    bullets: [
+      'Custom cut requests with weight tolerance ("I want ~1.2kg ribeye, trimmed")',
+      'Freezer pack bundles ($150 mixed pack) + click & collect',
+      'SMS at "ready for pickup" / "left the shop"',
+      'Auto-stocktake — daily inventory adjusts from sales, no spreadsheet',
+    ],
+    useCase:
+      "Tuesday 10am. Moey's gets 4 custom-cut requests for Friday. The app's already taken the deposit, slotted them on the cutting list, and texted each customer 'received'. By Friday afternoon: 4 ready-for-pickup SMS fire automatically as the meat clears the saw. Zero phone calls. Sunday afternoon stays Sunday afternoon.",
+    entryTier: 'Single Shop',
+    entryPrice: '$99/mo + $499 setup',
+    topTier: 'Multi-Shop/Wholesale',
+    topPrice: '$199/mo + $499 setup',
+    productDescription:
+      'Online ordering for butcher shops — custom-cut requests, freezer pack bundles, click & collect, local delivery, auto-stocktake',
+    category: 'Food Retail Software',
+  },
+  'sports-clubs': {
+    slug: 'sports-clubs',
+    productId: 'sports-club',
+    productKicker: 'SPORTS CLUB PLATFORM',
+    productName: 'Sports Club Hub',
+    h1: 'Player + parent + coach + admin portals. Fixtures, fees, and chat in one app.',
+    intro: 'A sports-club app, branded for your club, live before next season. Replaces TeamSnap, GameDay, and three Facebook groups — with player profiles, fixtures, fees via Stripe, and a chat per team.',
+    bullets: [
+      'Per-role portals: Player, Parent, Coach, Admin',
+      'Fixtures with auto match-day reminders',
+      'Membership + match fees via Stripe (no per-seat tax)',
+      'Chat per team, no more Facebook groups',
+    ],
+    useCase:
+      'Pre-season Sunday. Yeppoon Junior Rugby League opens registrations. By Monday morning: 87 players signed up, $13,920 in fees collected via Stripe, fixtures published, parent chat groups auto-created per team. Last year that was 6 weeks of spreadsheets.',
+    entryTier: 'Junior Club (≤200)',
+    entryPrice: '$79/mo + $999 setup',
+    topTier: 'Senior + Junior',
+    topPrice: '$199/mo + $999 setup',
+    productDescription:
+      'All-in-one community sports club app — fixtures, registrations, team chat, lineup tools, committee financials',
+    category: 'Sports Club Software',
+  },
+  'car-hire': {
+    slug: 'car-hire',
+    productId: 'car-hire',
+    productKicker: 'CAR-HIRE PLATFORM',
+    productName: 'Car Hire & Rentals',
+    h1: 'Date-range booking, license upload, lockbox SMS pickup. Flat-fee, no Turo cut.',
+    intro: 'A car-hire app for your fleet, branded as yours, live in a week. Customers self-book online, upload their licence, pay deposit + balance, and get a lockbox-code SMS at pickup time. No counter staff.',
+    bullets: [
+      'Live fleet calendar with blackouts + maintenance windows',
+      'Stripe deposit + balance, license upload to your R2',
+      'Lockbox SMS at pickup time — no counter staff needed',
+      'No 30% Turo cut, no Hertz franchise lock-in',
+    ],
+    useCase:
+      'Friday afternoon. Yapoon Auto Rentals goes live for the long-weekend rush. By Sunday evening: 14 bookings cleared, all self-service, lockbox codes auto-issued, no counter staff. Saturday morning was a sleep-in, not a queue at the counter.',
+    entryTier: 'Solo Yard',
+    entryPrice: '$129/mo + $499 setup',
+    topTier: 'Fleet (10+ vehicles)',
+    topPrice: '$269/mo + $499 setup',
+    productDescription:
+      'Vehicle rental platform with date-range booking, license upload, Stripe deposits, lockbox SMS pickup, and a fleet calendar',
+    category: 'Vehicle Rental Software',
+  },
+  'community': {
+    slug: 'community',
+    productId: 'ai-social',
+    productKicker: 'COMMUNITY PLATFORM',
+    productName: 'AI Social Platform',
+    h1: 'Private community on your domain. AI moderates spam while you sleep.',
+    intro: 'A members-only community app for your tribe, branded as yours, live in a week. Replaces Facebook groups, Patreon, and Discord with one focused thing: a feed your members actually see, on a domain you own.',
+    bullets: [
+      '100% reach — no algorithm hiding your posts from your members',
+      'AI moderation auto-hides spam in milliseconds',
+      'Paid memberships via Stripe (no Patreon 8-12% cut)',
+      'Member list in your D1, exportable, never shadow-banned',
+    ],
+    useCase:
+      'Saturday 2pm. Rotary Mates Rocky chapter — 340 rotary-engine enthusiasts — used to live in a Facebook group that buried 92% of posts. Sunday cruise to Mt Archer is on for sunrise. Same post hits 100% of members via push. 23 cars confirmed within the hour. AI moderation nuked two For-Sale spam posts overnight.',
+    entryTier: 'Starter Community',
+    entryPrice: '$99/mo + $799 setup',
+    topTier: 'Creator-Backed',
+    topPrice: '$249/mo + $799 setup',
+    productDescription:
+      'Private community platform with AI moderation and creator monetisation',
+    category: 'Community Software',
+  },
+  'delivery': {
+    slug: 'delivery',
+    productId: 'delivery',
+    productKicker: 'DELIVERY PLATFORM',
+    productName: 'Delivery & Logistics',
+    h1: "Live driver tracking + auto-routing. Customers stop ringing 'where's my order?'",
+    intro: 'A delivery + logistics app for your fleet, branded as yours, live in a week. Live driver tracking, auto-route optimisation, photo + signature POD, and customers stop ringing — they can see you on a map.',
+    bullets: [
+      'Live driver tracking on a customer-facing map',
+      'Auto-route optimisation = 20-30% more drops per shift',
+      'Photo + signature POD auto-emailed to customer',
+      'No DoorDash/Uber 30% cut — your drivers, your margins',
+    ],
+    useCase:
+      'Wednesday 10am. Central QLD Courier Co. has 34 drops between Rockhampton and Emerald, two drivers, a 7-hour window. Sharon used to spend 90 minutes plotting routes on paper. With the app: route optimiser sorts both runs in 12 seconds. Drivers finished by 4:50pm instead of 6:30pm. Extra 9 drops a week, $480 in margin.',
+    entryTier: 'Solo / Fleet-of-2',
+    entryPrice: '$149/mo + $799 setup',
+    topTier: 'Multi-Truck/Logistics',
+    topPrice: '$349/mo + $799 setup',
+    productDescription:
+      'Delivery management platform with live driver tracking and route optimisation',
+    category: 'Logistics Software',
+  },
+};
+
+/** Looks up a vertical-page record by slug. Used by the route handler in
+ *  index.ts to derive title/description/JSON-LD without re-typing the data. */
+export function getVerticalContent(slug: string): VerticalContent | undefined {
+  return VERTICAL_CONTENT[slug];
+}
+
+/** Returns a single-product JSON-LD `<script>` block for the given vertical
+ *  slug. Renders nothing if the slug is unknown. The page-level Organization
+ *  schema is already injected by the layout; this adds the Product node only
+ *  for the vertical that owns the page. */
+export function verticalProductLd(slug: string, siteOrigin: string): string {
+  const c = VERTICAL_CONTENT[slug];
+  if (!c) return '';
+  return `
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": "${siteOrigin}/${c.slug}#product",
+    "name": "${escapeAttr(c.productName)}",
+    "description": "${escapeAttr(c.productDescription)}",
+    "brand": { "@id": "${siteOrigin}/#organization" },
+    "category": "${escapeAttr(c.category)}",
+    "url": "${siteOrigin}/${c.slug}"
+  }
+  </script>`;
+}
+
+/** Minimal HTML attribute escaper — covers the chars likely to appear in
+ *  product copy. Keeps the JSON-LD valid even when descriptions contain
+ *  ampersands or quotes. */
+function escapeAttr(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+export function productPageBody(slug: string): string {
+  const c = VERTICAL_CONTENT[slug];
+  if (!c) return notFoundBody();
+
+  const demoUrl = `https://demos.pennywiseit.com.au/demo/${c.productId}`;
+  const dataSource = `/${c.slug}`;
+  // Single-product JSON-LD inlined here (rather than via the layout's
+  // includeProductSchema, which ships the full 9-product graph). Keeps the
+  // schema for this page narrowly scoped to the one product the page is about.
+  const productLd = verticalProductLd(c.slug, 'https://www.pennywiseit.com.au');
+
+  return `${productLd}
+    <section id="hero" aria-labelledby="vertical-hero-heading">
+      <div class="container">
+        <div class="hero-inner">
+          <span class="kicker pc-kicker">${c.productKicker}</span>
+          <h1 id="vertical-hero-heading" class="display"><span class="grad">${c.h1}</span></h1>
+          <p class="sub">${c.intro}</p>
+          <div class="hero-ctas">
+            <a href="${demoUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" aria-label="Try the live ${c.productName} demo">
+              Try the live demo
+            </a>
+            <button type="button" data-open-lead data-source="${dataSource}" class="btn btn-ghost" aria-label="Talk to Steve about ${c.productName}">
+              Talk to Steve
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="vertical-mock" aria-label="${c.productName} interactive preview">
+      <div class="container">
+        <article class="product-card" data-product="${c.productId}" style="max-width:820px;margin:0 auto;">
+          <span class="kicker pc-kicker">${c.productKicker}</span>
+          <h2 style="font-size:1.35rem;font-weight:600;font-family:var(--display-font);letter-spacing:-0.01em;margin:0;">${c.productName}</h2>
+          <div class="iframe-wrap">
+            <iframe class="product-mock" data-mock src="/mocks/${c.productId}" loading="lazy" sandbox="allow-scripts" title="${c.productName} interactive demo" referrerpolicy="no-referrer"></iframe>
+          </div>
+          <a href="${demoUrl}" target="_blank" rel="noopener noreferrer" class="pc-cta" aria-label="See ${c.productName} live">Open the full demo →</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="vertical-bullets" aria-labelledby="vertical-bullets-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Why this app</span>
+          <h2 id="vertical-bullets-heading" class="display">Built for the way you actually work.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;">
+          <ul style="margin:0;padding-left:1.4rem;color:var(--soft);font-size:1rem;line-height:1.7;">
+            ${c.bullets.map((b) => `<li style="margin-bottom:0.65rem;">${b}</li>`).join('')}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="vertical-pricing" aria-labelledby="vertical-pricing-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Pricing</span>
+          <h2 id="vertical-pricing-heading" class="display">Flat fee. No platform cut.</h2>
+        </div>
+        <div class="pricing-table panel" role="table" aria-label="${c.productName} pricing" style="max-width:760px;margin:0 auto;">
+          <div class="pricing-row pricing-head" role="row">
+            <div role="columnheader">App</div>
+            <div role="columnheader">Entry tier</div>
+            <div role="columnheader">Top tier</div>
+            <div role="columnheader" class="pricing-cta-col">Demo</div>
+          </div>
+          <div class="pricing-row" role="row" data-product="${c.productId}">
+            <div role="cell"><div class="p-name">${c.productName}</div><div class="p-cat">${c.productKicker.toLowerCase()}</div></div>
+            <div role="cell"><span class="p-tier">${c.entryTier}</span><span class="p-price">${c.entryPrice}</span></div>
+            <div role="cell"><span class="p-tier">${c.topTier}</span><span class="p-price">${c.topPrice}</span></div>
+            <div role="cell" class="pricing-cta-col"><a href="${demoUrl}" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="${dataSource}#pricing" class="p-setup-link">Get this set up →</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="vertical-use-case" aria-labelledby="vertical-use-case-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">In the real world</span>
+          <h2 id="vertical-use-case-heading" class="display">A day with the app.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;">
+          <p style="color:var(--soft);font-size:1.02rem;line-height:1.7;margin:0;">${c.useCase}</p>
+        </div>
+      </div>
+    </section>
+${ctaSection(c.slug)}`;
 }
 
 /** Terms of Service. Plain-English, AU SMB-appropriate. Steve should review and amend. */
