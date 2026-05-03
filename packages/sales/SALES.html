@@ -6141,9 +6141,12 @@ function renderPersonalInvoicingHome(dash) {
     <!-- Sub-tab nav -->
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">
       <button class="btn btn-primary" onclick="piShowInvoices()">Invoices (${invoices.length})</button>
+      <button class="btn btn-secondary" onclick="piShowQuotes()">Quotes</button>
+      <button class="btn btn-secondary" onclick="piShowRecurring()">Recurring</button>
       <button class="btn btn-secondary" onclick="piShowClients()">Clients (${clients.length})</button>
-      <button class="btn btn-green" onclick="piNewInvoice()" style="margin-left:auto">+ New invoice</button>
-      <button class="btn btn-secondary" onclick="piNewClient()">+ New client</button>
+      <button class="btn btn-green" onclick="piNewInvoice()" style="margin-left:auto">+ Invoice</button>
+      <button class="btn btn-secondary" onclick="piNewQuote()">+ Quote</button>
+      <button class="btn btn-secondary" onclick="piNewClient()">+ Client</button>
     </div>
 
     <div id="pi-content"></div>
@@ -6203,8 +6206,10 @@ function piShowClients() {
           <strong>${esc(cl.name)}</strong>
           ${cl.email ? '<span style="color:var(--soft);font-size:0.85rem">' + esc(cl.email) + '</span>' : ''}
           ${cl.abn ? '<span style="color:var(--muted);font-size:0.78rem">ABN ' + esc(cl.abn) + '</span>' : ''}
-          <div style="margin-left:auto;display:flex;gap:0.4rem">
+          <div style="margin-left:auto;display:flex;gap:0.4rem;flex-wrap:wrap">
+            <button class="btn btn-secondary btn-sm" onclick="piShowPortalLink('${esc(cl.id)}')" title="Magic link to client billing portal">\u{1F517} Portal</button>
             <button class="btn btn-secondary btn-sm" onclick="piEditClient('${esc(cl.id)}')">Edit</button>
+            <button class="btn btn-secondary btn-sm" onclick="piNewQuote('${esc(cl.id)}')">+ Quote</button>
             <button class="btn btn-green btn-sm" onclick="piNewInvoice('${esc(cl.id)}')">+ Invoice</button>
           </div>
         </div>
@@ -6490,6 +6495,436 @@ async function piCancelInvoice(id) {
     await api('POST', '/api/personal/invoices/' + id + '/cancel', {}, true);
     showToast('Cancelled', 'success');
     await piRefresh();
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+// ──────── PERSONAL INVOICING — QUOTES ────────
+
+async function piShowQuotes() {
+  const c = document.getElementById('pi-content');
+  c.innerHTML = '<p style="color:var(--muted)">Loading quotes...</p>';
+  try {
+    const data = await api('GET', '/api/personal/quotes', null, true);
+    const quotes = data.quotes || [];
+    window._piQuotes = quotes;
+    if (!quotes.length) {
+      c.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No quotes yet. Click <strong>+ Quote</strong> to create one.</p>';
+      return;
+    }
+    const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+    const sc = (s) => ({draft:'var(--muted)', sent:'var(--accent)', accepted:'var(--green)', converted:'var(--green)', rejected:'var(--red)', expired:'var(--yellow)'}[s] || 'var(--soft)');
+    c.innerHTML = `<div style="display:flex;flex-direction:column;gap:0.5rem">
+      ${quotes.map(q => `<div class="card" style="padding:0.85rem 1rem;cursor:pointer" onclick="piOpenQuote('${esc(q.id)}')">
+        <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap">
+          <strong style="font-family:monospace">${esc(q.quote_number)}</strong>
+          <span style="color:var(--soft)">${esc(q.client_name)}</span>
+          ${q.subject ? '<span style="color:var(--muted);font-size:0.85rem">· ' + esc(q.subject) + '</span>' : ''}
+          <span class="tag" style="background:${sc(q.status)}22;color:${sc(q.status)};border:1px solid ${sc(q.status)}55;font-size:0.62rem;margin-left:auto">${q.status.toUpperCase()}</span>
+          <strong style="font-variant-numeric:tabular-nums">${fmt(q.total)}</strong>
+        </div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:0.25rem">
+          ${q.item_count} line item${q.item_count!==1?'s':''} ·
+          ${q.issued_at ? 'Sent ' + new Date(q.issued_at + 'Z').toLocaleDateString('en-AU') : 'Draft'} ·
+          ${q.expires_at ? 'Valid until ' + new Date(q.expires_at + 'Z').toLocaleDateString('en-AU') : ''}
+          ${q.converted_invoice_id ? ' · ✓ converted to invoice' : ''}
+        </div>
+      </div>`).join('')}
+    </div>`;
+  } catch (e) { c.innerHTML = '<p style="color:var(--red)">Failed: ' + esc(e.message) + '</p>'; }
+}
+
+function piNewQuote(preselectClientId) {
+  const clients = window._piClients || [];
+  if (!clients.length) { showToast('Add a client first', 'error'); piNewClient(); return; }
+  window._piEditingQuote = {
+    client_id: preselectClientId || clients[0].id,
+    subject: '', notes: '', expires_days: 30,
+    items: [{ description: '', qty: 1, unit_price: 0 }],
+  };
+  piRenderQuoteEditor(null);
+}
+
+function piRenderQuoteEditor(existingId) {
+  const draft = window._piEditingQuote;
+  const clients = window._piClients || [];
+  const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const c = document.getElementById('pi-content');
+  const total = (draft.items || []).reduce((s, it) => s + (Number(it.qty||0) * Number(it.unit_price||0)), 0);
+  c.innerHTML = `
+    <h4 style="margin:0 0 1rem">${existingId ? 'Edit' : 'New'} quote</h4>
+    <div style="display:flex;flex-direction:column;gap:0.6rem;max-width:760px">
+      <label style="font-size:0.78rem;color:var(--muted)">Client
+        <select id="pi-q-client" class="form-input" style="margin-top:0.2rem">
+          ${clients.map(cl => '<option value="' + esc(cl.id) + '"' + (cl.id === draft.client_id ? ' selected' : '') + '>' + esc(cl.name) + (cl.email ? ' — ' + esc(cl.email) : '') + '</option>').join('')}
+        </select>
+      </label>
+      <label style="font-size:0.78rem;color:var(--muted)">Subject (optional)
+        <input id="pi-q-subject" placeholder="e.g. Website redesign Q4" value="${esc(draft.subject || '')}" class="form-input" style="margin-top:0.2rem">
+      </label>
+      <label style="font-size:0.78rem;color:var(--muted)">Valid for (days)
+        <input id="pi-q-expires-days" type="number" min="1" value="${draft.expires_days || 30}" class="form-input" style="margin-top:0.2rem;max-width:120px">
+      </label>
+
+      <div style="margin-top:1rem">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+          <strong style="font-size:0.85rem">Line items</strong>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="piAddQuoteItem()" style="margin-left:auto">+ Add line</button>
+        </div>
+        <div id="pi-q-items" style="display:flex;flex-direction:column;gap:0.4rem"></div>
+      </div>
+
+      <label style="font-size:0.78rem;color:var(--muted);margin-top:1rem">Notes shown on quote (optional)
+        <textarea id="pi-q-notes" rows="3" placeholder="Scope, exclusions, payment terms..." class="form-input" style="margin-top:0.2rem">${esc(draft.notes || '')}</textarea>
+      </label>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding:0.75rem;background:var(--bg);border-radius:8px">
+        <strong>Total</strong>
+        <strong style="font-size:1.2rem;color:var(--accent);font-variant-numeric:tabular-nums" id="pi-q-total">${fmt(total)}</strong>
+      </div>
+
+      <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
+        <button type="button" class="btn btn-primary" onclick="piSaveQuote(${existingId ? "'" + esc(existingId) + "'" : 'null'}, false)">Save draft</button>
+        <button type="button" class="btn btn-green" onclick="piSaveQuote(${existingId ? "'" + esc(existingId) + "'" : 'null'}, true)">Save + send</button>
+        <button type="button" class="btn btn-secondary" onclick="piShowQuotes()">Cancel</button>
+      </div>
+    </div>
+  `;
+  piRenderQuoteItems();
+}
+
+function piRenderQuoteItems() {
+  const draft = window._piEditingQuote;
+  const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const wrap = document.getElementById('pi-q-items');
+  if (!wrap) return;
+  wrap.innerHTML = (draft.items || []).map((it, i) => `
+    <div style="display:grid;grid-template-columns:1fr 80px 110px 110px 30px;gap:0.4rem;align-items:center">
+      <input value="${esc(it.description || '')}" placeholder="Description" oninput="piUpdateQuoteItem(${i},'description',this.value)" class="form-input">
+      <input type="number" min="0" step="0.01" value="${Number(it.qty || 0)}" oninput="piUpdateQuoteItem(${i},'qty',this.value)" class="form-input" style="text-align:right">
+      <input type="number" min="0" step="0.01" value="${Number(it.unit_price || 0)}" oninput="piUpdateQuoteItem(${i},'unit_price',this.value)" class="form-input" style="text-align:right" placeholder="Unit $">
+      <div style="text-align:right;font-variant-numeric:tabular-nums;color:var(--soft)">${fmt(Number(it.qty || 0) * Number(it.unit_price || 0))}</div>
+      <button type="button" onclick="piRemoveQuoteItem(${i})" title="Remove" style="background:transparent;border:none;color:var(--red);cursor:pointer;font-size:1.1rem">×</button>
+    </div>
+  `).join('');
+  document.getElementById('pi-q-total').textContent = fmt((draft.items || []).reduce((s, it) => s + Number(it.qty||0) * Number(it.unit_price||0), 0));
+}
+
+function piAddQuoteItem() { window._piEditingQuote.items.push({ description: '', qty: 1, unit_price: 0 }); piRenderQuoteItems(); }
+function piRemoveQuoteItem(i) {
+  window._piEditingQuote.items.splice(i, 1);
+  if (!window._piEditingQuote.items.length) window._piEditingQuote.items.push({ description: '', qty: 1, unit_price: 0 });
+  piRenderQuoteItems();
+}
+function piUpdateQuoteItem(i, field, value) {
+  if (!window._piEditingQuote.items[i]) return;
+  window._piEditingQuote.items[i][field] = field === 'description' ? value : Number(value) || 0;
+  const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const total = window._piEditingQuote.items.reduce((s, it) => s + Number(it.qty||0) * Number(it.unit_price||0), 0);
+  const el = document.getElementById('pi-q-total'); if (el) el.textContent = fmt(total);
+}
+
+async function piSaveQuote(existingId, alsoSend) {
+  const body = {
+    client_id: document.getElementById('pi-q-client').value,
+    subject: document.getElementById('pi-q-subject').value.trim(),
+    notes: document.getElementById('pi-q-notes').value.trim(),
+    expires_days: Number(document.getElementById('pi-q-expires-days').value) || 30,
+    items: window._piEditingQuote.items.filter(it => (it.description || '').trim() || Number(it.qty||0) || Number(it.unit_price||0)),
+  };
+  if (!body.items.length) { showToast('Add at least one line item', 'error'); return; }
+  try {
+    let id = existingId;
+    if (existingId) {
+      await api('PUT', '/api/personal/quotes/' + existingId, body, true);
+    } else {
+      const res = await api('POST', '/api/personal/quotes', body, true);
+      id = res.id;
+    }
+    if (alsoSend) {
+      const r = await api('POST', '/api/personal/quotes/' + id + '/send', {}, true);
+      showToast('Quote sent! ' + r.public_url, 'success');
+    } else {
+      showToast('Draft saved', 'success');
+    }
+    await piShowQuotes();
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+async function piOpenQuote(id) {
+  const c = document.getElementById('pi-content');
+  c.innerHTML = '<p style="color:var(--muted)">Loading...</p>';
+  try {
+    const data = await api('GET', '/api/personal/quotes/' + id, null, true);
+    const q = data.quote;
+    const cl = data.client;
+    const items = data.items || [];
+    const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+    const publicUrl = 'https://pennywiseit-validator.steve-700.workers.dev/api/public/personal-quote/' + q.quote_number;
+    c.innerHTML = `
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="piShowQuotes()">← Back</button>
+        <strong style="font-family:monospace;font-size:1rem">${esc(q.quote_number)}</strong>
+        <span class="tag" style="font-size:0.62rem">${esc(q.status.toUpperCase())}</span>
+        <strong style="margin-left:auto;font-variant-numeric:tabular-nums">${fmt(q.total)}</strong>
+      </div>
+      <div class="card" style="padding:1rem;margin-bottom:1rem">
+        <div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase">Quote for</div>
+        <div style="font-weight:700;margin-top:0.25rem">${esc(cl?.name || '')}</div>
+      </div>
+      ${q.subject ? '<h4 style="margin:0.5rem 0">' + esc(q.subject) + '</h4>' : ''}
+      <table style="width:100%;border-collapse:collapse;margin-bottom:1rem;font-size:0.88rem">
+        <thead><tr><th style="text-align:left;padding:0.5rem 0.75rem;background:var(--bg);font-size:0.7rem;color:var(--muted);text-transform:uppercase">Description</th><th style="text-align:right;padding:0.5rem 0.75rem;background:var(--bg);font-size:0.7rem;color:var(--muted);text-transform:uppercase">Qty</th><th style="text-align:right;padding:0.5rem 0.75rem;background:var(--bg);font-size:0.7rem;color:var(--muted);text-transform:uppercase">Unit</th><th style="text-align:right;padding:0.5rem 0.75rem;background:var(--bg);font-size:0.7rem;color:var(--muted);text-transform:uppercase">Total</th></tr></thead>
+        <tbody>${items.map(it => '<tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border)">' + esc(it.description) + '</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);text-align:right">' + Number(it.qty).toLocaleString('en-AU') + '</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);text-align:right">' + fmt(Number(it.unit_price)) + '</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);text-align:right;font-weight:600">' + fmt(Number(it.line_total)) + '</td></tr>').join('')}</tbody>
+      </table>
+      ${q.notes ? '<div style="background:var(--bg);padding:0.75rem;border-left:3px solid var(--accent);border-radius:6px;margin-bottom:1rem;font-size:0.85rem;white-space:pre-wrap">' + esc(q.notes) + '</div>' : ''}
+      ${q.status === 'sent' || q.status === 'accepted' || q.status === 'converted' ? `<div class="card" style="padding:0.85rem;margin-bottom:1rem">
+        <div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;margin-bottom:0.4rem">Public link</div>
+        <div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap">
+          <input readonly value="${esc(publicUrl)}" class="form-input" style="flex:1;min-width:240px;font-family:monospace;font-size:0.72rem" onclick="this.select()">
+          <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText('${esc(publicUrl)}');showToast('Copied','success')">\u{1F4CB}</button>
+          <button class="btn btn-secondary btn-sm" onclick="safeOpen('${esc(publicUrl)}','_blank')">Open</button>
+        </div>
+      </div>` : ''}
+      ${q.accepted_by_name ? '<div style="font-size:0.85rem;color:var(--green);margin-bottom:1rem">✓ Accepted by ' + esc(q.accepted_by_name) + ' on ' + new Date(q.accepted_at + 'Z').toLocaleString('en-AU') + (q.converted_invoice_id ? ' · invoice auto-issued' : '') + '</div>' : ''}
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+        ${q.status === 'draft' ? '<button class="btn btn-primary" onclick="piEditQuote(\\'' + esc(q.id) + '\\')">Edit</button>' : ''}
+        ${q.status === 'draft' ? '<button class="btn btn-green" onclick="piSendQuoteFromDetail(\\'' + esc(q.id) + '\\')">Send to client</button>' : ''}
+      </div>
+    `;
+  } catch (e) { c.innerHTML = '<p style="color:var(--red)">Failed: ' + esc(e.message) + '</p>'; }
+}
+
+async function piEditQuote(id) {
+  try {
+    const data = await api('GET', '/api/personal/quotes/' + id, null, true);
+    window._piEditingQuote = {
+      client_id: data.quote.client_id,
+      subject: data.quote.subject || '',
+      notes: data.quote.notes || '',
+      expires_days: 30,
+      items: (data.items || []).map(it => ({ description: it.description, qty: Number(it.qty), unit_price: Number(it.unit_price) })),
+    };
+    if (!window._piEditingQuote.items.length) window._piEditingQuote.items.push({ description: '', qty: 1, unit_price: 0 });
+    piRenderQuoteEditor(id);
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+async function piSendQuoteFromDetail(id) {
+  if (!confirm('Send this quote to the client now?')) return;
+  try {
+    const r = await api('POST', '/api/personal/quotes/' + id + '/send', {}, true);
+    showToast('Quote sent: ' + r.public_url, 'success');
+    await piShowQuotes();
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+// ──────── PERSONAL INVOICING — RECURRING ────────
+
+async function piShowRecurring() {
+  const c = document.getElementById('pi-content');
+  c.innerHTML = '<p style="color:var(--muted)">Loading recurring...</p>';
+  try {
+    const data = await api('GET', '/api/personal/recurring', null, true);
+    const recurring = data.recurring || [];
+    if (!recurring.length) {
+      c.innerHTML = `
+        <p style="color:var(--muted);text-align:center;padding:1rem">No recurring invoices yet.</p>
+        <div style="text-align:center"><button class="btn btn-green" onclick="piNewRecurring()">+ Set up recurring invoice</button></div>
+      `;
+      return;
+    }
+    const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+    c.innerHTML = `
+      <div style="margin-bottom:1rem"><button class="btn btn-green" onclick="piNewRecurring()">+ New recurring</button></div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem">
+        ${recurring.map(r => {
+          const items = (() => { try { return JSON.parse(r.template_items_json || '[]'); } catch { return []; } })();
+          const total = items.reduce((s, it) => s + Number(it.qty||0) * Number(it.unit_price||0), 0);
+          const next = r.next_issue_at ? new Date(r.next_issue_at + 'Z').toLocaleDateString('en-AU') : '-';
+          return `<div class="card" style="padding:0.85rem 1rem">
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap">
+              <strong>${esc(r.name)}</strong>
+              <span style="color:var(--soft)">${esc(r.client_name)}</span>
+              <span class="tag" style="font-size:0.62rem">${esc(r.frequency.toUpperCase())}</span>
+              ${r.paused ? '<span class="tag tag-yellow" style="font-size:0.62rem">PAUSED</span>' : ''}
+              <strong style="margin-left:auto;font-variant-numeric:tabular-nums">${fmt(total)}</strong>
+            </div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:0.25rem">
+              ${items.length} line item${items.length!==1?'s':''} · Next: ${next} · Due in ${r.due_days} days
+            </div>
+            <div style="display:flex;gap:0.4rem;margin-top:0.5rem;flex-wrap:wrap">
+              <button class="btn btn-secondary btn-sm" onclick="piTogglePauseRecurring('${esc(r.id)}', ${r.paused ? 0 : 1})">${r.paused ? 'Resume' : 'Pause'}</button>
+              <button class="btn btn-secondary btn-sm" onclick="piEditRecurring('${esc(r.id)}')">Edit</button>
+              <button class="btn btn-secondary btn-sm" onclick="piDeleteRecurring('${esc(r.id)}')" style="color:var(--red)">Delete</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+  } catch (e) { c.innerHTML = '<p style="color:var(--red)">Failed: ' + esc(e.message) + '</p>'; }
+}
+
+function piNewRecurring(existing) {
+  const clients = window._piClients || [];
+  if (!clients.length) { showToast('Add a client first', 'error'); piNewClient(); return; }
+  window._piEditingRecurring = existing || {
+    client_id: clients[0].id,
+    name: '',
+    frequency: 'monthly',
+    due_days: 14,
+    items: [{ description: '', qty: 1, unit_price: 0 }],
+    paused: 0,
+  };
+  piRenderRecurringEditor(existing ? existing.id : null);
+}
+
+function piRenderRecurringEditor(existingId) {
+  const draft = window._piEditingRecurring;
+  const clients = window._piClients || [];
+  const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const c = document.getElementById('pi-content');
+  const total = (draft.items || []).reduce((s, it) => s + Number(it.qty||0) * Number(it.unit_price||0), 0);
+  c.innerHTML = `
+    <h4 style="margin:0 0 1rem">${existingId ? 'Edit' : 'New'} recurring invoice</h4>
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem">Auto-issues an invoice every period. Cron runs at 9am Sydney daily.</p>
+    <div style="display:flex;flex-direction:column;gap:0.6rem;max-width:760px">
+      <label style="font-size:0.78rem;color:var(--muted)">Client
+        <select id="pi-r-client" class="form-input" style="margin-top:0.2rem">
+          ${clients.map(cl => '<option value="' + esc(cl.id) + '"' + (cl.id === draft.client_id ? ' selected' : '') + '>' + esc(cl.name) + '</option>').join('')}
+        </select>
+      </label>
+      <label style="font-size:0.78rem;color:var(--muted)">Name (your reference, not shown on invoice)
+        <input id="pi-r-name" placeholder="e.g. Acme monthly retainer" value="${esc(draft.name)}" class="form-input" style="margin-top:0.2rem">
+      </label>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+        <label style="font-size:0.78rem;color:var(--muted);flex:1;min-width:160px">Frequency
+          <select id="pi-r-freq" class="form-input" style="margin-top:0.2rem">
+            ${['weekly','fortnightly','monthly','quarterly','yearly'].map(f => '<option value="' + f + '"' + (f === draft.frequency ? ' selected' : '') + '>' + f + '</option>').join('')}
+          </select>
+        </label>
+        <label style="font-size:0.78rem;color:var(--muted);flex:1;min-width:160px">Payment terms (days)
+          <input id="pi-r-due" type="number" min="0" value="${draft.due_days || 14}" class="form-input" style="margin-top:0.2rem">
+        </label>
+      </div>
+      <div style="margin-top:1rem">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+          <strong style="font-size:0.85rem">Line items (template)</strong>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="piAddRecurringItem()" style="margin-left:auto">+ Add line</button>
+        </div>
+        <div id="pi-r-items" style="display:flex;flex-direction:column;gap:0.4rem"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding:0.75rem;background:var(--bg);border-radius:8px">
+        <strong>Per-issue total</strong>
+        <strong style="font-size:1.2rem;color:var(--accent);font-variant-numeric:tabular-nums" id="pi-r-total">${fmt(total)}</strong>
+      </div>
+      <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
+        <button type="button" class="btn btn-primary" onclick="piSaveRecurring(${existingId ? "'" + esc(existingId) + "'" : 'null'})">${existingId ? 'Save' : 'Create'}</button>
+        <button type="button" class="btn btn-secondary" onclick="piShowRecurring()">Cancel</button>
+      </div>
+    </div>
+  `;
+  piRenderRecurringItems();
+}
+
+function piRenderRecurringItems() {
+  const draft = window._piEditingRecurring;
+  const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const wrap = document.getElementById('pi-r-items');
+  if (!wrap) return;
+  wrap.innerHTML = (draft.items || []).map((it, i) => `
+    <div style="display:grid;grid-template-columns:1fr 80px 110px 110px 30px;gap:0.4rem;align-items:center">
+      <input value="${esc(it.description || '')}" placeholder="Description" oninput="piUpdateRecurringItem(${i},'description',this.value)" class="form-input">
+      <input type="number" min="0" step="0.01" value="${Number(it.qty || 0)}" oninput="piUpdateRecurringItem(${i},'qty',this.value)" class="form-input" style="text-align:right">
+      <input type="number" min="0" step="0.01" value="${Number(it.unit_price || 0)}" oninput="piUpdateRecurringItem(${i},'unit_price',this.value)" class="form-input" style="text-align:right" placeholder="Unit $">
+      <div style="text-align:right;font-variant-numeric:tabular-nums;color:var(--soft)">${fmt(Number(it.qty || 0) * Number(it.unit_price || 0))}</div>
+      <button type="button" onclick="piRemoveRecurringItem(${i})" title="Remove" style="background:transparent;border:none;color:var(--red);cursor:pointer;font-size:1.1rem">×</button>
+    </div>
+  `).join('');
+  document.getElementById('pi-r-total').textContent = fmt((draft.items || []).reduce((s, it) => s + Number(it.qty||0) * Number(it.unit_price||0), 0));
+}
+
+function piAddRecurringItem() { window._piEditingRecurring.items.push({ description: '', qty: 1, unit_price: 0 }); piRenderRecurringItems(); }
+function piRemoveRecurringItem(i) {
+  window._piEditingRecurring.items.splice(i, 1);
+  if (!window._piEditingRecurring.items.length) window._piEditingRecurring.items.push({ description: '', qty: 1, unit_price: 0 });
+  piRenderRecurringItems();
+}
+function piUpdateRecurringItem(i, field, value) {
+  if (!window._piEditingRecurring.items[i]) return;
+  window._piEditingRecurring.items[i][field] = field === 'description' ? value : Number(value) || 0;
+  const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const total = window._piEditingRecurring.items.reduce((s, it) => s + Number(it.qty||0) * Number(it.unit_price||0), 0);
+  const el = document.getElementById('pi-r-total'); if (el) el.textContent = fmt(total);
+}
+
+async function piSaveRecurring(existingId) {
+  const body = {
+    client_id: document.getElementById('pi-r-client').value,
+    name: document.getElementById('pi-r-name').value.trim(),
+    frequency: document.getElementById('pi-r-freq').value,
+    due_days: Number(document.getElementById('pi-r-due').value) || 14,
+    items: window._piEditingRecurring.items.filter(it => (it.description || '').trim() || Number(it.qty||0) || Number(it.unit_price||0)),
+  };
+  if (!body.name) { showToast('Name required', 'error'); return; }
+  if (!body.items.length) { showToast('Add at least one line item', 'error'); return; }
+  try {
+    if (existingId) await api('PUT', '/api/personal/recurring/' + existingId, body, true);
+    else await api('POST', '/api/personal/recurring', body, true);
+    showToast(existingId ? 'Saved' : 'Recurring created', 'success');
+    await piShowRecurring();
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+async function piEditRecurring(id) {
+  try {
+    const data = await api('GET', '/api/personal/recurring', null, true);
+    const r = (data.recurring || []).find(x => x.id === id);
+    if (!r) { showToast('Not found', 'error'); return; }
+    let items = []; try { items = JSON.parse(r.template_items_json || '[]'); } catch {}
+    if (!items.length) items = [{ description: '', qty: 1, unit_price: 0 }];
+    window._piEditingRecurring = { ...r, items };
+    piRenderRecurringEditor(id);
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+async function piTogglePauseRecurring(id, paused) {
+  try {
+    await api('PUT', '/api/personal/recurring/' + id, { paused }, true);
+    showToast(paused ? 'Paused' : 'Resumed', 'success');
+    await piShowRecurring();
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+async function piDeleteRecurring(id) {
+  if (!confirm('Delete this recurring template? Existing invoices stay; only future auto-issues stop.')) return;
+  try {
+    await api('DELETE', '/api/personal/recurring/' + id, null, true);
+    showToast('Deleted', 'success');
+    await piShowRecurring();
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+// ──────── PERSONAL INVOICING — CLIENT PORTAL LINK ────────
+
+async function piShowPortalLink(clientId) {
+  // Generate or fetch the magic-link portal URL for a client.
+  try {
+    const r = await api('POST', '/api/personal/clients/' + clientId + '/portal-link', {}, true);
+    const url = r.portal_url;
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;display:flex;align-items:center;justify-content:center;padding:1rem';
+    wrap.innerHTML = `<div style="background:var(--surface);border-radius:12px;padding:1.5rem;max-width:540px;width:100%">
+      <h3 style="margin:0 0 0.5rem">Client portal link</h3>
+      <p style="font-size:0.82rem;color:var(--muted);margin:0 0 1rem">Share this URL with the client. They can view all invoices + quotes in one place. The link auto-renews 90 days each visit.</p>
+      <input readonly value="${esc(url)}" class="form-input" style="font-family:monospace;font-size:0.78rem;width:100%;box-sizing:border-box" onclick="this.select()">
+      <div style="display:flex;gap:0.5rem;margin-top:1rem;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="navigator.clipboard.writeText('${esc(url)}');showToast('Copied','success')">\u{1F4CB} Copy</button>
+        <button class="btn btn-secondary" onclick="safeOpen('${esc(url)}','_blank')">Open</button>
+        <button class="btn btn-secondary" onclick="this.closest('div[style*=fixed]').remove()" style="margin-left:auto">Close</button>
+      </div>
+    </div>`;
+    wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };
+    document.body.appendChild(wrap);
   } catch (e) { showToast('Failed: ' + e.message, 'error'); }
 }
 

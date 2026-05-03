@@ -6533,6 +6533,649 @@ app.post('/api/public/personal-invoice/:invoice_number/checkout', async (c) => {
   return c.json({ url: session.url });
 });
 
+// ──────── QUOTES (Phase B) ────────
+// Mirror of invoices, but with status=accepted/rejected/expired/converted and
+// an accept-and-convert flow that creates a real invoice from the quote items.
+// Quote URL is public (just the QUO-NNNN number is the access token).
+
+app.get('/api/personal/quotes', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const rows = await c.env.DB.prepare(
+    `SELECT q.*, c.name as client_name, c.email as client_email,
+            (SELECT COUNT(*) FROM personal_quote_items WHERE quote_id = q.id) as item_count
+     FROM personal_quotes q JOIN personal_clients c ON c.id = q.client_id
+     ORDER BY q.created_at DESC LIMIT 200`
+  ).all();
+  return c.json({ quotes: rows.results || [] });
+});
+
+app.get('/api/personal/quotes/:id', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const id = c.req.param('id');
+  const q: any = await c.env.DB.prepare(`SELECT * FROM personal_quotes WHERE id = ?`).bind(id).first();
+  if (!q) return c.json({ error: 'Not found' }, 404);
+  const client: any = await c.env.DB.prepare(`SELECT * FROM personal_clients WHERE id = ?`).bind(q.client_id).first();
+  const items = await c.env.DB.prepare(
+    `SELECT * FROM personal_quote_items WHERE quote_id = ? ORDER BY sort_order ASC, created_at ASC`
+  ).bind(id).all();
+  return c.json({ quote: q, client, items: items.results || [] });
+});
+
+app.post('/api/personal/quotes', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const body = await c.req.json().catch(() => ({}));
+  const clientId = (body.client_id || '').toString();
+  if (!clientId) return c.json({ error: 'client_id required' }, 400);
+  const client: any = await c.env.DB.prepare(`SELECT id FROM personal_clients WHERE id = ? AND active = 1`).bind(clientId).first();
+  if (!client) return c.json({ error: 'Client not found or inactive' }, 404);
+
+  const seq = await nextSeq(c.env.DB, 'personal_quotes');
+  const quoteNumber = formatPersonalNumber('QUO', seq);
+  const id = crypto.randomUUID();
+  // Default 30-day expiry on quotes — industry standard.
+  const expiresDays = Number(body.expires_days || 30);
+  const expiresAt = new Date(Date.now() + expiresDays * 86400000).toISOString();
+
+  await c.env.DB.prepare(
+    `INSERT INTO personal_quotes (id, client_id, quote_number, seq, status, subject, notes, expires_at)
+     VALUES (?, ?, ?, ?, 'draft', ?, ?, ?)`
+  ).bind(id, clientId, quoteNumber, seq,
+    (body.subject || '').toString().trim().slice(0, 200) || null,
+    (body.notes || '').toString().trim().slice(0, 5000) || null,
+    expiresAt).run();
+
+  const items = Array.isArray(body.items) ? body.items : [];
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i] || {};
+    const qty = Number(it.qty || 1);
+    const unitPrice = Number(it.unit_price || 0);
+    await c.env.DB.prepare(
+      `INSERT INTO personal_quote_items (id, quote_id, description, qty, unit_price, line_total, sort_order)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
+    ).bind(crypto.randomUUID(), id, (it.description || '').toString().slice(0, 500), qty, unitPrice, qty * unitPrice, i).run();
+  }
+  // Recompute cached total
+  const sumRow: any = await c.env.DB.prepare(
+    `SELECT COALESCE(SUM(line_total), 0) AS sum FROM personal_quote_items WHERE quote_id = ?`
+  ).bind(id).first();
+  await c.env.DB.prepare(`UPDATE personal_quotes SET total = ?, updated_at = datetime('now') WHERE id = ?`).bind(Number(sumRow?.sum || 0), id).run();
+
+  return c.json({ success: true, id, quote_number: quoteNumber });
+});
+
+app.put('/api/personal/quotes/:id', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const id = c.req.param('id');
+  const body = await c.req.json().catch(() => ({}));
+  const q: any = await c.env.DB.prepare(`SELECT status FROM personal_quotes WHERE id = ?`).bind(id).first();
+  if (!q) return c.json({ error: 'Not found' }, 404);
+  if (q.status !== 'draft') return c.json({ error: 'Only draft quotes can be edited' }, 409);
+
+  const fields: string[] = []; const values: any[] = [];
+  for (const k of ['subject','notes','expires_at','client_id']) {
+    if (body[k] !== undefined) { fields.push(`${k} = ?`); values.push(body[k] || null); }
+  }
+  if (fields.length) {
+    fields.push(`updated_at = datetime('now')`);
+    values.push(id);
+    await c.env.DB.prepare(`UPDATE personal_quotes SET ${fields.join(', ')} WHERE id = ?`).bind(...values).run();
+  }
+
+  if (Array.isArray(body.items)) {
+    const stmts: any[] = [c.env.DB.prepare(`DELETE FROM personal_quote_items WHERE quote_id = ?`).bind(id)];
+    for (let i = 0; i < body.items.length; i++) {
+      const it = body.items[i] || {};
+      const qty = Number(it.qty || 1);
+      const unitPrice = Number(it.unit_price || 0);
+      stmts.push(c.env.DB.prepare(
+        `INSERT INTO personal_quote_items (id, quote_id, description, qty, unit_price, line_total, sort_order)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`
+      ).bind(crypto.randomUUID(), id, (it.description || '').toString().slice(0, 500), qty, unitPrice, qty * unitPrice, i));
+    }
+    await c.env.DB.batch(stmts);
+    const sumRow: any = await c.env.DB.prepare(
+      `SELECT COALESCE(SUM(line_total), 0) AS sum FROM personal_quote_items WHERE quote_id = ?`
+    ).bind(id).first();
+    await c.env.DB.prepare(`UPDATE personal_quotes SET total = ?, updated_at = datetime('now') WHERE id = ?`).bind(Number(sumRow?.sum || 0), id).run();
+  }
+  return c.json({ success: true });
+});
+
+// Send quote — flip draft → sent + email client a public-quote link.
+app.post('/api/personal/quotes/:id/send', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const id = c.req.param('id');
+  const q: any = await c.env.DB.prepare(`SELECT * FROM personal_quotes WHERE id = ?`).bind(id).first();
+  if (!q) return c.json({ error: 'Not found' }, 404);
+  if (q.status !== 'draft') return c.json({ error: `Already ${q.status}` }, 409);
+  const client: any = await c.env.DB.prepare(`SELECT * FROM personal_clients WHERE id = ?`).bind(q.client_id).first();
+  if (!client?.email) return c.json({ error: 'Client has no email' }, 400);
+
+  const updRes = await c.env.DB.prepare(
+    `UPDATE personal_quotes SET status = 'sent', issued_at = datetime('now'), updated_at = datetime('now') WHERE id = ? AND status = 'draft'`
+  ).bind(id).run();
+  if ((updRes.meta?.changes ?? 0) === 0) return c.json({ success: true, note: 'already sent' });
+
+  const url = `https://pennywiseit-validator.steve-700.workers.dev/api/public/personal-quote/${q.quote_number}`;
+  const totalStr = `$${Number(q.total).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const expiresStr = q.expires_at ? new Date(q.expires_at).toLocaleDateString('en-AU') : '30 days';
+  await sendEmail(c.env, {
+    kind: 'personal_quote_sent',
+    to: client.email,
+    subject: `Quote ${q.quote_number} — ${totalStr} (valid until ${expiresStr})`,
+    text: `Hi ${(client.name || '').split(' ')[0]},\n\nHere's quote ${q.quote_number}${q.subject ? ' — ' + q.subject : ''}.\n\nTotal: ${totalStr}\nValid until: ${expiresStr}\n\nReview + accept: ${url}\n\nReply if anything looks off or you'd like to adjust.\n\n— Steve, Penny Wise I.T`,
+  });
+  return c.json({ success: true, public_url: url });
+});
+
+// Public quote page — clients hit this to review + accept.
+app.get('/api/public/personal-quote/:quote_number', async (c) => {
+  const num = c.req.param('quote_number');
+  const q: any = await c.env.DB.prepare(`SELECT * FROM personal_quotes WHERE quote_number = ?`).bind(num).first();
+  if (!q) return c.text('Quote not found', 404);
+  if (q.status === 'draft') return c.text('Quote not yet sent', 404);
+  // Auto-flag expired (lazily — cron also handles this in batch).
+  if (q.status === 'sent' && q.expires_at && new Date(q.expires_at).getTime() < Date.now()) {
+    await c.env.DB.prepare(`UPDATE personal_quotes SET status = 'expired' WHERE id = ? AND status = 'sent'`).bind(q.id).run();
+    q.status = 'expired';
+  }
+  const client: any = await c.env.DB.prepare(`SELECT * FROM personal_clients WHERE id = ?`).bind(q.client_id).first();
+  const items = await c.env.DB.prepare(
+    `SELECT * FROM personal_quote_items WHERE quote_id = ? ORDER BY sort_order ASC, created_at ASC`
+  ).bind(q.id).all();
+  return new Response(buildPersonalQuoteHTML({ quote: q, client, items: items.results || [] }), {
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  });
+});
+
+// Public: client accepts a quote — converts to a real invoice with the same
+// line items and emails Steve. Idempotent via conditional UPDATE.
+app.post('/api/public/personal-quote/:quote_number/accept', async (c) => {
+  const num = c.req.param('quote_number');
+  const body = await c.req.json().catch(() => ({}));
+  const acceptedByName = (body.name || '').toString().trim().slice(0, 200);
+  if (!acceptedByName) return c.json({ error: 'Name required' }, 400);
+  const ip = c.req.header('CF-Connecting-IP') || 'unknown';
+
+  const q: any = await c.env.DB.prepare(`SELECT * FROM personal_quotes WHERE quote_number = ?`).bind(num).first();
+  if (!q) return c.json({ error: 'Quote not found' }, 404);
+  if (q.status === 'accepted' || q.status === 'converted') return c.json({ error: 'Already accepted' }, 409);
+  if (q.status !== 'sent') return c.json({ error: `Cannot accept (status: ${q.status})` }, 409);
+  if (q.expires_at && new Date(q.expires_at).getTime() < Date.now()) return c.json({ error: 'Quote has expired' }, 409);
+
+  // Mark accepted
+  const updRes = await c.env.DB.prepare(
+    `UPDATE personal_quotes SET status = 'accepted', accepted_at = datetime('now'), accepted_by_name = ?, accepted_by_ip = ?, updated_at = datetime('now')
+     WHERE id = ? AND status = 'sent'`
+  ).bind(acceptedByName, ip, q.id).run();
+  if ((updRes.meta?.changes ?? 0) === 0) return c.json({ success: true, note: 'already accepted' });
+
+  // Convert to invoice — copy line items, default 14-day due, link back via source_quote_id.
+  const items = await c.env.DB.prepare(
+    `SELECT * FROM personal_quote_items WHERE quote_id = ? ORDER BY sort_order ASC, created_at ASC`
+  ).bind(q.id).all();
+  const seq = await nextSeq(c.env.DB, 'personal_invoices');
+  const invNumber = formatPersonalNumber('INV', seq);
+  const invId = crypto.randomUUID();
+  const dueAt = new Date(Date.now() + 14 * 86400000).toISOString();
+  await c.env.DB.prepare(
+    `INSERT INTO personal_invoices (id, client_id, invoice_number, seq, status, subject, notes, due_at, payment_reference, source_quote_id, total, issued_at)
+     VALUES (?, ?, ?, ?, 'sent', ?, ?, ?, ?, ?, ?, datetime('now'))`
+  ).bind(invId, q.client_id, invNumber, seq,
+    q.subject ? `From quote ${q.quote_number}: ${q.subject}` : `From quote ${q.quote_number}`,
+    q.notes, dueAt, invNumber, q.id, Number(q.total)).run();
+  for (const it of (items.results || []) as any[]) {
+    await c.env.DB.prepare(
+      `INSERT INTO personal_invoice_items (id, invoice_id, description, qty, unit_price, line_total, sort_order)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
+    ).bind(crypto.randomUUID(), invId, it.description, Number(it.qty), Number(it.unit_price), Number(it.line_total), Number(it.sort_order)).run();
+  }
+  // Link back from quote
+  await c.env.DB.prepare(
+    `UPDATE personal_quotes SET status = 'converted', converted_invoice_id = ? WHERE id = ?`
+  ).bind(invId, q.id).run();
+
+  // Email client + Steve
+  const client: any = await c.env.DB.prepare(`SELECT name, email FROM personal_clients WHERE id = ?`).bind(q.client_id).first();
+  const url = `https://pennywiseit-validator.steve-700.workers.dev/api/public/personal-invoice/${invNumber}`;
+  if (client?.email) {
+    await sendEmail(c.env, {
+      kind: 'personal_quote_accepted_to_client',
+      to: client.email,
+      subject: `Thanks for accepting quote ${q.quote_number} — invoice ${invNumber} attached`,
+      text: `Thanks ${acceptedByName.split(' ')[0]} — quote accepted.\n\nYour invoice ${invNumber} for $${Number(q.total).toLocaleString('en-AU')} is here:\n${url}\n\nDue in 14 days.\n\n— Steve, Penny Wise I.T`,
+    });
+  }
+  await sendEmail(c.env, {
+    kind: 'personal_quote_accepted_to_admin',
+    to: 'steve@pennywiseit.com.au',
+    subject: `✅ ${client?.name || 'Client'} accepted quote ${q.quote_number} — invoice ${invNumber} issued`,
+    text: `${acceptedByName} accepted quote ${q.quote_number} ($${Number(q.total).toLocaleString('en-AU')}).\n\nInvoice ${invNumber} auto-issued and emailed to ${client?.email}. Due in 14 days.`,
+  });
+
+  return c.json({ success: true, invoice_number: invNumber, public_url: url });
+});
+
+// Public: client rejects a quote — politely closes the loop.
+app.post('/api/public/personal-quote/:quote_number/reject', async (c) => {
+  const num = c.req.param('quote_number');
+  const body = await c.req.json().catch(() => ({}));
+  const reason = (body.reason || '').toString().trim().slice(0, 500);
+
+  const q: any = await c.env.DB.prepare(`SELECT * FROM personal_quotes WHERE quote_number = ?`).bind(num).first();
+  if (!q) return c.json({ error: 'Quote not found' }, 404);
+  if (q.status !== 'sent') return c.json({ error: `Cannot reject (status: ${q.status})` }, 409);
+
+  await c.env.DB.prepare(
+    `UPDATE personal_quotes SET status = 'rejected', rejected_at = datetime('now'), notes = COALESCE(notes, '') || ?, updated_at = datetime('now') WHERE id = ?`
+  ).bind(reason ? `\n\n[Client reject reason]: ${reason}` : '', q.id).run();
+
+  // Email Steve so he can follow up.
+  const client: any = await c.env.DB.prepare(`SELECT name, email FROM personal_clients WHERE id = ?`).bind(q.client_id).first();
+  await sendEmail(c.env, {
+    kind: 'personal_quote_rejected',
+    to: 'steve@pennywiseit.com.au',
+    subject: `⚠️ ${client?.name || 'Client'} declined quote ${q.quote_number}`,
+    text: `${client?.name || 'Client'} (${client?.email || 'no email'}) declined quote ${q.quote_number}.\n\n${reason ? 'Reason: ' + reason + '\n\n' : ''}Worth a quick follow-up to find out what would change their mind.`,
+  });
+  return c.json({ success: true });
+});
+
+// Render quote HTML — similar to invoice page but with Accept / Reject UI.
+function buildPersonalQuoteHTML(opts: { quote: any; client: any; items: any[] }): string {
+  const { quote: q, client, items } = opts;
+  const total = Number(q.total || 0);
+  const fmt = (n: number) => '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const escHtml = (s: any) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const itemsRows = items.map(it => `
+    <tr>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb">${escHtml(it.description)}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:right">${Number(it.qty).toLocaleString('en-AU')}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:right">${fmt(Number(it.unit_price))}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600">${fmt(Number(it.line_total))}</td>
+    </tr>
+  `).join('');
+  const isLive = q.status === 'sent';
+  const statusBadge = ({
+    sent: '<div style="background:#dbeafe;border:1px solid #60a5fa;color:#1e40af;padding:1rem;text-align:center;border-radius:10px;margin-bottom:1rem"><strong>This is a quote — accept below to convert it to an invoice</strong></div>',
+    accepted: '<div style="background:#d1fae5;border:1px solid #34d399;color:#065f46;padding:1rem;text-align:center;border-radius:10px;margin-bottom:1rem"><strong>✓ Accepted on ' + (q.accepted_at ? new Date(q.accepted_at).toLocaleDateString('en-AU') : '') + '</strong></div>',
+    converted: '<div style="background:#d1fae5;border:1px solid #34d399;color:#065f46;padding:1rem;text-align:center;border-radius:10px;margin-bottom:1rem"><strong>✓ Accepted and converted to an invoice</strong></div>',
+    rejected: '<div style="background:#fee2e2;border:1px solid #ef4444;color:#991b1b;padding:1rem;text-align:center;border-radius:10px;margin-bottom:1rem"><strong>This quote was declined</strong></div>',
+    expired: '<div style="background:#fef3c7;border:1px solid #f59e0b;color:#92400e;padding:1rem;text-align:center;border-radius:10px;margin-bottom:1rem"><strong>This quote has expired — contact Steve for a new one</strong></div>',
+  } as any)[q.status] || '';
+  return `<!DOCTYPE html>
+<html lang="en-AU"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quote ${escHtml(q.quote_number)} — Penny Wise I.T</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #0f172a; margin: 0; padding: 2rem 1rem; }
+  .wrap { max-width: 720px; margin: 0 auto; background: white; border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+  .from h1 { font-size: 1.5rem; margin: 0 0 0.25rem; color: #b45309; }
+  .from p { margin: 0.1rem 0; color: #475569; font-size: 0.85rem; }
+  .meta { text-align: right; }
+  .meta .number { font-size: 1.5rem; font-weight: 800; }
+  .billto { margin-bottom: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 8px; border-left: 3px solid #b45309; }
+  table.items { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.92rem; }
+  table.items th { background: #f1f5f9; padding: 0.65rem 0.75rem; text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; border-bottom: 2px solid #e2e8f0; }
+  table.items th.r { text-align: right; }
+  .totals { margin-top: 1rem; display: flex; justify-content: flex-end; }
+  .totals table { font-size: 0.95rem; }
+  .totals td { padding: 0.4rem 0.75rem; }
+  .totals .grand { font-size: 1.2rem; font-weight: 800; border-top: 2px solid #0f172a; padding-top: 0.6rem; }
+  .actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .actions button { flex: 1; min-width: 200px; padding: 0.85rem 1.5rem; border-radius: 8px; font-weight: 700; font-family: inherit; font-size: 1rem; cursor: pointer; border: none; }
+  .accept { background: #16a34a; color: white; }
+  .reject { background: white; color: #dc2626; border: 1px solid #fca5a5; }
+  .footer { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; font-size: 0.78rem; color: #64748b; text-align: center; }
+  .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:100; align-items:center; justify-content:center; padding:1rem; }
+  .modal.open { display:flex; }
+  .modal-card { background:white; border-radius:12px; padding:1.5rem; max-width:420px; width:100%; }
+  @media (max-width: 480px) { body{padding:0.5rem} .wrap{padding:1.25rem;border-radius:8px} .header{flex-direction:column} .meta{text-align:left} }
+</style></head><body><div class="wrap">
+  <div class="header">
+    <div class="from"><h1>Penny Wise I.T</h1><p>Steve at Penny Wise I.T</p><p>steve@pennywiseit.com.au</p><p>pennywiseit.com.au</p></div>
+    <div class="meta">
+      <div style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.25rem">QUOTE</div>
+      <div class="number">${escHtml(q.quote_number)}</div>
+      <div style="margin-top:0.5rem;font-size:0.85rem;color:#475569">
+        Issued: ${q.issued_at ? new Date(q.issued_at).toLocaleDateString('en-AU') : '-'}<br>
+        Valid until: ${q.expires_at ? new Date(q.expires_at).toLocaleDateString('en-AU') : '-'}
+      </div>
+    </div>
+  </div>
+
+  ${statusBadge}
+
+  <div class="billto">
+    <strong style="display:block;color:#475569;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem">For</strong>
+    <div style="font-weight:700;font-size:1rem">${escHtml(client?.name || '')}</div>
+    ${client?.email ? `<div style="font-size:0.85rem;color:#475569">${escHtml(client.email)}</div>` : ''}
+  </div>
+
+  ${q.subject ? `<h2 style="margin:1rem 0 0.75rem;font-size:1.05rem;color:#0f172a">${escHtml(q.subject)}</h2>` : ''}
+
+  <table class="items">
+    <thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Unit price</th><th class="r">Total</th></tr></thead>
+    <tbody>${itemsRows || '<tr><td colspan="4" style="padding:1rem;text-align:center;color:#94a3b8">No line items</td></tr>'}</tbody>
+  </table>
+
+  <div class="totals"><table>
+    <tr class="grand"><td>Total:</td><td style="text-align:right">${fmt(total)}</td></tr>
+  </table></div>
+
+  ${q.notes ? `<div style="margin:1.5rem 0;padding:1rem;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:6px;font-size:0.88rem;white-space:pre-wrap">${escHtml(q.notes)}</div>` : ''}
+
+  ${isLive ? `<div class="actions">
+    <button class="accept" onclick="document.getElementById('accept-modal').classList.add('open')">✓ Accept this quote</button>
+    <button class="reject" onclick="document.getElementById('reject-modal').classList.add('open')">Decline</button>
+  </div>` : ''}
+
+  <div class="footer">Not registered for GST. Questions? Reply to the email or contact <a href="mailto:steve@pennywiseit.com.au" style="color:#b45309">steve@pennywiseit.com.au</a>.</div>
+</div>
+
+<div class="modal" id="accept-modal" onclick="if(event.target===this)this.classList.remove('open')"><div class="modal-card">
+  <h3 style="margin:0 0 0.75rem">Accept quote ${escHtml(q.quote_number)}</h3>
+  <p style="font-size:0.88rem;color:#475569;margin:0 0 1rem">Type your name to accept. This converts the quote into invoice ${fmt(total)} (due 14 days).</p>
+  <input id="accept-name" type="text" placeholder="Your full name" style="width:100%;padding:0.6rem;border:1px solid #cbd5e1;border-radius:6px;font-size:1rem;font-family:inherit;box-sizing:border-box">
+  <div id="accept-err" style="color:#dc2626;font-size:0.78rem;margin-top:0.5rem;min-height:1em"></div>
+  <div style="display:flex;gap:0.5rem;margin-top:1rem">
+    <button onclick="acceptQuote()" id="accept-btn" style="flex:1;background:#16a34a;color:white;padding:0.75rem;border-radius:6px;font-weight:700;border:none;cursor:pointer;font-family:inherit">✓ Confirm accept</button>
+    <button onclick="document.getElementById('accept-modal').classList.remove('open')" style="background:#f1f5f9;padding:0.75rem 1rem;border-radius:6px;border:none;cursor:pointer;font-family:inherit">Cancel</button>
+  </div>
+</div></div>
+
+<div class="modal" id="reject-modal" onclick="if(event.target===this)this.classList.remove('open')"><div class="modal-card">
+  <h3 style="margin:0 0 0.75rem">Decline this quote</h3>
+  <p style="font-size:0.88rem;color:#475569;margin:0 0 1rem">Optional: a quick reason helps us improve future quotes.</p>
+  <textarea id="reject-reason" rows="3" placeholder="(optional)" style="width:100%;padding:0.6rem;border:1px solid #cbd5e1;border-radius:6px;font-size:0.95rem;font-family:inherit;box-sizing:border-box;resize:vertical"></textarea>
+  <div style="display:flex;gap:0.5rem;margin-top:1rem">
+    <button onclick="rejectQuote()" style="flex:1;background:#dc2626;color:white;padding:0.75rem;border-radius:6px;font-weight:700;border:none;cursor:pointer;font-family:inherit">Confirm decline</button>
+    <button onclick="document.getElementById('reject-modal').classList.remove('open')" style="background:#f1f5f9;padding:0.75rem 1rem;border-radius:6px;border:none;cursor:pointer;font-family:inherit">Cancel</button>
+  </div>
+</div></div>
+
+<script>
+async function acceptQuote() {
+  const name = document.getElementById('accept-name').value.trim();
+  const err = document.getElementById('accept-err');
+  const btn = document.getElementById('accept-btn');
+  if (!name) { err.textContent = 'Please type your full name'; return; }
+  btn.disabled = true; btn.textContent = 'Accepting…';
+  try {
+    const res = await fetch('/api/public/personal-quote/${escHtml(q.quote_number)}/accept', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name }) });
+    const data = await res.json();
+    if (res.ok && data.public_url) { window.location.href = data.public_url; return; }
+    err.textContent = data.error || 'Could not accept';
+    btn.disabled = false; btn.textContent = '✓ Confirm accept';
+  } catch (e) { err.textContent = 'Network error'; btn.disabled = false; btn.textContent = '✓ Confirm accept'; }
+}
+async function rejectQuote() {
+  const reason = document.getElementById('reject-reason').value.trim();
+  try {
+    await fetch('/api/public/personal-quote/${escHtml(q.quote_number)}/reject', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ reason }) });
+    location.reload();
+  } catch (e) {}
+}
+</script>
+</body></html>`;
+}
+
+// ──────── RECURRING (Phase B) ────────
+// Templates that auto-issue invoices on a schedule. Daily 9am Sydney cron
+// fires runPersonalRecurringBilling() which checks next_issue_at and creates
+// the invoice from template_items_json.
+
+app.get('/api/personal/recurring', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const rows = await c.env.DB.prepare(
+    `SELECT r.*, c.name as client_name FROM personal_recurring r
+     JOIN personal_clients c ON c.id = r.client_id
+     ORDER BY r.next_issue_at ASC`
+  ).all();
+  return c.json({ recurring: rows.results || [] });
+});
+
+app.post('/api/personal/recurring', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const body = await c.req.json().catch(() => ({}));
+  const clientId = (body.client_id || '').toString();
+  const name = (body.name || '').toString().trim().slice(0, 200);
+  const frequency = (body.frequency || 'monthly').toString();
+  const items = Array.isArray(body.items) ? body.items : [];
+  if (!clientId || !name || !items.length) return c.json({ error: 'client_id, name, items[] required' }, 400);
+  if (!['weekly','fortnightly','monthly','quarterly','yearly'].includes(frequency)) return c.json({ error: 'invalid frequency' }, 400);
+
+  const id = crypto.randomUUID();
+  // Default first issue: now (so the next 9am cron picks it up unless user
+  // overrode start_at). Alternative: schedule for a specific date.
+  const nextIssueAt = body.start_at ? new Date(body.start_at).toISOString() : new Date().toISOString();
+
+  await c.env.DB.prepare(
+    `INSERT INTO personal_recurring (id, client_id, name, frequency, template_items_json, due_days, next_issue_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
+  ).bind(id, clientId, name, frequency, JSON.stringify(items), Number(body.due_days || 14), nextIssueAt).run();
+  return c.json({ success: true, id });
+});
+
+app.put('/api/personal/recurring/:id', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const id = c.req.param('id');
+  const body = await c.req.json().catch(() => ({}));
+  const allowed = ['name','frequency','due_days','next_issue_at','paused'];
+  const updates: string[] = []; const values: any[] = [];
+  for (const k of allowed) {
+    if (body[k] !== undefined) {
+      updates.push(`${k} = ?`);
+      values.push(k === 'paused' ? (body[k] ? 1 : 0) : body[k]);
+    }
+  }
+  if (Array.isArray(body.items)) {
+    updates.push(`template_items_json = ?`);
+    values.push(JSON.stringify(body.items));
+  }
+  if (!updates.length) return c.json({ error: 'nothing to update' }, 400);
+  updates.push(`updated_at = datetime('now')`);
+  values.push(id);
+  await c.env.DB.prepare(`UPDATE personal_recurring SET ${updates.join(', ')} WHERE id = ?`).bind(...values).run();
+  return c.json({ success: true });
+});
+
+app.delete('/api/personal/recurring/:id', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  await c.env.DB.prepare(`DELETE FROM personal_recurring WHERE id = ?`).bind(c.req.param('id')).run();
+  return c.json({ success: true });
+});
+
+// Cron task — fires daily at 9am Sydney from the scheduled() handler.
+async function runPersonalRecurringBilling(env: Env) {
+  const due = await env.DB.prepare(
+    `SELECT r.*, c.name AS client_name, c.email AS client_email
+     FROM personal_recurring r
+     JOIN personal_clients c ON c.id = r.client_id
+     WHERE r.paused = 0 AND r.next_issue_at <= datetime('now') AND c.active = 1`
+  ).all();
+  let issued = 0;
+  for (const row of (due.results || []) as any[]) {
+    const items = safeParse<any[]>(row.template_items_json, []);
+    if (!items.length) continue;
+    // Compute total
+    const total = items.reduce((s, it) => s + Number(it.qty || 0) * Number(it.unit_price || 0), 0);
+    if (total <= 0) continue;
+
+    const seq = await nextSeq(env.DB, 'personal_invoices');
+    const invNumber = formatPersonalNumber('INV', seq);
+    const invId = crypto.randomUUID();
+    const dueAt = new Date(Date.now() + Number(row.due_days || 14) * 86400000).toISOString();
+
+    // Atomic batch: create invoice + items + bump next_issue_at + record last_issued_at.
+    // If anything in the batch fails, nothing commits (no double-issue).
+    const stmts: any[] = [
+      env.DB.prepare(
+        `INSERT INTO personal_invoices (id, client_id, invoice_number, seq, status, subject, due_at, payment_reference, recurring_id, total, issued_at)
+         VALUES (?, ?, ?, ?, 'sent', ?, ?, ?, ?, ?, datetime('now'))`
+      ).bind(invId, row.client_id, invNumber, seq, `${row.name} — ${new Date().toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })}`, dueAt, invNumber, row.id, total),
+    ];
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      const qty = Number(it.qty || 1);
+      const unitPrice = Number(it.unit_price || 0);
+      stmts.push(env.DB.prepare(
+        `INSERT INTO personal_invoice_items (id, invoice_id, description, qty, unit_price, line_total, sort_order)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`
+      ).bind(crypto.randomUUID(), invId, (it.description || '').toString().slice(0, 500), qty, unitPrice, qty * unitPrice, i));
+    }
+    // Bump next_issue_at by frequency. SQLite supports modifiers like '+1 month'.
+    const bump = ({
+      weekly: '+7 days',
+      fortnightly: '+14 days',
+      monthly: '+1 month',
+      quarterly: '+3 months',
+      yearly: '+1 year',
+    } as any)[row.frequency] || '+1 month';
+    stmts.push(env.DB.prepare(
+      `UPDATE personal_recurring SET next_issue_at = datetime(next_issue_at, '${bump}'), last_issued_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`
+    ).bind(row.id));
+
+    try {
+      await env.DB.batch(stmts);
+      issued++;
+      // Email the client (outside batch so a Resend hiccup doesn't roll back the invoice).
+      if (row.client_email) {
+        const url = `https://pennywiseit-validator.steve-700.workers.dev/api/public/personal-invoice/${invNumber}`;
+        await sendEmail(env, {
+          kind: 'personal_recurring_invoice',
+          to: row.client_email,
+          subject: `Invoice ${invNumber} — $${total.toLocaleString('en-AU')}`,
+          text: `Hi ${(row.client_name || '').split(' ')[0]},\n\nYour ${row.frequency} invoice is ready: ${invNumber}.\n\nAmount: $${total.toLocaleString('en-AU')}\nDue: ${new Date(dueAt).toLocaleDateString('en-AU')}\n\nView + pay: ${url}\n\n— Steve, Penny Wise I.T`,
+        });
+      }
+    } catch {
+      // Batch failed (e.g. UNIQUE seq race); skip and let next cron retry.
+      continue;
+    }
+  }
+  if (issued > 0) {
+    await sendEmail(env, {
+      kind: 'personal_recurring_summary',
+      to: 'steve@pennywiseit.com.au',
+      subject: `\u{1F4B0} Auto-issued ${issued} recurring invoice${issued > 1 ? 's' : ''}`,
+      text: `Daily personal-recurring cron issued ${issued} invoice${issued > 1 ? 's' : ''} this morning. Check the Personal Invoicing tab for details.`,
+    });
+  }
+  return { issued };
+}
+
+// ──────── CLIENT MAGIC-LINK PORTAL (Phase B) ────────
+// One URL per client; shows all their invoices + quotes in one place.
+// 90-day sliding expiry on first use, like the customer portal.
+
+// Owner: ensure a client has a magic_token, return the public URL.
+app.post('/api/personal/clients/:id/portal-link', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const id = c.req.param('id');
+  const cl: any = await c.env.DB.prepare(`SELECT * FROM personal_clients WHERE id = ?`).bind(id).first();
+  if (!cl) return c.json({ error: 'Not found' }, 404);
+  let token = cl.magic_token;
+  if (!token) {
+    token = newToken();
+    await c.env.DB.prepare(
+      `UPDATE personal_clients SET magic_token = ?, magic_token_expires_at = datetime('now', '+90 days'), updated_at = datetime('now') WHERE id = ?`
+    ).bind(token, id).run();
+  }
+  return c.json({
+    portal_url: `https://pennywiseit-validator.steve-700.workers.dev/api/public/billing/${token}`,
+    expires_at: cl.magic_token_expires_at,
+  });
+});
+
+// Public: the client's billing portal page.
+app.get('/api/public/billing/:token', async (c) => {
+  const token = c.req.param('token');
+  const cl: any = await c.env.DB.prepare(
+    `SELECT * FROM personal_clients WHERE magic_token = ? AND active = 1`
+  ).bind(token).first();
+  if (!cl) return c.text('Invalid or expired link. Request a fresh one from Steve.', 404);
+  if (cl.magic_token_expires_at && new Date(cl.magic_token_expires_at).getTime() < Date.now()) {
+    return c.text('This link has expired. Request a fresh one from Steve.', 410);
+  }
+  // Sliding bump
+  await c.env.DB.prepare(
+    `UPDATE personal_clients SET magic_token_expires_at = datetime('now', '+90 days') WHERE id = ?`
+  ).bind(cl.id).run();
+
+  const invoices = await c.env.DB.prepare(
+    `SELECT * FROM personal_invoices WHERE client_id = ? AND status != 'draft' ORDER BY created_at DESC LIMIT 100`
+  ).bind(cl.id).all();
+  const quotes = await c.env.DB.prepare(
+    `SELECT * FROM personal_quotes WHERE client_id = ? AND status != 'draft' ORDER BY created_at DESC LIMIT 100`
+  ).bind(cl.id).all();
+  return new Response(buildClientPortalHTML({
+    client: cl,
+    invoices: invoices.results || [],
+    quotes: quotes.results || [],
+  }), { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+});
+
+function buildClientPortalHTML(opts: { client: any; invoices: any[]; quotes: any[] }): string {
+  const { client, invoices, quotes } = opts;
+  const fmt = (n: any) => '$' + Number(n || 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const escHtml = (s: any) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const outstanding = invoices.filter(i => i.status === 'sent' || i.status === 'partial').reduce((s, i) => s + Number(i.total) - Number(i.paid_amount || 0), 0);
+  const invRows = invoices.map(i => {
+    const remaining = Math.max(0, Number(i.total) - Number(i.paid_amount || 0));
+    const url = `/api/public/personal-invoice/${i.invoice_number}`;
+    return `<a href="${url}" style="display:flex;align-items:center;gap:0.6rem;padding:0.85rem 1rem;background:white;border:1px solid #e2e8f0;border-radius:8px;text-decoration:none;color:#0f172a;flex-wrap:wrap">
+      <span style="font-family:monospace;font-weight:700">${escHtml(i.invoice_number)}</span>
+      ${i.subject ? '<span style="color:#475569">· ' + escHtml(i.subject) + '</span>' : ''}
+      <span style="margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums">${fmt(i.total)}</span>
+      <span style="display:inline-block;padding:0.15rem 0.55rem;border-radius:999px;font-size:0.7rem;font-weight:700;text-transform:uppercase;background:${i.status==='paid'?'#d1fae5':i.status==='partial'?'#fef3c7':i.status==='sent'?'#dbeafe':'#e5e7eb'};color:${i.status==='paid'?'#065f46':i.status==='partial'?'#92400e':i.status==='sent'?'#1e40af':'#475569'}">${escHtml(i.status)}${remaining > 0 && i.status === 'partial' ? ' · ' + fmt(remaining) + ' due' : ''}</span>
+    </a>`;
+  }).join('');
+  const quoteRows = quotes.map(q => {
+    const url = `/api/public/personal-quote/${q.quote_number}`;
+    return `<a href="${url}" style="display:flex;align-items:center;gap:0.6rem;padding:0.85rem 1rem;background:white;border:1px solid #e2e8f0;border-radius:8px;text-decoration:none;color:#0f172a;flex-wrap:wrap">
+      <span style="font-family:monospace;font-weight:700">${escHtml(q.quote_number)}</span>
+      ${q.subject ? '<span style="color:#475569">· ' + escHtml(q.subject) + '</span>' : ''}
+      <span style="margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums">${fmt(q.total)}</span>
+      <span style="display:inline-block;padding:0.15rem 0.55rem;border-radius:999px;font-size:0.7rem;font-weight:700;text-transform:uppercase;background:${q.status==='accepted'||q.status==='converted'?'#d1fae5':q.status==='rejected'?'#fee2e2':q.status==='expired'?'#fef3c7':'#dbeafe'};color:${q.status==='accepted'||q.status==='converted'?'#065f46':q.status==='rejected'?'#991b1b':q.status==='expired'?'#92400e':'#1e40af'}">${escHtml(q.status)}</span>
+    </a>`;
+  }).join('');
+  return `<!DOCTYPE html>
+<html lang="en-AU"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escHtml(client.name)} — Penny Wise I.T billing</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #0f172a; margin: 0; padding: 2rem 1rem; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  .header { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .header h1 { font-size: 1.4rem; margin: 0 0 0.25rem; color: #b45309; }
+  .header p { margin: 0.1rem 0; color: #475569; font-size: 0.85rem; }
+  .summary { background: white; padding: 1rem 1.25rem; border-radius: 10px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .summary .label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+  .summary .amount { font-size: 1.5rem; font-weight: 800; color: ${outstanding > 0 ? '#b45309' : '#16a34a'}; }
+  h2 { font-size: 1rem; color: #475569; margin: 1.5rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .footer { margin-top: 2rem; font-size: 0.78rem; color: #64748b; text-align: center; }
+  @media (max-width: 480px) { body{padding:0.5rem} .header{padding:1rem;border-radius:8px} }
+</style></head><body><div class="wrap">
+  <div class="header">
+    <div style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Billing portal</div>
+    <h1>${escHtml(client.name)}</h1>
+    <p>Penny Wise I.T · steve@pennywiseit.com.au</p>
+  </div>
+
+  <div class="summary">
+    <div><div class="label">Outstanding</div><div class="amount">${fmt(outstanding)}</div></div>
+    <div style="font-size:0.78rem;color:#64748b;text-align:right">${invoices.length} invoice${invoices.length !== 1 ? 's' : ''} · ${quotes.length} quote${quotes.length !== 1 ? 's' : ''}</div>
+  </div>
+
+  ${invoices.length ? `<h2>Invoices</h2><div class="list">${invRows}</div>` : ''}
+  ${quotes.length ? `<h2>Quotes</h2><div class="list">${quoteRows}</div>` : ''}
+  ${!invoices.length && !quotes.length ? '<p style="text-align:center;color:#64748b;padding:2rem">No invoices or quotes yet.</p>' : ''}
+
+  <div class="footer">Not registered for GST. Questions? Reply to any of our emails or contact <a href="mailto:steve@pennywiseit.com.au" style="color:#b45309">steve@pennywiseit.com.au</a>.</div>
+</div></body></html>`;
+}
+
 // ============ COMMISSION PAYOUTS ============
 
 app.get('/salesperson/payouts', async (c) => {
@@ -7659,6 +8302,7 @@ export default {
       safe('runCustomerHealthChecks', () => runCustomerHealthChecks(env));
       safe('runEmailFailureDigest', () => runEmailFailureDigest(env));
       safe('archiveOldAutoScanLeads', () => archiveOldAutoScanLeads(env));
+      safe('runPersonalRecurringBilling', () => runPersonalRecurringBilling(env));
     }
     // 8am Sydney Mon–Fri — morning briefing
     if (sydHour === 8 && sydDow >= 1 && sydDow <= 5) safe('runAmBriefing', () => runAmBriefing(env));
