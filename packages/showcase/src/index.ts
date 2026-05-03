@@ -7,6 +7,7 @@ import {
   aboutBody,
   appsBody,
   faqBody,
+  FAQ_PAIRS,
   homeBody,
   notFoundBody,
   numbersBody,
@@ -136,6 +137,7 @@ app.get('/faq', () =>
       description:
         'Common questions about Penny Wise I.T whitelabel apps: ownership, customisation, deployment timelines, payments, contracts.',
       body: faqBody(),
+      faqQa: FAQ_PAIRS,
     })
   )
 );

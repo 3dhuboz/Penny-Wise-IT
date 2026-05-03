@@ -27,6 +27,8 @@ export type PageId =
   | 'community'
   | 'delivery';
 
+export type FaqQA = { question: string; answer: string };
+
 export interface RenderLayoutOptions {
   page: PageId;
   /** Full <title> contents (overrides default site title). */
@@ -45,6 +47,32 @@ export interface RenderLayoutOptions {
   includeCounters?: boolean;
   /** Include range-output + ROI calculator scripts. */
   includeRoiForm?: boolean;
+  /** Question/answer pairs for FAQPage JSON-LD (only emit on /faq). */
+  faqQa?: FaqQA[];
+}
+
+/**
+ * Renders a FAQPage JSON-LD script tag for the supplied Q&A pairs.
+ * Eligible for Google's FAQ rich-result snippet in SERPs. The text MUST
+ * mirror the visible page exactly — Google rejects mismatched answers.
+ */
+export function renderFaqPageLd(qa: FaqQA[]): string {
+  if (!qa.length) return '';
+  const itemListElement = qa.map(({ question, answer }) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: answer,
+    },
+  }));
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: itemListElement,
+  };
+  return `
+  <script type="application/ld+json">${JSON.stringify(ld)}</script>`;
 }
 
 const SITE_ORIGIN = 'https://www.pennywiseit.com.au';
@@ -1178,6 +1206,7 @@ export function renderLayout(opts: RenderLayoutOptions): string {
     includeProductSchema = false,
     includeCounters = false,
     includeRoiForm = false,
+    faqQa,
   } = opts;
 
   const canonical = `${SITE_ORIGIN}${pathname}`;
@@ -1186,6 +1215,7 @@ export function renderLayout(opts: RenderLayoutOptions): string {
   const roiScript = includeRoiForm ? ROI_SCRIPT : '';
   // Home and 404 don't get breadcrumbs — home is the root, 404 isn't a real page.
   const breadcrumbLdHtml = breadcrumbLd(pathname);
+  const faqLdHtml = faqQa && faqQa.length ? renderFaqPageLd(faqQa) : '';
 
   return `<!doctype html>
 <html lang="en">
@@ -1205,6 +1235,8 @@ export function renderLayout(opts: RenderLayoutOptions): string {
   <meta property="og:description" content="${description}">
   <meta property="og:url" content="${canonical}">
   <meta property="og:image" content="${OG_IMAGE}">
+  <meta property="og:image:secure_url" content="${OG_IMAGE}">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Penny Wise I.T — 9 whitelabel apps for Australian small business">
@@ -1214,7 +1246,10 @@ export function renderLayout(opts: RenderLayoutOptions): string {
   <meta name="twitter:title" content="${socialTitle}">
   <meta name="twitter:description" content="${description}">
   <meta name="twitter:image" content="${OG_IMAGE}">
+  <meta name="twitter:image:type" content="image/png">
   <meta name="twitter:image:alt" content="Penny Wise I.T — 9 whitelabel apps for Australian small business">
+
+  <link rel="image_src" href="${OG_IMAGE}">
 
   <link rel="canonical" href="${canonical}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1229,7 +1264,7 @@ export function renderLayout(opts: RenderLayoutOptions): string {
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Penny Wise I.T">
   <meta name="application-name" content="Penny Wise I.T">
-${ORGANIZATION_LD}${productLd}${breadcrumbLdHtml}
+${ORGANIZATION_LD}${productLd}${breadcrumbLdHtml}${faqLdHtml}
   <style>${STYLES}
   </style>
 </head>

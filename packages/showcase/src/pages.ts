@@ -3,7 +3,7 @@
 // CTA panel is appended to every page so every visitor has a clear conversion path.
 
 import { ctaSection } from './layout';
-import type { PageId } from './layout';
+import type { FaqQA, PageId } from './layout';
 
 const HERO_SECTION = `
     <section id="hero" aria-labelledby="hero-heading">
@@ -410,6 +410,62 @@ const FAQ_LIST = `
             <div class="faq-body">Month to month. No lock-in. Cancel any time with 30 days notice. Setup fees are non-refundable (they cover the initial build time), but monthly fees stop the day you cancel.</div>
           </details>
         </div>`;
+
+// FAQ_PAIRS — text MUST mirror the visible <details> blocks above exactly.
+// Google's FAQPage rich-result eligibility requires schema text to match the
+// rendered page; any drift gets the snippet rejected.
+export const FAQ_PAIRS: FaqQA[] = [
+  {
+    question: 'How quickly can I get an app live?',
+    answer:
+      'Most clients are live within 1–5 business days from the first conversation. Your branding (logo, colours, domain) takes the most time — the tech is already built and tested.',
+  },
+  {
+    question: "What's your ABN?",
+    answer:
+      "ABN registration is in progress. Until it lands, every Stripe payment generates a receipt with my legal name + business address; once the ABN is issued I'll re-issue any earlier receipts as full tax invoices automatically. Nothing's hidden — happy to share the application reference if you want to verify.",
+  },
+  {
+    question: 'What if you get hit by a bus?',
+    answer:
+      "Every app's source code is in a private git repo I'd hand over to you on cancellation. The infrastructure (Cloudflare Workers, Stripe, your domain) is in your name from day one — not mine. If I disappear, your app keeps running and any developer can pick it up.",
+  },
+  {
+    question: 'Can I get a tax invoice?',
+    answer:
+      'Every Stripe payment generates a detailed receipt with my legal name, business address, and your business details. Once my ABN registration completes (in progress now), every receipt becomes a fully GST-compliant tax invoice automatically — including any earlier ones, re-issued.',
+  },
+  {
+    question: 'Where is my data hosted?',
+    answer:
+      "Cloudflare's Sydney edge for compute and Cloudflare D1 for the database. Australian Privacy Act compliant. You can export everything as CSV any time, even after you cancel.",
+  },
+  {
+    question: 'Do I own the app or am I just renting it?',
+    answer:
+      "You're on a flat monthly subscription. The platform infrastructure, updates, and hosting are included. You own your customer data, your domain, and your brand — all of it is exportable on request. Think of it like renting a shopfront: you control everything inside.",
+  },
+  {
+    question: "What if I want features that aren't in the standard package?",
+    answer:
+      'Custom features are quoted per-project on top of the monthly plan. Most requests are smaller than clients expect — a new report, an integration, a flow tweak. I quote honestly and build fast.',
+  },
+  {
+    question: 'Which payment processor do you use?',
+    answer:
+      "Stripe exclusively. Stripe's Australian processing rate is 1.75% + $0.30 per transaction. That goes directly to Stripe — I take zero percentage of your revenue. You connect your own Stripe account during onboarding.",
+  },
+  {
+    question: 'Can I see a real working demo before committing?',
+    answer:
+      'Yes — every app on this page has a live demo linked. The interactive mocks above are also running live code, not screenshots. You can also request a personalised walkthrough via email.',
+  },
+  {
+    question: "What's the contract length?",
+    answer:
+      'Month to month. No lock-in. Cancel any time with 30 days notice. Setup fees are non-refundable (they cover the initial build time), but monthly fees stop the day you cancel.',
+  },
+];
 
 // ─── Page bodies ──────────────────────────────────────────────────────────
 
