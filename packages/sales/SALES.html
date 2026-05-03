@@ -790,6 +790,7 @@ select:focus-visible,
       <button id="install-app-btn" class="nav-tab" onclick="installApp()" style="display:none;color:var(--green);background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);font-weight:700;font-size:0.78rem" title="Install as an app">&#128241; Install</button>
       <button class="nav-tab" onclick="goToSection('settings',this)" data-section="settings" title="Profile, bank details, password, auto-scan" style="font-size:1rem;padding:0.4rem 0.65rem">&#9881;&#65039;</button>
       <button class="nav-tab" onclick="goToSection('admin',this)" data-section="admin" id="admin-tab" style="display:none;font-size:1rem;padding:0.4rem 0.65rem" title="Admin panel">&#128737;&#65039;</button>
+      <button class="nav-tab" onclick="goToSection('invoicing',this)" data-section="invoicing" id="invoicing-tab" style="display:none;font-weight:700" title="Personal invoicing — clients, invoices, quotes, recurring">&#128188; Invoicing</button>
       <span class="nav-user" id="nav-user"></span>
       <button class="nav-logout" onclick="doLogout()">Sign out</button>
     </div>
@@ -1971,6 +1972,16 @@ pennywiseit.com.au</div><button class="template-copy-btn" onclick="copyTemplate(
       </div>
     </div>
   </div>
+
+  <!-- ── TAB: PERSONAL INVOICING (owner-only top-level tab) ── -->
+  <div class="tab-panel" id="panel-invoicing">
+    <div class="container">
+      <div class="section-anchor">INVOICING</div>
+      <h1 class="section-title">&#128188; Personal Invoicing</h1>
+      <p class="section-sub">Standalone freelance/consulting invoicing — separate from customer build invoices.</p>
+      <div id="invoicing-panel-content"><p style="color:var(--muted)">Loading invoicing...</p></div>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════ SPOTLIGHT (Cmd+K / Ctrl+K) ═══════ -->
@@ -2402,6 +2413,10 @@ function showApp() {
   if (session.salesperson?.role === 'owner' || session.salesperson?.role === 'admin') {
     document.getElementById('admin-tab').style.display = '';
   }
+  // Show personal invoicing tab — owner only (more sensitive data)
+  if (session.salesperson?.role === 'owner') {
+    document.getElementById('invoicing-tab').style.display = '';
+  }
 
   renderProducts();
   populateQuoteSelect();
@@ -2472,6 +2487,7 @@ const SECTION_PANELS = {
   inbox:    { default: 'messages',     subs: [] },
   settings: { default: 'settings',     subs: [] },
   admin:    { default: 'admin',        subs: [] },
+  invoicing:{ default: 'invoicing',    subs: [] },
 };
 // Reverse map for back-compat (when JS calls switchTab('quote') we need to know it's in section 'pitch')
 const SECTION_FOR_PANEL = (() => {
@@ -2533,6 +2549,7 @@ function fireTabLoader(panel) {
   if (panel === 'quote') { populateQuoteLeadSelect(); loadQuoteTemplates(); }
   if (panel === 'pitch-studio') loadPitchStudio();
   if (panel === 'builds') loadMyBuilds();
+  if (panel === 'invoicing') loadInvoicingTab();
 }
 
 // BACK-COMPAT: lots of existing onclick="switchTab('foo')" calls scattered through
@@ -6155,7 +6172,38 @@ function renderPersonalInvoicingHome(dash) {
 
 async function piRefresh() {
   // Re-pull data + re-render the home view (used after any mutation).
-  await adminSection('personal-invoicing');
+  // Route to whichever surface is currently active. The top-level Invoicing tab
+  // is the primary one; the Admin tab's button is back-compat only.
+  const invoicingActive = document.querySelector('[data-section="invoicing"].active');
+  if (invoicingActive) return loadInvoicingTab();
+  return adminSection('personal-invoicing');
+}
+
+// Top-level Invoicing tab loader. Mirrors the admin path but writes to the
+// dedicated panel container so the two surfaces don't share the same DOM
+// nodes (which would create duplicate id="pi-content" elements and break
+// piShowInvoices etc.).
+async function loadInvoicingTab() {
+  const el = document.getElementById('invoicing-panel-content');
+  if (!el) return;
+  // Clear any stale render from the admin tab to avoid duplicate pi-content ids.
+  const adminContent = document.getElementById('admin-section-content');
+  if (adminContent && adminContent.querySelector('#pi-content')) adminContent.innerHTML = '';
+
+  el.innerHTML = '<p style="color:var(--muted)">Loading invoicing...</p>';
+  try {
+    const [dash, clients, invoices] = await Promise.all([
+      api('GET', '/api/personal/dashboard', null, true),
+      api('GET', '/api/personal/clients', null, true),
+      api('GET', '/api/personal/invoices', null, true),
+    ]);
+    window._piClients = clients.clients || [];
+    window._piInvoices = invoices.invoices || [];
+    el.innerHTML = renderPersonalInvoicingHome(dash);
+    piShowInvoices();
+  } catch (e) {
+    el.innerHTML = '<p style="color:var(--red)">Failed: ' + esc(e.message) + '</p>';
+  }
 }
 
 function piShowInvoices() {
