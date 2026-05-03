@@ -6444,10 +6444,10 @@ async function piOpenInvoice(id) {
       </div>` : ''}
 
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-        ${inv.status === 'draft' ? '<button class="btn btn-primary" onclick="piEditInvoice(\\'' + esc(inv.id) + '\\')">Edit</button>' : ''}
-        ${inv.status === 'draft' ? '<button class="btn btn-green" onclick="piSendInvoiceFromDetail(\\'' + esc(inv.id) + '\\')">Send to client</button>' : ''}
-        ${(inv.status === 'sent' || inv.status === 'partial') ? '<button class="btn btn-green" onclick="piMarkPaidPrompt(\\'' + esc(inv.id) + '\\', ' + remaining + ')">Mark paid</button>' : ''}
-        ${inv.status !== 'paid' && inv.status !== 'cancelled' ? '<button class="btn btn-secondary" onclick="piCancelInvoice(\\'' + esc(inv.id) + '\\')" style="color:var(--red)">Cancel invoice</button>' : ''}
+        ${inv.status === 'draft' ? '<button class="btn btn-primary" onclick="piEditInvoice(\'' + esc(inv.id) + '\')">Edit</button>' : ''}
+        ${inv.status === 'draft' ? '<button class="btn btn-green" onclick="piSendInvoiceFromDetail(\'' + esc(inv.id) + '\')">Send to client</button>' : ''}
+        ${(inv.status === 'sent' || inv.status === 'partial') ? '<button class="btn btn-green" onclick="piMarkPaidPrompt(\'' + esc(inv.id) + '\', ' + remaining + ')">Mark paid</button>' : ''}
+        ${inv.status !== 'paid' && inv.status !== 'cancelled' ? '<button class="btn btn-secondary" onclick="piCancelInvoice(\'' + esc(inv.id) + '\')" style="color:var(--red)">Cancel invoice</button>' : ''}
       </div>
     `;
   } catch (e) { c.innerHTML = '<p style="color:var(--red)">Failed: ' + esc(e.message) + '</p>'; }
@@ -6687,8 +6687,8 @@ async function piOpenQuote(id) {
       </div>` : ''}
       ${q.accepted_by_name ? '<div style="font-size:0.85rem;color:var(--green);margin-bottom:1rem">✓ Accepted by ' + esc(q.accepted_by_name) + ' on ' + new Date(q.accepted_at + 'Z').toLocaleString('en-AU') + (q.converted_invoice_id ? ' · invoice auto-issued' : '') + '</div>' : ''}
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-        ${q.status === 'draft' ? '<button class="btn btn-primary" onclick="piEditQuote(\\'' + esc(q.id) + '\\')">Edit</button>' : ''}
-        ${q.status === 'draft' ? '<button class="btn btn-green" onclick="piSendQuoteFromDetail(\\'' + esc(q.id) + '\\')">Send to client</button>' : ''}
+        ${q.status === 'draft' ? '<button class="btn btn-primary" onclick="piEditQuote(\'' + esc(q.id) + '\')">Edit</button>' : ''}
+        ${q.status === 'draft' ? '<button class="btn btn-green" onclick="piSendQuoteFromDetail(\'' + esc(q.id) + '\')">Send to client</button>' : ''}
       </div>
     `;
   } catch (e) { c.innerHTML = '<p style="color:var(--red)">Failed: ' + esc(e.message) + '</p>'; }
