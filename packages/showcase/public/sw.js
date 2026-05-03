@@ -4,8 +4,17 @@
 //   - Static assets (everything else, same-origin GET): cache-first
 //   - Anything containing "/api/": never cached (defensive)
 
-const CACHE_NAME = 'pennywise-showcase-v1';
-const PRECACHE_URLS = ['/', '/manifest.json'];
+const CACHE_NAME = 'pennywise-showcase-v2';
+const PRECACHE_URLS = [
+  '/',
+  '/apps',
+  '/numbers',
+  '/roi',
+  '/pricing',
+  '/about',
+  '/faq',
+  '/manifest.json',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
