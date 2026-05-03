@@ -3,3 +3,11 @@ dist/
 .wrangler/
 .dev.vars
 *.log
+
+# Local-only Claude Code state
+.claude/
+
+# Local browser/test profiles + one-off scripts
+.puppeteer-profile/
+capture-wirez.mjs
+wirez.png

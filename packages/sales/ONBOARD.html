@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Set up your Penny Wise I.T account</title>
+<style>
+:root {
+  --bg:#0b0f1a; --surface:#141b2d; --card:#1a2338; --border:#1f2d45;
+  --text:#e8edf5; --muted:#6b7fa3; --soft:#a0aec0;
+  --accent:#4f8ef7; --green:#34d399; --yellow:#fbbf24; --purple:#a78bfa; --red:#f87171;
+}
+* { box-sizing: border-box; margin:0; padding:0; }
+body { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; line-height: 1.55; min-height: 100vh; }
+body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:0; background: radial-gradient(ellipse 600px 400px at 80% 10%, rgba(167,139,250,0.08), transparent 60%), radial-gradient(ellipse 500px 300px at 15% 80%, rgba(79,142,247,0.06), transparent 60%); }
+
+.wrap { max-width: 580px; margin: 0 auto; padding: 2rem 1.25rem 4rem; position: relative; z-index: 1; }
+.brand { display:flex; align-items:center; gap:0.6rem; margin-bottom: 2rem; }
+.brand-logo { width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--purple)); display:flex; align-items:center; justify-content:center; font-weight:900; color:white; font-size:1.1rem; box-shadow:0 4px 16px rgba(79,142,247,0.3); }
+.brand-name { font-weight:900; font-size:1.05rem; }
+
+.hero { background: linear-gradient(135deg, rgba(79,142,247,0.10), rgba(167,139,250,0.06)); border: 1px solid rgba(167,139,250,0.25); border-radius: 16px; padding: 1.5rem 1.75rem; margin-bottom: 1.5rem; }
+.hero h1 { font-size: 1.7rem; font-weight: 900; letter-spacing: -0.01em; margin-bottom: 0.4rem; }
+.hero h1 .grad { background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p { color: var(--soft); font-size: 0.95rem; }
+
+.steps-bar { display:flex; gap:0.4rem; margin-bottom: 1.25rem; }
+.step-dot { flex:1; height: 4px; background: var(--card); border-radius: 99px; transition: background 0.3s; }
+.step-dot.done { background: var(--green); }
+.step-dot.current { background: linear-gradient(90deg, var(--accent), var(--purple)); }
+
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+.card h2 { font-size: 1.15rem; font-weight: 800; margin-bottom: 0.4rem; }
+.card .desc { color: var(--soft); font-size: 0.9rem; margin-bottom: 1.25rem; }
+
+.form-group { margin-bottom: 1rem; }
+.form-label { display: block; font-size: 0.7rem; color: var(--muted); margin-bottom: 0.3rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.form-label .req { color: var(--red); }
+.form-hint { font-size: 0.72rem; color: var(--muted); margin-top: 0.3rem; }
+.form-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 0.875rem; color: var(--text); font-size: 0.92rem; font-family: inherit; outline: none; }
+.form-input:focus { border-color: var(--accent); }
+
+.suffix-input { display: flex; align-items: stretch; }
+.suffix-input input { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; }
+.suffix-input .suffix { display: flex; align-items: center; padding: 0 0.85rem; background: var(--bg); border: 1px solid var(--border); border-left: none; border-radius: 0 8px 8px 0; color: var(--muted); font-size: 0.85rem; font-family: monospace; white-space: nowrap; }
+
+.btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.85rem 1.5rem; border-radius: 999px; font-weight: 800; font-size: 0.95rem; border: none; cursor: pointer; font-family: inherit; transition: all 0.15s; text-decoration: none; }
+.btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 16px rgba(79,142,247,0.35); }
+.btn-primary:hover { background: #3b7ce5; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-secondary { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid rgba(255,255,255,0.1); }
+
+.cta-row { display:flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 1.5rem; }
+
+.status { font-size: 0.85rem; min-height: 1em; margin-top: 0.6rem; }
+.status.error { color: var(--red); }
+.status.success { color: var(--green); }
+
+.tip { background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.2); border-radius: 10px; padding: 0.85rem 1rem; font-size: 0.82rem; color: var(--soft); line-height: 1.55; margin-bottom: 1rem; }
+.tip strong { color: var(--text); }
+
+.benefits { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1rem; }
+.benefit { background: var(--bg); border-radius: 8px; padding: 0.6rem 0.8rem; font-size: 0.78rem; color: var(--soft); }
+.benefit strong { color: var(--text); display: block; font-size: 0.82rem; margin-bottom: 0.15rem; }
+
+.commission-box { background: linear-gradient(135deg, rgba(52,211,153,0.08), rgba(167,139,250,0.04)); border: 1px solid rgba(52,211,153,0.25); border-radius: 10px; padding: 0.85rem 1.1rem; margin-top: 1rem; }
+.commission-box .label { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green); margin-bottom: 0.3rem; }
+.commission-box .rates { font-size: 1rem; font-weight: 700; }
+.commission-box .rates strong { color: var(--green); }
+
+footer { text-align: center; color: var(--muted); font-size: 0.78rem; padding: 2rem 1rem 1rem; }
+footer a { color: var(--soft); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="brand">
+    <div class="brand-logo">P</div>
+    <div class="brand-name">Penny Wise I.T</div>
+  </div>
+
+  <div id="loading" style="text-align:center;color:var(--muted);padding:3rem">
+    <div style="font-size:1.5rem;margin-bottom:0.5rem">⏳</div>
+    Looking up your invite...
+  </div>
+
+  <div id="invalid" style="display:none">
+    <div class="card" style="text-align:center;border-color:rgba(248,113,113,0.3)">
+      <div style="font-size:2rem;margin-bottom:0.5rem">⚠️</div>
+      <h2>This link isn't working</h2>
+      <p class="desc" id="invalid-reason">Either it's expired, already used, or the URL was mis-typed.</p>
+      <p class="desc" style="margin-top:0.5rem">Reply to the email Steve sent you and we'll get you a fresh link.</p>
+    </div>
+  </div>
+
+  <div id="onboard" style="display:none">
+
+    <div class="hero">
+      <h1>Welcome, <span class="grad" id="invitee-name">friend</span> 👋</h1>
+      <p>Set up your account in ~3 minutes. You'll be ready to find leads + send your first quote today.</p>
+    </div>
+
+    <div class="steps-bar">
+      <div class="step-dot current" data-step="0"></div>
+      <div class="step-dot" data-step="1"></div>
+      <div class="step-dot" data-step="2"></div>
+      <div class="step-dot" data-step="3"></div>
+    </div>
+
+    <!-- STEP 1: How it works -->
+    <div class="step" data-step="0">
+      <div class="card">
+        <h2>How this works</h2>
+        <p class="desc">You sell, we build. You don't touch code, hosting, or any of that. You just talk to small businesses.</p>
+
+        <div class="benefits">
+          <div class="benefit"><strong>🤖 AI finds leads</strong>Real prospects asking for what we sell, daily, in your area</div>
+          <div class="benefit"><strong>✨ Pitch Studio</strong>Build a working draft of their app in minutes \u2014 huge edge</div>
+          <div class="benefit"><strong>💸 Real commission</strong>% of every setup + monthly recurring (compounds)</div>
+          <div class="benefit"><strong>📅 No quotas</strong>Work when you want. Many reps close their first sale in 10\u201314 days</div>
+        </div>
+
+        <div class="commission-box">
+          <div class="label">Your commission rates</div>
+          <div class="rates"><strong id="rate-setup">15%</strong> of every setup fee + <strong id="rate-monthly">10%</strong> monthly recurring</div>
+        </div>
+      </div>
+      <div class="cta-row">
+        <button class="btn btn-primary" onclick="nextStep()">Got it \u2014 set up my account &rarr;</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Account -->
+    <div class="step" data-step="1" style="display:none">
+      <div class="card">
+        <h2>Pick a username + password</h2>
+        <p class="desc">Your username becomes your <strong>company email</strong> \u2014 mail to that address forwards to your personal inbox.</p>
+
+        <div class="form-group">
+          <label class="form-label">Username <span class="req">*</span></label>
+          <div class="suffix-input">
+            <input type="text" id="onb-username" class="form-input" maxlength="30" autocomplete="username">
+            <span class="suffix">@pennywiseit.com.au</span>
+          </div>
+          <div class="form-hint">Letters and numbers only. We pre-filled this from your first name.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password <span class="req">*</span></label>
+          <input type="password" id="onb-password" class="form-input" minlength="6" autocomplete="new-password" placeholder="At least 6 characters">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="tel" id="onb-phone" class="form-input" placeholder="0412 345 678">
+          <div class="form-hint">Customers see this on quotes you send.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Your area / suburbs you cover <span class="req">*</span></label>
+          <input type="text" id="onb-location" class="form-input" placeholder="e.g. Brisbane, Gold Coast">
+          <div class="form-hint">The lead scanner uses this to find prospects in your patch every hour.</div>
+        </div>
+      </div>
+      <div class="cta-row">
+        <button class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+        <button class="btn btn-primary" onclick="validateAccount()">Continue &rarr;</button>
+        <span id="account-status" class="status"></span>
+      </div>
+    </div>
+
+    <!-- STEP 3: Bank details -->
+    <div class="step" data-step="2" style="display:none">
+      <div class="card">
+        <h2>Where do we pay you?</h2>
+        <p class="desc">Your commission lands in this account every month. We only store the last 4 digits for security \u2014 admin enters the full number into our banking app at payout time.</p>
+
+        <div class="form-group">
+          <label class="form-label">BSB</label>
+          <input type="text" id="onb-bsb" class="form-input" placeholder="064-000" maxlength="7" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account number</label>
+          <input type="text" id="onb-account" class="form-input" placeholder="12345678" maxlength="12" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account name</label>
+          <input type="text" id="onb-account-name" class="form-input" placeholder="As it appears on your statements">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ABN <span style="color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0">(optional but recommended)</span></label>
+          <input type="text" id="onb-abn" class="form-input" placeholder="11 222 333 444">
+          <div class="form-hint">Sole trader? An ABN means we don't need to withhold tax. Apply free at <a href="https://abr.gov.au" target="_blank" style="color:var(--accent)">abr.gov.au</a> if you don't have one yet.</div>
+        </div>
+
+        <div class="tip">
+          <strong>You can skip this</strong> and add it later in Settings, but you won't get paid until it's filled in.
+        </div>
+      </div>
+      <div class="cta-row">
+        <button class="btn btn-secondary" onclick="prevStep()">&larr; Back</button>
+        <button class="btn btn-primary" onclick="finalSubmit()" id="finish-btn">Finish setup &rarr;</button>
+        <span id="finish-status" class="status"></span>
+      </div>
+    </div>
+
+    <!-- STEP 4: Done (transitional) -->
+    <div class="step" data-step="3" style="display:none">
+      <div class="card" style="text-align:center;background:linear-gradient(135deg,rgba(52,211,153,0.08),rgba(167,139,250,0.04));border-color:rgba(52,211,153,0.3)">
+        <div style="font-size:3rem;margin-bottom:0.5rem">🎉</div>
+        <h2>You're in.</h2>
+        <p class="desc">Your account is live. Loading your dashboard...</p>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  &copy; Penny Wise I.T &nbsp;\u00b7&nbsp; <a href="/privacy">Privacy</a> &nbsp;\u00b7&nbsp; <a href="/terms">Terms</a>
+</footer>
+
+<script>
+const API_URL = 'https://pennywiseit-validator.steve-700.workers.dev';
+const params = new URLSearchParams(window.location.search);
+const TOKEN = params.get('token') || '';
+let INVITE = null;
+let currentStep = 0;
+const TOTAL_STEPS = 4;
+
+async function loadInvite() {
+  if (!TOKEN) return showInvalid('No token in URL.');
+  try {
+    const res = await fetch(API_URL + '/api/public/invite/' + encodeURIComponent(TOKEN));
+    const data = await res.json();
+    if (!res.ok) return showInvalid(data.error || 'Could not load invite.');
+    INVITE = data;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('onboard').style.display = '';
+    document.getElementById('invitee-name').textContent = (data.name || '').split(' ')[0] || 'friend';
+    document.getElementById('rate-setup').textContent = (data.commission_pct || 15) + '%';
+    document.getElementById('rate-monthly').textContent = (data.monthly_comm_pct || 10) + '%';
+    document.getElementById('onb-username').value = data.suggested_username || '';
+    if (data.suggested_location) document.getElementById('onb-location').value = data.suggested_location;
+  } catch (e) {
+    showInvalid('Network error. Please refresh.');
+  }
+}
+
+function showInvalid(reason) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('invalid').style.display = '';
+  document.getElementById('invalid-reason').textContent = reason;
+}
+
+function showStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.step').forEach(el => el.style.display = 'none');
+  const target = document.querySelector('.step[data-step="' + n + '"]');
+  if (target) target.style.display = '';
+  document.querySelectorAll('.step-dot').forEach((el, i) => {
+    el.classList.remove('done', 'current');
+    if (i < n) el.classList.add('done');
+    if (i === n) el.classList.add('current');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep() { if (currentStep < TOTAL_STEPS - 1) showStep(currentStep + 1); }
+function prevStep() { if (currentStep > 0) showStep(currentStep - 1); }
+
+function validateAccount() {
+  const username = document.getElementById('onb-username').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+  const password = document.getElementById('onb-password').value;
+  const location = document.getElementById('onb-location').value.trim();
+  const status = document.getElementById('account-status');
+  if (!username) { status.textContent = 'Pick a username.'; status.className = 'status error'; return; }
+  if (!password || password.length < 6) { status.textContent = 'Password must be at least 6 characters.'; status.className = 'status error'; return; }
+  if (!location) { status.textContent = 'Tell us your area so the lead scanner can find prospects.'; status.className = 'status error'; return; }
+  status.textContent = '';
+  document.getElementById('onb-username').value = username;
+  nextStep();
+}
+
+async function finalSubmit() {
+  const status = document.getElementById('finish-status');
+  const btn = document.getElementById('finish-btn');
+  btn.disabled = true; btn.textContent = 'Setting up your account...';
+  status.textContent = '';
+
+  const body = {
+    username: document.getElementById('onb-username').value.trim().toLowerCase().replace(/[^a-z0-9]/g, ''),
+    password: document.getElementById('onb-password').value,
+    phone: document.getElementById('onb-phone').value.trim(),
+    location: document.getElementById('onb-location').value.trim(),
+    bank_bsb: document.getElementById('onb-bsb').value.trim(),
+    bank_account: document.getElementById('onb-account').value.trim(),
+    bank_account_name: document.getElementById('onb-account-name').value.trim(),
+    abn: document.getElementById('onb-abn').value.trim(),
+  };
+
+  try {
+    const res = await fetch(API_URL + '/api/public/invite/' + encodeURIComponent(TOKEN) + '/accept', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Setup failed');
+
+    // Save the session token in localStorage so the sales portal picks it up
+    try {
+      localStorage.setItem('pwsales_session', JSON.stringify({
+        token: data.token,
+        salesperson: data.salesperson,
+      }));
+    } catch {}
+
+    // Show done step
+    showStep(3);
+
+    // Redirect to the portal after a beat \u2014 the existing onboarding tour will fire automatically
+    setTimeout(() => {
+      window.location.href = '/?welcome=1';
+    }, 1500);
+  } catch (e) {
+    btn.disabled = false; btn.textContent = 'Finish setup \u2192';
+    status.textContent = e.message; status.className = 'status error';
+  }
+}
+
+loadInvite();
+</script>
+
+</body>
+</html>
