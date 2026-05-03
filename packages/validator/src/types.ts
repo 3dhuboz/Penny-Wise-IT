@@ -3,6 +3,10 @@
 export interface Env {
   DB: D1Database;
   AI: Ai; // Cloudflare Workers AI binding — used for Lead Finder
+  DRAFTS_LOGOS?: R2Bucket; // R2 bucket for Pitch Studio prospect logos
+  ARCHIVE?: R2Bucket; // R2 bucket for cold storage of old auto_scan_leads rows
+  ANALYTICS?: AnalyticsEngineDataset; // Workers Analytics Engine \u2014 cron + request metrics
+  RATE_LIMIT?: KVNamespace; // KV namespace for sliding-window rate limiting
   CF_ACCOUNT_ID: string;
   CF_API_TOKEN: string;
   RESEND_API_KEY?: string;
@@ -11,6 +15,10 @@ export interface Env {
   GOOGLE_CSE_ID?: string; // Google Custom Search Engine ID — for Lead Scanner
   GOOGLE_CSE_KEY?: string; // Google Custom Search API key — for Lead Scanner
   SERPER_API_KEY?: string; // Serper.dev API key — for Lead Scanner (real Google results)
+  PENNYWISEIT_ZONE_ID?: string; // Cloudflare zone ID for pennywiseit.com.au — used for Email Routing forwarding rules
+  STRIPE_SECRET_KEY?: string; // Stripe secret key (sk_live_... or sk_test_...) — enables one-click invoice checkout
+  STRIPE_WEBHOOK_SECRET?: string; // Stripe webhook signing secret (whsec_...) — verifies inbound payment events
+  SENTRY_DSN?: string; // Sentry DSN \u2014 if set, unhandled errors are forwarded to Sentry
 }
 
 export interface CheckResult {

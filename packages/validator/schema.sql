@@ -153,3 +153,26 @@ CREATE TABLE IF NOT EXISTS leads (
 
 CREATE INDEX IF NOT EXISTS idx_leads_salesperson ON leads(salesperson_id, stage);
 CREATE INDEX IF NOT EXISTS idx_sales_sessions_token ON sales_sessions(token, expires_at);
+
+-- Email-send failure log (Resend non-2xx, network errors). Replaces 40+
+-- silent `catch {}` blocks around fetch('https://api.resend.com/emails').
+-- Daily 9am Sydney cron emails Steve a digest if any rows in last 24h.
+CREATE TABLE IF NOT EXISTS email_failures (
+  id TEXT PRIMARY KEY,
+  kind TEXT,
+  to_addr TEXT,
+  subject TEXT,
+  status INTEGER,
+  body_preview TEXT,
+  error TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_email_failures_created ON email_failures(created_at DESC);
+
+-- Hot-path indexes added 2026-04-26 from data-architecture audit. All hourly /
+-- daily cron queries and customer-page lookups should hit one of these.
+CREATE INDEX IF NOT EXISTS idx_invoices_customer_type ON invoices(customer_id, type, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_projects_customer_stage ON projects(customer_id, stage);
+CREATE INDEX IF NOT EXISTS idx_customer_events_customer_created ON customer_events(customer_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_auto_scan_leads_rep_created ON auto_scan_leads(salesperson_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_leads_stage_created ON leads(stage, created_at DESC);

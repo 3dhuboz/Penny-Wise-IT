@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "validate": "node validate.mjs",
+    "predeploy": "npm run validate",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
