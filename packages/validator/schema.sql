@@ -176,3 +176,129 @@ CREATE INDEX IF NOT EXISTS idx_projects_customer_stage ON projects(customer_id, 
 CREATE INDEX IF NOT EXISTS idx_customer_events_customer_created ON customer_events(customer_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_auto_scan_leads_rep_created ON auto_scan_leads(salesperson_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_leads_stage_created ON leads(stage, created_at DESC);
+
+-- ============================================================================
+-- PERSONAL INVOICING (Phase A) — Steve's personal/freelance invoicing module.
+-- Cleanly separated from the customer/build pipeline so invoices for one-off
+-- consulting gigs don't pollute the customers table or build state machines.
+-- Owner-only access.
+-- ============================================================================
+
+-- Recipients (clients). Can optionally link to an existing PWI customer
+-- (linked_customer_id) for the case where a client is BOTH a build customer
+-- AND a one-off consulting client.
+CREATE TABLE IF NOT EXISTS personal_clients (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  abn TEXT,
+  billing_address TEXT,
+  notes TEXT,
+  linked_customer_id TEXT,                  -- nullable FK to customers.id
+  magic_token TEXT UNIQUE,                  -- portal access token (Phase B)
+  magic_token_expires_at TEXT,              -- 90-day sliding expiry (Phase B)
+  active INTEGER NOT NULL DEFAULT 1,        -- soft delete
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_personal_clients_active ON personal_clients(active, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_personal_clients_email ON personal_clients(email);
+CREATE INDEX IF NOT EXISTS idx_personal_clients_token ON personal_clients(magic_token);
+
+-- Invoices. Sequential numbering via a max(seq)+1 select on insert.
+-- Status flow: draft → sent → (paid | partial | overdue | cancelled).
+CREATE TABLE IF NOT EXISTS personal_invoices (
+  id TEXT PRIMARY KEY,
+  client_id TEXT NOT NULL,
+  invoice_number TEXT UNIQUE NOT NULL,      -- INV-0001, INV-0002, ...
+  seq INTEGER UNIQUE NOT NULL,              -- numeric sequence for next-id math
+  status TEXT NOT NULL DEFAULT 'draft',     -- draft|sent|paid|partial|overdue|cancelled
+  subject TEXT,                             -- short title shown in lists
+  notes TEXT,                               -- free-text shown on the invoice
+  total REAL NOT NULL DEFAULT 0,            -- sum of all line totals (cached)
+  paid_amount REAL NOT NULL DEFAULT 0,      -- supports partial payments
+  payment_reference TEXT,                   -- defaults to invoice_number
+  issued_at TEXT,                           -- when status flipped to 'sent'
+  due_at TEXT,                              -- payment due date
+  paid_at TEXT,                             -- when fully paid
+  paid_marked_by TEXT,                      -- 'manual:steve' | 'stripe-webhook' | etc
+  cancelled_at TEXT,
+  -- Stripe integration (reuses existing webhook + checkout helper)
+  stripe_session_id TEXT,
+  stripe_payment_intent_id TEXT,
+  stripe_paid_at TEXT,
+  -- Phase B: optional links back to source recurring/quote
+  recurring_id TEXT,
+  source_quote_id TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_personal_invoices_client ON personal_invoices(client_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_personal_invoices_status ON personal_invoices(status, due_at);
+CREATE INDEX IF NOT EXISTS idx_personal_invoices_stripe_session ON personal_invoices(stripe_session_id);
+
+-- Line items on an invoice. Multi-row vs the customer invoices' single-amount.
+CREATE TABLE IF NOT EXISTS personal_invoice_items (
+  id TEXT PRIMARY KEY,
+  invoice_id TEXT NOT NULL,
+  description TEXT NOT NULL,
+  qty REAL NOT NULL DEFAULT 1,
+  unit_price REAL NOT NULL DEFAULT 0,
+  line_total REAL NOT NULL DEFAULT 0,        -- qty * unit_price (cached)
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_personal_invoice_items_invoice ON personal_invoice_items(invoice_id, sort_order);
+
+-- Quotes (Phase B). Same shape as invoices, with accept/reject + convert flow.
+CREATE TABLE IF NOT EXISTS personal_quotes (
+  id TEXT PRIMARY KEY,
+  client_id TEXT NOT NULL,
+  quote_number TEXT UNIQUE NOT NULL,         -- QUO-0001, QUO-0002, ...
+  seq INTEGER UNIQUE NOT NULL,
+  status TEXT NOT NULL DEFAULT 'draft',      -- draft|sent|accepted|rejected|expired|converted
+  subject TEXT,
+  notes TEXT,
+  total REAL NOT NULL DEFAULT 0,
+  issued_at TEXT,
+  expires_at TEXT,
+  accepted_at TEXT,
+  accepted_by_name TEXT,                     -- name typed when client clicks Accept
+  accepted_by_ip TEXT,
+  rejected_at TEXT,
+  converted_invoice_id TEXT,                 -- once accepted + converted, points at the invoice
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_personal_quotes_client ON personal_quotes(client_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_personal_quotes_status ON personal_quotes(status, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS personal_quote_items (
+  id TEXT PRIMARY KEY,
+  quote_id TEXT NOT NULL,
+  description TEXT NOT NULL,
+  qty REAL NOT NULL DEFAULT 1,
+  unit_price REAL NOT NULL DEFAULT 0,
+  line_total REAL NOT NULL DEFAULT 0,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_personal_quote_items_quote ON personal_quote_items(quote_id, sort_order);
+
+-- Recurring templates (Phase B). Daily 9am Sydney cron checks next_issue_at
+-- and auto-issues invoices, similar to runMonthlyBilling for customers.
+CREATE TABLE IF NOT EXISTS personal_recurring (
+  id TEXT PRIMARY KEY,
+  client_id TEXT NOT NULL,
+  name TEXT NOT NULL,                        -- "Acme monthly retainer"
+  frequency TEXT NOT NULL DEFAULT 'monthly', -- monthly|weekly|fortnightly|quarterly|yearly
+  template_items_json TEXT NOT NULL,         -- JSON array of {description, qty, unit_price}
+  due_days INTEGER NOT NULL DEFAULT 14,      -- payment terms
+  next_issue_at TEXT NOT NULL,               -- when to fire the next invoice
+  last_issued_at TEXT,
+  paused INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_personal_recurring_active ON personal_recurring(paused, next_issue_at);

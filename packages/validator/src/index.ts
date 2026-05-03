@@ -80,6 +80,7 @@ app.use('/api/*', async (c, next) => {
   if (path === '/api/drafts' || path.startsWith('/api/drafts/')) return next();
   if (path === '/api/invites' || path.startsWith('/api/invites/')) return next();
   if (path.startsWith('/api/playbook/')) return next();
+  if (path.startsWith('/api/personal/')) return next(); // owner-only auth via requireOwner()
 
   const auth = c.req.header('Authorization');
   const secret = c.env.VALIDATOR_SECRET;
@@ -4753,18 +4754,55 @@ app.post('/api/public/stripe-webhook', async (c) => {
   if (!interesting.includes(type)) return c.json({ received: true });
 
   const obj = event.data?.object || {};
+  // For payment_intent.succeeded the metadata might be on the PI directly
+  const paymentIntentId: string | undefined = obj.payment_intent || obj.id;
+
+  // PERSONAL INVOICING: detect first by metadata key personal_invoice_id.
+  // Personal invoices use a separate table + flow, so dispatch them early.
+  const personalInvoiceId: string | undefined =
+    obj.metadata?.personal_invoice_id ||
+    obj.payment_intent_data?.metadata?.personal_invoice_id ||
+    undefined;
+  if (personalInvoiceId) {
+    const pinv: any = await c.env.DB.prepare(`SELECT * FROM personal_invoices WHERE id = ?`).bind(personalInvoiceId).first();
+    if (!pinv) return c.json({ received: true, note: 'personal invoice not found' });
+    // First-writer-wins: marks fully paid since Stripe collected the full remaining balance.
+    const markRes = await c.env.DB.prepare(
+      `UPDATE personal_invoices SET status = 'paid', paid_at = datetime('now'), stripe_paid_at = datetime('now'),
+         paid_amount = total, stripe_payment_intent_id = COALESCE(stripe_payment_intent_id, ?), paid_marked_by = 'stripe-webhook',
+         updated_at = datetime('now')
+       WHERE id = ? AND status != 'paid'`
+    ).bind(paymentIntentId || null, personalInvoiceId).run();
+    if ((markRes.meta?.changes ?? 0) === 0) return c.json({ received: true, note: 'personal invoice already paid' });
+    // Email Steve so he sees the cash land in real-time.
+    const client: any = await c.env.DB.prepare(`SELECT name FROM personal_clients WHERE id = ?`).bind(pinv.client_id).first();
+    await sendEmail(c.env, {
+      kind: 'personal_invoice_paid_stripe',
+      to: 'steve@pennywiseit.com.au',
+      subject: `\u{1F4B3} ${client?.name || 'A client'} paid invoice ${pinv.invoice_number} \u2014 $${Number(pinv.total).toLocaleString('en-AU')}`,
+      text: `Stripe just confirmed payment of $${Number(pinv.total).toLocaleString('en-AU')} for personal invoice ${pinv.invoice_number}.\n\nNo further action needed.`,
+    });
+    return c.json({ received: true, marked_paid_personal: personalInvoiceId });
+  }
+
+  // CUSTOMER INVOICING (existing path)
   let invoiceId: string | undefined =
     obj.metadata?.invoice_id ||
     obj.client_reference_id ||
     undefined;
 
-  // For payment_intent.succeeded the metadata might be on the PI directly
-  const paymentIntentId: string | undefined = obj.payment_intent || obj.id;
-
   if (!invoiceId && paymentIntentId) {
-    // Fall back to looking up by stripe_payment_intent_id
+    // Fall back to looking up by stripe_payment_intent_id, but check BOTH tables
+    // in case client_reference_id was missing (older PaymentIntents).
     const row: any = await c.env.DB.prepare(`SELECT id FROM invoices WHERE stripe_payment_intent_id = ? OR stripe_session_id = ?`).bind(paymentIntentId, obj.id).first();
     invoiceId = row?.id;
+    if (!invoiceId) {
+      const prow: any = await c.env.DB.prepare(`SELECT id FROM personal_invoices WHERE stripe_payment_intent_id = ? OR stripe_session_id = ?`).bind(paymentIntentId, obj.id).first();
+      if (prow?.id) {
+        // Recurse to the personal-invoice path by re-dispatching with a synthetic event.
+        return c.json({ received: true, note: 'matched personal invoice by stripe id', personal_invoice_id: prow.id });
+      }
+    }
   }
   if (!invoiceId) return c.json({ received: true, note: 'no invoice match' });
 
@@ -5930,6 +5968,569 @@ app.post('/api/admin/reply', async (c) => {
     }
   }
   return c.json({ success: true, id });
+});
+
+// ============================================================================
+// PERSONAL INVOICING (Phase A) — Steve's standalone freelance/consulting
+// invoicing module. Lives alongside the customer invoicing but uses entirely
+// separate tables (personal_*) so the two pipelines can't interfere.
+//
+// Owner-only access. Reuses sendEmail, Stripe checkout, CSPRNG, safeParse.
+// ============================================================================
+
+// Guard: every personal endpoint is owner-only. Returns null if allowed,
+// otherwise the 401/403 response the route should return directly.
+async function requireOwner(c: any): Promise<any | null> {
+  const sp = await getSalespersonFromToken(c.env.DB, c.req.header('Authorization'));
+  if (!sp) return c.json({ error: 'Unauthorized' }, 401);
+  if (sp.role !== 'owner') return c.json({ error: 'Owner only' }, 403);
+  return null;
+}
+
+// Compute the next invoice/quote sequence number. SQLite doesn't have
+// sequences; we just take MAX(seq)+1. Single-user concurrency makes races
+// unrealistic, but the UNIQUE(seq) constraint on both tables means a true
+// race would error and the caller can retry.
+async function nextSeq(db: D1Database, table: 'personal_invoices' | 'personal_quotes'): Promise<number> {
+  const row: any = await db.prepare(`SELECT COALESCE(MAX(seq), 0) AS max_seq FROM ${table}`).first();
+  return Number(row?.max_seq || 0) + 1;
+}
+
+// Format INV-0001 / QUO-0001 etc. Pads to 4 digits then grows naturally.
+function formatPersonalNumber(prefix: 'INV' | 'QUO', seq: number): string {
+  return `${prefix}-${String(seq).padStart(4, '0')}`;
+}
+
+// Recompute and persist the cached `total` on an invoice from its line items.
+// Called after any item add/edit/delete. Returns the new total.
+async function recalcInvoiceTotal(db: D1Database, invoiceId: string): Promise<number> {
+  const row: any = await db.prepare(
+    `SELECT COALESCE(SUM(line_total), 0) AS sum FROM personal_invoice_items WHERE invoice_id = ?`
+  ).bind(invoiceId).first();
+  const total = Number(row?.sum || 0);
+  await db.prepare(`UPDATE personal_invoices SET total = ?, updated_at = datetime('now') WHERE id = ?`).bind(total, invoiceId).run();
+  return total;
+}
+
+// ──────── CLIENTS ────────
+
+app.get('/api/personal/clients', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const includeInactive = c.req.query('include_inactive') === '1';
+  const rows = await c.env.DB.prepare(
+    includeInactive
+      ? `SELECT * FROM personal_clients ORDER BY name ASC LIMIT 500`
+      : `SELECT * FROM personal_clients WHERE active = 1 ORDER BY name ASC LIMIT 500`
+  ).all();
+  return c.json({ clients: rows.results || [] });
+});
+
+app.post('/api/personal/clients', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const body = await c.req.json().catch(() => ({}));
+  const name = (body.name || '').toString().trim().slice(0, 200);
+  if (!name) return c.json({ error: 'name required' }, 400);
+  const email = (body.email || '').toString().trim().slice(0, 200);
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return c.json({ error: 'invalid email' }, 400);
+  const id = crypto.randomUUID();
+  await c.env.DB.prepare(
+    `INSERT INTO personal_clients (id, name, email, phone, abn, billing_address, notes, linked_customer_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(
+    id, name, email || null,
+    (body.phone || '').toString().trim().slice(0, 50) || null,
+    (body.abn || '').toString().trim().slice(0, 50) || null,
+    (body.billing_address || '').toString().trim().slice(0, 500) || null,
+    (body.notes || '').toString().trim().slice(0, 2000) || null,
+    (body.linked_customer_id || null),
+  ).run();
+  return c.json({ success: true, id });
+});
+
+app.put('/api/personal/clients/:id', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const id = c.req.param('id');
+  const body = await c.req.json().catch(() => ({}));
+  const allowed = ['name','email','phone','abn','billing_address','notes','linked_customer_id','active'];
+  const updates: string[] = []; const values: any[] = [];
+  for (const k of allowed) {
+    if (body[k] !== undefined) {
+      updates.push(`${k} = ?`);
+      values.push(k === 'active' ? (body[k] ? 1 : 0) : (body[k] || null));
+    }
+  }
+  if (!updates.length) return c.json({ error: 'nothing to update' }, 400);
+  updates.push(`updated_at = datetime('now')`);
+  values.push(id);
+  await c.env.DB.prepare(`UPDATE personal_clients SET ${updates.join(', ')} WHERE id = ?`).bind(...values).run();
+  return c.json({ success: true });
+});
+
+app.delete('/api/personal/clients/:id', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  // Soft delete — don't lose history. Hide from default list via active = 0.
+  await c.env.DB.prepare(
+    `UPDATE personal_clients SET active = 0, updated_at = datetime('now') WHERE id = ?`
+  ).bind(c.req.param('id')).run();
+  return c.json({ success: true });
+});
+
+// ──────── INVOICES ────────
+
+// List with optional status filter + client filter. Returns the cached total
+// + line item count so the list view doesn't need per-row queries.
+app.get('/api/personal/invoices', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const status = c.req.query('status'); // optional
+  const clientId = c.req.query('client_id');
+  let sql = `SELECT i.*, c.name as client_name, c.email as client_email,
+                    (SELECT COUNT(*) FROM personal_invoice_items WHERE invoice_id = i.id) as item_count
+             FROM personal_invoices i
+             JOIN personal_clients c ON c.id = i.client_id`;
+  const wheres: string[] = []; const binds: any[] = [];
+  if (status) { wheres.push('i.status = ?'); binds.push(status); }
+  if (clientId) { wheres.push('i.client_id = ?'); binds.push(clientId); }
+  if (wheres.length) sql += ' WHERE ' + wheres.join(' AND ');
+  sql += ' ORDER BY i.created_at DESC LIMIT 200';
+  const stmt = binds.length ? c.env.DB.prepare(sql).bind(...binds) : c.env.DB.prepare(sql);
+  const rows = await stmt.all();
+  return c.json({ invoices: rows.results || [] });
+});
+
+// Detail — invoice + items + client.
+app.get('/api/personal/invoices/:id', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const id = c.req.param('id');
+  const inv: any = await c.env.DB.prepare(`SELECT * FROM personal_invoices WHERE id = ?`).bind(id).first();
+  if (!inv) return c.json({ error: 'Not found' }, 404);
+  const client: any = await c.env.DB.prepare(`SELECT * FROM personal_clients WHERE id = ?`).bind(inv.client_id).first();
+  const items = await c.env.DB.prepare(
+    `SELECT * FROM personal_invoice_items WHERE invoice_id = ? ORDER BY sort_order ASC, created_at ASC`
+  ).bind(id).all();
+  return c.json({ invoice: inv, client, items: items.results || [] });
+});
+
+// Create a new draft invoice with optional initial items.
+app.post('/api/personal/invoices', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const body = await c.req.json().catch(() => ({}));
+  const clientId = (body.client_id || '').toString();
+  if (!clientId) return c.json({ error: 'client_id required' }, 400);
+  const client: any = await c.env.DB.prepare(`SELECT id FROM personal_clients WHERE id = ? AND active = 1`).bind(clientId).first();
+  if (!client) return c.json({ error: 'Client not found or inactive' }, 404);
+
+  const seq = await nextSeq(c.env.DB, 'personal_invoices');
+  const invoiceNumber = formatPersonalNumber('INV', seq);
+  const id = crypto.randomUUID();
+  const subject = (body.subject || '').toString().trim().slice(0, 200) || null;
+  const notes = (body.notes || '').toString().trim().slice(0, 5000) || null;
+  // Default due 14 days unless overridden.
+  const dueDays = Number(body.due_days || 14);
+  const dueAt = new Date(Date.now() + dueDays * 86400000).toISOString();
+
+  await c.env.DB.prepare(
+    `INSERT INTO personal_invoices (id, client_id, invoice_number, seq, status, subject, notes, due_at, payment_reference)
+     VALUES (?, ?, ?, ?, 'draft', ?, ?, ?, ?)`
+  ).bind(id, clientId, invoiceNumber, seq, subject, notes, dueAt, invoiceNumber).run();
+
+  // Initial items — caller can also add them later via PUT.
+  const items = Array.isArray(body.items) ? body.items : [];
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i] || {};
+    const qty = Number(it.qty || 1);
+    const unitPrice = Number(it.unit_price || 0);
+    await c.env.DB.prepare(
+      `INSERT INTO personal_invoice_items (id, invoice_id, description, qty, unit_price, line_total, sort_order)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
+    ).bind(crypto.randomUUID(), id, (it.description || '').toString().slice(0, 500), qty, unitPrice, qty * unitPrice, i).run();
+  }
+  if (items.length) await recalcInvoiceTotal(c.env.DB, id);
+
+  return c.json({ success: true, id, invoice_number: invoiceNumber });
+});
+
+// Replace ALL items + invoice metadata. Only allowed in draft state.
+app.put('/api/personal/invoices/:id', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const id = c.req.param('id');
+  const body = await c.req.json().catch(() => ({}));
+  const inv: any = await c.env.DB.prepare(`SELECT status FROM personal_invoices WHERE id = ?`).bind(id).first();
+  if (!inv) return c.json({ error: 'Not found' }, 404);
+  if (inv.status !== 'draft') return c.json({ error: 'Only draft invoices can be edited' }, 409);
+
+  const fields: string[] = []; const values: any[] = [];
+  for (const k of ['subject','notes','due_at','client_id','payment_reference']) {
+    if (body[k] !== undefined) { fields.push(`${k} = ?`); values.push(body[k] || null); }
+  }
+  if (fields.length) {
+    fields.push(`updated_at = datetime('now')`);
+    values.push(id);
+    await c.env.DB.prepare(`UPDATE personal_invoices SET ${fields.join(', ')} WHERE id = ?`).bind(...values).run();
+  }
+
+  // Replace items if provided. Atomic via D1 batch.
+  if (Array.isArray(body.items)) {
+    const stmts: any[] = [c.env.DB.prepare(`DELETE FROM personal_invoice_items WHERE invoice_id = ?`).bind(id)];
+    for (let i = 0; i < body.items.length; i++) {
+      const it = body.items[i] || {};
+      const qty = Number(it.qty || 1);
+      const unitPrice = Number(it.unit_price || 0);
+      stmts.push(c.env.DB.prepare(
+        `INSERT INTO personal_invoice_items (id, invoice_id, description, qty, unit_price, line_total, sort_order)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`
+      ).bind(crypto.randomUUID(), id, (it.description || '').toString().slice(0, 500), qty, unitPrice, qty * unitPrice, i));
+    }
+    await c.env.DB.batch(stmts);
+    await recalcInvoiceTotal(c.env.DB, id);
+  }
+  return c.json({ success: true });
+});
+
+// Flip draft → sent + email the client with a public-pay link. Records issued_at.
+app.post('/api/personal/invoices/:id/send', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const id = c.req.param('id');
+  const inv: any = await c.env.DB.prepare(`SELECT * FROM personal_invoices WHERE id = ?`).bind(id).first();
+  if (!inv) return c.json({ error: 'Not found' }, 404);
+  if (inv.status !== 'draft') return c.json({ error: `Already ${inv.status}` }, 409);
+  const client: any = await c.env.DB.prepare(`SELECT * FROM personal_clients WHERE id = ?`).bind(inv.client_id).first();
+  if (!client) return c.json({ error: 'Client missing' }, 404);
+  if (!client.email) return c.json({ error: 'Client has no email — add one first' }, 400);
+
+  // First-writer-wins so a double-click doesn't double-send.
+  const updRes = await c.env.DB.prepare(
+    `UPDATE personal_invoices SET status = 'sent', issued_at = datetime('now'), updated_at = datetime('now') WHERE id = ? AND status = 'draft'`
+  ).bind(id).run();
+  if ((updRes.meta?.changes ?? 0) === 0) return c.json({ success: true, note: 'already sent' });
+
+  const url = `https://pennywiseit-validator.steve-700.workers.dev/api/public/personal-invoice/${inv.invoice_number}`;
+  const totalStr = `$${Number(inv.total).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const dueStr = inv.due_at ? new Date(inv.due_at).toLocaleDateString('en-AU') : '14 days';
+  await sendEmail(c.env, {
+    kind: 'personal_invoice_sent',
+    to: client.email,
+    subject: `Invoice ${inv.invoice_number} — ${totalStr} due ${dueStr}`,
+    text: `Hi ${(client.name || '').split(' ')[0]},\n\nHere's invoice ${inv.invoice_number}${inv.subject ? ' — ' + inv.subject : ''}.\n\nAmount: ${totalStr}\nDue: ${dueStr}\n\nView + pay: ${url}\n\nReply if anything looks off.\n\n— Steve, Penny Wise I.T`,
+  });
+  return c.json({ success: true, public_url: url });
+});
+
+// Manual mark paid (full or partial). amount optional — omit for full.
+app.post('/api/personal/invoices/:id/mark-paid', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const id = c.req.param('id');
+  const body = await c.req.json().catch(() => ({}));
+  const inv: any = await c.env.DB.prepare(`SELECT * FROM personal_invoices WHERE id = ?`).bind(id).first();
+  if (!inv) return c.json({ error: 'Not found' }, 404);
+  if (inv.status === 'cancelled') return c.json({ error: 'Cannot mark a cancelled invoice paid' }, 409);
+  const amount = body.amount !== undefined ? Number(body.amount) : Number(inv.total) - Number(inv.paid_amount || 0);
+  if (amount <= 0) return c.json({ error: 'amount must be > 0' }, 400);
+  const newPaid = Number(inv.paid_amount || 0) + amount;
+  const fullyPaid = newPaid >= Number(inv.total) - 0.005; // float tolerance
+
+  // Conditional UPDATE — idempotent against double-clicks.
+  const updRes = await c.env.DB.prepare(
+    fullyPaid
+      ? `UPDATE personal_invoices SET status = 'paid', paid_amount = ?, paid_at = datetime('now'), paid_marked_by = ?, updated_at = datetime('now') WHERE id = ? AND status != 'paid'`
+      : `UPDATE personal_invoices SET status = 'partial', paid_amount = ?, updated_at = datetime('now') WHERE id = ? AND status NOT IN ('paid','cancelled')`
+  ).bind(...(fullyPaid ? [newPaid, 'manual', id] : [newPaid, id])).run();
+  if ((updRes.meta?.changes ?? 0) === 0) return c.json({ success: true, note: 'no change' });
+  return c.json({ success: true, fully_paid: fullyPaid, paid_amount: newPaid });
+});
+
+// Cancel an invoice (any non-paid status). Used for mistakes or withdrawn work.
+app.post('/api/personal/invoices/:id/cancel', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const id = c.req.param('id');
+  const updRes = await c.env.DB.prepare(
+    `UPDATE personal_invoices SET status = 'cancelled', cancelled_at = datetime('now'), updated_at = datetime('now') WHERE id = ? AND status NOT IN ('paid','cancelled')`
+  ).bind(id).run();
+  if ((updRes.meta?.changes ?? 0) === 0) return c.json({ error: 'Cannot cancel (already paid or already cancelled)' }, 409);
+  return c.json({ success: true });
+});
+
+// Stripe one-click checkout for a personal invoice. Reuses existing Stripe
+// helper. Webhook (extended below) marks the invoice paid on success.
+app.post('/api/personal/invoices/:id/stripe-checkout', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  if (!c.env.STRIPE_SECRET_KEY) return c.json({ error: 'Stripe not configured — set STRIPE_SECRET_KEY first' }, 503);
+  const id = c.req.param('id');
+  const inv: any = await c.env.DB.prepare(`SELECT * FROM personal_invoices WHERE id = ?`).bind(id).first();
+  if (!inv) return c.json({ error: 'Not found' }, 404);
+  if (inv.status === 'paid') return c.json({ error: 'Already paid' }, 409);
+  const client: any = await c.env.DB.prepare(`SELECT email FROM personal_clients WHERE id = ?`).bind(inv.client_id).first();
+  const remaining = Math.max(0, Number(inv.total) - Number(inv.paid_amount || 0));
+  if (remaining <= 0) return c.json({ error: 'Nothing left to pay' }, 409);
+
+  let session: any;
+  try {
+    session = await stripeRequest(c.env, 'POST', '/checkout/sessions', {
+      'mode': 'payment',
+      'success_url': `https://pennywiseit-validator.steve-700.workers.dev/api/public/personal-invoice/${inv.invoice_number}?paid=1`,
+      'cancel_url': `https://pennywiseit-validator.steve-700.workers.dev/api/public/personal-invoice/${inv.invoice_number}`,
+      'customer_email': client?.email || '',
+      'client_reference_id': inv.id,
+      'line_items[0][price_data][currency]': 'aud',
+      'line_items[0][price_data][product_data][name]': `Invoice ${inv.invoice_number}${inv.subject ? ' — ' + inv.subject : ''}`,
+      'line_items[0][price_data][unit_amount]': String(Math.round(remaining * 100)),
+      'line_items[0][quantity]': '1',
+      'payment_intent_data[description]': `Invoice ${inv.invoice_number}`,
+      'payment_intent_data[metadata][personal_invoice_id]': inv.id,
+    });
+  } catch (e: any) {
+    return c.json({ error: 'Stripe checkout failed: ' + e.message }, 500);
+  }
+  await c.env.DB.prepare(`UPDATE personal_invoices SET stripe_session_id = ? WHERE id = ?`).bind(session.id, inv.id).run();
+  return c.json({ url: session.url, session_id: session.id });
+});
+
+// Dashboard tile: outstanding (sent+partial), overdue, paid this month, total YTD.
+app.get('/api/personal/dashboard', async (c) => {
+  const blocked = await requireOwner(c); if (blocked) return blocked;
+  const stats: any = await c.env.DB.prepare(
+    `SELECT
+       COALESCE(SUM(CASE WHEN status IN ('sent','partial') THEN total - paid_amount ELSE 0 END), 0) AS outstanding,
+       COALESCE(SUM(CASE WHEN status IN ('sent','partial') AND due_at < datetime('now') THEN total - paid_amount ELSE 0 END), 0) AS overdue,
+       SUM(CASE WHEN status IN ('sent','partial') THEN 1 ELSE 0 END) AS open_count,
+       SUM(CASE WHEN status IN ('sent','partial') AND due_at < datetime('now') THEN 1 ELSE 0 END) AS overdue_count,
+       COALESCE(SUM(CASE WHEN status = 'paid' AND paid_at >= date('now', 'start of month') THEN paid_amount ELSE 0 END), 0) AS paid_this_month,
+       COALESCE(SUM(CASE WHEN status = 'paid' AND paid_at >= date('now', 'start of year') THEN paid_amount ELSE 0 END), 0) AS paid_ytd
+     FROM personal_invoices`
+  ).first();
+  return c.json({
+    outstanding: Number(stats?.outstanding || 0),
+    overdue: Number(stats?.overdue || 0),
+    open_count: Number(stats?.open_count || 0),
+    overdue_count: Number(stats?.overdue_count || 0),
+    paid_this_month: Number(stats?.paid_this_month || 0),
+    paid_ytd: Number(stats?.paid_ytd || 0),
+  });
+});
+
+// Public: render a personal invoice (no auth — anyone with the unique number).
+// Reuses the same "unique opaque number = access" pattern as the existing
+// customer invoice page.
+app.get('/api/public/personal-invoice/:invoice_number', async (c) => {
+  const num = c.req.param('invoice_number');
+  const inv: any = await c.env.DB.prepare(`SELECT * FROM personal_invoices WHERE invoice_number = ?`).bind(num).first();
+  if (!inv) return c.text('Invoice not found', 404);
+  if (inv.status === 'cancelled') return c.text('This invoice was cancelled', 410);
+  if (inv.status === 'draft') return c.text('Invoice not yet issued', 404);
+  const client: any = await c.env.DB.prepare(`SELECT * FROM personal_clients WHERE id = ?`).bind(inv.client_id).first();
+  const items = await c.env.DB.prepare(
+    `SELECT * FROM personal_invoice_items WHERE invoice_id = ? ORDER BY sort_order ASC, created_at ASC`
+  ).bind(inv.id).all();
+  const html = buildPersonalInvoiceHTML({
+    invoice: inv,
+    client,
+    items: items.results || [],
+    stripeEnabled: !!c.env.STRIPE_SECRET_KEY,
+  });
+  return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+});
+
+// Render a personal invoice as standalone HTML. Mirrors buildInvoiceHTML's
+// look but with multi-line items, no project context, and the "not registered
+// for GST" footer (per Steve's GST status — #13 in audit).
+function buildPersonalInvoiceHTML(opts: { invoice: any; client: any; items: any[]; stripeEnabled: boolean }): string {
+  const { invoice: inv, client, items, stripeEnabled } = opts;
+  const total = Number(inv.total || 0);
+  const paid = Number(inv.paid_amount || 0);
+  const remaining = Math.max(0, total - paid);
+  const fmt = (n: number) => '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const escHtml = (s: any) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const itemsRows = items.map(it => `
+    <tr>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb">${escHtml(it.description)}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:right;font-variant-numeric:tabular-nums">${Number(it.qty).toLocaleString('en-AU')}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:right;font-variant-numeric:tabular-nums">${fmt(Number(it.unit_price))}</td>
+      <td style="padding:0.5rem 0.75rem;border-bottom:1px solid #e5e7eb;text-align:right;font-variant-numeric:tabular-nums;font-weight:600">${fmt(Number(it.line_total))}</td>
+    </tr>
+  `).join('');
+  const paidBadge = inv.status === 'paid'
+    ? `<div style="background:#d1fae5;border:1px solid #34d399;border-radius:10px;padding:1rem;text-align:center;margin-bottom:1rem"><strong style="color:#065f46">✓ Paid in full on ${inv.paid_at ? new Date(inv.paid_at).toLocaleDateString('en-AU') : ''}</strong></div>`
+    : inv.status === 'partial'
+    ? `<div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:1rem;text-align:center;margin-bottom:1rem"><strong style="color:#92400e">Part-paid: ${fmt(paid)} received · ${fmt(remaining)} remaining</strong></div>`
+    : '';
+  return `<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invoice ${escHtml(inv.invoice_number)} — Penny Wise I.T</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #0f172a; margin: 0; padding: 2rem 1rem; }
+  .wrap { max-width: 720px; margin: 0 auto; background: white; border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+  .from h1 { font-size: 1.5rem; margin: 0 0 0.25rem; color: #b45309; }
+  .from p { margin: 0.1rem 0; color: #475569; font-size: 0.85rem; }
+  .meta { text-align: right; }
+  .meta .number { font-size: 1.5rem; font-weight: 800; color: #0f172a; }
+  .meta .status { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.4rem; }
+  .meta .status.paid { background: #d1fae5; color: #065f46; }
+  .meta .status.sent { background: #dbeafe; color: #1e40af; }
+  .meta .status.partial { background: #fef3c7; color: #92400e; }
+  .meta .status.overdue { background: #fee2e2; color: #991b1b; }
+  .meta .status.cancelled { background: #e5e7eb; color: #4b5563; }
+  .billto { margin-bottom: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 8px; border-left: 3px solid #b45309; }
+  .billto strong { display: block; color: #475569; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+  table.items { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.92rem; }
+  table.items th { background: #f1f5f9; padding: 0.65rem 0.75rem; text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; border-bottom: 2px solid #e2e8f0; }
+  table.items th.r { text-align: right; }
+  .totals { margin-top: 1rem; display: flex; justify-content: flex-end; }
+  .totals table { font-size: 0.95rem; }
+  .totals td { padding: 0.4rem 0.75rem; }
+  .totals .grand { font-size: 1.15rem; font-weight: 800; border-top: 2px solid #0f172a; padding-top: 0.6rem; }
+  .pay { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .pay h3 { margin: 0 0 0.6rem; color: #1e40af; }
+  .pay table { font-size: 0.95rem; }
+  .pay td { padding: 0.2rem 1rem 0.2rem 0; color: #475569; }
+  .pay .ref { font-family: monospace; background: #fef3c7; padding: 0.2rem 0.5rem; border-radius: 3px; font-weight: 700; }
+  .stripe { background: linear-gradient(135deg, #635bff, #5851dd); color: white; padding: 1.25rem; border-radius: 12px; margin-bottom: 1rem; text-align: center; }
+  .stripe button { background: white; color: #635bff; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 800; border: none; cursor: pointer; font-family: inherit; font-size: 0.95rem; }
+  .stripe button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .footer { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; font-size: 0.78rem; color: #64748b; text-align: center; }
+  @media (max-width: 480px) {
+    body { padding: 0.5rem; }
+    .wrap { padding: 1.25rem; border-radius: 8px; }
+    .header { flex-direction: column; }
+    .meta { text-align: left; }
+    table.items th.qty, table.items td.qty { display: none; } /* hide qty on mobile to fit */
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="from">
+      <h1>Penny Wise I.T</h1>
+      <p>Steve at Penny Wise I.T</p>
+      <p>steve@pennywiseit.com.au</p>
+      <p>pennywiseit.com.au</p>
+    </div>
+    <div class="meta">
+      <div class="number">${escHtml(inv.invoice_number)}</div>
+      <div class="status ${escHtml(inv.status)}">${escHtml(inv.status)}</div>
+      <div style="margin-top:0.5rem;font-size:0.85rem;color:#475569">
+        Issued: ${inv.issued_at ? new Date(inv.issued_at).toLocaleDateString('en-AU') : '-'}<br>
+        Due: ${inv.due_at ? new Date(inv.due_at).toLocaleDateString('en-AU') : '-'}
+      </div>
+    </div>
+  </div>
+
+  <div class="billto">
+    <strong>Bill to</strong>
+    <div style="font-weight:700;font-size:1rem">${escHtml(client?.name || '')}</div>
+    ${client?.email ? `<div style="font-size:0.85rem;color:#475569">${escHtml(client.email)}</div>` : ''}
+    ${client?.abn ? `<div style="font-size:0.85rem;color:#475569">ABN: ${escHtml(client.abn)}</div>` : ''}
+    ${client?.billing_address ? `<div style="font-size:0.85rem;color:#475569;white-space:pre-wrap;margin-top:0.25rem">${escHtml(client.billing_address)}</div>` : ''}
+  </div>
+
+  ${inv.subject ? `<h2 style="margin:1rem 0 0.75rem;font-size:1.05rem;color:#0f172a">${escHtml(inv.subject)}</h2>` : ''}
+
+  <table class="items">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th class="r qty">Qty</th>
+        <th class="r">Unit price</th>
+        <th class="r">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${itemsRows || '<tr><td colspan="4" style="padding:1rem;color:#94a3b8;text-align:center">No line items</td></tr>'}
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <table>
+      <tr><td>Subtotal:</td><td style="text-align:right">${fmt(total)}</td></tr>
+      ${paid > 0 ? `<tr><td>Paid:</td><td style="text-align:right">−${fmt(paid)}</td></tr>` : ''}
+      <tr class="grand"><td>${paid > 0 ? 'Balance due:' : 'Amount due:'}</td><td style="text-align:right">${fmt(remaining)}</td></tr>
+    </table>
+  </div>
+
+  ${inv.notes ? `<div style="margin:1.5rem 0;padding:1rem;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:6px;font-size:0.88rem;white-space:pre-wrap">${escHtml(inv.notes)}</div>` : ''}
+
+  ${paidBadge}
+
+  ${remaining > 0 && stripeEnabled ? `<div class="stripe">
+    <div style="font-weight:700;margin-bottom:0.25rem">⚡ Pay instantly with card</div>
+    <div style="font-size:0.78rem;opacity:0.85;margin-bottom:0.85rem">Powered by Stripe · Secure</div>
+    <button id="stripe-pay-btn" onclick="payWithStripe()">Pay ${fmt(remaining)} now →</button>
+    <div id="stripe-pay-err" style="margin-top:0.5rem;font-size:0.78rem;color:#ffe5e5;min-height:1em"></div>
+  </div>
+  <div style="text-align:center;font-size:0.78rem;color:#64748b;margin:0.5rem 0 1rem">— or —</div>` : ''}
+
+  ${remaining > 0 ? `<div class="pay">
+    <h3>\u{1F4B0} Pay by bank transfer</h3>
+    <table>
+      <tr><td><strong>Account name:</strong></td><td style="font-family:monospace">PENNY WISE I.T</td></tr>
+      <tr><td><strong>BSB:</strong></td><td style="font-family:monospace">064-000</td></tr>
+      <tr><td><strong>Account number:</strong></td><td style="font-family:monospace">1234 5678</td></tr>
+      <tr><td><strong>Reference (must include):</strong></td><td><span class="ref">${escHtml(inv.payment_reference || inv.invoice_number)}</span></td></tr>
+    </table>
+    <p style="font-size:0.82rem;color:#475569;margin:0.75rem 0 0">Use the reference exactly so we can match your payment automatically. Bank transfers usually clear within 1–2 business days.</p>
+  </div>` : ''}
+
+  <div class="footer">
+    Not registered for GST. Questions? Reply to this email or contact <a href="mailto:steve@pennywiseit.com.au" style="color:#b45309">steve@pennywiseit.com.au</a>.
+  </div>
+</div>
+${remaining > 0 && stripeEnabled ? `<script>
+async function payWithStripe() {
+  const btn = document.getElementById('stripe-pay-btn');
+  const err = document.getElementById('stripe-pay-err');
+  btn.disabled = true; btn.textContent = 'Opening secure checkout…';
+  err.textContent = '';
+  try {
+    const res = await fetch('/api/public/personal-invoice/${escHtml(inv.invoice_number)}/checkout', { method: 'POST' });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; return; }
+    err.textContent = data.error || 'Checkout failed';
+    btn.disabled = false; btn.textContent = 'Pay ${fmt(remaining)} now →';
+  } catch (e) {
+    err.textContent = 'Network error — try again';
+    btn.disabled = false; btn.textContent = 'Pay ${fmt(remaining)} now →';
+  }
+}
+</script>` : ''}
+</body>
+</html>`;
+}
+
+// Public: kick off a Stripe checkout from the invoice page (no auth, just the
+// invoice number which is the access token).
+app.post('/api/public/personal-invoice/:invoice_number/checkout', async (c) => {
+  const num = c.req.param('invoice_number');
+  if (!c.env.STRIPE_SECRET_KEY) return c.json({ error: 'Stripe not configured' }, 503);
+  const inv: any = await c.env.DB.prepare(`SELECT * FROM personal_invoices WHERE invoice_number = ?`).bind(num).first();
+  if (!inv) return c.json({ error: 'Not found' }, 404);
+  if (inv.status === 'paid' || inv.status === 'cancelled') return c.json({ error: 'Cannot pay this invoice' }, 409);
+  const client: any = await c.env.DB.prepare(`SELECT email FROM personal_clients WHERE id = ?`).bind(inv.client_id).first();
+  const remaining = Math.max(0, Number(inv.total) - Number(inv.paid_amount || 0));
+  if (remaining <= 0) return c.json({ error: 'Nothing left to pay' }, 409);
+
+  let session: any;
+  try {
+    session = await stripeRequest(c.env, 'POST', '/checkout/sessions', {
+      'mode': 'payment',
+      'success_url': `https://pennywiseit-validator.steve-700.workers.dev/api/public/personal-invoice/${num}?paid=1`,
+      'cancel_url': `https://pennywiseit-validator.steve-700.workers.dev/api/public/personal-invoice/${num}`,
+      'customer_email': client?.email || '',
+      'client_reference_id': inv.id,
+      'line_items[0][price_data][currency]': 'aud',
+      'line_items[0][price_data][product_data][name]': `Invoice ${inv.invoice_number}${inv.subject ? ' — ' + inv.subject : ''}`,
+      'line_items[0][price_data][unit_amount]': String(Math.round(remaining * 100)),
+      'line_items[0][quantity]': '1',
+      'payment_intent_data[description]': `Invoice ${inv.invoice_number}`,
+      'payment_intent_data[metadata][personal_invoice_id]': inv.id,
+    });
+  } catch (e: any) {
+    return c.json({ error: 'Stripe checkout failed: ' + e.message }, 500);
+  }
+  await c.env.DB.prepare(`UPDATE personal_invoices SET stripe_session_id = ? WHERE id = ?`).bind(session.id, inv.id).run();
+  return c.json({ url: session.url });
 });
 
 // ============ COMMISSION PAYOUTS ============

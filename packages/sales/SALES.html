@@ -1964,6 +1964,7 @@ pennywiseit.com.au</div><button class="template-copy-btn" onclick="copyTemplate(
           <button class="btn btn-secondary" onclick="adminSection('pricing')">Edit Pricing</button>
           <button class="btn btn-secondary" onclick="adminSection('leaderboard')">Leaderboard</button>
           <button class="btn btn-secondary" onclick="adminSection('payouts')">Payouts</button>
+          <button class="btn btn-green" onclick="adminSection('personal-invoicing')" style="font-weight:700">&#128188; Personal Invoicing</button>
           <button class="btn btn-secondary" onclick="showSendMessageForm(null, null)">Broadcast Message</button>
         </div>
         <div id="admin-section-content"></div>
@@ -6095,6 +6096,401 @@ async function adminSection(section) {
       el.innerHTML = '<p style="color:var(--red)">Failed: ' + esc(e.message) + '</p>';
     }
   }
+
+  // ──────── PERSONAL INVOICING (Phase A) ────────
+  if (section === 'personal-invoicing') {
+    el.innerHTML = '<p style="color:var(--muted)">Loading invoicing...</p>';
+    try {
+      const [dash, clients, invoices] = await Promise.all([
+        api('GET', '/api/personal/dashboard', null, true),
+        api('GET', '/api/personal/clients', null, true),
+        api('GET', '/api/personal/invoices', null, true),
+      ]);
+      window._piClients = clients.clients || [];
+      window._piInvoices = invoices.invoices || [];
+      el.innerHTML = renderPersonalInvoicingHome(dash);
+      // Default sub-view: invoices list (the most-used view)
+      piShowInvoices();
+    } catch (e) {
+      el.innerHTML = '<p style="color:var(--red)">Failed: ' + esc(e.message) + '</p>';
+    }
+    return;
+  }
+}
+
+// ─────────────────── PERSONAL INVOICING UI ───────────────────
+// Owner-only freelance/consulting invoicing module. Lives entirely client-side
+// in this file; backend at /api/personal/* in validator.
+
+function renderPersonalInvoicingHome(dash) {
+  const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const clients = window._piClients || [];
+  const invoices = window._piInvoices || [];
+  return `
+    <h3 style="margin-bottom:1rem">\u{1F4BC} Personal Invoicing</h3>
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem">Standalone freelance/consulting invoicing. Separate from customer build invoices.</p>
+
+    <!-- Dashboard tiles -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-bottom:1.5rem">
+      <div class="card" style="padding:1rem"><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Outstanding</div><div style="font-size:1.4rem;font-weight:800;color:var(--accent)">${fmt(dash.outstanding)}</div><div style="font-size:0.72rem;color:var(--muted)">${dash.open_count} invoice${dash.open_count!==1?'s':''}</div></div>
+      <div class="card" style="padding:1rem"><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Overdue</div><div style="font-size:1.4rem;font-weight:800;color:${dash.overdue>0?'var(--red)':'var(--soft)'}">${fmt(dash.overdue)}</div><div style="font-size:0.72rem;color:var(--muted)">${dash.overdue_count} invoice${dash.overdue_count!==1?'s':''}</div></div>
+      <div class="card" style="padding:1rem"><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Paid this month</div><div style="font-size:1.4rem;font-weight:800;color:var(--green)">${fmt(dash.paid_this_month)}</div></div>
+      <div class="card" style="padding:1rem"><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Paid YTD</div><div style="font-size:1.4rem;font-weight:800">${fmt(dash.paid_ytd)}</div></div>
+    </div>
+
+    <!-- Sub-tab nav -->
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">
+      <button class="btn btn-primary" onclick="piShowInvoices()">Invoices (${invoices.length})</button>
+      <button class="btn btn-secondary" onclick="piShowClients()">Clients (${clients.length})</button>
+      <button class="btn btn-green" onclick="piNewInvoice()" style="margin-left:auto">+ New invoice</button>
+      <button class="btn btn-secondary" onclick="piNewClient()">+ New client</button>
+    </div>
+
+    <div id="pi-content"></div>
+  `;
+}
+
+async function piRefresh() {
+  // Re-pull data + re-render the home view (used after any mutation).
+  await adminSection('personal-invoicing');
+}
+
+function piShowInvoices() {
+  const invoices = window._piInvoices || [];
+  const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const statusColor = (s) => ({draft:'var(--muted)', sent:'var(--accent)', paid:'var(--green)', partial:'var(--yellow)', overdue:'var(--red)', cancelled:'var(--muted)'}[s] || 'var(--soft)');
+  const c = document.getElementById('pi-content');
+  if (!invoices.length) {
+    c.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No invoices yet. Click <strong>+ New invoice</strong> to create one.</p>';
+    return;
+  }
+  c.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:0.5rem">
+      ${invoices.map(inv => {
+        const isOverdue = (inv.status === 'sent' || inv.status === 'partial') && inv.due_at && new Date(inv.due_at + 'Z').getTime() < Date.now();
+        const dispStatus = isOverdue ? 'overdue' : inv.status;
+        return `<div class="card" style="padding:0.85rem 1rem;cursor:pointer" onclick="piOpenInvoice('${esc(inv.id)}')">
+          <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap">
+            <strong style="font-family:monospace">${esc(inv.invoice_number)}</strong>
+            <span style="color:var(--soft)">${esc(inv.client_name)}</span>
+            ${inv.subject ? '<span style="color:var(--muted);font-size:0.85rem">· ' + esc(inv.subject) + '</span>' : ''}
+            <span class="tag" style="background:${statusColor(dispStatus)}22;color:${statusColor(dispStatus)};border:1px solid ${statusColor(dispStatus)}55;font-size:0.62rem;margin-left:auto">${dispStatus.toUpperCase()}</span>
+            <strong style="font-variant-numeric:tabular-nums">${fmt(inv.total)}</strong>
+          </div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:0.25rem">
+            ${inv.item_count} line item${inv.item_count!==1?'s':''} ·
+            ${inv.issued_at ? 'Issued ' + new Date(inv.issued_at + 'Z').toLocaleDateString('en-AU') : 'Draft'} ·
+            ${inv.due_at ? 'Due ' + new Date(inv.due_at + 'Z').toLocaleDateString('en-AU') : ''}
+            ${inv.paid_amount > 0 && inv.status !== 'paid' ? ' · ' + fmt(inv.paid_amount) + ' paid' : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function piShowClients() {
+  const clients = window._piClients || [];
+  const c = document.getElementById('pi-content');
+  if (!clients.length) {
+    c.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">No clients yet. Click <strong>+ New client</strong> to add one.</p>';
+    return;
+  }
+  c.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:0.5rem">
+      ${clients.map(cl => `<div class="card" style="padding:0.85rem 1rem">
+        <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap">
+          <strong>${esc(cl.name)}</strong>
+          ${cl.email ? '<span style="color:var(--soft);font-size:0.85rem">' + esc(cl.email) + '</span>' : ''}
+          ${cl.abn ? '<span style="color:var(--muted);font-size:0.78rem">ABN ' + esc(cl.abn) + '</span>' : ''}
+          <div style="margin-left:auto;display:flex;gap:0.4rem">
+            <button class="btn btn-secondary btn-sm" onclick="piEditClient('${esc(cl.id)}')">Edit</button>
+            <button class="btn btn-green btn-sm" onclick="piNewInvoice('${esc(cl.id)}')">+ Invoice</button>
+          </div>
+        </div>
+        ${cl.phone || cl.billing_address ? '<div style="font-size:0.72rem;color:var(--muted);margin-top:0.25rem">' + (cl.phone ? esc(cl.phone) : '') + (cl.phone && cl.billing_address ? ' · ' : '') + (cl.billing_address ? esc(cl.billing_address) : '') + '</div>' : ''}
+      </div>`).join('')}
+    </div>
+  `;
+}
+
+function piNewClient(existingId) {
+  const cl = existingId ? (window._piClients || []).find(c => c.id === existingId) : null;
+  const c = document.getElementById('pi-content');
+  c.innerHTML = `
+    <h4 style="margin:0 0 1rem">${cl ? 'Edit' : 'New'} client</h4>
+    <form onsubmit="event.preventDefault();piSaveClient(${cl ? "'" + esc(cl.id) + "'" : 'null'})" style="display:flex;flex-direction:column;gap:0.6rem;max-width:520px">
+      <input id="pi-cl-name" placeholder="Business or person name *" required value="${esc(cl?.name || '')}" class="form-input">
+      <input id="pi-cl-email" type="email" placeholder="Email" value="${esc(cl?.email || '')}" class="form-input">
+      <input id="pi-cl-phone" placeholder="Phone" value="${esc(cl?.phone || '')}" class="form-input">
+      <input id="pi-cl-abn" placeholder="ABN (optional)" value="${esc(cl?.abn || '')}" class="form-input">
+      <textarea id="pi-cl-address" placeholder="Billing address (optional)" rows="3" class="form-input">${esc(cl?.billing_address || '')}</textarea>
+      <textarea id="pi-cl-notes" placeholder="Internal notes (optional)" rows="2" class="form-input">${esc(cl?.notes || '')}</textarea>
+      <div style="display:flex;gap:0.5rem;margin-top:0.5rem">
+        <button type="submit" class="btn btn-primary">${cl ? 'Save' : 'Create'} client</button>
+        <button type="button" class="btn btn-secondary" onclick="piShowClients()">Cancel</button>
+      </div>
+    </form>
+  `;
+}
+
+function piEditClient(id) { piNewClient(id); }
+
+async function piSaveClient(existingId) {
+  const body = {
+    name: document.getElementById('pi-cl-name').value.trim(),
+    email: document.getElementById('pi-cl-email').value.trim(),
+    phone: document.getElementById('pi-cl-phone').value.trim(),
+    abn: document.getElementById('pi-cl-abn').value.trim(),
+    billing_address: document.getElementById('pi-cl-address').value.trim(),
+    notes: document.getElementById('pi-cl-notes').value.trim(),
+  };
+  if (!body.name) { showToast('Name required', 'error'); return; }
+  try {
+    if (existingId) await api('PUT', '/api/personal/clients/' + existingId, body, true);
+    else await api('POST', '/api/personal/clients', body, true);
+    showToast(existingId ? 'Client updated' : 'Client added', 'success');
+    await piRefresh();
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+function piNewInvoice(preselectClientId) {
+  const clients = window._piClients || [];
+  if (!clients.length) {
+    showToast('Add a client first', 'error');
+    piNewClient();
+    return;
+  }
+  window._piEditingInvoice = {
+    client_id: preselectClientId || clients[0].id,
+    subject: '',
+    notes: '',
+    due_days: 14,
+    items: [{ description: '', qty: 1, unit_price: 0 }],
+  };
+  piRenderInvoiceEditor(null);
+}
+
+function piRenderInvoiceEditor(existingId) {
+  const draft = window._piEditingInvoice;
+  const clients = window._piClients || [];
+  const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const c = document.getElementById('pi-content');
+  const total = (draft.items || []).reduce((s, it) => s + (Number(it.qty||0) * Number(it.unit_price||0)), 0);
+  c.innerHTML = `
+    <h4 style="margin:0 0 1rem">${existingId ? 'Edit' : 'New'} invoice</h4>
+    <div style="display:flex;flex-direction:column;gap:0.6rem;max-width:760px">
+      <label style="font-size:0.78rem;color:var(--muted)">Client
+        <select id="pi-inv-client" class="form-input" style="margin-top:0.2rem">
+          ${clients.map(cl => '<option value="' + esc(cl.id) + '"' + (cl.id === draft.client_id ? ' selected' : '') + '>' + esc(cl.name) + (cl.email ? ' — ' + esc(cl.email) : '') + '</option>').join('')}
+        </select>
+      </label>
+      <label style="font-size:0.78rem;color:var(--muted)">Subject (optional)
+        <input id="pi-inv-subject" placeholder="e.g. October consulting" value="${esc(draft.subject || '')}" class="form-input" style="margin-top:0.2rem">
+      </label>
+      <label style="font-size:0.78rem;color:var(--muted)">Due in (days)
+        <input id="pi-inv-due-days" type="number" min="0" value="${draft.due_days || 14}" class="form-input" style="margin-top:0.2rem;max-width:120px">
+      </label>
+
+      <div style="margin-top:1rem">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+          <strong style="font-size:0.85rem">Line items</strong>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="piAddItem()" style="margin-left:auto">+ Add line</button>
+        </div>
+        <div id="pi-inv-items" style="display:flex;flex-direction:column;gap:0.4rem"></div>
+      </div>
+
+      <label style="font-size:0.78rem;color:var(--muted);margin-top:1rem">Notes shown on invoice (optional)
+        <textarea id="pi-inv-notes" rows="3" placeholder="Payment terms, thank-you note, etc." class="form-input" style="margin-top:0.2rem">${esc(draft.notes || '')}</textarea>
+      </label>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding:0.75rem;background:var(--bg);border-radius:8px">
+        <strong>Total</strong>
+        <strong style="font-size:1.2rem;color:var(--accent);font-variant-numeric:tabular-nums" id="pi-inv-total">${fmt(total)}</strong>
+      </div>
+
+      <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
+        <button type="button" class="btn btn-primary" onclick="piSaveInvoice(${existingId ? "'" + esc(existingId) + "'" : 'null'}, false)">Save draft</button>
+        <button type="button" class="btn btn-green" onclick="piSaveInvoice(${existingId ? "'" + esc(existingId) + "'" : 'null'}, true)">Save + send</button>
+        <button type="button" class="btn btn-secondary" onclick="piShowInvoices()">Cancel</button>
+      </div>
+    </div>
+  `;
+  piRenderItems();
+}
+
+function piRenderItems() {
+  const draft = window._piEditingInvoice;
+  const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const wrap = document.getElementById('pi-inv-items');
+  if (!wrap) return;
+  wrap.innerHTML = (draft.items || []).map((it, i) => `
+    <div style="display:grid;grid-template-columns:1fr 80px 110px 110px 30px;gap:0.4rem;align-items:center">
+      <input value="${esc(it.description || '')}" placeholder="Description" oninput="piUpdateItem(${i},'description',this.value)" class="form-input">
+      <input type="number" min="0" step="0.01" value="${Number(it.qty || 0)}" oninput="piUpdateItem(${i},'qty',this.value)" class="form-input" style="text-align:right">
+      <input type="number" min="0" step="0.01" value="${Number(it.unit_price || 0)}" oninput="piUpdateItem(${i},'unit_price',this.value)" class="form-input" style="text-align:right" placeholder="Unit $">
+      <div style="text-align:right;font-variant-numeric:tabular-nums;color:var(--soft)">${fmt(Number(it.qty || 0) * Number(it.unit_price || 0))}</div>
+      <button type="button" onclick="piRemoveItem(${i})" title="Remove" style="background:transparent;border:none;color:var(--red);cursor:pointer;font-size:1.1rem">×</button>
+    </div>
+  `).join('');
+  document.getElementById('pi-inv-total').textContent = fmt((draft.items || []).reduce((s, it) => s + Number(it.qty||0) * Number(it.unit_price||0), 0));
+}
+
+function piAddItem() {
+  window._piEditingInvoice.items.push({ description: '', qty: 1, unit_price: 0 });
+  piRenderItems();
+}
+function piRemoveItem(i) {
+  window._piEditingInvoice.items.splice(i, 1);
+  if (!window._piEditingInvoice.items.length) window._piEditingInvoice.items.push({ description: '', qty: 1, unit_price: 0 });
+  piRenderItems();
+}
+function piUpdateItem(i, field, value) {
+  if (!window._piEditingInvoice.items[i]) return;
+  window._piEditingInvoice.items[i][field] = field === 'description' ? value : Number(value) || 0;
+  // Only re-render the total live, not the entire items list (which would lose focus)
+  const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const total = window._piEditingInvoice.items.reduce((s, it) => s + Number(it.qty||0) * Number(it.unit_price||0), 0);
+  const el = document.getElementById('pi-inv-total');
+  if (el) el.textContent = fmt(total);
+}
+
+async function piSaveInvoice(existingId, alsoSend) {
+  const body = {
+    client_id: document.getElementById('pi-inv-client').value,
+    subject: document.getElementById('pi-inv-subject').value.trim(),
+    notes: document.getElementById('pi-inv-notes').value.trim(),
+    due_days: Number(document.getElementById('pi-inv-due-days').value) || 14,
+    items: window._piEditingInvoice.items.filter(it => (it.description || '').trim() || Number(it.qty||0) || Number(it.unit_price||0)),
+  };
+  if (!body.items.length) { showToast('Add at least one line item', 'error'); return; }
+  try {
+    let id = existingId;
+    if (existingId) {
+      await api('PUT', '/api/personal/invoices/' + existingId, body, true);
+    } else {
+      const res = await api('POST', '/api/personal/invoices', body, true);
+      id = res.id;
+    }
+    if (alsoSend) {
+      const sendRes = await api('POST', '/api/personal/invoices/' + id + '/send', {}, true);
+      showToast('Invoice sent! Public URL: ' + sendRes.public_url, 'success');
+    } else {
+      showToast('Draft saved', 'success');
+    }
+    await piRefresh();
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+async function piOpenInvoice(id) {
+  const c = document.getElementById('pi-content');
+  c.innerHTML = '<p style="color:var(--muted)">Loading...</p>';
+  try {
+    const data = await api('GET', '/api/personal/invoices/' + id, null, true);
+    const inv = data.invoice;
+    const cl = data.client;
+    const items = data.items || [];
+    const fmt = (n) => '$' + Number(n||0).toLocaleString('en-AU', {minimumFractionDigits:2,maximumFractionDigits:2});
+    const remaining = Math.max(0, Number(inv.total) - Number(inv.paid_amount||0));
+    const publicUrl = 'https://pennywiseit-validator.steve-700.workers.dev/api/public/personal-invoice/' + inv.invoice_number;
+    c.innerHTML = `
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="piShowInvoices()">← Back</button>
+        <strong style="font-family:monospace;font-size:1rem">${esc(inv.invoice_number)}</strong>
+        <span class="tag" style="font-size:0.62rem">${esc(inv.status.toUpperCase())}</span>
+        <strong style="margin-left:auto;font-variant-numeric:tabular-nums">${fmt(inv.total)}</strong>
+      </div>
+
+      <div class="card" style="padding:1rem;margin-bottom:1rem">
+        <div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase">Bill to</div>
+        <div style="font-weight:700;margin-top:0.25rem">${esc(cl?.name || '')}</div>
+        ${cl?.email ? '<div style="font-size:0.85rem;color:var(--soft)">' + esc(cl.email) + '</div>' : ''}
+      </div>
+
+      ${inv.subject ? '<h4 style="margin:0.5rem 0">' + esc(inv.subject) + '</h4>' : ''}
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:1rem;font-size:0.88rem">
+        <thead><tr>
+          <th style="text-align:left;padding:0.5rem 0.75rem;background:var(--bg);font-size:0.7rem;color:var(--muted);text-transform:uppercase">Description</th>
+          <th style="text-align:right;padding:0.5rem 0.75rem;background:var(--bg);font-size:0.7rem;color:var(--muted);text-transform:uppercase">Qty</th>
+          <th style="text-align:right;padding:0.5rem 0.75rem;background:var(--bg);font-size:0.7rem;color:var(--muted);text-transform:uppercase">Unit</th>
+          <th style="text-align:right;padding:0.5rem 0.75rem;background:var(--bg);font-size:0.7rem;color:var(--muted);text-transform:uppercase">Total</th>
+        </tr></thead>
+        <tbody>
+          ${items.map(it => '<tr><td style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border)">' + esc(it.description) + '</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);text-align:right">' + Number(it.qty).toLocaleString('en-AU') + '</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);text-align:right">' + fmt(Number(it.unit_price)) + '</td><td style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);text-align:right;font-weight:600">' + fmt(Number(it.line_total)) + '</td></tr>').join('')}
+        </tbody>
+      </table>
+
+      ${inv.notes ? '<div style="background:var(--bg);padding:0.75rem;border-left:3px solid var(--accent);border-radius:6px;margin-bottom:1rem;font-size:0.85rem;white-space:pre-wrap">' + esc(inv.notes) + '</div>' : ''}
+
+      <div class="card" style="padding:1rem;margin-bottom:1rem">
+        <div style="display:flex;justify-content:space-between"><span>Subtotal</span><strong>${fmt(inv.total)}</strong></div>
+        ${inv.paid_amount > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--green)"><span>Paid</span><strong>−' + fmt(inv.paid_amount) + '</strong></div>' : ''}
+        <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);margin-top:0.5rem;padding-top:0.5rem"><strong>Balance due</strong><strong style="color:${remaining>0?'var(--accent)':'var(--green)'}">${fmt(remaining)}</strong></div>
+      </div>
+
+      ${inv.status === 'sent' || inv.status === 'partial' ? `<div class="card" style="padding:0.85rem;margin-bottom:1rem">
+        <div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;margin-bottom:0.4rem">Public link (send to client)</div>
+        <div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap">
+          <input readonly value="${esc(publicUrl)}" class="form-input" style="flex:1;min-width:240px;font-family:monospace;font-size:0.72rem" onclick="this.select()">
+          <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText('${esc(publicUrl)}');showToast('Copied','success')">\u{1F4CB}</button>
+          <button class="btn btn-secondary btn-sm" onclick="safeOpen('${esc(publicUrl)}','_blank')">Open</button>
+        </div>
+      </div>` : ''}
+
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+        ${inv.status === 'draft' ? '<button class="btn btn-primary" onclick="piEditInvoice(\\'' + esc(inv.id) + '\\')">Edit</button>' : ''}
+        ${inv.status === 'draft' ? '<button class="btn btn-green" onclick="piSendInvoiceFromDetail(\\'' + esc(inv.id) + '\\')">Send to client</button>' : ''}
+        ${(inv.status === 'sent' || inv.status === 'partial') ? '<button class="btn btn-green" onclick="piMarkPaidPrompt(\\'' + esc(inv.id) + '\\', ' + remaining + ')">Mark paid</button>' : ''}
+        ${inv.status !== 'paid' && inv.status !== 'cancelled' ? '<button class="btn btn-secondary" onclick="piCancelInvoice(\\'' + esc(inv.id) + '\\')" style="color:var(--red)">Cancel invoice</button>' : ''}
+      </div>
+    `;
+  } catch (e) { c.innerHTML = '<p style="color:var(--red)">Failed: ' + esc(e.message) + '</p>'; }
+}
+
+async function piEditInvoice(id) {
+  try {
+    const data = await api('GET', '/api/personal/invoices/' + id, null, true);
+    window._piEditingInvoice = {
+      client_id: data.invoice.client_id,
+      subject: data.invoice.subject || '',
+      notes: data.invoice.notes || '',
+      due_days: 14, // user can override
+      items: (data.items || []).map(it => ({ description: it.description, qty: Number(it.qty), unit_price: Number(it.unit_price) })),
+    };
+    if (!window._piEditingInvoice.items.length) window._piEditingInvoice.items.push({ description: '', qty: 1, unit_price: 0 });
+    piRenderInvoiceEditor(id);
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+async function piSendInvoiceFromDetail(id) {
+  if (!confirm('Send this invoice to the client now?')) return;
+  try {
+    const res = await api('POST', '/api/personal/invoices/' + id + '/send', {}, true);
+    showToast('Sent! Public URL: ' + res.public_url, 'success');
+    await piRefresh();
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+async function piMarkPaidPrompt(id, defaultAmount) {
+  const input = prompt('Mark paid — enter amount (default = balance due):', String(defaultAmount));
+  if (input === null) return;
+  const amount = Number(input);
+  if (isNaN(amount) || amount <= 0) { showToast('Invalid amount', 'error'); return; }
+  try {
+    await api('POST', '/api/personal/invoices/' + id + '/mark-paid', { amount }, true);
+    showToast('Recorded payment', 'success');
+    await piRefresh();
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+async function piCancelInvoice(id) {
+  if (!confirm('Cancel this invoice? It will no longer be payable. This cannot be undone.')) return;
+  try {
+    await api('POST', '/api/personal/invoices/' + id + '/cancel', {}, true);
+    showToast('Cancelled', 'success');
+    await piRefresh();
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
 }
 
 async function processPayoutFor(spId, name, setup, monthly) {
