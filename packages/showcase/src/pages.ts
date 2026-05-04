@@ -322,11 +322,11 @@ const COMPARISON = `
         </div>
         <div class="compare-table">
           <div class="compare-row compare-head"><div>Platform</div><div>Their cut</div><div>Lock-in</div><div>Your data</div></div>
-          <div class="compare-row"><div class="compare-name">Shopify Advanced + apps</div><div>~$430/mo at $10k MRR</div><div>Account suspendable</div><div>Theirs</div></div>
-          <div class="compare-row"><div class="compare-name">Square POS</div><div>2.6% per transaction</div><div>Hardware lock</div><div>Theirs</div></div>
-          <div class="compare-row"><div class="compare-name">Eventbrite</div><div>3.5% + $1.79/ticket</div><div>Per-event fees</div><div>Theirs</div></div>
-          <div class="compare-row"><div class="compare-name">Patreon</div><div>8–12% of every sub</div><div>Their domain</div><div>Theirs</div></div>
-          <div class="compare-row compare-us"><div class="compare-name">Penny Wise I.T</div><div>$0 — Stripe fee only</div><div>Cancel any month</div><div>Yours, exportable</div></div>
+          <div class="compare-row"><div class="compare-name">Shopify Advanced + apps</div><div data-label="Their cut">~$430/mo at $10k MRR</div><div data-label="Lock-in">Account suspendable</div><div data-label="Your data">Theirs</div></div>
+          <div class="compare-row"><div class="compare-name">Square POS</div><div data-label="Their cut">2.6% per transaction</div><div data-label="Lock-in">Hardware lock</div><div data-label="Your data">Theirs</div></div>
+          <div class="compare-row"><div class="compare-name">Eventbrite</div><div data-label="Their cut">3.5% + $1.79/ticket</div><div data-label="Lock-in">Per-event fees</div><div data-label="Your data">Theirs</div></div>
+          <div class="compare-row"><div class="compare-name">Patreon</div><div data-label="Their cut">8–12% of every sub</div><div data-label="Lock-in">Their domain</div><div data-label="Your data">Theirs</div></div>
+          <div class="compare-row compare-us"><div class="compare-name">Penny Wise I.T</div><div data-label="Their cut">$0 — Stripe fee only</div><div data-label="Lock-in">Cancel any month</div><div data-label="Your data">Yours, exportable</div></div>
         </div>
       </div>
     </section>`;

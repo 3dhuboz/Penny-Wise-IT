@@ -658,7 +658,10 @@ const STYLES = `
     @media (max-width: 720px) {
       .compare-row { grid-template-columns: 1fr; gap: 0.4rem; padding: 0.85rem 1rem; }
       .compare-row.compare-head { display: none; }
-      .compare-name { font-size: 1rem; }
+      .compare-name { font-size: 1rem; margin-bottom: 0.4rem; }
+      .compare-row > div[data-label] { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; padding: 0.2rem 0; border-bottom: 1px dashed rgba(255,255,255,0.04); }
+      .compare-row > div[data-label]:last-child { border-bottom: 0; }
+      .compare-row > div[data-label]::before { content: attr(data-label); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--muted); flex-shrink: 0; }
     }
 
     /* Risk reversal strip */
@@ -1337,9 +1340,14 @@ ${body}
         <span>&copy; <span id="footer-year">2026</span> Penny Wise I.T. All rights reserved.</span>
       </div>
       <nav class="footer-links" aria-label="Footer">
+        <a href="/apps">Apps</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/roi">ROI</a>
+        <a href="/about">About</a>
+        <a href="/faq">FAQ</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
-        <a href="#" data-open-lead data-source="footer-contact">Contact</a>
+        <a href="#main" data-open-lead data-source="footer-contact">Contact</a>
       </nav>
     </div>
   </footer>
