@@ -901,6 +901,29 @@ export function renderDemo(p: ProductConfig, ref: string = ''): string {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${esc(b.name)} — ${esc(cleanTagline)}</title>
+<link rel="canonical" href="https://demos.pennywiseit.com.au/demo/${esc(p.id)}">
+<meta name="description" content="A live demo of the ${esc(p.brand)} we'd build for ${esc(b.name)}. Tap around — every screen, every flow, real.">
+<meta name="theme-color" content="${p.cta_color}">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph (when shared in Slack, LinkedIn, iMessage, WhatsApp) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Penny Wise I.T">
+<meta property="og:title" content="${esc(b.name)} — ${esc(cleanTagline)}">
+<meta property="og:description" content="A live demo of the ${esc(p.brand)} we'd build. Tap around — every screen is real, every flow works.">
+<meta property="og:url" content="https://demos.pennywiseit.com.au/demo/${esc(p.id)}">
+<meta property="og:image" content="https://pennywiseit.com.au/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Penny Wise I.T — whitelabel apps for Australian small business">
+<meta property="og:locale" content="en_AU">
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(b.name)} — ${esc(cleanTagline)}">
+<meta name="twitter:description" content="A live demo of the ${esc(p.brand)} we'd build. Tap around — every screen is real, every flow works.">
+<meta name="twitter:image" content="https://pennywiseit.com.au/og.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">

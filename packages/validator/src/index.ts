@@ -2684,6 +2684,26 @@ app.post('/api/public/demo-interest', async (c) => {
       });
     }
   }
+
+  // Confirmation email to the prospect (only if they gave an email).
+  // Closes the "did this even submit?" doubt that costs leads, sets expectations
+  // on response time, and gives them Steve's number for urgent stuff. Reply-to
+  // points back at the rep so they can write back directly.
+  if (c.env.RESEND_API_KEY && email) {
+    const repFirstName = ((targetRep?.name as string) || 'Steve').split(' ')[0] || 'Steve';
+    const repPhone = (targetRep?.phone as string) || '';
+    const repEmailForReply = ((targetRep?.company_email || targetRep?.email) as string) || '';
+    const firstName = name.split(' ')[0] || 'there';
+    await sendEmail(c.env, {
+      kind: 'demo_prospect_confirmation',
+      from: 'Penny Wise I.T <hello@pennywiseit.com.au>',
+      to: email,
+      reply_to: repEmailForReply || undefined,
+      subject: `Got it \u2014 ${repFirstName} will be in touch about your ${product_name}`,
+      text: `Hi ${firstName},\n\nThanks for the interest in the ${product_name}. ${repFirstName} has been notified and will be in touch within a few hours during Brisbane business hours.\n\nWhat happens next:\n  \u2022 ${repFirstName} reads your note and reviews your business\n  \u2022 You'll get a call or email with answers and a price for YOUR setup\n  \u2022 If it's a fit, we send a custom-branded demo (your colours, your logo) within 2 days\n  \u2022 If it's not, no hard feelings \u2014 we'll point you somewhere useful\n\nNo lock-in, no surprise costs, no chasing. We only build apps for businesses we know we can help.\n${repPhone ? `\nNeed to talk before then? Call ${repFirstName} on ${repPhone}.\n` : ''}\n\u2014 Penny Wise I.T\nhttps://pennywiseit.com.au\n\nP.S. Reply to this email if you've thought of more questions. Goes straight to ${repFirstName}.`,
+    });
+  }
+
   return c.json({ success: true, rep_first_name: ((targetRep?.name as string) || '').split(' ')[0] || 'Steve' });
 });
 
