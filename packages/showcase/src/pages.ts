@@ -467,6 +467,88 @@ export const FAQ_PAIRS: FaqQA[] = [
   },
 ];
 
+// Industry-specific FAQs — keyed by canonical productId, used on each vertical
+// landing page. The set mirrors the demo accordion so SEO long-tail queries
+// ("does the food truck app work offline" etc.) land on a page with the
+// answer + FAQPage JSON-LD. Marketing FAQ_PAIRS above covers universal Qs;
+// these answer the "yeah but for MY industry" objections.
+const INDUSTRY_FAQ: Record<string, FaqQA[]> = {
+  'food-truck': [
+    { question: 'What happens when 4G drops at a remote market?', answer: 'The app caches your menu and queues orders locally. Customers keep ordering, payments authorise once signal returns, and your kitchen screen still ticks through the queue. You won’t lose a single order or refund a hangry punter — that’s tested and working today.' },
+    { question: 'My Square terminal died mid-service last weekend. What’s my fallback?', answer: 'Customers order and pay via QR code on their phone, so the EFTPOS terminal is optional. If yours fails, keep trading — Stripe handles card-on-file via the customer’s device. Cash is still tracked manually in the till. You’re not dead in the water like you were on Square.' },
+    { question: 'I’m doing a 200-pax B&S catering job. How do deposits and final billing work?', answer: 'Catering quotes go out as a separate link with a 30% deposit on Stripe (you set the percentage). Balance auto-charges 24 hrs before pickup, or you invoice on the night. No platform fees on the deposit — just Stripe’s 1.7% + 30c. Cash flow stays yours.' },
+    { question: 'What’s the SMS limit before I get charged extra?', answer: 'Order-confirmation SMS (one per order) is included up to 500/month — covers a busy truck doing 250 orders a service plus marketing blasts. Above that it’s 8c per SMS at cost, no markup. Most operators never hit the cap. We tell you when you’re at 80%.' },
+    { question: 'When I add truck #2, do I pay double?', answer: 'No. One licence covers your business — multiple trucks share the menu, customer list, and reporting. You can route orders to "Truck A" or "Truck B" by location. Pay once, scale to four trucks before we’d even discuss tier-up. Built for growth, not punished for it.' },
+  ],
+  'tradie': [
+    { question: 'Does it actually push to Xero or do I still copy-paste invoices?', answer: 'Real Xero sync via their API — invoices, payments, and contacts flow both ways. Mark a job complete on-site, the invoice lands in Xero before you’re back in the ute. MYOB is on the same pipe. No CSV exports, no double entry. Set it up once in onboarding.' },
+    { question: 'Customer cancels the morning of the job. Do I lose my deposit?', answer: 'Your call. Default policy is deposits non-refundable inside 24 hrs, refundable with notice — you can set it tighter or looser per job type. Stripe handles the refund in two clicks if you choose to give it back. The customer agreed at booking; the audit trail’s there if they dispute.' },
+    { question: 'How long do you keep my photo proof-of-completion shots?', answer: 'Seven years on Cloudflare R2 in Sydney — same retention as ATO record requirements. Tagged to the job, customer, and timestamp. Useful when a tenant claims you didn’t do the work six months later. Storage is included, not metered. You’ll have them when you need them.' },
+    { question: 'I’m on my own now but might hire an apprentice. Does dispatch come standard?', answer: 'Yes. Multi-tech scheduling, drag-and-drop calendar, and per-tech job assignment are all in the base product — not a $40/month add-on like ServiceM8 charges. When you take on the apprentice, just add them as a user. No upgrade conversation needed.' },
+    { question: 'Mobile signal is rubbish at half the rural sites I work on. Will the app still work?', answer: 'Job sheets, photos, signatures, and time entries all save offline and sync the moment you hit signal. You can complete a full job in a Faraday cage if you had to. Tested at properties west of Emerald with zero bars. Reliable on the worst networks Telstra offers.' },
+  ],
+  'online-store': [
+    { question: 'I’m on Shopify with 2,000 customers and 18 months of orders. How painful is the migration?', answer: 'We import products, customers, order history, and 301-redirect your old URLs so SEO doesn’t tank. Done in 48 hrs for a store your size, and we run both stores in parallel for a week so you can verify before cutting DNS. Zero downtime, zero lost rankings.' },
+    { question: 'Are AusPost shipping labels included or another bill?', answer: 'AusPost API is included — print labels straight from the order, no MyPost Business subscription needed. You pay AusPost their postage rate at cost, nothing on top from us. ParcelPoint and Sendle are also wired up. One less SaaS bill in your stack.' },
+    { question: 'Can I run wholesale pricing for cafes alongside retail?', answer: 'Yes. Tag customers as wholesale, they see net prices and minimum-order-quantities at checkout. Retail customers never see the wholesale catalogue. You can also issue per-customer price lists for your bigger accounts. Both channels run on the one site, one inventory pool.' },
+    { question: 'I sell at the Yeppoon markets too. Will inventory go out of sync?', answer: 'The same backend powers your market POS — sell a jar Saturday morning, online stock drops by one in real time. No "oh no I oversold" emails on Monday. If you’re on Square markets-side, we sync that too via their API. One source of truth.' },
+    { question: 'What happens to the site during a Christmas sale spike?', answer: 'Cloudflare Workers infrastructure — same backbone Shopify Plus runs on for their enterprise tier. We’ve handled 400 orders/hour stress tests without breaking a sweat. No "store is down" emails on Boxing Day, no surprise overage bills. Built to handle your best day, not crumble under it.' },
+  ],
+  'festival': [
+    { question: 'What if Summer Fest gets cancelled — cyclone, flooding, the usual?', answer: 'We trigger a one-click bulk refund through Stripe. Attendees get their money back minus the Stripe processing fee (Stripe doesn’t refund their cut on cancellations — that’s an industry standard, not us). You keep your platform fee untouched. Refund emails go out automatically with your committee’s wording.' },
+    { question: 'Showgrounds 4G dies when 5,000 people show up. Will the gate scanner still work?', answer: 'Yes. The scanner app caches the full ticket list locally on each device the morning of the event. Scans queue offline and sync when signal returns. We’ve tested this at regional events where Telstra was effectively dead from 2pm onwards.' },
+    { question: 'I’ve got 40-odd stallholders. How do they onboard without me holding their hand?', answer: 'Each vendor gets a self-serve link. They upload their own logo, menu, ABN and Stripe Connect details. You approve from a single dashboard. Vendor payouts go direct to their bank — you never touch their money or chase invoices.' },
+    { question: 'My sponsors keep asking "did anyone actually click our banner?" Can I prove it?', answer: 'Yes. Each sponsor placement (splash, banner, schedule sidebar) tracks impressions and tap-throughs separately. You export a one-page PDF report per sponsor at end of fest. We don’t sell sponsor data anywhere — it’s yours.' },
+    { question: 'Push notifications during the event — what if half don’t get through?', answer: 'We send via APNs and FCM (Apple and Google’s official channels), so delivery rate sits around 95%+ in normal conditions. If 4G is congested, the app pulls fresh announcements on next open. Critical alerts (stage changes, evacuations) are pinned in-app as a fallback.' },
+  ],
+  'delivery': [
+    { question: 'Half my run between Rocky and Emerald has no signal. Does the driver app cope?', answer: 'Yes. The driver app stores the day’s manifest locally. Status updates (picked up, delivered, POD photos) queue offline and upload when signal returns. Live tracking pauses but resumes — customers see "last known location" rather than the dot disappearing.' },
+    { question: 'A customer reckons their box never arrived but my driver has a signature. What’s the dispute flow?', answer: 'Every delivery captures GPS coordinates, timestamp, signature and POD photo, stored for 7 years (exceeds AU evidence requirements). One-click export of the full audit trail per consignment. We don’t mediate the dispute — that’s between you and the customer — but you’ll have the receipts.' },
+    { question: 'Stops get added or cancelled at 11am. Can the route re-optimise mid-run?', answer: 'Yes. Dispatch can drag-drop stops or add new ones from the depot screen — the driver app updates within 30 seconds. Optimisation uses Google Maps routing (you pay the per-call cost at standard Google rates, typically $0.005 per stop, billed through us at cost).' },
+    { question: 'My Tuesday produce run to Emerald is the same drops every week. Do I have to enter it manually each time?', answer: 'No. Recurring runs are templated — you set it once with stops, time windows and customer contacts, then it generates the manifest automatically each week. Driver picks it up on their app the morning of. Edits to the template flow through to future runs only.' },
+    { question: 'One of my vans is in for a service Wednesday. How do I block it out without losing the bookings?', answer: 'Mark the vehicle unavailable in the dispatch calendar. The booking system stops offering that van’s capacity for the day, and existing jobs auto-flag for reassignment. Drivers get a notification on their app if their assigned vehicle changes.' },
+  ],
+  'butchers': [
+    { question: 'Customer orders a 1.2kg ribeye. I cut it, it’s 1.38kg. What happens at checkout?', answer: 'Order is pre-authorised at quoted weight when placed. When you weigh the actual cut, you adjust in the POS — Stripe captures the new amount up to 15% above quote (legal AU pre-auth ceiling). Above 15%, customer gets a top-up SMS to approve the difference before pickup.' },
+    { question: 'Friday freezer pack — customer doesn’t show by 5pm. What’s the refund position?', answer: 'Your call. The platform supports a configurable cool-room policy: you set a cutoff (e.g. "no refund after 6pm Friday, 50% credit Saturday"). Customer sees this at checkout. We don’t auto-refund cold stock — that’s your business decision, not ours.' },
+    { question: 'Health inspector wants traceability records back 2 years. Can I pull them?', answer: 'Yes. Every order links the cut to supplier batch (if you tag it on intake), staff member who packed it, and timestamp. CSV export of the full log, filterable by date. Doesn’t replace your formal HACCP plan but it makes the paperwork trivial.' },
+    { question: 'My scale is a 2012 Windows PC running CAS software. Will this talk to it?', answer: 'Honestly — probably not natively. Most legacy scale software is a closed loop. We integrate with modern Bluetooth scales (Brecknell, Avery) and you can manually enter weights at the counter for legacy gear. Replacing a $400 scale is usually cheaper than custom integration work.' },
+    { question: 'Quarter-beast orders need a 2-week lead time. How do I stop people ordering same-day?', answer: 'Each product has a configurable lead-time field. Set "Quarter Beast" to 14 days minimum — checkout calendar greys out earlier dates automatically. Deposit-on-order with balance-on-collection is supported via Stripe’s split-charge flow.' },
+  ],
+  'sports-club': [
+    { question: 'What happens when next year’s secretary takes over?', answer: 'All admin access transfers via the committee dashboard. The outgoing secretary nominates the incoming one, and we provide a 30-minute handover call free. Login credentials, payment routing, and member data stay with the club entity, not the individual. No platform lock-in fees if you ever leave.' },
+    { question: 'Can we export player records in QRL or NRL format?', answer: 'Yes. We export to QRL Membership Online CSV and the GameDay (SportsTG) registration template. Birth certificates, parent contacts, grade history, and accident reports come through in the right columns. You can re-upload to governing-body portals without manual re-keying.' },
+    { question: 'How do we handle a wash-out Saturday with 80 games to reschedule?', answer: 'One-click match cancellation pushes notifications to all rostered players, parents, and refs. Field bookings auto-release. Rescheduling drags games to a new round. Refunds for canvas fees go back via Stripe (their fees apply, not ours). Done in about three minutes.' },
+    { question: 'What about split-parent payments — Mum pays half, Dad pays half?', answer: 'Each child profile supports up to four payer accounts. Parents can split any invoice — rego, jersey, tour fees — into custom shares. Both get receipts. Outstanding balances chase the named payer, not the child, so no kid gets pulled off the field.' },
+    { question: 'Annual rego rollover — 300 renewals in two weeks. Will it cope?', answer: 'Yes. Bulk renewal pre-fills last year’s data per family, parents tap "confirm" on mobile, pay via Apple Pay or EFTPOS. We’ve run rollovers of 800+ in a weekend without queueing. Only Stripe processing fees apply on top of your rego pricing.' },
+  ],
+  'ai-social': [
+    { question: 'Can we bring our Facebook group across — posts, photos, the lot?', answer: 'Member list and the last 12 months of posts, yes — we pull via Facebook’s Graph export. Older posts and comment threads beyond that aren’t accessible through Meta’s API for any tool. Photos transfer at original resolution. Allow 48 hours for a 340-member group.' },
+    { question: 'What about Patreon members and their tier history?', answer: 'We import active members, their tier, join date, and lifetime spend via Patreon’s CSV export. Recurring billing moves to Stripe at your existing tier prices (Stripe fees apply). Members get a one-tap migration link and keep their badge seniority.' },
+    { question: 'AI moderation flagged a legit post about engine porting — how do members appeal?', answer: 'Every auto-moderation action shows the reason and an "Appeal" button. Appeals route to your nominated human moderator (you, by default) within the app. Approved posts restore instantly with the AI flag annotated as a false positive, so the model learns your community’s context.' },
+    { question: 'Is this Discord-style chat or forum-style threads?', answer: 'Forum-style threads with optional real-time chat rooms per topic. Threads stay searchable for years; chat is ephemeral. Rotary build threads work better as searchable forums — six months later, someone Googling "13B apex seal swap" finds your member’s write-up inside the app.' },
+    { question: 'Are paid-member discussions hidden from Google?', answer: 'Yes. Paid-tier content sits behind authentication and carries a noindex header. It won’t appear in Google, Bing, or AI training scrapes. Free public threads are indexed by default, but you can flip any thread or whole tier to private from the admin panel.' },
+  ],
+  'car-hire': [
+    { question: 'How is driver licence verification handled — manually by me?', answer: 'Automatic. Customers upload front and back of their licence at booking; we run it through Stripe Identity (their per-check fee passes through, around $1.50). You get a green tick or a flag before they arrive. Overseas licences and IDPs are supported.' },
+    { question: 'Rental agreement and excess — does the customer sign digitally?', answer: 'Yes. The agreement generates with their booking details, excess amount, and your T&Cs pre-filled. They sign on their phone before the lockbox code releases. Signed PDFs save to the booking record for seven years, meeting ATO and insurer retention rules.' },
+    { question: 'What if a customer doesn’t return the lockbox key after drop-off?', answer: 'Each booking generates a unique time-limited code that expires at scheduled return. You get an alert if the vehicle’s GPS shows it back on-yard but the key isn’t logged. Manual override resets the box. No physical key copies float around between renters.' },
+    { question: 'How do I bill cleaning fees or a smoking penalty after the fact?', answer: 'Pre-rental and post-rental photos upload from your phone in 60 seconds. Damage, smoking smell, or excessive dirt trigger a post-hire charge against the saved card via Stripe, with photos attached to the customer email. Disputes route through Stripe’s standard process.' },
+    { question: '3am breakdown on the Bruce Highway — who picks up?', answer: 'You nominate your roadside provider (RACQ, NRMA, or a local tow operator) at setup. The customer hits "Roadside" in the app and gets your provider’s number plus the vehicle’s rego, VIN, and live location pre-filled. We don’t run a call centre — your existing relationships handle it.' },
+  ],
+};
+
+/**
+ * Returns the industry FAQ pairs for a given vertical slug, or [] if none.
+ * Used both to render the visible accordion in `productPageBody` and to feed
+ * the layout's faqQa parameter for FAQPage JSON-LD on each vertical page.
+ */
+export function getIndustryFaqForVertical(slug: string): FaqQA[] {
+  const c = VERTICAL_CONTENT[slug];
+  if (!c) return [];
+  return INDUSTRY_FAQ[c.productId] || [];
+}
+
 // ─── Page bodies ──────────────────────────────────────────────────────────
 
 export function homeBody(): string {
@@ -947,6 +1029,15 @@ function escapeAttr(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
+/** HTML body-text escaper — covers ampersand and angle brackets so visible
+ *  copy with literal `&` ("B&S", "T&Cs") renders as the user typed it
+ *  rather than as an HTML entity reference. JSON-LD consumers see the raw
+ *  string via JSON.stringify, so the schema text and visible text still
+ *  match exactly (Google's FAQPage rich-result eligibility rule). */
+function escHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 export function productPageBody(slug: string): string {
   const c = VERTICAL_CONTENT[slug];
   if (!c) return notFoundBody();
@@ -1038,6 +1129,25 @@ export function productPageBody(slug: string): string {
         </div>
       </div>
     </section>
+${(INDUSTRY_FAQ[c.productId] || []).length ? `
+    <section id="vertical-faq" aria-labelledby="vertical-faq-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Common questions</span>
+          <h2 id="vertical-faq-heading" class="display">Industry-specific answers, no fluff.</h2>
+          <p class="section-sub">The marketing-site <a href="/faq">FAQ</a> covers the universal questions (ABN, data hosting, contracts). These are the ones specific to running a ${c.productName.toLowerCase()}.</p>
+        </div>
+        <div class="faq-list" style="max-width:760px;margin:0 auto;">
+          ${INDUSTRY_FAQ[c.productId].map((item) => `
+            <details class="faq-item">
+              <summary>${escHtml(item.question)}</summary>
+              <div class="faq-body">${escHtml(item.answer)}</div>
+            </details>
+          `).join('')}
+        </div>
+      </div>
+    </section>
+` : ''}
 ${ctaSection(c.slug)}`;
 }
 

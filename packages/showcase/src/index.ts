@@ -8,6 +8,7 @@ import {
   appsBody,
   faqBody,
   FAQ_PAIRS,
+  getIndustryFaqForVertical,
   homeBody,
   notFoundBody,
   numbersBody,
@@ -267,6 +268,11 @@ for (const r of VERTICAL_ROUTES) {
         title: r.title,
         description: r.description,
         body: productPageBody(r.slug),
+        // Industry-specific FAQ pairs power FAQPage JSON-LD on this page.
+        // Google's rich-result eligibility requires the schema text to mirror
+        // the visible accordion in productPageBody — both come from the same
+        // INDUSTRY_FAQ source, so they stay in lockstep automatically.
+        faqQa: getIndustryFaqForVertical(r.slug),
       })
     )
   );
