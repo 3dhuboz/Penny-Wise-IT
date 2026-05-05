@@ -13,6 +13,8 @@ import {
   getIndustryFaqForVertical,
   haccpBody,
   HACCP_FAQ_PAIRS,
+  healthForecastBody,
+  HEALTH_FORECAST_FAQ_PAIRS,
   homeBody,
   notFoundBody,
   numbersBody,
@@ -52,7 +54,7 @@ app.get('/', () =>
       pathname: '/',
       title: 'Penny Wise I.T — Whitelabel Apps + SaaS Tools for Australian Small Business',
       description:
-        '8 production-ready whitelabel apps for Australian small businesses (live ordering, field service, delivery, events, car hire, butchers, sports clubs) plus 3 self-serve SaaS tools (Social AI Studio, ChowNow, HACCP). Monthly flat fee. Your brand. Your data.',
+        '8 production-ready whitelabel apps for Australian small businesses (live ordering, field service, delivery, events, car hire, butchers, sports clubs) plus 4 self-serve SaaS tools (Social AI Studio, ChowNow, Healthforecast, HACCP). Monthly flat fee. Your brand. Your data.',
       socialTitle:
         'Whitelabel Apps + SaaS Tools for Your Business — Penny Wise I.T',
       body: homeBody(),
@@ -160,7 +162,7 @@ app.get('/tools', () =>
       pathname: '/tools',
       title: 'Tools — SaaS Apps You Use Directly · Penny Wise I.T',
       description:
-        'SaaS apps you sign up for and use directly — no build wait, no setup fee. Social AI Studio (live, $29-149/mo) for AI Facebook + Instagram automation. ChowNow (live, free to list) for food truck workflow. HACCP Logbook (coming soon) for digital food safety logs.',
+        'SaaS apps you sign up for and use directly — no build wait, no setup fee. Social AI Studio (live, $29-149/mo) for AI Facebook + Instagram automation. ChowNow (live, free) for food truck workflow. Healthforecast (live, monthly) for weather-sensitive chronic conditions. HACCP Logbook (coming soon) for digital food safety logs.',
       body: toolsBody(),
     })
   )
@@ -195,6 +197,20 @@ app.get('/tools/chownow', () =>
       // FAQPage JSON-LD — same canonical pairs drive the visible accordion
       // and the schema, keeping Google's rich-result match check happy.
       faqQa: CHOWNOW_FAQ_PAIRS,
+    })
+  )
+);
+
+app.get('/tools/health-forecast', () =>
+  htmlResponse(
+    renderLayout({
+      page: 'health-forecast',
+      pathname: '/tools/health-forecast',
+      title: 'Healthforecast — Weather × Your Body for Chronic Conditions · Penny Wise I.T',
+      description:
+        'Healthforecast — track barometric pressure, humidity, and temperature against 28 chronic conditions (POTS, fibromyalgia, migraines, EDS, arthritis, neuropathy and more). Evidence-based daily flare-up forecast. Monthly subscription. Australian data hosting.',
+      body: healthForecastBody(),
+      faqQa: HEALTH_FORECAST_FAQ_PAIRS,
     })
   )
 );
@@ -376,6 +392,7 @@ const SITEMAP_ENTRIES: ReadonlyArray<SitemapEntry> = [
   { path: '/tools', changefreq: 'monthly', priority: '0.9' },
   { path: '/tools/social-ai-studio', changefreq: 'monthly', priority: '0.9' },
   { path: '/tools/chownow', changefreq: 'monthly', priority: '0.9' },
+  { path: '/tools/health-forecast', changefreq: 'monthly', priority: '0.9' },
   { path: '/tools/haccp', changefreq: 'monthly', priority: '0.9' },
   // Marketing pages — lower priority but indexed.
   { path: '/apps', changefreq: 'monthly', priority: '0.8' },
@@ -426,7 +443,7 @@ app.get('*', (c) =>
       page: '404',
       pathname: new URL(c.req.url).pathname,
       title: 'Page not found · Penny Wise I.T',
-      description: "The page you're looking for doesn't exist. Browse 8 whitelabel apps + 3 self-serve tools for Australian small businesses.",
+      description: "The page you're looking for doesn't exist. Browse 8 whitelabel apps + 4 self-serve tools for Australian small businesses.",
       body: notFoundBody(),
     }),
     404

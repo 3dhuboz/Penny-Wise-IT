@@ -10,11 +10,11 @@ const HERO_SECTION = `
       <img src="/icon-mark.svg" alt="" aria-hidden="true" class="hero-coin" loading="eager" decoding="async">
       <div class="container">
         <div class="hero-inner">
-          <span class="pill">🇦🇺 8 whitelabel apps + 3 self-serve tools · live this week</span>
+          <span class="pill">🇦🇺 8 whitelabel apps + 4 self-serve tools · live this week</span>
           <h1 id="hero-heading" class="display">
             <span class="grad">YOUR BUSINESS, AUTOMATED.</span>
           </h1>
-          <p class="sub">8 production-ready whitelabel apps for Australian small businesses (live ordering, field service, delivery, events, car hire, butchers, sports clubs) — plus 3 self-serve tools you use directly (Social AI Studio, ChowNow, HACCP). Flat monthly fee, your brand, your domain, zero platform tax.</p>
+          <p class="sub">8 production-ready whitelabel apps for Australian small businesses (live ordering, field service, delivery, events, car hire, butchers, sports clubs) — plus 4 self-serve tools you use directly (Social AI Studio, ChowNow, Healthforecast, HACCP). Flat monthly fee, your brand, your domain, zero platform tax.</p>
           <div class="hero-ctas">
             <a href="/apps" class="btn btn-primary" aria-label="Find the app for my business">
               Find the app for my business
@@ -338,7 +338,7 @@ const ABOUT_PANEL = `
             </svg>
             <div class="about-body">
               <p>I'm Steve, an Australian full-stack developer and IT consultant based in Queensland. I started Penny Wise I.T after watching small business owners get locked into expensive SaaS subscriptions they barely used — paying $200-$500/month for features they didn't need, on platforms they'd never own.</p>
-              <p>I build every app myself — from database schema to pixel-perfect UI — and maintain them personally for each client. All 8 whitelabel platforms on this page are running in production right now, for real Australian businesses, plus the <a href="/tools/social-ai-studio">Social AI Studio</a> and <a href="/tools/chownow">ChowNow</a> SaaS tools that anyone can sign up for directly. Flat monthly fee. No hidden platform cut. Your brand from day one. If something breaks at 2am, I'm the one who fixes it — not a help desk in Manila.</p>
+              <p>I build every app myself — from database schema to pixel-perfect UI — and maintain them personally for each client. All 8 whitelabel platforms on this page are running in production right now, for real Australian businesses, plus the <a href="/tools/social-ai-studio">Social AI Studio</a>, <a href="/tools/chownow">ChowNow</a>, and <a href="/tools/health-forecast">Healthforecast</a> SaaS tools that anyone can sign up for directly. Flat monthly fee. No hidden platform cut. Your brand from day one. If something breaks at 2am, I'm the one who fixes it — not a help desk in Manila.</p>
               <p><strong>What I run, end to end:</strong> Cloudflare Workers + D1 database in Sydney edge · Stripe for every payment · GitHub for every line of source code · Resend for transactional email. No agency, no offshore team, no contractors with the wrong incentives. One developer, accountable.</p>
               <div class="about-inline-cta">
                 <button type="button" data-open-lead data-source="/about" class="btn btn-primary">Talk to Steve</button>
@@ -583,8 +583,8 @@ export function appsBody(): string {
         </div>${PRODUCTS_GRID}
         <div class="panel" style="max-width:760px;margin:2rem auto 0;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(168,85,247,0.05));border:1px solid rgba(245,158,11,0.2);text-align:center;">
           <span class="kicker" style="color:var(--copper-hi);">Looking for SaaS you sign up for directly?</span>
-          <h2 class="display" style="font-size:1.4rem;margin:0.4rem 0 0.6rem;">3 self-serve tools you can use today.</h2>
-          <p style="color:var(--soft);font-size:0.95rem;line-height:1.6;margin:0 0 1.1rem;max-width:560px;margin-left:auto;margin-right:auto;">No build wait, no setup fee, no whitelabel customisation. <a href="/tools/social-ai-studio" style="color:var(--copper-hi);text-decoration:none;font-weight:700;">Social AI Studio</a> ($29-149/mo · live), <a href="/tools/chownow" style="color:var(--copper-hi);text-decoration:none;font-weight:700;">ChowNow</a> (free to list · live), <a href="/tools/haccp" style="color:var(--copper-hi);text-decoration:none;font-weight:700;">HACCP Logbook</a> (waitlist).</p>
+          <h2 class="display" style="font-size:1.4rem;margin:0.4rem 0 0.6rem;">4 self-serve tools you can use today.</h2>
+          <p style="color:var(--soft);font-size:0.95rem;line-height:1.6;margin:0 0 1.1rem;max-width:560px;margin-left:auto;margin-right:auto;">No build wait, no setup fee, no whitelabel customisation. <a href="/tools/social-ai-studio" style="color:var(--copper-hi);text-decoration:none;font-weight:700;">Social AI Studio</a> ($29-149/mo · live), <a href="/tools/chownow" style="color:var(--copper-hi);text-decoration:none;font-weight:700;">ChowNow</a> (free · live), <a href="/tools/health-forecast" style="color:var(--copper-hi);text-decoration:none;font-weight:700;">Healthforecast</a> (monthly · live), <a href="/tools/haccp" style="color:var(--copper-hi);text-decoration:none;font-weight:700;">HACCP Logbook</a> (waitlist).</p>
           <a href="/tools" class="btn btn-primary">See the tools →</a>
         </div>
       </div>
@@ -639,7 +639,7 @@ export function aboutBody(): string {
       <div class="container">
         <div class="section-head">
           <h1 id="about-heading" class="display">You're talking to one developer. That's the point.</h1>
-          <p>One developer. Eight production whitelabel platforms plus three self-serve SaaS tools. No agency markup. When something breaks at 2am, you get me — not a help desk in Manila.</p>
+          <p>One developer. Eight production whitelabel platforms plus four self-serve SaaS tools. No agency markup. When something breaks at 2am, you get me — not a help desk in Manila.</p>
         </div>${ABOUT_PANEL}
       </div>
     </section>
@@ -700,7 +700,7 @@ export function toolsBody(): string {
       <div class="container">
         <div class="section-head">
           <span class="kicker">Live + coming soon</span>
-          <h2 id="tools-grid-heading" class="display">Three tools, all built in Australia.</h2>
+          <h2 id="tools-grid-heading" class="display">Four tools, all built in Australia.</h2>
         </div>
         <div class="tools-grid">
           <article class="tool-card" data-tool="social-ai-studio">
@@ -738,6 +738,25 @@ export function toolsBody(): string {
             <div class="tool-actions">
               <a href="https://chownow.au" target="_blank" rel="noopener" class="btn btn-primary" aria-label="Open ChowNow (opens in a new tab)">Open ChowNow ↗</a>
               <a href="/tools/chownow" class="tool-card-link">Details →</a>
+            </div>
+          </article>
+
+          <article class="tool-card" data-tool="health-forecast">
+            <div class="tool-card-header">
+              <span class="tool-mark" aria-hidden="true">🌦️</span>
+              <span class="tool-status tool-status-live">Live now</span>
+            </div>
+            <h3 class="tool-name">Healthforecast</h3>
+            <p class="tool-tagline">Weather × your body. Track barometric pressure against 28 chronic conditions — migraine, POTS, fibro, EDS, arthritis.</p>
+            <span class="tool-price-chip">Monthly subscription</span>
+            <ul class="tool-features">
+              <li>28 weather-sensitive conditions tracked</li>
+              <li>Daily risk score · 7-day outlook</li>
+              <li><strong>Australian data hosting</strong> · never sold</li>
+            </ul>
+            <div class="tool-actions">
+              <a href="https://healthforecast.app" target="_blank" rel="noopener" class="btn btn-primary" aria-label="Open Healthforecast (opens in a new tab)">Open Healthforecast ↗</a>
+              <a href="/tools/health-forecast" class="tool-card-link">Details →</a>
             </div>
           </article>
 
@@ -854,6 +873,37 @@ export const CHOWNOW_FAQ_PAIRS: FaqQA[] = [
     question: "What happens if my volume grows — do I have to upgrade?",
     answer:
       "No. ChowNow's free tier handles the long tail of small operators indefinitely. You can stay free or graduate to whitelabel when you want your own brand. We don't do volume-based forced migrations or surprise tier-bumps. The reason to upgrade is brand equity, not transaction count.",
+  },
+];
+
+// FAQ pairs for the Healthforecast landing page. Health-anchored answers
+// addressing real concerns of chronic-illness sufferers (privacy, accuracy,
+// which conditions, comparison to symptom trackers).
+export const HEALTH_FORECAST_FAQ_PAIRS: FaqQA[] = [
+  {
+    question: "What's barometric pressure got to do with my pain?",
+    answer:
+      'Pressure shifts (the bit of weather you can&rsquo;t see) trigger flare-ups for a lot of weather-sensitive conditions — migraine, fibromyalgia, POTS, joint pain, neuropathy. There&rsquo;s decades of clinical research correlating barometric drops with flare onset. Healthforecast pulls live forecasts and overlays your personal sensitivity profile so you can plan ahead instead of being blindsided.',
+  },
+  {
+    question: 'Which conditions does the app track?',
+    answer:
+      'Twenty-eight at last count, including POTS, fibromyalgia, chronic migraine, EDS (Ehlers-Danlos), rheumatoid + osteoarthritis, peripheral neuropathy, MS, lupus, Raynaud&rsquo;s, asthma, sinusitis, and a handful of less-common ones. You set your conditions in onboarding; the daily forecast adapts to that combination.',
+  },
+  {
+    question: "How is this different from Migraine Buddy or a generic symptom tracker?",
+    answer:
+      'Symptom trackers are reactive — you log what happened. Healthforecast is preparative — it tells you what&rsquo;s likely tomorrow so you can pace, hydrate, dose preventatively, or clear your calendar. Logging still helps the model learn your sensitivities, but the value is in the forward-looking forecast, not the historical chart.',
+  },
+  {
+    question: 'Is my health data private?',
+    answer:
+      "Yes. Health data sits on Cloudflare infrastructure in Sydney, never leaves Australia, never sold, never shared with insurers, never used to train third-party models. We use the bare minimum needed to forecast your day — postcode for weather, conditions and severity for the model. You can export or delete everything in two clicks.",
+  },
+  {
+    question: "Can I use it offline (regional Australia, dodgy reception)?",
+    answer:
+      'Yes — Healthforecast is a PWA, so the latest 7-day forecast caches on the device. If you&rsquo;re out west and signal drops, you still see today&rsquo;s risk score and can log symptoms; everything syncs the moment connection returns.',
   },
 ];
 
@@ -1135,6 +1185,150 @@ export function chownowBody(): string {
           <div class="cta-buttons">
             <a href="https://chownow.au" target="_blank" rel="noopener" class="btn btn-primary">Open ChowNow ↗</a>
             <a href="/food-trucks" class="btn btn-ghost">Want a custom-branded version? See the whitelabel app →</a>
+          </div>
+        </div>
+      </div>
+    </section>`;
+}
+
+export function healthForecastBody(): string {
+  // SoftwareApplication JSON-LD echoes healthforecast.app and adds the
+  // PWIT organization as creator. HealthApplication category targets
+  // medical-app SERP surfaces.
+  const hfLd = `
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Healthforecast",
+    "description": "Track barometric pressure, humidity, and temperature against 28 chronic conditions — POTS, fibromyalgia, migraines, EDS, arthritis, neuropathy and more. Evidence-based preparation for weather-sensitive flare-ups.",
+    "applicationCategory": "HealthApplication",
+    "operatingSystem": "Web",
+    "url": "https://healthforecast.app",
+    "creator": { "@id": "https://www.pennywiseit.com.au/#organization" },
+    "offers": { "@type": "Offer", "priceCurrency": "AUD" }
+  }
+  </script>`;
+
+  return `${hfLd}
+    <section id="hero" aria-labelledby="hf-hero-heading">
+      <div class="container">
+        <div class="hero-inner">
+          <span class="kicker pc-kicker">HEALTHFORECAST · LIVE NOW</span>
+          <h1 id="hf-hero-heading" class="display"><span class="grad">Know before the weather hits.</span></h1>
+          <p class="sub">Weather shifts trigger flare-ups for migraine, fibromyalgia, POTS, EDS, arthritis, neuropathy and 22 other chronic conditions. Healthforecast pulls live forecasts and overlays your personal sensitivity profile, so you can pace, dose preventatively, or clear your calendar a day ahead — not after the fact.</p>
+          <div class="hero-ctas">
+            <a href="https://healthforecast.app" target="_blank" rel="noopener" class="btn btn-primary" aria-label="Open Healthforecast (opens in a new tab)">Open Healthforecast ↗</a>
+            <a href="#what-it-tracks" class="btn btn-ghost">What it tracks</a>
+          </div>
+          <p class="hero-sub" style="font-size:0.85rem;color:var(--muted);margin-top:0.75rem;">Monthly subscription · Cancel anytime · Australian data hosting</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-it-works" aria-labelledby="hf-how-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">How it works</span>
+          <h2 id="hf-how-heading" class="display">From "what's tomorrow going to hit me with?" to a clear answer.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;">
+          <ol style="margin:0;padding-left:1.4rem;color:var(--soft);font-size:1rem;line-height:1.8;">
+            <li><strong style="color:var(--text)">Pick your conditions</strong> — from 28 supported (POTS, migraine, fibro, EDS, arthritis, neuropathy, MS, lupus, asthma, more).</li>
+            <li><strong style="color:var(--text)">Set your postcode</strong> — local barometric pressure, humidity, and temperature feed your forecast.</li>
+            <li><strong style="color:var(--text)">Daily risk score</strong> — every morning a colour-coded rating of how the next 24h is likely to feel for your body.</li>
+            <li><strong style="color:var(--text)">7-day outlook</strong> — see the storm front three days out so you can plan around it.</li>
+            <li><strong style="color:var(--text)">Log how it actually went</strong> — the model gets better at predicting <em>your</em> sensitivities the more you use it.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="what-it-tracks" aria-labelledby="hf-tracks-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">What it tracks</span>
+          <h2 id="hf-tracks-heading" class="display">Weather × your body — the bit your forecast app doesn't show you.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;color:var(--soft);font-size:0.95rem;line-height:1.6;">
+            <div>
+              <div style="font-weight:800;color:var(--text);margin-bottom:0.5rem;">Weather signals</div>
+              <ul style="margin:0;padding-left:1.2rem;">
+                <li>Barometric pressure (the big one)</li>
+                <li>Humidity</li>
+                <li>Temperature swings</li>
+                <li>Air pressure rate of change</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-weight:800;color:var(--text);margin-bottom:0.5rem;">28 conditions tracked</div>
+              <ul style="margin:0;padding-left:1.2rem;">
+                <li>POTS, EDS, dysautonomia</li>
+                <li>Migraine, cluster headache</li>
+                <li>Fibromyalgia, chronic fatigue</li>
+                <li>RA + osteoarthritis, neuropathy</li>
+                <li>MS, lupus, Raynaud&rsquo;s, asthma…</li>
+              </ul>
+            </div>
+          </div>
+          <p style="margin-top:1.25rem;color:var(--soft);font-size:0.88rem;">Full condition list and the underlying clinical research behind each correlation lives on the app — not just lifestyle vibes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="hf-pricing" aria-labelledby="hf-pricing-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Pricing</span>
+          <h2 id="hf-pricing-heading" class="display">Monthly subscription. Cancel anytime.</h2>
+          <p class="section-sub">Current pricing and trial offer live on healthforecast.app — Stripe-managed so it always reflects what&rsquo;s actually charged.</p>
+        </div>
+        <div class="panel" style="max-width:680px;margin:0 auto;text-align:center;">
+          <a href="https://healthforecast.app" target="_blank" rel="noopener" class="btn btn-primary">See current pricing + sign up ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="hf-faq" aria-labelledby="hf-faq-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Common questions</span>
+          <h2 id="hf-faq-heading" class="display">Before you sign up.</h2>
+        </div>
+        <div class="faq-list" style="max-width:680px;margin:0 auto;">
+          ${HEALTH_FORECAST_FAQ_PAIRS.map((item) => `
+            <details class="faq-item">
+              <summary>${escHtml(item.question)}</summary>
+              <div class="faq-body">${escHtml(item.answer)}</div>
+            </details>
+          `).join('')}
+        </div>
+      </div>
+    </section>
+
+    <section id="hf-trust" aria-labelledby="hf-trust-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Why us</span>
+          <h2 id="hf-trust-heading" class="display">Australian-built health software. Your data stays here.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;color:var(--soft);font-size:0.95rem;line-height:1.65;">
+          <p>Built and hosted by Penny Wise I.T in Queensland. Health data sits on Cloudflare infrastructure in Sydney — never leaves Australia, never sold, never shared with insurers, never used to train third-party AI. Stripe handles billing direct. We collect the minimum needed to forecast your day; you can export or delete everything in two clicks.</p>
+          <p style="margin-top:0.75rem;">Healthforecast is for individuals living with chronic conditions, not a clinician&rsquo;s tool. If you&rsquo;re a clinician interested in a whitelabel deployment for your patients, talk to <button type="button" data-open-lead data-source="health-forecast-clinician" style="background:none;border:none;color:var(--copper-hi);font-weight:700;padding:0;cursor:pointer;text-decoration:underline;font-size:inherit;">Steve about a custom build</button>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="hf-cta" aria-labelledby="hf-cta-heading" style="margin-top:1.5rem;">
+      <div class="container">
+        <div class="panel cta-card" style="background:linear-gradient(135deg,rgba(48,85,212,0.12),rgba(34,211,238,0.08));border:1px solid rgba(48,85,212,0.3);text-align:center;">
+          <span class="kicker" style="color:#22d3ee;">READY TO STOP BEING BLINDSIDED?</span>
+          <h2 id="hf-cta-heading" class="display">Open the app. Sign up. Plan tomorrow.</h2>
+          <p class="cta-sub">Sign up takes a couple of minutes. First forecast in your inbox tomorrow morning.</p>
+          <div class="cta-buttons">
+            <a href="https://healthforecast.app" target="_blank" rel="noopener" class="btn btn-primary">Open Healthforecast ↗</a>
+            <a href="/tools" class="btn btn-ghost">See the other tools →</a>
           </div>
         </div>
       </div>
