@@ -724,6 +724,146 @@ const STYLES = `
       .footer-trust > span:nth-child(2n) { display: none; }
     }
 
+    /* ─── Tool cards (used on /tools index) ──────────────────────────────
+     * Distinct from .product-card (whitelabel apps) so the design can
+     * lean on prominent status pills, a pulled-out price chip, and a
+     * single primary CTA per card. Renders consistently whether the
+     * tool is live, free, or pre-launch. */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .tool-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .tool-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(245, 158, 11, 0.35);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(245, 158, 11, 0.08);
+    }
+    .tool-card-soon { border-style: dashed; opacity: 0.96; }
+    .tool-card-soon:hover { border-style: solid; opacity: 1; }
+    .tool-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.15rem;
+    }
+    .tool-mark {
+      font-size: 1.7rem;
+      line-height: 1;
+      filter: saturate(1.1);
+    }
+    .tool-status {
+      font-size: 0.66rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.32rem 0.62rem;
+      border-radius: 999px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    .tool-status-live { color: #4ade80; border-color: rgba(74, 222, 128, 0.35); background: rgba(34, 197, 94, 0.08); }
+    .tool-status-free { color: #22d3ee; border-color: rgba(34, 211, 238, 0.35); background: rgba(34, 211, 238, 0.08); }
+    .tool-status-soon { color: var(--copper-hi); border-color: rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.08); }
+    .tool-name {
+      font-family: var(--display-font);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 0;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .tool-tagline {
+      color: var(--soft);
+      font-size: 0.93rem;
+      line-height: 1.5;
+      margin: 0;
+      min-height: 2.7rem;
+    }
+    .tool-price-chip {
+      display: inline-block;
+      align-self: flex-start;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(168, 85, 247, 0.08));
+      border: 1px solid rgba(245, 158, 11, 0.28);
+      color: var(--text);
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 0.42rem 0.85rem;
+      border-radius: 10px;
+      letter-spacing: -0.01em;
+    }
+    .tool-features {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      color: var(--soft);
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+    .tool-features li {
+      position: relative;
+      padding-left: 1.35rem;
+    }
+    .tool-features li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      top: 0.05rem;
+      color: var(--copper-hi);
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+    .tool-features li strong { color: var(--text); font-weight: 700; }
+    .tool-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .tool-actions .btn {
+      flex: 1 1 auto;
+      padding: 0.65rem 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .tool-card-link {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--soft);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color 0.15s, transform 0.15s;
+      flex-shrink: 0;
+    }
+    .tool-card-link:hover { color: var(--copper-hi); transform: translateX(2px); }
+    @media (max-width: 520px) {
+      .tool-actions { flex-direction: column-reverse; align-items: stretch; gap: 0.6rem; }
+      .tool-actions .btn { width: 100%; }
+      .tool-card-link { text-align: center; padding: 0.5rem 0; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;

@@ -639,7 +639,7 @@ export function aboutBody(): string {
       <div class="container">
         <div class="section-head">
           <h1 id="about-heading" class="display">You're talking to one developer. That's the point.</h1>
-          <p>One developer. Nine production platforms. No agency markup. When something breaks at 2am, you get me — not a help desk in Manila.</p>
+          <p>One developer. Eight production whitelabel platforms plus three self-serve SaaS tools. No agency markup. When something breaks at 2am, you get me — not a help desk in Manila.</p>
         </div>${ABOUT_PANEL}
       </div>
     </section>
@@ -702,48 +702,61 @@ export function toolsBody(): string {
           <span class="kicker">Live + coming soon</span>
           <h2 id="tools-grid-heading" class="display">Three tools, all built in Australia.</h2>
         </div>
-        <div class="product-grid product-grid-8" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));max-width:920px;margin:0 auto;">
-          <article class="product-card" data-tool="social-ai-studio">
-            <span class="kicker pc-kicker">AI SOCIAL · LIVE NOW</span>
-            <h4>Social AI Studio</h4>
-            <p class="pc-pitch">AI writes and schedules your Facebook + Instagram posts. Connect once, walk away.</p>
-            <div style="display:flex;flex-direction:column;gap:0.5rem;margin:1rem 0 0.5rem;color:var(--soft);font-size:0.88rem;line-height:1.55;">
-              <div>· From <strong style="color:var(--text)">$29/mo</strong> · 4 tiers up to $149</div>
-              <div>· No setup fee · Stripe billing · Cancel anytime</div>
-              <div>· Built and hosted by Penny Wise I.T</div>
+        <div class="tools-grid">
+          <article class="tool-card" data-tool="social-ai-studio">
+            <div class="tool-card-header">
+              <span class="tool-mark" aria-hidden="true">📲</span>
+              <span class="tool-status tool-status-live">Live now</span>
             </div>
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;padding-top:0.75rem;">
-              <a href="/tools/social-ai-studio" class="pc-cta" style="flex:1;min-width:0;">Read more →</a>
-              <a href="https://socialaistudio.au" target="_blank" rel="noopener" class="pc-cta" style="background:var(--copper);color:#0b0f1a;font-weight:800;flex:1;min-width:0;text-align:center;">Open Studio ↗</a>
-            </div>
-          </article>
-
-          <article class="product-card" data-tool="chownow">
-            <span class="kicker pc-kicker">CHOWNOW · LIVE NOW · FREE</span>
-            <h4>ChowNow</h4>
-            <p class="pc-pitch">Food truck workflow, sorted. QR ordering, kitchen display, FOH POS, real-time tracking.</p>
-            <div style="display:flex;flex-direction:column;gap:0.5rem;margin:1rem 0 0.5rem;color:var(--soft);font-size:0.88rem;line-height:1.55;">
-              <div>· <strong style="color:var(--text)">Free to list</strong> · Stripe processing only</div>
-              <div>· Customers order at chownow.au · No platform cut</div>
-              <div>· PWA — installs on any phone</div>
-            </div>
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;padding-top:0.75rem;">
-              <a href="/tools/chownow" class="pc-cta" style="flex:1;min-width:0;">Read more →</a>
-              <a href="https://chownow.au" target="_blank" rel="noopener" class="pc-cta" style="background:var(--copper);color:#0b0f1a;font-weight:800;flex:1;min-width:0;text-align:center;">Open ChowNow ↗</a>
+            <h3 class="tool-name">Social AI Studio</h3>
+            <p class="tool-tagline">AI writes and schedules your Facebook + Instagram posts. Connect once, walk away.</p>
+            <span class="tool-price-chip">From $29/mo</span>
+            <ul class="tool-features">
+              <li>4 tiers · up to <strong>$149/mo</strong></li>
+              <li>No setup fee · Stripe billing · cancel anytime</li>
+              <li>Built and hosted by Penny Wise I.T</li>
+            </ul>
+            <div class="tool-actions">
+              <a href="https://socialaistudio.au" target="_blank" rel="noopener" class="btn btn-primary" aria-label="Open Social AI Studio (opens in a new tab)">Open Studio ↗</a>
+              <a href="/tools/social-ai-studio" class="tool-card-link">Details →</a>
             </div>
           </article>
 
-          <article class="product-card" data-tool="haccp">
-            <span class="kicker pc-kicker">HACCP · COMING SOON</span>
-            <h4>HACCP Logbook</h4>
-            <p class="pc-pitch">Digital food safety logs. Audit-ready PDF for council inspectors with one tap.</p>
-            <div style="display:flex;flex-direction:column;gap:0.5rem;margin:1rem 0 0.5rem;color:var(--soft);font-size:0.88rem;line-height:1.55;">
-              <div>· Founder pricing locked for waitlist signups</div>
-              <div>· For cafes, butchers, food trucks, caterers, school canteens</div>
-              <div>· FSANZ Standard 3.2.2A compliant logging</div>
+          <article class="tool-card" data-tool="chownow">
+            <div class="tool-card-header">
+              <span class="tool-mark" aria-hidden="true">🍔</span>
+              <span class="tool-status tool-status-free">Live · Free</span>
             </div>
-            <div style="margin-top:auto;padding-top:0.75rem;">
-              <a href="/tools/haccp" class="pc-cta" style="background:var(--copper);color:#0b0f1a;font-weight:800;text-align:center;display:block;">Lock in founder pricing →</a>
+            <h3 class="tool-name">ChowNow</h3>
+            <p class="tool-tagline">Food truck workflow, sorted. QR ordering, kitchen display, FOH POS, real-time tracking.</p>
+            <span class="tool-price-chip">Free to list</span>
+            <ul class="tool-features">
+              <li>Stripe processing only · <strong>no platform cut</strong></li>
+              <li>Customers order at chownow.au</li>
+              <li>PWA — installs on any phone</li>
+            </ul>
+            <div class="tool-actions">
+              <a href="https://chownow.au" target="_blank" rel="noopener" class="btn btn-primary" aria-label="Open ChowNow (opens in a new tab)">Open ChowNow ↗</a>
+              <a href="/tools/chownow" class="tool-card-link">Details →</a>
+            </div>
+          </article>
+
+          <article class="tool-card tool-card-soon" data-tool="haccp">
+            <div class="tool-card-header">
+              <span class="tool-mark" aria-hidden="true">🌡️</span>
+              <span class="tool-status tool-status-soon">Coming soon</span>
+            </div>
+            <h3 class="tool-name">HACCP Logbook</h3>
+            <p class="tool-tagline">Digital food safety logs. Audit-ready PDF for council inspectors with one tap.</p>
+            <span class="tool-price-chip">Founder pricing</span>
+            <ul class="tool-features">
+              <li><strong>Locked for waitlist</strong> signups</li>
+              <li>Cafes, butchers, food trucks, caterers</li>
+              <li>FSANZ Standard 3.2.2A compliant</li>
+            </ul>
+            <div class="tool-actions">
+              <a href="/tools/haccp" class="btn btn-primary">Join the waitlist →</a>
+              <a href="/tools/haccp#what-it-does" class="tool-card-link">What it covers →</a>
             </div>
           </article>
         </div>
