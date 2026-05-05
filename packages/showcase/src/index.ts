@@ -9,6 +9,7 @@ import {
   faqBody,
   FAQ_PAIRS,
   getIndustryFaqForVertical,
+  haccpBody,
   homeBody,
   notFoundBody,
   numbersBody,
@@ -16,7 +17,9 @@ import {
   privacyBody,
   productPageBody,
   roiBody,
+  socialAiStudioBody,
   termsBody,
+  toolsBody,
 } from './pages';
 import type { PageId } from './layout';
 
@@ -43,11 +46,11 @@ app.get('/', () =>
     renderLayout({
       page: 'home',
       pathname: '/',
-      title: 'Penny Wise I.T — Whitelabel Apps for Australian Small Business',
+      title: 'Penny Wise I.T — Whitelabel Apps + SaaS Tools for Australian Small Business',
       description:
-        '9 production-ready whitelabel apps for Australian small businesses. Live ordering, field service, delivery, events, communities, car hire, butcher shops, sports clubs and more. Monthly flat fee. Your brand. Your data.',
+        '8 production-ready whitelabel apps for Australian small businesses (live ordering, field service, delivery, events, car hire, butchers, sports clubs) plus 2 self-serve SaaS tools (Social AI Studio, HACCP). Monthly flat fee. Your brand. Your data.',
       socialTitle:
-        '9 Ready-to-Launch Apps for Your Business — Penny Wise I.T',
+        'Whitelabel Apps + SaaS Tools for Your Business — Penny Wise I.T',
       body: homeBody(),
       includeCounters: true,
     })
@@ -60,9 +63,9 @@ app.get('/apps', () =>
     renderLayout({
       page: 'apps',
       pathname: '/apps',
-      title: 'Apps — 9 Whitelabel Platforms · Penny Wise I.T',
+      title: 'Apps — 8 Whitelabel Platforms · Penny Wise I.T',
       description:
-        'Browse all 9 production-ready whitelabel apps — built for Australian small businesses. Click any one to try a live demo.',
+        'Browse all 8 production-ready whitelabel apps — built for Australian small businesses. Click any one to try a live demo. Looking for self-serve SaaS instead? See /tools.',
       body: appsBody(),
       includeProductSchema: true,
     })
@@ -77,7 +80,7 @@ app.get('/numbers', () =>
       pathname: '/numbers',
       title: 'Numbers — What It Actually Saves · Penny Wise I.T',
       description:
-        'Real numbers from 9 platforms in production: hours of admin saved per week, platform fees taken (zero), data ownership, and more.',
+        'Real numbers from 8 whitelabel platforms in production: hours of admin saved per week, platform fees taken (zero), data ownership, and more.',
       body: numbersBody(),
       includeCounters: true,
     })
@@ -107,7 +110,7 @@ app.get('/pricing', () =>
       pathname: '/pricing',
       title: 'Pricing — Plans That Scale With You · Penny Wise I.T',
       description:
-        'Flat monthly fee for every whitelabel platform. No per-transaction tax. Setup once, branded for life. See all 9 apps and their tiers.',
+        'Flat monthly fee for every whitelabel platform. No per-transaction tax. Setup once, branded for life. See all 8 apps and their tiers.',
       body: pricingBody(),
       includeProductSchema: true,
     })
@@ -142,6 +145,54 @@ app.get('/faq', () =>
     })
   )
 );
+
+// ─── Tools (direct-purchase SaaS, NOT whitelabel) ───
+// Customer signs up + pays + uses on PWIT-hosted infra. Different conversion
+// flow from /apps — own pages, own CTAs (signup links / waitlist forms).
+app.get('/tools', () =>
+  htmlResponse(
+    renderLayout({
+      page: 'tools',
+      pathname: '/tools',
+      title: 'Tools — SaaS Apps You Use Directly · Penny Wise I.T',
+      description:
+        'SaaS apps you sign up for and use directly — no build wait, no setup fee. Social AI Studio (live, $29-149/mo) for AI-driven Facebook + Instagram automation. HACCP Logbook (coming soon) for digital food safety logs.',
+      body: toolsBody(),
+    })
+  )
+);
+
+app.get('/tools/social-ai-studio', () =>
+  htmlResponse(
+    renderLayout({
+      page: 'social-ai-studio',
+      pathname: '/tools/social-ai-studio',
+      title: 'Social AI Studio — AI-Driven Facebook + Instagram Posts · Penny Wise I.T',
+      description:
+        'AI writes, schedules, and publishes Facebook + Instagram posts in your brand voice. From $29/mo. Sign up at socialaistudio.au, log in, walk away. Built and hosted by Penny Wise I.T.',
+      body: socialAiStudioBody(),
+    })
+  )
+);
+
+app.get('/tools/haccp', () =>
+  htmlResponse(
+    renderLayout({
+      page: 'haccp',
+      pathname: '/tools/haccp',
+      title: 'HACCP Logbook — Digital Food Safety Logs for Australian Operators · Penny Wise I.T',
+      description:
+        'Digital HACCP logs for cafes, restaurants, butchers, food trucks, caterers. Temperature checks, cleaning schedules, allergen matrix, supplier records, audit-ready PDF reports. Coming soon — lock in founder pricing.',
+      body: haccpBody(),
+    })
+  )
+);
+
+// 301 redirect /community → /tools/social-ai-studio.
+// /community used to be the whitelabel "AI Social Platform" landing page;
+// AI Social moved to the tools section as a self-serve product. Permanent
+// redirect preserves the SEO juice + bookmark continuity.
+app.get('/community', (c) => c.redirect('/tools/social-ai-studio', 301));
 
 // ─── Privacy ───
 app.get('/privacy', () =>
@@ -242,14 +293,6 @@ const VERTICAL_ROUTES: ReadonlyArray<VerticalRoute> = [
       'A whitelabel car-hire app for Australian rental yards. Date-range booking, license upload, Stripe deposits, lockbox SMS pickup. No Turo cut, no counter staff. Live in a week.',
   },
   {
-    path: '/community',
-    page: 'community',
-    slug: 'community',
-    title: 'Community App for Australian niche communities · Penny Wise I.T',
-    description:
-      'A whitelabel members-only community app for Australian rotary clubs, hobby groups, and creators. 100% reach, AI moderation, Stripe memberships (no Patreon cut). Live in a week.',
-  },
-  {
     path: '/delivery',
     page: 'delivery',
     slug: 'delivery',
@@ -299,9 +342,12 @@ const SITEMAP_ENTRIES: ReadonlyArray<SitemapEntry> = [
   { path: '/butchers', changefreq: 'monthly', priority: '0.9' },
   { path: '/sports-clubs', changefreq: 'monthly', priority: '0.9' },
   { path: '/car-hire', changefreq: 'monthly', priority: '0.9' },
-  { path: '/community', changefreq: 'monthly', priority: '0.9' },
   { path: '/delivery', changefreq: 'monthly', priority: '0.9' },
   { path: '/pricing', changefreq: 'monthly', priority: '0.9' },
+  // Tools (direct-purchase SaaS).
+  { path: '/tools', changefreq: 'monthly', priority: '0.9' },
+  { path: '/tools/social-ai-studio', changefreq: 'monthly', priority: '0.9' },
+  { path: '/tools/haccp', changefreq: 'monthly', priority: '0.9' },
   // Marketing pages — lower priority but indexed.
   { path: '/apps', changefreq: 'monthly', priority: '0.8' },
   { path: '/roi', changefreq: 'monthly', priority: '0.8' },

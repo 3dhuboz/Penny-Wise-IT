@@ -10,11 +10,11 @@ const HERO_SECTION = `
       <img src="/icon-mark.svg" alt="" aria-hidden="true" class="hero-coin" loading="eager" decoding="async">
       <div class="container">
         <div class="hero-inner">
-          <span class="pill">🇦🇺 9 ready-to-launch apps · live in a week</span>
+          <span class="pill">🇦🇺 8 whitelabel apps + 2 self-serve tools · live this week</span>
           <h1 id="hero-heading" class="display">
             <span class="grad">YOUR BUSINESS, AUTOMATED.</span>
           </h1>
-          <p class="sub">9 production-ready whitelabel apps for Australian small businesses. Live ordering, field service, delivery, events, communities, car hire, butcher shops, sports clubs — flat monthly fee, your brand, your domain, zero platform tax.</p>
+          <p class="sub">8 production-ready whitelabel apps for Australian small businesses (live ordering, field service, delivery, events, car hire, butchers, sports clubs) — plus 2 self-serve tools you use directly (Social AI Studio, HACCP). Flat monthly fee, your brand, your domain, zero platform tax.</p>
           <div class="hero-ctas">
             <a href="/apps" class="btn btn-primary" aria-label="Find the app for my business">
               Find the app for my business
@@ -29,7 +29,7 @@ const HERO_SECTION = `
     </section>`;
 
 const PRODUCTS_GRID = `
-        <div class="product-grid product-grid-9">
+        <div class="product-grid product-grid-8">
           <article class="product-card" data-product="food-truck">
             <span class="kicker pc-kicker">FOOD-TRUCK PLATFORM</span>
             <h4>Food-Truck App</h4>
@@ -58,16 +58,6 @@ const PRODUCTS_GRID = `
               <iframe class="product-mock" data-mock src="/mocks/online-store" loading="lazy" sandbox="allow-scripts" title="Online Store interactive demo" referrerpolicy="no-referrer"></iframe>
             </div>
             <a href="https://demos.pennywiseit.com.au/demo/online-store" target="_blank" rel="noopener noreferrer" class="pc-cta" aria-label="See Online Store live">Full details →</a>
-          </article>
-
-          <article class="product-card" data-product="ai-social">
-            <span class="kicker pc-kicker">COMMUNITY PLATFORM</span>
-            <h4>AI Social Platform</h4>
-            <p class="pc-pitch">Private community on your domain. AI moderates spam while you sleep.</p>
-            <div class="iframe-wrap">
-              <iframe class="product-mock" data-mock src="/mocks/ai-social" loading="lazy" sandbox="allow-scripts" title="AI Social Platform interactive demo" referrerpolicy="no-referrer"></iframe>
-            </div>
-            <a href="https://demos.pennywiseit.com.au/demo/ai-social" target="_blank" rel="noopener noreferrer" class="pc-cta" aria-label="See AI Social Platform live">Full details →</a>
           </article>
 
           <article class="product-card" data-product="festival">
@@ -158,7 +148,6 @@ const ROI_FORM = `
                   <option value="online-store">Online Store</option>
                   <option value="festival">Festival & Event App</option>
                   <option value="delivery">Delivery & Logistics</option>
-                  <option value="ai-social">AI Social Platform</option>
                   <option value="car-hire">Car Hire & Rentals</option>
                   <option value="butchers">Butcher Shop & Online Orders</option>
                   <option value="sports-club">Sports Club Hub</option>
@@ -203,7 +192,7 @@ const ROI_FORM = `
         </form>`;
 
 const PRICING_TABLE = `
-        <div class="pricing-table panel" role="table" aria-label="Pricing for all 9 whitelabel apps">
+        <div class="pricing-table panel" role="table" aria-label="Pricing for all 8 whitelabel apps">
           <div class="pricing-row pricing-head" role="row">
             <div role="columnheader">App</div>
             <div role="columnheader">Entry tier</div>
@@ -230,13 +219,6 @@ const PRICING_TABLE = `
             <div role="cell"><span class="p-tier">Starter Store</span><span class="p-price">$79/mo + $499 setup</span></div>
             <div role="cell"><span class="p-tier">Growing Brand</span><span class="p-price">$149/mo + $499 setup</span></div>
             <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/online-store" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="/pricing#online-store" class="p-setup-link">Get this set up →</button></div>
-          </div>
-
-          <div class="pricing-row" role="row" data-product="ai-social">
-            <div role="cell"><div class="p-name">AI Social Platform</div><div class="p-cat">For clubs, creators, private communities</div></div>
-            <div role="cell"><span class="p-tier">Starter Community</span><span class="p-price">$99/mo + $799 setup</span></div>
-            <div role="cell"><span class="p-tier">Creator-Backed</span><span class="p-price">$249/mo + $799 setup</span></div>
-            <div role="cell" class="pricing-cta-col"><a href="https://demos.pennywiseit.com.au/demo/ai-social" target="_blank" rel="noopener noreferrer" class="p-demo-link">Try demo →</a><br><button type="button" data-open-lead data-source="/pricing#ai-social" class="p-setup-link">Get this set up →</button></div>
           </div>
 
           <div class="pricing-row" role="row" data-product="festival">
@@ -558,7 +540,7 @@ export function homeBody(): string {
       <div class="container">
         <div class="home-summary-grid">
           <a href="/apps" class="summary-tile">
-            <div class="summary-tile-eyebrow">9 ready-made platforms</div>
+            <div class="summary-tile-eyebrow">8 ready-made platforms</div>
             <h2 class="display">Browse the apps</h2>
             <p>Food trucks, tradies, online stores, festivals, delivery, car hire, butchers, sports clubs, communities. Each one production-ready.</p>
             <span class="summary-tile-cta">Find mine →</span>
@@ -584,7 +566,7 @@ ${COMPARISON}
       <div class="container">
         <div class="section-head">
           <h2 id="home-numbers-heading" class="display">By the numbers</h2>
-          <p>Averaged across all 9 whitelabel platforms running in production today.</p>
+          <p>Averaged across all 8 whitelabel platforms running in production today.</p>
         </div>${NUMBERS_TILES}
       </div>
     </section>
@@ -610,7 +592,7 @@ export function numbersBody(): string {
       <div class="container">
         <div class="section-head">
           <h1 id="numbers-heading" class="display">What it actually saves.</h1>
-          <p>Averaged across all 9 whitelabel platforms running in production today.</p>
+          <p>Averaged across all 8 whitelabel platforms running in production today.</p>
         </div>${NUMBERS_TILES}
       </div>
     </section>
@@ -685,6 +667,350 @@ export function notFoundBody(): string {
       </div>
     </section>
 ${ctaSection('404')}`;
+}
+
+// ────────── Tools pages ──────────
+// Direct-purchase SaaS apps (NOT whitelabel). Customer signs up, pays, and
+// uses them on PWIT-hosted infrastructure with their own login. These pages
+// render their own conversion CTAs (signup / waitlist) instead of the global
+// "Talk to Steve" lead modal — different conversion model.
+
+const TOOLS_INTRO = 'These are SaaS apps you sign up for and use directly — same way you would Xero or MailChimp. No build wait, no setup fee, no whitelabel customisation. Sign up, log in, pay monthly, get going.';
+
+export function toolsBody(): string {
+  return `
+    <section id="hero" aria-labelledby="tools-hero-heading">
+      <div class="container">
+        <div class="hero-inner">
+          <span class="pill">🇦🇺 Apps you use, not apps we build for you</span>
+          <h1 id="tools-hero-heading" class="display"><span class="grad">TOOLS YOU CAN USE TODAY.</span></h1>
+          <p class="sub">${TOOLS_INTRO}</p>
+          <p class="hero-sub" style="font-size:0.92rem;color:var(--muted);max-width:640px;margin-top:0.5rem;">Looking for a custom-branded app under your domain? Those are <a href="/apps" style="color:var(--copper-hi);text-decoration:none;font-weight:700">on the whitelabel side</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tools-grid" aria-labelledby="tools-grid-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Live + coming soon</span>
+          <h2 id="tools-grid-heading" class="display">Two tools, both built in Australia.</h2>
+        </div>
+        <div class="product-grid product-grid-8" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));max-width:920px;margin:0 auto;">
+          <article class="product-card" data-tool="social-ai-studio">
+            <span class="kicker pc-kicker">AI SOCIAL · LIVE NOW</span>
+            <h4>Social AI Studio</h4>
+            <p class="pc-pitch">AI writes and schedules your Facebook + Instagram posts. Connect once, walk away.</p>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;margin:1rem 0 0.5rem;color:var(--soft);font-size:0.88rem;line-height:1.55;">
+              <div>· From <strong style="color:var(--text)">$29/mo</strong> · 4 tiers up to $149</div>
+              <div>· No setup fee · Stripe billing · Cancel anytime</div>
+              <div>· Built and hosted by Penny Wise I.T</div>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;padding-top:0.75rem;">
+              <a href="/tools/social-ai-studio" class="pc-cta" style="flex:1;min-width:0;">Read more →</a>
+              <a href="https://socialaistudio.au" target="_blank" rel="noopener" class="pc-cta" style="background:var(--copper);color:#0b0f1a;font-weight:800;flex:1;min-width:0;text-align:center;">Open Studio ↗</a>
+            </div>
+          </article>
+
+          <article class="product-card" data-tool="haccp">
+            <span class="kicker pc-kicker">HACCP · COMING SOON</span>
+            <h4>HACCP Logbook</h4>
+            <p class="pc-pitch">Digital food safety logs. Audit-ready PDF for council inspectors with one tap.</p>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;margin:1rem 0 0.5rem;color:var(--soft);font-size:0.88rem;line-height:1.55;">
+              <div>· Founder pricing locked for waitlist signups</div>
+              <div>· For cafes, butchers, food trucks, caterers, school canteens</div>
+              <div>· FSANZ Standard 3.2.2A compliant logging</div>
+            </div>
+            <div style="margin-top:auto;padding-top:0.75rem;">
+              <a href="/tools/haccp" class="pc-cta" style="background:var(--copper);color:#0b0f1a;font-weight:800;text-align:center;display:block;">Lock in founder pricing →</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="tools-vs-whitelabel" aria-labelledby="tools-vs-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Wait — what's the difference?</span>
+          <h2 id="tools-vs-heading" class="display">Tools vs whitelabel apps.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;color:var(--soft);font-size:0.95rem;line-height:1.6;">
+            <div>
+              <div style="font-weight:800;color:var(--text);margin-bottom:0.5rem;">Tools (this page)</div>
+              <ul style="margin:0;padding-left:1.2rem;">
+                <li>Sign up, pay, use — minutes</li>
+                <li>Penny Wise I.T branding</li>
+                <li>Shared hosting, your own login</li>
+                <li>Monthly only, no setup fee</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-weight:800;color:var(--text);margin-bottom:0.5rem;"><a href="/apps" style="color:var(--copper-hi);text-decoration:none;">Whitelabel apps</a></div>
+              <ul style="margin:0;padding-left:1.2rem;">
+                <li>Custom build, ~1 week launch</li>
+                <li>Your brand, your domain</li>
+                <li>Dedicated infrastructure</li>
+                <li>Setup fee + monthly</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+${ctaSection('tools')}`;
+}
+
+export function socialAiStudioBody(): string {
+  // SoftwareApplication JSON-LD echoes the canonical schema on socialaistudio.au.
+  // Pricing range comes from the live JSON-LD on that domain ($29-$149, 4 tiers).
+  const sasLd = `
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Social AI Studio",
+    "description": "AI-powered social media automation for small businesses and agencies. Generates, schedules and publishes Facebook and Instagram posts.",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "url": "https://socialaistudio.au",
+    "offers": { "@type": "AggregateOffer", "lowPrice": "29", "highPrice": "149", "priceCurrency": "AUD", "offerCount": "4" },
+    "creator": { "@id": "https://www.pennywiseit.com.au/#organization" }
+  }
+  </script>`;
+
+  return `${sasLd}
+    <section id="hero" aria-labelledby="sas-hero-heading">
+      <div class="container">
+        <div class="hero-inner">
+          <span class="kicker pc-kicker">SOCIAL AI STUDIO</span>
+          <h1 id="sas-hero-heading" class="display"><span class="grad">Stop staring at a blank Facebook post.</span></h1>
+          <p class="sub">AI writes, schedules, and publishes Facebook + Instagram posts in your brand voice. Connect your accounts once, set the cadence, walk away. Built for Australian small businesses and agencies.</p>
+          <div class="hero-ctas">
+            <a href="https://socialaistudio.au" target="_blank" rel="noopener" class="btn btn-primary" aria-label="Open Social AI Studio (opens in a new tab)">Open Studio ↗</a>
+            <a href="#how-it-works" class="btn btn-ghost">How it works</a>
+          </div>
+          <p class="hero-sub" style="font-size:0.85rem;color:var(--muted);margin-top:0.75rem;">From $29/mo · No setup fee · Stripe billing · Cancel anytime</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-it-works" aria-labelledby="sas-how-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">How it works</span>
+          <h2 id="sas-how-heading" class="display">From "I should post more" to "scheduled" in one afternoon.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;">
+          <ol style="margin:0;padding-left:1.4rem;color:var(--soft);font-size:1rem;line-height:1.8;">
+            <li><strong style="color:var(--text)">Connect</strong> your Facebook Page and Instagram once via Meta's official OAuth.</li>
+            <li><strong style="color:var(--text)">Brand voice</strong> — paste 5 of your past posts, the AI learns your tone (formal, cheeky, blokey, whatever).</li>
+            <li><strong style="color:var(--text)">Cadence</strong> — pick "3x/week", "Mon-Wed-Fri", or "every weekday at 8am".</li>
+            <li><strong style="color:var(--text)">Approve or auto-publish</strong> — review the queue every Sunday, or trust it to ship without you. Both work.</li>
+            <li><strong style="color:var(--text)">Analytics</strong> — see which posts pulled engagement so the AI keeps tuning your feed.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="sas-pricing" aria-labelledby="sas-pricing-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Pricing</span>
+          <h2 id="sas-pricing-heading" class="display">Four tiers. Pay monthly, cancel anytime.</h2>
+          <p class="section-sub">Tiers scale with how many connected accounts and posts/month. Final pricing and tier names live on the Studio site (Stripe-managed, always current).</p>
+        </div>
+        <div class="panel" style="max-width:680px;margin:0 auto;text-align:center;">
+          <div style="display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+            <span style="background:var(--card);border:1px solid var(--border);padding:0.55rem 0.95rem;border-radius:999px;font-weight:700;color:var(--text);">From $29/mo</span>
+            <span style="background:var(--card);border:1px solid var(--border);padding:0.55rem 0.95rem;border-radius:999px;font-weight:700;color:var(--text);">Up to $149/mo</span>
+          </div>
+          <a href="https://socialaistudio.au" target="_blank" rel="noopener" class="btn btn-primary">See current tiers + sign up ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="sas-trust" aria-labelledby="sas-trust-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Why us</span>
+          <h2 id="sas-trust-heading" class="display">An Australian product, not a $39/mo wrapper around ChatGPT.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;color:var(--soft);font-size:0.95rem;line-height:1.65;">
+          <p>Built and hosted by Penny Wise I.T in Queensland. Your data sits on Cloudflare infrastructure in Sydney, never leaves Australia. Stripe handles billing direct — no PayPal-only weirdness, no third-party reseller. AI runs on OpenRouter (Claude, GPT-4o, others) so you're never locked into one model getting worse over time.</p>
+          <p style="margin-top:0.75rem;">If you ever want a fully whitelabel version on your own domain instead — a private community, member portal, custom AI features — that's the <a href="/apps" style="color:var(--copper-hi);text-decoration:none;font-weight:700">whitelabel side</a> of the business. Talk to Steve.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="sas-cta" aria-labelledby="sas-cta-heading" style="margin-top:1.5rem;">
+      <div class="container">
+        <div class="panel cta-card" style="background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(168,85,247,0.08));border:1px solid rgba(245,158,11,0.3);text-align:center;">
+          <span class="kicker" style="color:var(--copper-hi);">READY TO STOP POSTING MANUALLY?</span>
+          <h2 id="sas-cta-heading" class="display">Open Studio. Sign up. Go.</h2>
+          <p class="cta-sub">Sign up takes about two minutes. First post can be scheduled within ten.</p>
+          <div class="cta-buttons">
+            <a href="https://socialaistudio.au" target="_blank" rel="noopener" class="btn btn-primary">Open Studio ↗</a>
+            <button type="button" data-open-lead data-source="social-ai-studio-cta" class="btn btn-ghost">Want it whitelabelled? Talk to Steve</button>
+          </div>
+        </div>
+      </div>
+    </section>`;
+}
+
+export function haccpBody(): string {
+  // SoftwareApplication JSON-LD with availability "PreOrder" so SERPs show
+  // the "coming soon" status correctly. Update to InStock once we launch.
+  const haccpLd = `
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "HACCP Logbook",
+    "description": "Digital HACCP food safety logging for Australian food businesses — temperature checks, cleaning schedules, allergen matrix, supplier records, audit-ready PDF reports.",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "url": "https://www.pennywiseit.com.au/tools/haccp",
+    "offers": { "@type": "Offer", "availability": "https://schema.org/PreOrder", "priceCurrency": "AUD" },
+    "creator": { "@id": "https://www.pennywiseit.com.au/#organization" }
+  }
+  </script>`;
+
+  return `${haccpLd}
+    <section id="hero" aria-labelledby="haccp-hero-heading">
+      <div class="container">
+        <div class="hero-inner">
+          <span class="kicker pc-kicker">HACCP LOGBOOK · COMING SOON</span>
+          <h1 id="haccp-hero-heading" class="display"><span class="grad">Audit-ready in minutes, not weekends.</span></h1>
+          <p class="sub">Digital HACCP logs for Australian food businesses. Temperature checks, cleaning schedules, allergen matrix, supplier records, staff training — all on your phone, all in one place. PDF report for council inspectors with one tap.</p>
+          <div class="hero-ctas">
+            <a href="#waitlist" class="btn btn-primary">Lock in founder pricing</a>
+            <a href="#what-it-does" class="btn btn-ghost">What it covers</a>
+          </div>
+          <p class="hero-sub" style="font-size:0.85rem;color:var(--muted);margin-top:0.75rem;">Founder pricing locked for the first 50 waitlist signups · Discount carries forward when we launch</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="who-needs-it" aria-labelledby="haccp-who-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Who this is for</span>
+          <h2 id="haccp-who-heading" class="display">If you handle food in Australia, FSANZ Standard 3.2.2A applies.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;color:var(--soft);font-size:0.95rem;line-height:1.65;">
+          <p>From the start of December 2023, Standard 3.2.2A requires a documented food safety program for most food businesses — cafes, restaurants, butchers, food trucks, caterers, school canteens, aged care kitchens, anywhere food is handled and served. Your council can ask for the records on inspection day. Most operators still keep paper logs in a manila folder under the till. We can do better.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="what-it-does" aria-labelledby="haccp-what-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">What it does</span>
+          <h2 id="haccp-what-heading" class="display">Every record your council inspector will ask for, on your phone.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;">
+          <ul style="margin:0;padding-left:1.4rem;color:var(--soft);font-size:0.98rem;line-height:1.8;">
+            <li><strong style="color:var(--text)">Temperature logs</strong> — fridges, freezers, hot holding, cold display. Five-second mobile entry, auto-stamped with time + staff member + thermometer reading.</li>
+            <li><strong style="color:var(--text)">Cleaning + sanitation schedules</strong> — daily, weekly, monthly checklists with sign-off. Reminders at the start of each shift.</li>
+            <li><strong style="color:var(--text)">Allergen matrix</strong> — per menu item, with cross-contamination flags. Print-ready for front-of-house staff.</li>
+            <li><strong style="color:var(--text)">Supplier verification</strong> — supplier name, ABN, licence/accreditation, last invoice. Council-friendly format.</li>
+            <li><strong style="color:var(--text)">Staff food handler training</strong> — who's trained, what level, when they expire. SMS alert 30 days before any cert lapses.</li>
+            <li><strong style="color:var(--text)">Incident log</strong> — illness, contamination, corrective action. Time-stamped audit trail.</li>
+            <li><strong style="color:var(--text)">One-tap PDF</strong> — full audit report, last 30/60/90 days, branded with your business name. Hand it to the inspector and walk away.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="waitlist" aria-labelledby="haccp-waitlist-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Founder pricing</span>
+          <h2 id="haccp-waitlist-heading" class="display">Get on the waitlist. Lock in the launch discount.</h2>
+          <p class="section-sub">First 50 signups get founder pricing — held for life as long as your subscription stays active. We'll email you the moment it goes live with a one-click signup link.</p>
+        </div>
+        <form class="panel" id="haccp-waitlist-form" style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:0.85rem;" novalidate>
+          <div class="form-row">
+            <label for="hw-name">Your name <span style="color:var(--copper-hi)">*</span></label>
+            <input id="hw-name" name="name" type="text" required maxlength="100" placeholder="Jane Smith" autocomplete="name" />
+          </div>
+          <div class="form-row">
+            <label for="hw-business">Business name <span style="color:var(--copper-hi)">*</span></label>
+            <input id="hw-business" name="business" type="text" required maxlength="200" placeholder="Jane's Cafe" autocomplete="organization" />
+          </div>
+          <div class="form-row">
+            <label for="hw-email">Email <span style="color:var(--copper-hi)">*</span></label>
+            <input id="hw-email" name="email" type="email" required maxlength="200" placeholder="jane@janescafe.com.au" autocomplete="email" />
+          </div>
+          <div class="form-row">
+            <label for="hw-type">Business type</label>
+            <select id="hw-type" name="business_type">
+              <option value="">— Select one —</option>
+              <option value="cafe">Cafe</option>
+              <option value="restaurant">Restaurant</option>
+              <option value="butcher">Butcher / smallgoods</option>
+              <option value="food-truck">Food truck / mobile</option>
+              <option value="caterer">Caterer</option>
+              <option value="school-canteen">School canteen</option>
+              <option value="aged-care">Aged care kitchen</option>
+              <option value="bakery">Bakery</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="hw-locations">How many locations?</label>
+            <select id="hw-locations" name="locations">
+              <option value="1">Just one</option>
+              <option value="2-5">2–5</option>
+              <option value="6-20">6–20</option>
+              <option value="20+">20+</option>
+            </select>
+          </div>
+          <input type="text" name="company" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" aria-hidden="true" />
+          <button type="submit" class="btn btn-primary" style="margin-top:0.5rem;">Lock in founder pricing</button>
+          <p style="font-size:0.78rem;color:var(--muted);text-align:center;margin:0;">No spam. We'll email you when it launches and that's it. Unsubscribe instantly.</p>
+        </form>
+        <div id="haccp-waitlist-success" class="panel" style="display:none;max-width:560px;margin:1.5rem auto 0;text-align:center;background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.3);">
+          <span class="kicker" style="color:#22c55e;">YOU'RE IN</span>
+          <h3 style="margin:0.5rem 0;color:var(--text);">Founder pricing locked.</h3>
+          <p style="color:var(--soft);margin:0;">We'll email you the moment HACCP Logbook goes live. Talk soon.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="haccp-faq" aria-labelledby="haccp-faq-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Common questions</span>
+          <h2 id="haccp-faq-heading" class="display">Before you sign up.</h2>
+        </div>
+        <div class="faq-list" style="max-width:680px;margin:0 auto;">
+          <details class="faq-item">
+            <summary>Does this replace my formal HACCP plan?</summary>
+            <div class="faq-body">No. Your written food safety program (the HACCP plan itself) is something a food safety auditor or consultant helps you draft once. This app is for the daily logging that proves you're following that plan — temperatures, cleaning, training, suppliers. Together they cover what councils want to see.</div>
+          </details>
+          <details class="faq-item">
+            <summary>What does it cost when it launches?</summary>
+            <div class="faq-body">Final pricing is locked in just before launch — likely a flat monthly per location, with founder pricing held for waitlist signups. We'll email you with a one-click signup before it goes public.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Will it work offline (kitchens with bad wi-fi)?</summary>
+            <div class="faq-body">Yes. Logs cache on the device and sync when connection returns. You can take a temperature reading mid-service in a steel-clad cool room with no signal — it'll upload as soon as you walk back to the front.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Is the audit PDF actually accepted by council inspectors?</summary>
+            <div class="faq-body">The PDF format covers everything Standard 3.2.2A asks for — what was logged, when, by whom. Different councils have different audit checklists, but the underlying records line up. Worst case: print the PDF, hand it over with your written plan. Same as paper, faster to find.</div>
+          </details>
+          <details class="faq-item">
+            <summary>What if I don't want to be on the waitlist?</summary>
+            <div class="faq-body">You don't have to be. Once we launch you can sign up at full price. The waitlist is just a way to lock in early-customer pricing and get notified the day it goes live.</div>
+          </details>
+        </div>
+      </div>
+    </section>`;
 }
 
 /** Privacy Policy page. Plain-English, AU Privacy Act-aligned. Steve should review and amend. */
@@ -945,29 +1271,6 @@ const VERTICAL_CONTENT: Record<string, VerticalContent> = {
     productDescription:
       'Vehicle rental platform with date-range booking, license upload, Stripe deposits, lockbox SMS pickup, and a fleet calendar',
     category: 'Vehicle Rental Software',
-  },
-  'community': {
-    slug: 'community',
-    productId: 'ai-social',
-    productKicker: 'COMMUNITY PLATFORM',
-    productName: 'AI Social Platform',
-    h1: 'Private community on your domain. AI moderates spam while you sleep.',
-    intro: 'A members-only community app for your tribe, branded as yours, live in a week. Replaces Facebook groups, Patreon, and Discord with one focused thing: a feed your members actually see, on a domain you own.',
-    bullets: [
-      '100% reach — no algorithm hiding your posts from your members',
-      'AI moderation auto-hides spam in milliseconds',
-      'Paid memberships via Stripe (no Patreon 8-12% cut)',
-      'Member list in your D1, exportable, never shadow-banned',
-    ],
-    useCase:
-      'Saturday 2pm. Rotary Mates Rocky chapter — 340 rotary-engine enthusiasts — used to live in a Facebook group that buried 92% of posts. Sunday cruise to Mt Archer is on for sunrise. Same post hits 100% of members via push. 23 cars confirmed within the hour. AI moderation nuked two For-Sale spam posts overnight.',
-    entryTier: 'Starter Community',
-    entryPrice: '$99/mo + $799 setup',
-    topTier: 'Creator-Backed',
-    topPrice: '$249/mo + $799 setup',
-    productDescription:
-      'Private community platform with AI moderation and creator monetisation',
-    category: 'Community Software',
   },
   'delivery': {
     slug: 'delivery',

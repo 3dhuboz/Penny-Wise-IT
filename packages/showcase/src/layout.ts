@@ -24,8 +24,12 @@ export type PageId =
   | 'butchers'
   | 'sports-clubs'
   | 'car-hire'
-  | 'community'
-  | 'delivery';
+  | 'delivery'
+  // Tools — direct-purchase SaaS apps (NOT whitelabel). Customer signs up,
+  // pays, and uses them on PWIT-hosted infrastructure with their own login.
+  | 'tools'
+  | 'social-ai-studio'
+  | 'haccp';
 
 export type FaqQA = { question: string; answer: string };
 
@@ -80,6 +84,7 @@ const OG_IMAGE = `${SITE_ORIGIN}/og.png`;
 
 const NAV_LINKS: ReadonlyArray<{ href: string; label: string; page: PageId }> = [
   { href: '/apps', label: 'Apps', page: 'apps' },
+  { href: '/tools', label: 'Tools', page: 'tools' },
   { href: '/numbers', label: 'Numbers', page: 'numbers' },
   { href: '/roi', label: 'ROI', page: 'roi' },
   { href: '/pricing', label: 'Pricing', page: 'pricing' },
@@ -121,7 +126,6 @@ const PRODUCT_GRAPH_LD = `
       { "@type": "Product", "@id": "${SITE_ORIGIN}/#product-food-truck", "name": "Food-Truck App", "description": "Live online ordering platform for food trucks with SMS updates, QR menus, and pickup alerts", "brand": { "@id": "${SITE_ORIGIN}/#organization" }, "category": "Food & Hospitality Software", "url": "${SITE_ORIGIN}/#product-food-truck" },
       { "@type": "Product", "@id": "${SITE_ORIGIN}/#product-tradie", "name": "Tradie Field Service", "description": "Field service management platform for tradies with online booking, rego lookup, and video wrap-ups", "brand": { "@id": "${SITE_ORIGIN}/#organization" }, "category": "Field Service Software", "url": "${SITE_ORIGIN}/#product-tradie" },
       { "@type": "Product", "@id": "${SITE_ORIGIN}/#product-online-store", "name": "Online Store", "description": "Custom branded online store with Stripe checkout and zero platform fees", "brand": { "@id": "${SITE_ORIGIN}/#organization" }, "category": "E-commerce Software", "url": "${SITE_ORIGIN}/#product-online-store" },
-      { "@type": "Product", "@id": "${SITE_ORIGIN}/#product-ai-social", "name": "AI Social Platform", "description": "Private community platform with AI moderation and creator monetisation", "brand": { "@id": "${SITE_ORIGIN}/#organization" }, "category": "Community Software", "url": "${SITE_ORIGIN}/#product-ai-social" },
       { "@type": "Product", "@id": "${SITE_ORIGIN}/#product-festival", "name": "Festival & Event App", "description": "Event management platform with ticketing, live schedule, and QR gate scanning", "brand": { "@id": "${SITE_ORIGIN}/#organization" }, "category": "Event Management Software", "url": "${SITE_ORIGIN}/#product-festival" },
       { "@type": "Product", "@id": "${SITE_ORIGIN}/#product-delivery", "name": "Delivery & Logistics", "description": "Delivery management platform with live driver tracking and route optimisation", "brand": { "@id": "${SITE_ORIGIN}/#organization" }, "category": "Logistics Software", "url": "${SITE_ORIGIN}/#product-delivery" },
       { "@type": "Product", "@id": "${SITE_ORIGIN}/#product-car-hire", "name": "Car Hire & Rentals", "description": "Vehicle rental platform with date-range booking, license upload, Stripe deposits, lockbox SMS pickup, and a fleet calendar", "brand": { "@id": "${SITE_ORIGIN}/#organization" }, "category": "Vehicle Rental Software", "url": "${SITE_ORIGIN}/#product-car-hire" },
@@ -375,9 +379,9 @@ const STYLES = `
     /* Products / bento */
     .product-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
     @media (min-width: 720px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
-    .product-grid-9 { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
-    @media (min-width: 720px) { .product-grid-9 { grid-template-columns: repeat(2, 1fr); } }
-    @media (min-width: 1100px) { .product-grid-9 { grid-template-columns: repeat(3, 1fr); } }
+    .product-grid-8 { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+    @media (min-width: 720px) { .product-grid-8 { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1100px) { .product-grid-8 { grid-template-columns: repeat(3, 1fr); } }
 
     .product-card {
       background:
@@ -926,8 +930,14 @@ const CTA_BY_PAGE: Record<PageId, { primary: string; secondary: { label: string;
   'butchers':     { primary: 'Get my butcher shop set up',    secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/butchers' } },
   'sports-clubs': { primary: 'Get my sports-club app set up', secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/sports-club' } },
   'car-hire':     { primary: 'Get my car-hire app set up',    secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/car-hire' } },
-  'community':    { primary: 'Get my community app set up',   secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/ai-social' } },
   'delivery':     { primary: 'Get my delivery app set up',    secondary: { label: 'Try the live demo', href: 'https://demos.pennywiseit.com.au/demo/delivery' } },
+  // Tools pages — bodies render their own bottom CTAs (signup links, waitlist
+  // forms) instead of the global lead modal, so these entries are used only
+  // as a fallback by `ctaSection`. The fallback is "Talk to Steve" so any
+  // accidental call still routes to a useful place.
+  'tools':              { primary: 'Talk to Steve', secondary: { label: 'See whitelabel apps',   href: '/apps' } },
+  'social-ai-studio':   { primary: 'Open Studio',   secondary: { label: 'See whitelabel apps',   href: '/apps' } },
+  'haccp':              { primary: 'Join the waitlist', secondary: { label: 'See other tools',   href: '/tools' } },
 };
 
 export function ctaSection(page: PageId): string {
@@ -1114,6 +1124,50 @@ const LEAD_MODAL_SCRIPT = `
           .catch(function(){ nlStatus.classList.add('is-error'); nlStatus.textContent = "Couldn't subscribe — please email hello@pennywiseit.com.au."; btn.disabled = false; btn.textContent = 'Get the monthly note'; });
       });
     }
+
+    // HACCP waitlist — same /api/public/demo-interest endpoint, product_id
+    // 'haccp-waitlist' so leads filter into the right pipeline. Honeypot field
+    // (#haccp-waitlist-form input[name="company"]) catches bots; if filled,
+    // fail silently so the bot thinks it succeeded.
+    var hwForm = document.getElementById('haccp-waitlist-form');
+    if (hwForm) {
+      hwForm.addEventListener('submit', function(ev){
+        ev.preventDefault();
+        var btn = hwForm.querySelector('button[type="submit"]');
+        var honeypot = (hwForm.elements.company && hwForm.elements.company.value) || '';
+        var name = (hwForm.elements.name.value||'').trim();
+        var business = (hwForm.elements.business.value||'').trim();
+        var email = (hwForm.elements.email.value||'').trim();
+        var businessType = (hwForm.elements.business_type.value||'').trim();
+        var locations = (hwForm.elements.locations.value||'1').trim();
+        if (!name || !business || !email || !/.+@.+\\..+/.test(email)) {
+          btn.textContent = 'Check your details';
+          return;
+        }
+        btn.disabled = true; btn.textContent = 'Locking it in...';
+        if (honeypot) {
+          // Bot — fake success.
+          setTimeout(function(){
+            hwForm.style.display = 'none';
+            var ok = document.getElementById('haccp-waitlist-success');
+            if (ok) ok.style.display = 'block';
+          }, 400);
+          return;
+        }
+        var note = 'HACCP waitlist · type=' + (businessType || 'unspecified') + ' · locations=' + locations;
+        fetch('https://pennywiseit-validator.steve-700.workers.dev/api/public/demo-interest', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ product_id: 'haccp-waitlist', product_name: 'HACCP Logbook waitlist', name: name, business_name: business, phone: '', email: email, note: note, ref: '' }),
+        }).then(function(r){
+          if (!r.ok) throw new Error('failed');
+          hwForm.style.display = 'none';
+          var ok = document.getElementById('haccp-waitlist-success');
+          if (ok) ok.style.display = 'block';
+        }).catch(function(){
+          btn.disabled = false; btn.textContent = "Couldn't send — email hello@pennywiseit.com.au";
+        });
+      });
+    }
   })();
   </script>`;
 
@@ -1138,7 +1192,7 @@ function navHtml(activePage: PageId, mobile = false): string {
 // Breadcrumb metadata keyed by pathname. Last item is the current page.
 // Two-tier verticals (under /apps) get an explicit Apps parent; everything
 // else sits directly under Home. The 404 page is intentionally absent.
-type BreadcrumbInfo = { name: string; underApps?: boolean };
+type BreadcrumbInfo = { name: string; underApps?: boolean; underTools?: boolean };
 const BREADCRUMB_MAP: Readonly<Record<string, BreadcrumbInfo>> = {
   '/apps': { name: 'Apps' },
   '/numbers': { name: 'Numbers' },
@@ -1155,8 +1209,11 @@ const BREADCRUMB_MAP: Readonly<Record<string, BreadcrumbInfo>> = {
   '/butchers': { name: 'Butcher Shop & Online Orders', underApps: true },
   '/sports-clubs': { name: 'Sports Club Hub', underApps: true },
   '/car-hire': { name: 'Car Hire & Rentals', underApps: true },
-  '/community': { name: 'AI Community Platform', underApps: true },
   '/delivery': { name: 'Delivery & Logistics', underApps: true },
+  // Tools — direct-purchase SaaS (sit under /tools, not /apps).
+  '/tools': { name: 'Tools' },
+  '/tools/social-ai-studio': { name: 'Social AI Studio', underTools: true },
+  '/tools/haccp': { name: 'HACCP Logbook', underTools: true },
 };
 
 /**
@@ -1181,6 +1238,14 @@ export function breadcrumbLd(pathname: string): string {
     });
     // Final breadcrumb item omits `item` per schema.org guidance for the
     // current page, so search engines treat it as the active leaf.
+    items.push({ '@type': 'ListItem', position: 3, name: info.name });
+  } else if (info.underTools) {
+    items.push({
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Tools',
+      item: `${SITE_ORIGIN}/tools`,
+    });
     items.push({ '@type': 'ListItem', position: 3, name: info.name });
   } else {
     items.push({ '@type': 'ListItem', position: 2, name: info.name });
@@ -1242,7 +1307,7 @@ export function renderLayout(opts: RenderLayoutOptions): string {
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Penny Wise I.T — 9 whitelabel apps for Australian small business">
+  <meta property="og:image:alt" content="Penny Wise I.T — apps and tools for Australian small business">
   <meta property="og:locale" content="en_AU">
 
   <meta name="twitter:card" content="summary_large_image">
@@ -1250,7 +1315,7 @@ export function renderLayout(opts: RenderLayoutOptions): string {
   <meta name="twitter:description" content="${description}">
   <meta name="twitter:image" content="${OG_IMAGE}">
   <meta name="twitter:image:type" content="image/png">
-  <meta name="twitter:image:alt" content="Penny Wise I.T — 9 whitelabel apps for Australian small business">
+  <meta name="twitter:image:alt" content="Penny Wise I.T — apps and tools for Australian small business">
 
   <link rel="image_src" href="${OG_IMAGE}">
 
