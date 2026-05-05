@@ -338,7 +338,7 @@ const ABOUT_PANEL = `
             </svg>
             <div class="about-body">
               <p>I'm Steve, an Australian full-stack developer and IT consultant based in Queensland. I started Penny Wise I.T after watching small business owners get locked into expensive SaaS subscriptions they barely used — paying $200-$500/month for features they didn't need, on platforms they'd never own.</p>
-              <p>I build every app myself — from database schema to pixel-perfect UI — and maintain them personally for each client. All 9 platforms on this page are running in production right now, for real Australian businesses. Flat monthly fee. No hidden platform cut. Your brand from day one. If something breaks at 2am, I'm the one who fixes it — not a help desk in Manila.</p>
+              <p>I build every app myself — from database schema to pixel-perfect UI — and maintain them personally for each client. All 8 whitelabel platforms on this page are running in production right now, for real Australian businesses, plus the <a href="/tools/social-ai-studio">Social AI Studio</a> SaaS that anyone can sign up for directly. Flat monthly fee. No hidden platform cut. Your brand from day one. If something breaks at 2am, I'm the one who fixes it — not a help desk in Manila.</p>
               <p><strong>What I run, end to end:</strong> Cloudflare Workers + D1 database in Sydney edge · Stripe for every payment · GitHub for every line of source code · Resend for transactional email. No agency, no offshore team, no contractors with the wrong incentives. One developer, accountable.</p>
               <div class="about-inline-cta">
                 <button type="button" data-open-lead data-source="/about" class="btn btn-primary">Talk to Steve</button>
@@ -1108,6 +1108,12 @@ interface VerticalContent {
   productDescription: string;
   /** Schema.org category (matches the existing PRODUCT_GRAPH_LD). */
   category: string;
+  /**
+   * Optional cross-sell tile rendered between the FAQ and closing CTA.
+   * Use for natural complements (e.g. food businesses → HACCP Logbook).
+   * Keep the pitch ≤2 sentences — it's a nudge, not a second sales page.
+   */
+  relatedTool?: { kicker: string; name: string; href: string; pitch: string; cta: string };
 }
 
 const VERTICAL_CONTENT: Record<string, VerticalContent> = {
@@ -1133,6 +1139,13 @@ const VERTICAL_CONTENT: Record<string, VerticalContent> = {
     productDescription:
       'Live online ordering platform for food trucks with SMS updates, QR menus, and pickup alerts',
     category: 'Food & Hospitality Software',
+    relatedTool: {
+      kicker: 'Pair it with',
+      name: 'HACCP Logbook',
+      href: '/tools/haccp',
+      pitch: 'Food trucks fall under FSANZ Standard 3.2.2A, so council can ask for your temp logs and cleaning records on the spot. Log them on your phone instead of in a manila folder.',
+      cta: 'Get HACCP-ready →',
+    },
   },
   'tradies': {
     slug: 'tradies',
@@ -1225,6 +1238,13 @@ const VERTICAL_CONTENT: Record<string, VerticalContent> = {
     productDescription:
       'Online ordering for butcher shops — custom-cut requests, freezer pack bundles, click & collect, local delivery, auto-stocktake',
     category: 'Food Retail Software',
+    relatedTool: {
+      kicker: 'Pair it with',
+      name: 'HACCP Logbook',
+      href: '/tools/haccp',
+      pitch: 'Butchers handle high-risk food. Council inspectors will ask for your temperature logs, supplier verification and cleaning records. Log it all on your phone, hand them a one-tap PDF on inspection day.',
+      cta: 'Get HACCP-ready →',
+    },
   },
   'sports-clubs': {
     slug: 'sports-clubs',
@@ -1447,6 +1467,18 @@ ${(INDUSTRY_FAQ[c.productId] || []).length ? `
               <div class="faq-body">${escHtml(item.answer)}</div>
             </details>
           `).join('')}
+        </div>
+      </div>
+    </section>
+` : ''}
+${c.relatedTool ? `
+    <section id="vertical-related" aria-labelledby="vertical-related-heading">
+      <div class="container">
+        <div class="panel" style="max-width:760px;margin:0 auto;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(168,85,247,0.05));border:1px solid rgba(245,158,11,0.2);">
+          <span class="kicker" style="color:var(--copper-hi);">${escHtml(c.relatedTool.kicker)}</span>
+          <h2 id="vertical-related-heading" class="display" style="font-size:1.55rem;margin:0.4rem 0 0.6rem;">${escHtml(c.relatedTool.name)}</h2>
+          <p style="color:var(--soft);font-size:0.98rem;line-height:1.65;margin:0 0 1.1rem;">${escHtml(c.relatedTool.pitch)}</p>
+          <a href="${c.relatedTool.href}" class="btn btn-primary">${escHtml(c.relatedTool.cta)}</a>
         </div>
       </div>
     </section>

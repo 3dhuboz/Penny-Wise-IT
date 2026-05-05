@@ -397,7 +397,7 @@ app.get('*', (c) =>
       page: '404',
       pathname: new URL(c.req.url).pathname,
       title: 'Page not found · Penny Wise I.T',
-      description: "The page you're looking for doesn't exist. Browse 9 whitelabel apps for Australian small businesses.",
+      description: "The page you're looking for doesn't exist. Browse 8 whitelabel apps + 2 self-serve tools for Australian small businesses.",
       body: notFoundBody(),
     }),
     404
