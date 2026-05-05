@@ -29,6 +29,7 @@ export type PageId =
   // pays, and uses them on PWIT-hosted infrastructure with their own login.
   | 'tools'
   | 'social-ai-studio'
+  | 'chownow'
   | 'haccp';
 
 export type FaqQA = { question: string; answer: string };
@@ -132,6 +133,7 @@ const PRODUCT_GRAPH_LD = `
       { "@type": "Product", "@id": "${SITE_ORIGIN}/#product-butchers", "name": "Butcher Shop & Online Orders", "description": "Online ordering for butcher shops — custom-cut requests, freezer pack bundles, click & collect, local delivery, auto-stocktake", "brand": { "@id": "${SITE_ORIGIN}/#organization" }, "category": "Food Retail Software", "url": "${SITE_ORIGIN}/#product-butchers" },
       { "@type": "Product", "@id": "${SITE_ORIGIN}/#product-sports-club", "name": "Sports Club Hub", "description": "All-in-one community sports club app — fixtures, registrations, team chat, lineup tools, committee financials", "brand": { "@id": "${SITE_ORIGIN}/#organization" }, "category": "Sports Club Software", "url": "${SITE_ORIGIN}/#product-sports-club" },
       { "@type": "SoftwareApplication", "@id": "${SITE_ORIGIN}/#tool-social-ai-studio", "name": "Social AI Studio", "description": "AI-driven Facebook + Instagram posting automation. Connects via Meta OAuth, learns your brand voice, schedules and publishes to your cadence. Self-serve SaaS, $29-149/mo.", "applicationCategory": "BusinessApplication", "operatingSystem": "Web", "url": "https://socialaistudio.au", "creator": { "@id": "${SITE_ORIGIN}/#organization" }, "offers": { "@type": "AggregateOffer", "lowPrice": "29", "highPrice": "149", "priceCurrency": "AUD", "offerCount": "4" } },
+      { "@type": "SoftwareApplication", "@id": "${SITE_ORIGIN}/#tool-chownow", "name": "ChowNow", "description": "Multi-tenant food truck workflow platform — QR ordering, kitchen display, front-of-house POS, real-time order tracking. Customers order via chownow.au, you keep 100% of orders (Stripe processing only). Free to list.", "applicationCategory": "FoodService", "operatingSystem": "Web", "url": "https://chownow.au", "creator": { "@id": "${SITE_ORIGIN}/#organization" }, "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" } },
       { "@type": "SoftwareApplication", "@id": "${SITE_ORIGIN}/#tool-haccp", "name": "HACCP Logbook", "description": "Digital HACCP food safety logging for Australian operators (cafes, restaurants, butchers, food trucks, caterers). Temperature checks, cleaning schedules, allergen matrix, supplier records, audit-ready PDF reports. Coming soon.", "applicationCategory": "BusinessApplication", "operatingSystem": "Web", "url": "${SITE_ORIGIN}/tools/haccp", "creator": { "@id": "${SITE_ORIGIN}/#organization" }, "offers": { "@type": "Offer", "availability": "https://schema.org/PreOrder", "priceCurrency": "AUD" } }
     ]
   }
@@ -939,6 +941,7 @@ const CTA_BY_PAGE: Record<PageId, { primary: string; secondary: { label: string;
   // accidental call still routes to a useful place.
   'tools':              { primary: 'Talk to Steve', secondary: { label: 'See whitelabel apps',   href: '/apps' } },
   'social-ai-studio':   { primary: 'Open Studio',   secondary: { label: 'See whitelabel apps',   href: '/apps' } },
+  'chownow':            { primary: 'Open ChowNow',  secondary: { label: 'See whitelabel apps',   href: '/apps' } },
   'haccp':              { primary: 'Join the waitlist', secondary: { label: 'See other tools',   href: '/tools' } },
 };
 
@@ -1215,6 +1218,7 @@ const BREADCRUMB_MAP: Readonly<Record<string, BreadcrumbInfo>> = {
   // Tools — direct-purchase SaaS (sit under /tools, not /apps).
   '/tools': { name: 'Tools' },
   '/tools/social-ai-studio': { name: 'Social AI Studio', underTools: true },
+  '/tools/chownow': { name: 'ChowNow', underTools: true },
   '/tools/haccp': { name: 'HACCP Logbook', underTools: true },
 };
 

@@ -694,7 +694,7 @@ export function toolsBody(): string {
       <div class="container">
         <div class="section-head">
           <span class="kicker">Live + coming soon</span>
-          <h2 id="tools-grid-heading" class="display">Two tools, both built in Australia.</h2>
+          <h2 id="tools-grid-heading" class="display">Three tools, all built in Australia.</h2>
         </div>
         <div class="product-grid product-grid-8" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));max-width:920px;margin:0 auto;">
           <article class="product-card" data-tool="social-ai-studio">
@@ -709,6 +709,21 @@ export function toolsBody(): string {
             <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;padding-top:0.75rem;">
               <a href="/tools/social-ai-studio" class="pc-cta" style="flex:1;min-width:0;">Read more →</a>
               <a href="https://socialaistudio.au" target="_blank" rel="noopener" class="pc-cta" style="background:var(--copper);color:#0b0f1a;font-weight:800;flex:1;min-width:0;text-align:center;">Open Studio ↗</a>
+            </div>
+          </article>
+
+          <article class="product-card" data-tool="chownow">
+            <span class="kicker pc-kicker">CHOWNOW · LIVE NOW · FREE</span>
+            <h4>ChowNow</h4>
+            <p class="pc-pitch">Food truck workflow, sorted. QR ordering, kitchen display, FOH POS, real-time tracking.</p>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;margin:1rem 0 0.5rem;color:var(--soft);font-size:0.88rem;line-height:1.55;">
+              <div>· <strong style="color:var(--text)">Free to list</strong> · Stripe processing only</div>
+              <div>· Customers order at chownow.au · No platform cut</div>
+              <div>· PWA — installs on any phone</div>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;padding-top:0.75rem;">
+              <a href="/tools/chownow" class="pc-cta" style="flex:1;min-width:0;">Read more →</a>
+              <a href="https://chownow.au" target="_blank" rel="noopener" class="pc-cta" style="background:var(--copper);color:#0b0f1a;font-weight:800;flex:1;min-width:0;text-align:center;">Open ChowNow ↗</a>
             </div>
           </article>
 
@@ -790,6 +805,36 @@ export const SAS_FAQ_PAIRS: FaqQA[] = [
     question: "Can I cancel mid-month if it's not working?",
     answer:
       "Yes. Cancellation is one click in your billing settings. We don't pro-rate refunds for the current month, but you keep access until the end of the period you've already paid for. Stripe handles the cancellation — no \"wait three business days\" or email-only friction.",
+  },
+];
+
+// FAQ pairs for the ChowNow landing page. Same canonical text drives the
+// visible accordion and the FAQPage JSON-LD on /tools/chownow.
+export const CHOWNOW_FAQ_PAIRS: FaqQA[] = [
+  {
+    question: "How is this different from the whitelabel Food-Truck App?",
+    answer:
+      "Same code, different deployment model. ChowNow is multi-tenant — customers order through chownow.au, your menu lives there, you keep 100% of orders (Stripe processing only). The whitelabel /food-trucks deployment is custom-branded under YOUR domain, dedicated infrastructure, your customer list. ChowNow is for getting started fast with zero setup; whitelabel is for operators ready to invest in their own brand.",
+  },
+  {
+    question: "Customers order through chownow.au, not my domain — does that hurt my brand?",
+    answer:
+      "Honestly, yes — a little. Your truck's listing is ChowNow-branded. If your social-media-driven repeat customers expect to land on YOUR site, this might feel weird. The trade-off: zero setup cost, free to list, immediate live ordering. Most operators start on ChowNow and graduate to whitelabel once they're ready to own their own brand. No forced migration, no re-keying customers.",
+  },
+  {
+    question: "Does it work offline at remote markets?",
+    answer:
+      "Yes. ChowNow is a PWA (progressive web app) — it caches your menu locally and queues orders when 4G drops. Customers keep ordering during the dead zones, payments authorise once signal returns. Same offline tech as the whitelabel deployment.",
+  },
+  {
+    question: "Can I take payments other than card (cash, EFTPOS terminal)?",
+    answer:
+      "Cash is still tracked manually in the till. EFTPOS terminals aren't directly integrated yet — most operators run Stripe via QR code on the customer's phone, which means the terminal is optional. If your existing terminal is non-negotiable, the whitelabel deployment can integrate it as a custom job.",
+  },
+  {
+    question: "What happens if my volume grows — do I have to upgrade?",
+    answer:
+      "No. ChowNow's free tier handles the long tail of small operators indefinitely. You can stay free or graduate to whitelabel when you want your own brand. We don't do volume-based forced migrations or surprise tier-bumps. The reason to upgrade is brand equity, not transaction count.",
   },
 ];
 
@@ -931,6 +976,146 @@ export function socialAiStudioBody(): string {
           <div class="cta-buttons">
             <a href="https://socialaistudio.au" target="_blank" rel="noopener" class="btn btn-primary">Open Studio ↗</a>
             <button type="button" data-open-lead data-source="social-ai-studio-cta" class="btn btn-ghost">Want it whitelabelled? Talk to Steve</button>
+          </div>
+        </div>
+      </div>
+    </section>`;
+}
+
+export function chownowBody(): string {
+  // Live ChowNow JSON-LD echoes what's on chownow.au with PWIT as creator.
+  // Pricing positioned as "$0" — Stripe processing pass-through is the only
+  // cost. Final per-order revenue model is on chownow.au if/when added.
+  const chownowLd = `
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ChowNow",
+    "description": "Multi-tenant food truck workflow platform — QR ordering, kitchen display, front-of-house POS, real-time order tracking. Built and hosted by Penny Wise I.T.",
+    "applicationCategory": "FoodService",
+    "operatingSystem": "Web",
+    "url": "https://chownow.au",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
+    "creator": { "@id": "https://www.pennywiseit.com.au/#organization" }
+  }
+  </script>`;
+
+  return `${chownowLd}
+    <section id="hero" aria-labelledby="chownow-hero-heading">
+      <div class="container">
+        <div class="hero-inner">
+          <span class="kicker pc-kicker">CHOWNOW · LIVE NOW · FREE TO LIST</span>
+          <h1 id="chownow-hero-heading" class="display"><span class="grad">Food truck workflow, sorted.</span></h1>
+          <p class="sub">QR ordering, kitchen display, front-of-house POS, and real-time order tracking. Customers order via chownow.au, your truck&rsquo;s on the map, you keep 100% of orders. The only cut is Stripe&rsquo;s processing fee.</p>
+          <div class="hero-ctas">
+            <a href="https://chownow.au" target="_blank" rel="noopener" class="btn btn-primary" aria-label="Open ChowNow (opens in a new tab)">Open ChowNow ↗</a>
+            <a href="#how-it-works" class="btn btn-ghost">How it works</a>
+          </div>
+          <p class="hero-sub" style="font-size:0.85rem;color:var(--muted);margin-top:0.75rem;">Free to list · No setup fee · No platform cut · Stripe processing pass-through only</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-it-works" aria-labelledby="chownow-how-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">How it works</span>
+          <h2 id="chownow-how-heading" class="display">From "I just got booked for the markets" to "first pre-order in" in an afternoon.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;">
+          <ol style="margin:0;padding-left:1.4rem;color:var(--soft);font-size:1rem;line-height:1.8;">
+            <li><strong style="color:var(--text)">Sign up free</strong> at chownow.au — claim your truck name, upload menu items, set hours.</li>
+            <li><strong style="color:var(--text)">Connect Stripe</strong> for direct payment — money lands in your account, not ours.</li>
+            <li><strong style="color:var(--text)">QR codes</strong> for your truck print straight from the dashboard. Stick them on the side of the van or on the menu board.</li>
+            <li><strong style="color:var(--text)">Customers order</strong> on their phone via chownow.au. Kitchen display shows the queue. POS handles in-person walk-ups.</li>
+            <li><strong style="color:var(--text)">SMS pickup alerts</strong> fire automatically when food&rsquo;s up. Customer collects, you cook the next ticket.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="chownow-features" aria-labelledby="chownow-features-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">What's in the box</span>
+          <h2 id="chownow-features-heading" class="display">Every screen a working food truck needs.</h2>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;">
+          <ul style="margin:0;padding-left:1.4rem;color:var(--soft);font-size:0.98rem;line-height:1.75;">
+            <li><strong style="color:var(--text)">QR ordering</strong> — customers scan, browse menu, pay, get an SMS when ready.</li>
+            <li><strong style="color:var(--text)">Kitchen display</strong> — auto-sorted ticket queue with prep times.</li>
+            <li><strong style="color:var(--text)">Front-of-house POS</strong> — handle walk-ups + cash + card on the same screen as online orders.</li>
+            <li><strong style="color:var(--text)">Real-time tracking</strong> — customers see "preparing" / "ready" without ringing the truck.</li>
+            <li><strong style="color:var(--text)">Stripe direct</strong> — no platform cut, no held funds, no Square 2.6%.</li>
+            <li><strong style="color:var(--text)">PWA install</strong> — runs on any iPhone/Android via "Add to Home Screen".</li>
+            <li><strong style="color:var(--text)">Offline-tolerant</strong> — caches menu + queues orders during 4G drops.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="chownow-vs-whitelabel" aria-labelledby="chownow-vs-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">ChowNow vs whitelabel</span>
+          <h2 id="chownow-vs-heading" class="display">Same code. Different deployment.</h2>
+          <p class="section-sub">Most operators start here, graduate to whitelabel when their brand is ready to stand on its own domain.</p>
+        </div>
+        <div class="panel" style="max-width:760px;margin:0 auto;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;color:var(--soft);font-size:0.95rem;line-height:1.6;">
+            <div>
+              <div style="font-weight:800;color:var(--text);margin-bottom:0.5rem;">ChowNow (this page)</div>
+              <ul style="margin:0;padding-left:1.2rem;">
+                <li>Free, sign up in minutes</li>
+                <li>Customers order at chownow.au</li>
+                <li>ChowNow-branded experience</li>
+                <li>Shared multi-tenant hosting</li>
+                <li>No setup fee · Stripe-only cut</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-weight:800;color:var(--text);margin-bottom:0.5rem;"><a href="/food-trucks" style="color:var(--copper-hi);text-decoration:none;">Food-Truck App (whitelabel)</a></div>
+              <ul style="margin:0;padding-left:1.2rem;">
+                <li>$79/mo + $499 setup</li>
+                <li>Customers order at <em>your</em> domain</li>
+                <li>Your branding, your colours</li>
+                <li>Dedicated infrastructure + customer list</li>
+                <li>Live in a week</li>
+              </ul>
+            </div>
+          </div>
+          <p style="margin-top:1.25rem;color:var(--soft);font-size:0.9rem;text-align:center;">Customers, menu, and order history transfer when you graduate. No re-keying.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="chownow-faq" aria-labelledby="chownow-faq-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Common questions</span>
+          <h2 id="chownow-faq-heading" class="display">Before you list your truck.</h2>
+        </div>
+        <div class="faq-list" style="max-width:680px;margin:0 auto;">
+          ${CHOWNOW_FAQ_PAIRS.map((item) => `
+            <details class="faq-item">
+              <summary>${escHtml(item.question)}</summary>
+              <div class="faq-body">${escHtml(item.answer)}</div>
+            </details>
+          `).join('')}
+        </div>
+      </div>
+    </section>
+
+    <section id="chownow-cta" aria-labelledby="chownow-cta-heading" style="margin-top:1.5rem;">
+      <div class="container">
+        <div class="panel cta-card" style="background:linear-gradient(135deg,rgba(249,115,22,0.12),rgba(245,158,11,0.08));border:1px solid rgba(249,115,22,0.3);text-align:center;">
+          <span class="kicker" style="color:var(--copper-hi);">READY TO LIST?</span>
+          <h2 id="chownow-cta-heading" class="display">Free to start. Live in 20 minutes.</h2>
+          <p class="cta-sub">Sign up, upload your menu, print the QR codes, take your first order tonight.</p>
+          <div class="cta-buttons">
+            <a href="https://chownow.au" target="_blank" rel="noopener" class="btn btn-primary">Open ChowNow ↗</a>
+            <a href="/food-trucks" class="btn btn-ghost">Want a custom-branded version? See the whitelabel app →</a>
           </div>
         </div>
       </div>
@@ -1204,11 +1389,11 @@ const VERTICAL_CONTENT: Record<string, VerticalContent> = {
       'Live online ordering platform for food trucks with SMS updates, QR menus, and pickup alerts',
     category: 'Food & Hospitality Software',
     relatedTool: {
-      kicker: 'Pair it with',
-      name: 'HACCP Logbook',
-      href: '/tools/haccp',
-      pitch: 'Food trucks fall under FSANZ Standard 3.2.2A, so council can ask for your temp logs and cleaning records on the spot. Log them on your phone instead of in a manila folder.',
-      cta: 'Get HACCP-ready →',
+      kicker: 'Not ready for whitelabel? Try',
+      name: 'ChowNow — free to list',
+      href: '/tools/chownow',
+      pitch: 'Same code as the whitelabel app, multi-tenant deployment. Customers order through chownow.au, your truck&rsquo;s on the map, free to list, no setup fee, no platform cut. Most operators start here and graduate to the whitelabel version once their brand is ready.',
+      cta: 'Open ChowNow free →',
     },
   },
   'tradies': {

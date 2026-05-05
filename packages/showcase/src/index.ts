@@ -6,6 +6,8 @@ import { renderLayout } from './layout';
 import {
   aboutBody,
   appsBody,
+  chownowBody,
+  CHOWNOW_FAQ_PAIRS,
   faqBody,
   FAQ_PAIRS,
   getIndustryFaqForVertical,
@@ -177,6 +179,22 @@ app.get('/tools/social-ai-studio', () =>
       // Same SAS_FAQ_PAIRS drive the visible accordion on the page so the
       // schema text matches the rendered text exactly.
       faqQa: SAS_FAQ_PAIRS,
+    })
+  )
+);
+
+app.get('/tools/chownow', () =>
+  htmlResponse(
+    renderLayout({
+      page: 'chownow',
+      pathname: '/tools/chownow',
+      title: 'ChowNow — Free Food Truck Workflow Platform · Penny Wise I.T',
+      description:
+        'ChowNow — QR ordering, kitchen display, FOH POS, real-time tracking. Free to list at chownow.au, customers order through the platform, you keep 100% of orders (Stripe processing only). Built and hosted by Penny Wise I.T.',
+      body: chownowBody(),
+      // FAQPage JSON-LD — same canonical pairs drive the visible accordion
+      // and the schema, keeping Google's rich-result match check happy.
+      faqQa: CHOWNOW_FAQ_PAIRS,
     })
   )
 );
@@ -357,6 +375,7 @@ const SITEMAP_ENTRIES: ReadonlyArray<SitemapEntry> = [
   // Tools (direct-purchase SaaS).
   { path: '/tools', changefreq: 'monthly', priority: '0.9' },
   { path: '/tools/social-ai-studio', changefreq: 'monthly', priority: '0.9' },
+  { path: '/tools/chownow', changefreq: 'monthly', priority: '0.9' },
   { path: '/tools/haccp', changefreq: 'monthly', priority: '0.9' },
   // Marketing pages — lower priority but indexed.
   { path: '/apps', changefreq: 'monthly', priority: '0.8' },
