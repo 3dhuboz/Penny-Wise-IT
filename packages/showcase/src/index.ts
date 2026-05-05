@@ -10,6 +10,7 @@ import {
   FAQ_PAIRS,
   getIndustryFaqForVertical,
   haccpBody,
+  HACCP_FAQ_PAIRS,
   homeBody,
   notFoundBody,
   numbersBody,
@@ -18,6 +19,7 @@ import {
   productPageBody,
   roiBody,
   socialAiStudioBody,
+  SAS_FAQ_PAIRS,
   termsBody,
   toolsBody,
 } from './pages';
@@ -171,6 +173,10 @@ app.get('/tools/social-ai-studio', () =>
       description:
         'AI writes, schedules, and publishes Facebook + Instagram posts in your brand voice. From $29/mo. Sign up at socialaistudio.au, log in, walk away. Built and hosted by Penny Wise I.T.',
       body: socialAiStudioBody(),
+      // FAQPage JSON-LD — eligible for Google rich-result snippets in SERPs.
+      // Same SAS_FAQ_PAIRS drive the visible accordion on the page so the
+      // schema text matches the rendered text exactly.
+      faqQa: SAS_FAQ_PAIRS,
     })
   )
 );
@@ -184,6 +190,10 @@ app.get('/tools/haccp', () =>
       description:
         'Digital HACCP logs for cafes, restaurants, butchers, food trucks, caterers. Temperature checks, cleaning schedules, allergen matrix, supplier records, audit-ready PDF reports. Coming soon — lock in founder pricing.',
       body: haccpBody(),
+      // FAQPage JSON-LD wired to the same canonical pairs the visible
+      // accordion renders. SEO surface for queries like "does HACCP logbook
+      // work offline" or "is digital HACCP audit-accepted".
+      faqQa: HACCP_FAQ_PAIRS,
     })
   )
 );

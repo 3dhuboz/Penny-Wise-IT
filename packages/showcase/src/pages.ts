@@ -762,6 +762,67 @@ export function toolsBody(): string {
 ${ctaSection('tools')}`;
 }
 
+// FAQ pairs for the Social AI Studio landing page. Same canonical text used
+// for the visible accordion and the FAQPage JSON-LD — Google's rich-result
+// eligibility requires they match exactly.
+export const SAS_FAQ_PAIRS: FaqQA[] = [
+  {
+    question: 'Will it post to my Facebook Page or to my personal profile?',
+    answer:
+      "Your Facebook business Page only — never your personal profile, never your friends' feeds. Same for Instagram (your business Instagram, not your personal account). The Meta OAuth permissions request the minimum scope: read your Page metadata + publish to it. You can revoke access from Meta any time and we lose the connection instantly.",
+  },
+  {
+    question: 'Does it generate images, or just text?',
+    answer:
+      'Both. The AI writes the post text and pulls a relevant image from your existing media library or Unsplash. You can override either at any point in the queue. If you only want to post your own photos, set "library only" in the brand preferences and the AI sticks to your uploads.',
+  },
+  {
+    question: 'How does the AI know my brand voice?',
+    answer:
+      'You paste 5–10 of your past posts into the brand setup wizard. The AI extracts your tone (formal, cheeky, blokey, professional), your common phrases, your sign-offs, your hashtag style. From there every generated post matches that voice. You can refine by rating the first batch.',
+  },
+  {
+    question: 'What if I want to whitelabel it for clients (agency use)?',
+    answer:
+      "That's the whitelabel side of the business. Tell Steve which features you need (your own domain, your own branding, multi-client dashboards) and he'll deploy a private instance for your agency. Different conversation, different pricing — talk to Steve via the lead form.",
+  },
+  {
+    question: "Can I cancel mid-month if it's not working?",
+    answer:
+      "Yes. Cancellation is one click in your billing settings. We don't pro-rate refunds for the current month, but you keep access until the end of the period you've already paid for. Stripe handles the cancellation — no \"wait three business days\" or email-only friction.",
+  },
+];
+
+// FAQ pairs for the HACCP Logbook waitlist page. Same data drives the visible
+// accordion and the FAQPage JSON-LD on /tools/haccp.
+export const HACCP_FAQ_PAIRS: FaqQA[] = [
+  {
+    question: 'Does this replace my formal HACCP plan?',
+    answer:
+      "No. Your written food safety program (the HACCP plan itself) is something a food safety auditor or consultant helps you draft once. This app is for the daily logging that proves you're following that plan — temperatures, cleaning, training, suppliers. Together they cover what councils want to see.",
+  },
+  {
+    question: 'What does it cost when it launches?',
+    answer:
+      "Final pricing is locked in just before launch — likely a flat monthly per location, with founder pricing held for waitlist signups. We'll email you with a one-click signup before it goes public.",
+  },
+  {
+    question: 'Will it work offline (kitchens with bad wi-fi)?',
+    answer:
+      "Yes. Logs cache on the device and sync when connection returns. You can take a temperature reading mid-service in a steel-clad cool room with no signal — it'll upload as soon as you walk back to the front.",
+  },
+  {
+    question: 'Is the audit PDF actually accepted by council inspectors?',
+    answer:
+      'The PDF format covers everything Standard 3.2.2A asks for — what was logged, when, by whom. Different councils have different audit checklists, but the underlying records line up. Worst case: print the PDF, hand it over with your written plan. Same as paper, faster to find.',
+  },
+  {
+    question: "What if I don't want to be on the waitlist?",
+    answer:
+      "You don't have to be. Once we launch you can sign up at full price. The waitlist is just a way to lock in early-customer pricing and get notified the day it goes live.",
+  },
+];
+
 export function socialAiStudioBody(): string {
   // SoftwareApplication JSON-LD echoes the canonical schema on socialaistudio.au.
   // Pricing range comes from the live JSON-LD on that domain ($29-$149, 4 tiers).
@@ -827,6 +888,23 @@ export function socialAiStudioBody(): string {
             <span style="background:var(--card);border:1px solid var(--border);padding:0.55rem 0.95rem;border-radius:999px;font-weight:700;color:var(--text);">Up to $149/mo</span>
           </div>
           <a href="https://socialaistudio.au" target="_blank" rel="noopener" class="btn btn-primary">See current tiers + sign up ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="sas-faq" aria-labelledby="sas-faq-heading">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Common questions</span>
+          <h2 id="sas-faq-heading" class="display">Before you sign up.</h2>
+        </div>
+        <div class="faq-list" style="max-width:680px;margin:0 auto;">
+          ${SAS_FAQ_PAIRS.map((item) => `
+            <details class="faq-item">
+              <summary>${escHtml(item.question)}</summary>
+              <div class="faq-body">${escHtml(item.answer)}</div>
+            </details>
+          `).join('')}
         </div>
       </div>
     </section>
@@ -988,26 +1066,12 @@ export function haccpBody(): string {
           <h2 id="haccp-faq-heading" class="display">Before you sign up.</h2>
         </div>
         <div class="faq-list" style="max-width:680px;margin:0 auto;">
-          <details class="faq-item">
-            <summary>Does this replace my formal HACCP plan?</summary>
-            <div class="faq-body">No. Your written food safety program (the HACCP plan itself) is something a food safety auditor or consultant helps you draft once. This app is for the daily logging that proves you're following that plan — temperatures, cleaning, training, suppliers. Together they cover what councils want to see.</div>
-          </details>
-          <details class="faq-item">
-            <summary>What does it cost when it launches?</summary>
-            <div class="faq-body">Final pricing is locked in just before launch — likely a flat monthly per location, with founder pricing held for waitlist signups. We'll email you with a one-click signup before it goes public.</div>
-          </details>
-          <details class="faq-item">
-            <summary>Will it work offline (kitchens with bad wi-fi)?</summary>
-            <div class="faq-body">Yes. Logs cache on the device and sync when connection returns. You can take a temperature reading mid-service in a steel-clad cool room with no signal — it'll upload as soon as you walk back to the front.</div>
-          </details>
-          <details class="faq-item">
-            <summary>Is the audit PDF actually accepted by council inspectors?</summary>
-            <div class="faq-body">The PDF format covers everything Standard 3.2.2A asks for — what was logged, when, by whom. Different councils have different audit checklists, but the underlying records line up. Worst case: print the PDF, hand it over with your written plan. Same as paper, faster to find.</div>
-          </details>
-          <details class="faq-item">
-            <summary>What if I don't want to be on the waitlist?</summary>
-            <div class="faq-body">You don't have to be. Once we launch you can sign up at full price. The waitlist is just a way to lock in early-customer pricing and get notified the day it goes live.</div>
-          </details>
+          ${HACCP_FAQ_PAIRS.map((item) => `
+            <details class="faq-item">
+              <summary>${escHtml(item.question)}</summary>
+              <div class="faq-body">${escHtml(item.answer)}</div>
+            </details>
+          `).join('')}
         </div>
       </div>
     </section>`;
