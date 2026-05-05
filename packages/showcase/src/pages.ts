@@ -10,11 +10,11 @@ const HERO_SECTION = `
       <img src="/icon-mark.svg" alt="" aria-hidden="true" class="hero-coin" loading="eager" decoding="async">
       <div class="container">
         <div class="hero-inner">
-          <span class="pill">🇦🇺 8 whitelabel apps + 2 self-serve tools · live this week</span>
+          <span class="pill">🇦🇺 8 whitelabel apps + 3 self-serve tools · live this week</span>
           <h1 id="hero-heading" class="display">
             <span class="grad">YOUR BUSINESS, AUTOMATED.</span>
           </h1>
-          <p class="sub">8 production-ready whitelabel apps for Australian small businesses (live ordering, field service, delivery, events, car hire, butchers, sports clubs) — plus 2 self-serve tools you use directly (Social AI Studio, HACCP). Flat monthly fee, your brand, your domain, zero platform tax.</p>
+          <p class="sub">8 production-ready whitelabel apps for Australian small businesses (live ordering, field service, delivery, events, car hire, butchers, sports clubs) — plus 3 self-serve tools you use directly (Social AI Studio, ChowNow, HACCP). Flat monthly fee, your brand, your domain, zero platform tax.</p>
           <div class="hero-ctas">
             <a href="/apps" class="btn btn-primary" aria-label="Find the app for my business">
               Find the app for my business
@@ -338,7 +338,7 @@ const ABOUT_PANEL = `
             </svg>
             <div class="about-body">
               <p>I'm Steve, an Australian full-stack developer and IT consultant based in Queensland. I started Penny Wise I.T after watching small business owners get locked into expensive SaaS subscriptions they barely used — paying $200-$500/month for features they didn't need, on platforms they'd never own.</p>
-              <p>I build every app myself — from database schema to pixel-perfect UI — and maintain them personally for each client. All 8 whitelabel platforms on this page are running in production right now, for real Australian businesses, plus the <a href="/tools/social-ai-studio">Social AI Studio</a> SaaS that anyone can sign up for directly. Flat monthly fee. No hidden platform cut. Your brand from day one. If something breaks at 2am, I'm the one who fixes it — not a help desk in Manila.</p>
+              <p>I build every app myself — from database schema to pixel-perfect UI — and maintain them personally for each client. All 8 whitelabel platforms on this page are running in production right now, for real Australian businesses, plus the <a href="/tools/social-ai-studio">Social AI Studio</a> and <a href="/tools/chownow">ChowNow</a> SaaS tools that anyone can sign up for directly. Flat monthly fee. No hidden platform cut. Your brand from day one. If something breaks at 2am, I'm the one who fixes it — not a help desk in Manila.</p>
               <p><strong>What I run, end to end:</strong> Cloudflare Workers + D1 database in Sydney edge · Stripe for every payment · GitHub for every line of source code · Resend for transactional email. No agency, no offshore team, no contractors with the wrong incentives. One developer, accountable.</p>
               <div class="about-inline-cta">
                 <button type="button" data-open-lead data-source="/about" class="btn btn-primary">Talk to Steve</button>
@@ -578,9 +578,15 @@ export function appsBody(): string {
     <section id="products" aria-labelledby="apps-heading">
       <div class="container">
         <div class="section-head">
-          <h1 id="apps-heading" class="display">Nine platforms. Each one already running for a business like yours.</h1>
+          <h1 id="apps-heading" class="display">Eight whitelabel platforms. Each one already running for a business like yours.</h1>
           <p>Every one is running for a real Australian business right now. Hover for a preview, click to try the live demo.</p>
         </div>${PRODUCTS_GRID}
+        <div class="panel" style="max-width:760px;margin:2rem auto 0;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(168,85,247,0.05));border:1px solid rgba(245,158,11,0.2);text-align:center;">
+          <span class="kicker" style="color:var(--copper-hi);">Looking for SaaS you sign up for directly?</span>
+          <h2 class="display" style="font-size:1.4rem;margin:0.4rem 0 0.6rem;">3 self-serve tools you can use today.</h2>
+          <p style="color:var(--soft);font-size:0.95rem;line-height:1.6;margin:0 0 1.1rem;max-width:560px;margin-left:auto;margin-right:auto;">No build wait, no setup fee, no whitelabel customisation. <a href="/tools/social-ai-studio" style="color:var(--copper-hi);text-decoration:none;font-weight:700;">Social AI Studio</a> ($29-149/mo · live), <a href="/tools/chownow" style="color:var(--copper-hi);text-decoration:none;font-weight:700;">ChowNow</a> (free to list · live), <a href="/tools/haccp" style="color:var(--copper-hi);text-decoration:none;font-weight:700;">HACCP Logbook</a> (waitlist).</p>
+          <a href="/tools" class="btn btn-primary">See the tools →</a>
+        </div>
       </div>
     </section>
 ${ctaSection('apps')}`;
