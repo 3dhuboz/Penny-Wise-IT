@@ -84,10 +84,36 @@ app.use('/api/*', async (c, next) => {
 
   const auth = c.req.header('Authorization');
   const secret = c.env.VALIDATOR_SECRET;
-  if (!auth || auth !== `Bearer ${secret}`) {
-    return c.json({ error: 'Unauthorized' }, 401);
+
+  // Path A: direct VALIDATOR_SECRET (used by HUB / scripts / CI).
+  if (auth && auth === `Bearer ${secret}`) {
+    await next();
+    return;
   }
-  await next();
+
+  // Path B: a valid salesperson session token for an owner or admin —
+  // lets the showcase /admin/login -> dashboard flow work without ever
+  // exposing VALIDATOR_SECRET to the browser. Customer-tier salesperson
+  // sessions are still rejected here.
+  if (auth?.startsWith('Bearer ')) {
+    const token = auth.slice(7);
+    try {
+      const session = await c.env.DB.prepare(
+        `SELECT sp.role
+         FROM sales_sessions s
+         JOIN salespeople sp ON sp.id = s.salesperson_id
+         WHERE s.token = ? AND s.expires_at > datetime('now') AND sp.active = 1`
+      ).bind(token).first<{ role: string }>();
+      if (session && (session.role === 'owner' || session.role === 'admin')) {
+        await next();
+        return;
+      }
+    } catch {
+      // Fall through to 401.
+    }
+  }
+
+  return c.json({ error: 'Unauthorized' }, 401);
 });
 
 // ============ DASHBOARD ============

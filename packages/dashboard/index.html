@@ -249,11 +249,21 @@ async function validateAll() {
   }
 }
 
-// Auto-connect if secret is in URL hash
+// Auto-connect if a token (salesperson session) or secret is in URL hash.
+// Stored to localStorage so a refresh keeps the session alive without forcing
+// a fresh /admin/login round-trip.
 const hash = window.location.hash.slice(1);
+const stored = (function(){ try { return localStorage.getItem('pwit_dash_token') || ''; } catch(_) { return ''; } })();
+const autoToken = hash ? decodeURIComponent(hash) : stored;
 if (hash) {
-  document.getElementById('validator-secret').value = hash;
-  window.location.hash = '';
+  try { localStorage.setItem('pwit_dash_token', autoToken); } catch(_){}
+  history.replaceState(null, '', window.location.pathname); // strip token from URL bar
+}
+if (autoToken) {
+  document.getElementById('validator-secret').value = autoToken;
+  // Hide the config bar — we're authenticated, no need to expose the form.
+  const cfgBar = document.getElementById('config-bar');
+  if (cfgBar) cfgBar.style.display = 'none';
   setTimeout(connect, 100);
 }
 </script>

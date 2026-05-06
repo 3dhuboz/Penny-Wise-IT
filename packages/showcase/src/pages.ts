@@ -2129,7 +2129,11 @@ export function adminLoginBody(): string {
           status.style.color = '#4ade80';
           status.textContent = 'Welcome ' + (sp.name || sp.username) + ' — redirecting…';
           window.setTimeout(function(){
-            window.location.href = '${ADMIN_DASHBOARD_URL}';
+            // The dashboard auto-connects when a token is present in the URL
+            // hash; the validator now accepts owner/admin salesperson tokens
+            // alongside VALIDATOR_SECRET, so no shared secret needs to ride
+            // along on the URL.
+            window.location.href = '${ADMIN_DASHBOARD_URL}#' + encodeURIComponent(res.json.token);
           }, 600);
         }).catch(function(){
           status.style.color = '#f87171';
