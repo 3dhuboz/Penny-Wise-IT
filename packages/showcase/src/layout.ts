@@ -663,6 +663,12 @@ const STYLES = `
     .admin-login-status { margin-top: 0.7rem; font-size: 0.88rem; min-height: 1.4em; color: var(--soft); }
     .admin-login-help { margin-top: 1.1rem; font-size: 0.82rem; color: var(--muted); text-align: center; }
     .admin-login-help a { color: var(--copper-hi); }
+    .al-password-wrap { position: relative; }
+    .al-password-wrap input { padding-right: 2.6rem; }
+    .al-pw-toggle { position: absolute; right: 0.35rem; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; background: transparent; border: 0; color: var(--muted); cursor: pointer; padding: 0; border-radius: 6px; }
+    .al-pw-toggle:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .al-pw-toggle:focus-visible { outline: 2px solid var(--copper-hi); outline-offset: 1px; color: var(--text); }
+    .al-pw-toggle svg { display: block; }
 
     /* Live deployments band */
     .live-deployments { padding: clamp(2.5rem, 5vw, 5rem) 0; border-top: 1px solid rgba(255,255,255,0.04); }
