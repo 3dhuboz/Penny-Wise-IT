@@ -2129,11 +2129,12 @@ export function adminLoginBody(): string {
           status.style.color = '#4ade80';
           status.textContent = 'Welcome ' + (sp.name || sp.username) + ' — redirecting…';
           window.setTimeout(function(){
-            // The dashboard auto-connects when a token is present in the URL
-            // hash; the validator now accepts owner/admin salesperson tokens
-            // alongside VALIDATOR_SECRET, so no shared secret needs to ride
-            // along on the URL.
-            window.location.href = '${ADMIN_DASHBOARD_URL}#' + encodeURIComponent(res.json.token);
+            // Dashboard worker reads ?token= server-side, validates against
+            // sales_sessions in D1, and sets a cookie on the dashboard's
+            // origin so subsequent requests don't need the URL parameter.
+            // The token gets stripped from the URL bar by the worker on
+            // first load via 302 redirect.
+            window.location.href = '${ADMIN_DASHBOARD_URL}?token=' + encodeURIComponent(res.json.token);
           }, 600);
         }).catch(function(){
           status.style.color = '#f87171';
