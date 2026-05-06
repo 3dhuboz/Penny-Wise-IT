@@ -2013,3 +2013,110 @@ export function termsBody(): string {
     </section>
 ${ctaSection('home')}`;
 }
+
+// ─── Admin login ───
+// Sign-in form for Steve / team. Authenticates against the validator Worker
+// (/salesperson/auth) and on success stores the bearer token in
+// localStorage under "pwit_admin_token" then redirects to the dashboard
+// Worker. Non-admin/owner roles are bounced back with a polite error.
+const ADMIN_AUTH_ENDPOINT = 'https://pennywiseit-validator.steve-700.workers.dev/salesperson/auth';
+const ADMIN_DASHBOARD_URL = 'https://pennywiseit-dashboard.steve-700.workers.dev/';
+
+export function adminLoginBody(): string {
+  return `
+    <section id="hero" class="admin-login-section" aria-labelledby="admin-login-heading">
+      <div class="container admin-login-wrap">
+        <div class="panel admin-login-card">
+          <div class="admin-login-eyebrow">
+            <span aria-hidden="true">🔒</span>
+            <span>ADMIN</span>
+          </div>
+          <h1 id="admin-login-heading" class="display admin-login-title">Sign in</h1>
+          <p class="admin-login-sub">Penny Wise I.T administrators only. Customers don't sign in here — your app has its own login.</p>
+
+          <form id="admin-login-form" class="admin-login-form" novalidate>
+            <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" class="lead-honeypot">
+
+            <div class="lf-row">
+              <label for="al-username">Username or email</label>
+              <input id="al-username" name="username" type="text" required autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="steve">
+            </div>
+            <div class="lf-row">
+              <label for="al-password">Password</label>
+              <input id="al-password" name="password" type="password" required autocomplete="current-password" minlength="1" placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn btn-primary admin-login-submit">Sign in</button>
+            <div class="admin-login-status" role="status" aria-live="polite"></div>
+          </form>
+
+          <p class="admin-login-help">Forgot your password? Email <a href="mailto:hello@pennywiseit.com.au">hello@pennywiseit.com.au</a> from the address on file.</p>
+        </div>
+      </div>
+    </section>
+
+    <script>
+    (function(){
+      var form = document.getElementById('admin-login-form');
+      if (!form) return;
+      var status = form.querySelector('.admin-login-status');
+      var submit = form.querySelector('.admin-login-submit');
+      var honey = form.querySelector('input[name="company"]');
+
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        if (honey && honey.value) { return; } // bot
+
+        status.textContent = '';
+        status.style.color = '';
+        submit.disabled = true;
+        var origLabel = submit.textContent;
+        submit.textContent = 'Signing in…';
+
+        var fd = new FormData(form);
+        var body = {
+          username: String(fd.get('username') || '').trim(),
+          password: String(fd.get('password') || ''),
+        };
+
+        fetch('${ADMIN_AUTH_ENDPOINT}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }).then(function(r){
+          return r.json().then(function(j){ return { ok: r.ok, json: j }; });
+        }).then(function(res){
+          if (!res.ok) {
+            status.style.color = '#f87171';
+            status.textContent = (res.json && res.json.error) || 'Sign-in failed.';
+            submit.disabled = false;
+            submit.textContent = origLabel;
+            return;
+          }
+          var sp = res.json.salesperson || {};
+          if (sp.role !== 'admin' && sp.role !== 'owner') {
+            status.style.color = '#f87171';
+            status.textContent = 'That account is not an administrator.';
+            submit.disabled = false;
+            submit.textContent = origLabel;
+            return;
+          }
+          try {
+            localStorage.setItem('pwit_admin_token', res.json.token);
+            localStorage.setItem('pwit_admin_user', JSON.stringify(sp));
+          } catch(_){}
+          status.style.color = '#4ade80';
+          status.textContent = 'Welcome ' + (sp.name || sp.username) + ' — redirecting…';
+          window.setTimeout(function(){
+            window.location.href = '${ADMIN_DASHBOARD_URL}';
+          }, 600);
+        }).catch(function(){
+          status.style.color = '#f87171';
+          status.textContent = "Couldn't reach the auth server. Try again in a moment.";
+          submit.disabled = false;
+          submit.textContent = origLabel;
+        });
+      });
+    })();
+    </script>`;
+}
+

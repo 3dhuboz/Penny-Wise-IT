@@ -31,7 +31,10 @@ export type PageId =
   | 'social-ai-studio'
   | 'chownow'
   | 'health-forecast'
-  | 'haccp';
+  | 'haccp'
+  // Admin login — sign-in form for Steve / team. Authenticates against the
+  // validator Worker and hands off to the dashboard Worker on success.
+  | 'admin-login';
 
 export type FaqQA = { question: string; answer: string };
 
@@ -92,6 +95,7 @@ const NAV_LINKS: ReadonlyArray<{ href: string; label: string; page: PageId }> = 
   { href: '/pricing', label: 'Pricing', page: 'pricing' },
   { href: '/about', label: 'About', page: 'about' },
   { href: '/faq', label: 'FAQ', page: 'faq' },
+  { href: '/admin/login', label: 'Admin', page: 'admin-login' },
 ];
 
 const ORGANIZATION_LD = `
@@ -646,6 +650,20 @@ const STYLES = `
     .lead-status.is-error { color: #f87171; }
     .lead-status.is-success { color: #34d399; }
 
+    /* Admin login page — minimal centered card reusing .lf-row inputs. */
+    .admin-login-section { padding: clamp(3rem, 8vh, 6rem) 0 clamp(4rem, 10vh, 7rem); }
+    .admin-login-wrap { display: flex; justify-content: center; }
+    .admin-login-card { width: 100%; max-width: 460px; padding: 2.25rem 1.75rem; background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 35%), linear-gradient(160deg, var(--card), var(--surface)); border: 1px solid rgba(232,166,101,0.25); border-radius: 18px; box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 30px 80px -20px rgba(0,0,0,0.7); }
+    .admin-login-eyebrow { display: flex; align-items: center; gap: 0.5rem; color: var(--copper-hi); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 0.6rem; }
+    .admin-login-title { font-size: clamp(1.6rem, 3.5vw, 2rem); margin: 0 0 0.4rem; }
+    .admin-login-sub { color: var(--muted); font-size: 0.92rem; margin: 0 0 1.4rem; }
+    .admin-login-form { display: block; }
+    .admin-login-submit { width: 100%; margin-top: 0.5rem; }
+    .admin-login-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+    .admin-login-status { margin-top: 0.7rem; font-size: 0.88rem; min-height: 1.4em; color: var(--soft); }
+    .admin-login-help { margin-top: 1.1rem; font-size: 0.82rem; color: var(--muted); text-align: center; }
+    .admin-login-help a { color: var(--copper-hi); }
+
     /* Live deployments band */
     .live-deployments { padding: clamp(2.5rem, 5vw, 5rem) 0; border-top: 1px solid rgba(255,255,255,0.04); }
     .deploy-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; }
@@ -1086,6 +1104,9 @@ const CTA_BY_PAGE: Record<PageId, { primary: string; secondary: { label: string;
   'chownow':            { primary: 'Open ChowNow',  secondary: { label: 'See whitelabel apps',   href: '/apps' } },
   'health-forecast':    { primary: 'Open Healthforecast', secondary: { label: 'See other tools', href: '/tools' } },
   'haccp':              { primary: 'Join the waitlist', secondary: { label: 'See other tools',   href: '/tools' } },
+  // Admin login renders its own sign-in form; ctaSection is not used on this
+  // page, but PageId record must be exhaustive — fall back to "Talk to Steve".
+  'admin-login':        { primary: 'Talk to Steve',     secondary: { label: 'Back to home',       href: '/' } },
 };
 
 export function ctaSection(page: PageId): string {

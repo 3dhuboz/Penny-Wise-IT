@@ -5,6 +5,7 @@ import { Hono } from 'hono';
 import { renderLayout } from './layout';
 import {
   aboutBody,
+  adminLoginBody,
   appsBody,
   chownowBody,
   CHOWNOW_FAQ_PAIRS,
@@ -238,6 +239,25 @@ app.get('/tools/haccp', () =>
 // redirect preserves the SEO juice + bookmark continuity.
 app.get('/community', (c) => c.redirect('/tools/social-ai-studio', 301));
 
+// ─── Admin login ───
+// Sign-in form for Steve / team. Authenticates against the validator Worker
+// then hands off to the dashboard Worker on success. Bare /admin is a 302
+// to /admin/login so old bookmarks land somewhere useful (and don't 404
+// like the screenshot Steve flagged).
+app.get('/admin', (c) => c.redirect('/admin/login', 302));
+app.get('/admin/login', () =>
+  htmlResponse(
+    renderLayout({
+      page: 'admin-login',
+      pathname: '/admin/login',
+      title: 'Admin Sign In · Penny Wise I.T',
+      description:
+        'Sign-in page for Penny Wise I.T administrators. Customers do not sign in here — your app has its own login.',
+      body: adminLoginBody(),
+    })
+  )
+);
+
 // ─── Privacy ───
 app.get('/privacy', () =>
   htmlResponse(
@@ -424,7 +444,7 @@ app.get('/sitemap.xml', () => {
 });
 
 app.get('/robots.txt', () => {
-  const body = `User-agent: *\nAllow: /\nDisallow: /healthz\n\nSitemap: ${SITE_ORIGIN_FOR_SEO}/sitemap.xml\n`;
+  const body = `User-agent: *\nAllow: /\nDisallow: /healthz\nDisallow: /admin\n\nSitemap: ${SITE_ORIGIN_FOR_SEO}/sitemap.xml\n`;
   return new Response(body, {
     status: 200,
     headers: {
