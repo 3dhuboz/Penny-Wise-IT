@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Leads · Owner Console · Penny Wise I.T</title>
+<style>
+  :root {
+    --bg: #0b0f1a; --surface: #131a2c; --surface2: #1e2942;
+    --text: #f1f5f9; --muted: #94a3b8; --accent: #4f8ef7; --accent-hi: #76a8ff;
+    --green: #22c55e; --yellow: #eab308; --red: #ef4444; --orange: #f97316;
+    --border: rgba(255,255,255,0.08); --border-hi: rgba(255,255,255,0.16);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  a { color: inherit; text-decoration: none; }
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .topbar-brand { font-size: 18px; font-weight: 700; }
+  .topbar-brand span { color: var(--accent); }
+  .topbar-nav { display: flex; gap: 4px; }
+  .topbar-nav a { padding: 6px 12px; border-radius: 8px; font-size: 13px; color: var(--muted); }
+  .topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+  .topbar-nav a.is-active { background: rgba(79,142,247,0.14); color: var(--accent-hi); }
+  .topbar-right { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--muted); }
+  .role-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(79,142,247,0.14); color: var(--accent-hi); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; vertical-align: middle; margin-left: 6px; }
+  .topbar-right strong { color: var(--text); font-weight: 600; }
+  .logout-link:hover { color: var(--text); text-decoration: underline; }
+
+  .page-head { padding: 28px 24px 16px; max-width: 1280px; margin: 0 auto; }
+  .page-eyebrow { color: var(--accent-hi); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px; }
+  h1 { font-size: 26px; font-weight: 700; }
+
+  .stage-tabs { padding: 0 24px 16px; max-width: 1280px; margin: 0 auto; display: flex; gap: 6px; flex-wrap: wrap; }
+  .stage-tab { padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--muted); transition: all 0.15s; }
+  .stage-tab:hover { color: var(--text); border-color: var(--border-hi); }
+  .stage-tab.is-active { background: rgba(79,142,247,0.14); color: var(--accent-hi); border-color: rgba(79,142,247,0.4); }
+  .stage-count { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: rgba(255,255,255,0.06); font-size: 10px; font-weight: 700; }
+
+  .main { padding: 0 24px 32px; max-width: 1280px; margin: 0 auto; }
+  .leads-table { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .lead-row { padding: 14px 18px; display: grid; grid-template-columns: 1.8fr 1.2fr 1fr 0.7fr 0.9fr 0.8fr; gap: 14px; align-items: center; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .lead-row:last-child { border-bottom: 0; }
+  .lead-row.lead-head { background: var(--surface2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+  .lead-business { font-weight: 600; color: var(--text); }
+  .lead-contact { color: var(--muted); font-size: 12px; }
+  .lead-meta { color: var(--muted); font-size: 12px; }
+  .lead-stage-pill { padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; display: inline-block; }
+  .stage-new { background: rgba(148,163,184,0.15); color: var(--muted); }
+  .stage-contacted { background: rgba(79,142,247,0.14); color: var(--accent-hi); }
+  .stage-demo { background: rgba(168,85,247,0.14); color: #c084fc; }
+  .stage-proposal { background: rgba(249,115,22,0.14); color: var(--orange); }
+  .stage-won { background: rgba(34,197,94,0.15); color: var(--green); }
+  .stage-lost { background: rgba(239,68,68,0.15); color: var(--red); }
+  .lead-value { font-weight: 600; color: var(--text); text-align: right; }
+  .lead-value-monthly { color: var(--muted); font-size: 11px; font-weight: 400; }
+  .loading { text-align: center; padding: 48px; color: var(--muted); }
+  .empty { text-align: center; padding: 48px; color: var(--muted); }
+  @media (max-width: 800px) {
+    .lead-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .lead-row.lead-head { display: none; }
+    .lead-meta-mobile-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand"><span>PennyWise</span>IT — Owner Console</div>
+  <div class="topbar-nav">
+    <a href="/admin">Overview</a>
+    <a href="/admin/apps">Apps</a>
+    <a href="/admin/leads" class="is-active">Leads</a>
+    <a href="/admin/team">Team</a>
+    <a href="/" style="margin-left:8px;color:var(--muted);">↗ Sales Portal</a>
+  </div>
+  <div class="topbar-right">
+    <span><strong id="me-name">…</strong> <span class="role-pill" id="me-role"></span></span>
+    <a href="/admin/logout" class="logout-link">Sign out</a>
+  </div>
+</div>
+
+<div class="page-head">
+  <div class="page-eyebrow">Leads</div>
+  <h1>Pipeline · all salespeople</h1>
+</div>
+
+<div class="stage-tabs" id="stage-tabs"></div>
+
+<div class="main">
+  <div class="leads-table" id="leads-table">
+    <div class="loading">Loading…</div>
+  </div>
+</div>
+
+<script>
+let leads = [];
+let activeStage = 'all';
+const STAGES = ['all', 'new', 'contacted', 'demo', 'proposal', 'won', 'lost'];
+
+async function api(path) {
+  const res = await fetch(path, { credentials: 'same-origin' });
+  if (res.status === 401 || res.status === 302) { window.location.href = '/admin/logout'; throw new Error('Not signed in'); }
+  return res.json();
+}
+
+async function loadMe() {
+  try {
+    const me = await api('/admin/api/me');
+    if (me && me.name) {
+      document.getElementById('me-name').textContent = me.name;
+      document.getElementById('me-role').textContent = (me.role || '').toUpperCase();
+    }
+  } catch (_) {}
+}
+
+function fmtMoney(v) {
+  if (!v && v !== 0) return '—';
+  return '$' + Number(v).toLocaleString('en-AU', { maximumFractionDigits: 0 });
+}
+
+function fmtDate(s) {
+  if (!s) return '';
+  try { return new Date(s + 'Z').toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }); }
+  catch { return s; }
+}
+
+function renderTabs() {
+  const counts = {};
+  STAGES.forEach(s => counts[s] = 0);
+  counts.all = leads.length;
+  leads.forEach(l => { if (counts[l.stage] !== undefined) counts[l.stage]++; });
+  const html = STAGES.map(s => {
+    const label = s.charAt(0).toUpperCase() + s.slice(1);
+    const cls = s === activeStage ? 'stage-tab is-active' : 'stage-tab';
+    return '<button class="' + cls + '" onclick="setStage(\'' + s + '\')">' + label + '<span class="stage-count">' + counts[s] + '</span></button>';
+  }).join('');
+  document.getElementById('stage-tabs').innerHTML = html;
+}
+
+function setStage(s) {
+  activeStage = s;
+  renderTabs();
+  renderTable();
+}
+
+function renderTable() {
+  const list = activeStage === 'all' ? leads : leads.filter(l => l.stage === activeStage);
+  const table = document.getElementById('leads-table');
+  if (list.length === 0) {
+    table.innerHTML = '<div class="empty">No leads in this stage.</div>';
+    return;
+  }
+  const head = '<div class="lead-row lead-head"><div>Business</div><div>Contact</div><div>Salesperson</div><div>Stage</div><div style="text-align:right;">Value</div><div>Updated</div></div>';
+  const rows = list.map(l => {
+    const stageCls = 'stage-' + (l.stage || 'new');
+    const monthly = l.monthly_value && l.monthly_value > 0 ? '<div class="lead-value-monthly">+ ' + fmtMoney(l.monthly_value) + '/mo</div>' : '';
+    return '<div class="lead-row">' +
+      '<div><div class="lead-business">' + (l.business_name || '—') + '</div><div class="lead-meta">' + (l.app_type || '') + '</div></div>' +
+      '<div><div>' + (l.contact_name || '—') + '</div><div class="lead-contact">' + (l.email || l.phone || '') + '</div></div>' +
+      '<div class="lead-meta">' + (l.salesperson_name || '—') + '</div>' +
+      '<div><span class="lead-stage-pill ' + stageCls + '">' + (l.stage || 'new') + '</span></div>' +
+      '<div class="lead-value">' + fmtMoney(l.setup_value) + monthly + '</div>' +
+      '<div class="lead-meta">' + fmtDate(l.updated_at) + '</div>' +
+      '</div>';
+  }).join('');
+  table.innerHTML = head + rows;
+}
+
+(async function init() {
+  await loadMe();
+  try {
+    const data = await api('/admin/api/leads');
+    leads = data.leads || [];
+    renderTabs();
+    renderTable();
+  } catch (err) {
+    document.getElementById('leads-table').innerHTML = '<div class="empty" style="color:var(--red);">Failed to load: ' + err.message + '</div>';
+  }
+})();
+</script>
+</body>
+</html>

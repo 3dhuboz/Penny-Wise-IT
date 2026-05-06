@@ -2020,7 +2020,10 @@ ${ctaSection('home')}`;
 // localStorage under "pwit_admin_token" then redirects to the dashboard
 // Worker. Non-admin/owner roles are bounced back with a polite error.
 const ADMIN_AUTH_ENDPOINT = 'https://pennywiseit-validator.steve-700.workers.dev/salesperson/auth';
-const ADMIN_DASHBOARD_URL = 'https://pennywiseit-dashboard.steve-700.workers.dev/';
+// Consolidated owner console at sales.pennywiseit.com.au/admin — folds the
+// old standalone pennywiseit-dashboard worker into the same domain as the
+// salesperson portal (one bookmark, one auth, role-gated views).
+const ADMIN_DASHBOARD_URL = 'https://sales.pennywiseit.com.au/admin';
 
 export function adminLoginBody(): string {
   return `

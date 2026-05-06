@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Team · Owner Console · Penny Wise I.T</title>
+<style>
+  :root {
+    --bg: #0b0f1a; --surface: #131a2c; --surface2: #1e2942;
+    --text: #f1f5f9; --muted: #94a3b8; --accent: #4f8ef7; --accent-hi: #76a8ff;
+    --green: #22c55e; --yellow: #eab308; --red: #ef4444;
+    --border: rgba(255,255,255,0.08); --border-hi: rgba(255,255,255,0.16);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  a { color: inherit; text-decoration: none; }
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .topbar-brand { font-size: 18px; font-weight: 700; }
+  .topbar-brand span { color: var(--accent); }
+  .topbar-nav { display: flex; gap: 4px; }
+  .topbar-nav a { padding: 6px 12px; border-radius: 8px; font-size: 13px; color: var(--muted); }
+  .topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+  .topbar-nav a.is-active { background: rgba(79,142,247,0.14); color: var(--accent-hi); }
+  .topbar-right { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--muted); }
+  .role-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(79,142,247,0.14); color: var(--accent-hi); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; vertical-align: middle; margin-left: 6px; }
+  .topbar-right strong { color: var(--text); font-weight: 600; }
+  .logout-link:hover { color: var(--text); text-decoration: underline; }
+
+  .page-head { padding: 28px 24px 24px; max-width: 1100px; margin: 0 auto; }
+  .page-eyebrow { color: var(--accent-hi); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px; }
+  h1 { font-size: 26px; font-weight: 700; }
+
+  .main { padding: 0 24px 32px; max-width: 1100px; margin: 0 auto; }
+  .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .person-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
+  .person-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .person-avatar { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #4f8ef7, #a855f7); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; color: white; flex-shrink: 0; }
+  .person-info { flex: 1; min-width: 0; }
+  .person-name { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .person-meta { color: var(--muted); font-size: 12px; }
+  .person-role { padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; flex-shrink: 0; }
+  .role-owner { background: rgba(79,142,247,0.14); color: var(--accent-hi); }
+  .role-admin { background: rgba(168,85,247,0.14); color: #c084fc; }
+  .role-salesperson { background: rgba(148,163,184,0.14); color: var(--muted); }
+  .person-inactive { opacity: 0.5; }
+  .person-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .person-stat-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 4px; }
+  .person-stat-value { font-size: 18px; font-weight: 700; }
+  .person-stat-value.green { color: var(--green); }
+  .person-comm { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+  .loading { text-align: center; padding: 48px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand"><span>PennyWise</span>IT — Owner Console</div>
+  <div class="topbar-nav">
+    <a href="/admin">Overview</a>
+    <a href="/admin/apps">Apps</a>
+    <a href="/admin/leads">Leads</a>
+    <a href="/admin/team" class="is-active">Team</a>
+    <a href="/" style="margin-left:8px;color:var(--muted);">↗ Sales Portal</a>
+  </div>
+  <div class="topbar-right">
+    <span><strong id="me-name">…</strong> <span class="role-pill" id="me-role"></span></span>
+    <a href="/admin/logout" class="logout-link">Sign out</a>
+  </div>
+</div>
+
+<div class="page-head">
+  <div class="page-eyebrow">Team</div>
+  <h1>Salesperson accounts</h1>
+</div>
+
+<div class="main">
+  <div class="team-grid" id="team-grid">
+    <div class="loading">Loading…</div>
+  </div>
+</div>
+
+<script>
+async function api(path) {
+  const res = await fetch(path, { credentials: 'same-origin' });
+  if (res.status === 401 || res.status === 302) { window.location.href = '/admin/logout'; throw new Error('Not signed in'); }
+  return res.json();
+}
+
+async function loadMe() {
+  try {
+    const me = await api('/admin/api/me');
+    if (me && me.name) {
+      document.getElementById('me-name').textContent = me.name;
+      document.getElementById('me-role').textContent = (me.role || '').toUpperCase();
+    }
+  } catch (_) {}
+}
+
+function fmtMoney(v) {
+  if (!v && v !== 0) return '$0';
+  return '$' + Number(v).toLocaleString('en-AU', { maximumFractionDigits: 0 });
+}
+
+function initials(name) {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+(async function init() {
+  await loadMe();
+  try {
+    const data = await api('/admin/api/team');
+    const team = data.team || [];
+    if (team.length === 0) {
+      document.getElementById('team-grid').innerHTML = '<div class="loading">No salespeople yet.</div>';
+      return;
+    }
+    const html = team.map(p => {
+      const role = (p.role || 'salesperson').toLowerCase();
+      const inactiveCls = p.active ? '' : ' person-inactive';
+      return '<div class="person-card' + inactiveCls + '">' +
+        '<div class="person-head">' +
+          '<div class="person-avatar">' + initials(p.name) + '</div>' +
+          '<div class="person-info">' +
+            '<div class="person-name">' + (p.name || '—') + (p.active ? '' : ' <span style="color:var(--muted);font-weight:400;">(inactive)</span>') + '</div>' +
+            '<div class="person-meta">' + (p.email || p.username || '—') + '</div>' +
+          '</div>' +
+          '<span class="person-role role-' + role + '">' + role + '</span>' +
+        '</div>' +
+        '<div class="person-stats">' +
+          '<div><div class="person-stat-label">Leads</div><div class="person-stat-value">' + (p.lead_count || 0) + '</div></div>' +
+          '<div><div class="person-stat-label">Won</div><div class="person-stat-value green">' + (p.won_count || 0) + '</div></div>' +
+          '<div><div class="person-stat-label">Setup $</div><div class="person-stat-value">' + fmtMoney(p.won_value) + '</div></div>' +
+        '</div>' +
+        '<div class="person-comm"><span>Setup commission ' + (p.commission_pct || 0) + '%</span><span>Monthly ' + (p.monthly_comm_pct || 0) + '%</span></div>' +
+      '</div>';
+    }).join('');
+    document.getElementById('team-grid').innerHTML = html;
+  } catch (err) {
+    document.getElementById('team-grid').innerHTML = '<div class="loading" style="color:var(--red);">Failed to load: ' + err.message + '</div>';
+  }
+})();
+</script>
+</body>
+</html>
