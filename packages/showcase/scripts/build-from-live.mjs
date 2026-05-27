@@ -117,19 +117,19 @@ function shell({ title, description, active = "/", body }) {
       position: sticky;
       top: 0;
       z-index: 20;
-      background: rgba(9,11,16,.86);
+      background: rgba(9,11,16,.92);
       border-bottom: 1px solid var(--line);
       backdrop-filter: blur(18px);
     }
     .nav-wrap {
       max-width: var(--max);
-      min-height: 70px;
+      min-height: 82px;
       margin: 0 auto;
       padding: 0 22px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 24px;
+      gap: 28px;
     }
     .brand {
       display: inline-flex;
@@ -140,9 +140,21 @@ function shell({ title, description, active = "/", body }) {
       letter-spacing: 0;
       white-space: nowrap;
     }
+    .brand-copy {
+      display: grid;
+      gap: 1px;
+      line-height: 1.08;
+    }
+    .brand-name { font-size: 1.05rem; }
+    .brand-sub {
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 780;
+      letter-spacing: .02em;
+    }
     .mark {
-      width: 34px;
-      height: 34px;
+      width: 42px;
+      height: 42px;
       display: grid;
       place-items: center;
       border-radius: 50%;
@@ -154,15 +166,15 @@ function shell({ title, description, active = "/", body }) {
     nav {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
     nav a {
-      padding: 10px 12px;
+      padding: 9px 11px;
       color: var(--muted);
       text-decoration: none;
-      font-size: .94rem;
+      font-size: .9rem;
       font-weight: 760;
       border-radius: 999px;
     }
@@ -172,7 +184,7 @@ function shell({ title, description, active = "/", body }) {
     }
     .nav-cta {
       margin-left: 8px;
-      padding: 10px 16px;
+      padding: 11px 17px;
       border-radius: 999px;
       background: linear-gradient(135deg, var(--copper-2), #bd6f25);
       color: #16100b;
@@ -180,6 +192,12 @@ function shell({ title, description, active = "/", body }) {
       text-decoration: none;
       box-shadow: 0 12px 26px rgba(212,135,57,.22);
       white-space: nowrap;
+    }
+    .nav-builder {
+      margin-left: 8px;
+      border: 1px solid rgba(240,179,107,.38);
+      color: var(--ink);
+      background: rgba(212,135,57,.08);
     }
     main { overflow: hidden; }
     section { padding: 78px 22px; }
@@ -265,6 +283,108 @@ function shell({ title, description, active = "/", body }) {
       margin-bottom: 14px;
     }
     .path p, .item p, .price p, .question p, .mock p { color: var(--muted); margin-bottom: 0; }
+    .offer-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 28px;
+      margin-bottom: 22px;
+    }
+    .offer-head h2 {
+      margin-bottom: 0;
+      font-size: clamp(2rem, 4.2vw, 3.7rem);
+    }
+    .offer-head p {
+      max-width: 430px;
+      color: var(--muted);
+      margin-bottom: 0;
+      font-size: 1.02rem;
+    }
+    .offer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .offer-card {
+      position: relative;
+      display: grid;
+      align-content: start;
+      min-height: 300px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      text-decoration: none;
+      background:
+        linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.035)),
+        rgba(17,20,28,.9);
+      box-shadow: 0 22px 52px rgba(0,0,0,.20);
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+    .offer-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(240,179,107,.42);
+      background:
+        linear-gradient(160deg, rgba(212,135,57,.16), rgba(135,183,255,.06)),
+        rgba(17,20,28,.94);
+    }
+    .offer-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 34px;
+    }
+    .offer-kicker {
+      color: var(--copper-2);
+      font-size: .76rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .offer-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(240,179,107,.28);
+      border-radius: 8px;
+      color: var(--copper-2);
+      background: rgba(212,135,57,.12);
+      font-weight: 950;
+    }
+    .offer-card h3 {
+      font-size: 1.55rem;
+      margin-bottom: 14px;
+    }
+    .offer-card p {
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+    .offer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 20px;
+    }
+    .offer-meta span {
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: #d7deeb;
+      background: rgba(255,255,255,.045);
+      font-size: .78rem;
+      font-weight: 780;
+    }
+    .offer-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 22px;
+      color: var(--copper-2);
+      font-weight: 900;
+    }
     .mockup {
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -390,9 +510,11 @@ function shell({ title, description, active = "/", body }) {
     @media (max-width: 880px) {
       .nav-wrap { align-items: flex-start; flex-direction: column; padding-top: 16px; padding-bottom: 16px; gap: 12px; }
       nav { justify-content: flex-start; }
-      .nav-cta { margin-left: 0; }
+      .nav-cta, .nav-builder { margin-left: 0; }
       .hero { padding-top: 64px; }
-      .hero-grid, .split, .path-strip, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
+      .hero-grid, .split, .path-strip, .offer-grid, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
+      .offer-head { align-items: flex-start; flex-direction: column; }
+      .offer-card { min-height: auto; }
       .item { grid-template-columns: 1fr; gap: 10px; }
     }
     @media (max-width: 520px) {
@@ -401,21 +523,22 @@ function shell({ title, description, active = "/", body }) {
       nav { width: 100%; justify-content: flex-start; gap: 2px 6px; }
       nav a { padding: 8px 7px; font-size: .82rem; }
       .nav-cta { width: auto; }
+      .brand-sub, .nav-builder { display: none; }
       .container { width: min(330px, calc(100vw - 36px)) !important; max-width: min(330px, calc(100vw - 36px)) !important; margin-left: 0; margin-right: 0; }
       .hero-grid, .hero-grid > *, h1, .lead { min-width: 0; max-width: 100%; }
       h1 { width: 100%; font-size: clamp(1.95rem, 9vw, 2.28rem); line-height: 1.04; }
       .lead { width: 100%; font-size: 1.02rem; }
       .actions { width: 100%; max-width: 100%; }
       .btn { width: 100%; max-width: 100%; }
-      .path, .price, .question { padding: 22px; }
+      .path, .offer-card, .price, .question { padding: 22px; }
     }
   </style>
 </head>
 <body>
   <header class="site-header">
     <div class="nav-wrap">
-      <a class="brand" href="/" aria-label="Penny Wise I.T home"><span class="mark">P</span><span>Penny Wise I.T</span></a>
-      <nav aria-label="Primary navigation">${nav(active)}<a class="nav-cta" href="${talkUrl}">Talk to Steve</a></nav>
+      <a class="brand" href="/" aria-label="Penny Wise I.T home"><span class="mark">P</span><span class="brand-copy"><span class="brand-name">Penny Wise I.T</span><span class="brand-sub">Websites, apps & automation</span></span></a>
+      <nav aria-label="Primary navigation">${nav(active)}<a class="nav-builder" href="${builderUrl}">Build AI Website</a><a class="nav-cta" href="${talkUrl}">Talk to Steve</a></nav>
     </div>
   </header>
   ${body}
@@ -455,10 +578,32 @@ function home() {
     </section>
     <section>
       <div class="container">
-        <div class="path-strip">
-          <a class="path" href="/ai-websites"><strong>AI Websites</strong><h3>Cheap website shoppers get a clean way in.</h3><p>Build free, preview first, publish from $9/mo, then upgrade when the site needs more hands-on help.</p></a>
-          <a class="path" href="/apps"><strong>Whitelabel Apps</strong><h3>Business tools under the owner's brand.</h3><p>Production-ready platforms for food, trades, delivery, hire, events, clubs, and local operators.</p></a>
-          <a class="path" href="/tools"><strong>Self-Serve Tools</strong><h3>Useful SaaS without the heavy project.</h3><p>PennyBuilder, SocialAI Studio, ChowNow, Healthforecast, and HACCP tools for everyday operations.</p></a>
+        <div class="offer-head">
+          <h2>Pick the service that fits where you are now.</h2>
+          <p>Start small, prove the idea, then move into the apps and automation that actually save time or make money.</p>
+        </div>
+        <div class="offer-grid">
+          <a class="offer-card" href="/ai-websites">
+            <div class="offer-top"><span class="offer-kicker">AI Websites</span><span class="offer-icon">$9</span></div>
+            <h3>Get a clean site online without a big project.</h3>
+            <p>Build a free draft, preview it first, then publish from $9/mo when it is ready to be seen.</p>
+            <div class="offer-meta"><span>Free draft</span><span>Fast publish</span><span>Upgrade later</span></div>
+            <span class="offer-link">Build an AI website -></span>
+          </a>
+          <a class="offer-card" href="/apps">
+            <div class="offer-top"><span class="offer-kicker">Whitelabel Apps</span><span class="offer-icon">APP</span></div>
+            <h3>Give customers a branded way to order, book, or request work.</h3>
+            <p>Practical platforms for food, trades, delivery, hire, events, clubs, and local operators.</p>
+            <div class="offer-meta"><span>Your brand</span><span>Your domain</span><span>Admin tools</span></div>
+            <span class="offer-link">Browse app paths -></span>
+          </a>
+          <a class="offer-card" href="/tools">
+            <div class="offer-top"><span class="offer-kicker">Self-Serve Tools</span><span class="offer-icon">AI</span></div>
+            <h3>Use focused tools for the jobs owners keep putting off.</h3>
+            <p>Social content, ordering, forecasting, HACCP logs, and website polish without starting from scratch.</p>
+            <div class="offer-meta"><span>Simple SaaS</span><span>Local support</span><span>No bloat</span></div>
+            <span class="offer-link">See the tools -></span>
+          </a>
         </div>
       </div>
     </section>
