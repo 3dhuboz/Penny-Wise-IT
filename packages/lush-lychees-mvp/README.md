@@ -2,6 +2,11 @@
 
 Prototype MVP for scheduled lychee delivery runs and an AI orchard scouting workflow.
 
+## Public demo
+
+- URL: https://lush-lychees-mvp.pages.dev
+- Admin demo PIN: `4702` (blank PIN also opens the backend for demo speed)
+
 ## Run locally
 
 ```powershell
@@ -26,7 +31,8 @@ npm run build
 - Admin backend with demo PIN, order status controls, editable runs, editable box pricing, customer message preview, and SocialAI calendar.
 - AI Orchard Scout simulation for block notes, ripeness confidence, harvest window, and follow-up.
 - SocialAI Studio instance for campaign angles, Facebook/Instagram drafts, hashtags, AI image prompts, and schedule slots.
-- Welded-in delivery ROI placeholders explaining expected time and financial benefits over a manual delivery workflow.
+- Welded-in delivery ROI placeholders that explicitly compare the app against today's likely manual DMs, calls, Facebook messages, and spreadsheet sorting.
+- Owner-facing placeholders for time saved, delivery questions avoided, structured demand captured, and confirmed box counts before picking starts.
 
 ## Production path
 

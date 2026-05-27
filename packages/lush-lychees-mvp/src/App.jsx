@@ -275,22 +275,22 @@ function AdminPanel({
         <div>
           <span>MVP estimate placeholder</span>
           <strong>6-10 admin hours saved per week</strong>
-          <p>Suburb checker, cut-offs, run capacity, and grouped packing lists replace manual DMs and spreadsheet sorting.</p>
+          <p>Compared with today's manual DMs and spreadsheet sorting: customers self-check suburbs, cut-offs, capacity, and packing groups.</p>
         </div>
         <div>
           <span>MVP estimate placeholder</span>
           <strong>40-60 delivery questions avoided per week</strong>
-          <p>Customers answer “do you deliver to me?” themselves before they message the farm.</p>
+          <p>Compared with today's inbox workflow: customers answer "do you deliver to me?" before they message the farm.</p>
         </div>
         <div>
           <span>MVP estimate placeholder</span>
           <strong>{money.format(orderImpact)} in demo orders captured</strong>
-          <p>Every order and waitlist request becomes structured demand instead of getting lost in inboxes.</p>
+          <p>Financial gain placeholder: orders and waitlist leads become structured demand instead of being lost in messages.</p>
         </div>
         <div>
           <span>MVP estimate placeholder</span>
           <strong>Pick to confirmed boxes</strong>
-          <p>Run limits and cut-offs protect the pack shed from over-promising during a short harvest window.</p>
+          <p>Time gain placeholder: delivery limits and cut-offs give the pack shed a confirmed box count before picking starts.</p>
         </div>
       </div>
 
@@ -696,17 +696,17 @@ function App() {
           <div>
             <TimerReset size={22} />
             <strong>6-10 admin hours saved per week</strong>
-            <span>MVP estimate placeholder: suburb checks, cut-offs and packing totals replace manual message sorting.</span>
+            <span>MVP estimate placeholder: compared with today's manual messages, suburb checks and packing totals are handled by the app.</span>
           </div>
           <div>
             <MessageSquare size={22} />
             <strong>40-60 delivery questions avoided per week</strong>
-            <span>MVP estimate placeholder: customers can check eligibility before sending a DM.</span>
+            <span>MVP estimate placeholder: customers can check eligibility before sending a DM, call, or Facebook message.</span>
           </div>
           <div>
             <DollarSign size={22} />
             <strong>{money.format(orderImpact)} structured demand captured</strong>
-            <span>Demo total: orders and waitlist requests become data the farm can act on.</span>
+            <span>Financial gain placeholder: demo orders and waitlist requests become demand the farm can act on.</span>
           </div>
         </section>
 

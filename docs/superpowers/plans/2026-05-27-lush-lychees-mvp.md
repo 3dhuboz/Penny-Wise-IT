@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build an isolated, polished Lush Lychees MVP prototype for scheduled lychee delivery runs, AI orchard scouting, and a farm-specific SocialAI Studio instance.
+**Goal:** Build an isolated, polished Lush Lychees MVP prototype for scheduled lychee delivery runs, a clickable owner admin backend, AI orchard scouting, and a farm-specific SocialAI Studio instance.
 
-**Architecture:** Create a standalone Vite React app under `packages/lush-lychees-mvp` with static data and client-side state. Keep it separate from the existing Penny Wise I.T portal so the current dirty worktree is not disturbed. SocialAI Studio runs as a local demonstrator that drafts editable content from delivery-run and orchard-scout context.
+**Architecture:** Create a standalone Vite React app under `packages/lush-lychees-mvp` with static data and client-side state. Keep it separate from the existing Penny Wise I.T portal so the current dirty worktree is not disturbed. SocialAI Studio runs as a local demonstrator that drafts editable content from delivery-run and orchard-scout context. The demo backend persists orders, waitlist leads, run edits, product pricing, activity logs, and SocialAI calendar items to localStorage.
 
 **Tech Stack:** React 18, Vite, lucide-react, CSS modules via plain `styles.css`, generated lychee hero asset.
 
@@ -129,3 +129,23 @@ Use the selected delivery run, orchard block, and campaign angle to render edita
 - [ ] **Step 4: Test SocialAI flow**
 
 Run the rendered QA script and verify the SocialAI tab opens, channel toggles work, and a generated campaign draft appears without console errors.
+
+### Task 7: Owner Admin Backend and ROI Placeholders
+
+**Files:**
+- Create: `packages/lush-lychees-mvp/src/demoStore.js`
+- Modify: `packages/lush-lychees-mvp/src/App.jsx`
+- Modify: `packages/lush-lychees-mvp/src/styles.css`
+- Modify: `packages/lush-lychees-mvp/README.md`
+
+- [ ] **Step 1: Persist demo backend state**
+
+Store customer orders, waitlist leads, delivery run edits, product pricing, activity log entries, and SocialAI calendar items in localStorage so the MVP feels like a real owner backend during a demo.
+
+- [ ] **Step 2: Add admin backend tabs**
+
+Add a PIN-gated admin area with Dashboard, Orders, Delivery runs, Boxes, and Comms + SocialAI tabs.
+
+- [ ] **Step 3: Weld in benefit placeholders**
+
+Show owner-facing placeholders that explicitly compare the MVP with today's manual DMs, calls, Facebook messages, and spreadsheet sorting. Include time saved, delivery questions avoided, structured demand captured, and confirmed box counts before picking starts.
