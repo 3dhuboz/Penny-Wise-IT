@@ -1,6 +1,6 @@
 # Lush Lychees Delivery Studio
 
-Prototype MVP for scheduled lychee delivery runs and an AI orchard scouting workflow.
+Prototype MVP for a seasonal lychee operating app: customer ordering, driver delivery runs, owner admin, SocialAI Studio, and AI orchard scouting.
 
 ## Public demo
 
@@ -24,15 +24,16 @@ npm run build
 
 ## Prototype coverage
 
+- Simpler four-part navigation: Sell, Deliver, Manage, and SocialAI.
 - Customer suburb/postcode lookup against configured delivery runs.
 - Seasonal box selection with quantity and total calculation.
 - Clickable demo checkout that creates an order or waitlist lead in the admin backend.
+- Driver app view with run selection, stops, customer call links, notes, and delivery status actions.
 - Admin delivery run planner with capacity and packing totals.
-- Admin backend with demo PIN, order status controls, editable runs, editable box pricing, customer message preview, and SocialAI calendar.
+- Admin backend with demo PIN, order status controls, editable runs, editable box pricing, driver handoff language, customer message preview, and SocialAI calendar.
 - AI Orchard Scout simulation for block notes, ripeness confidence, harvest window, and follow-up.
 - SocialAI Studio instance for campaign angles, Facebook/Instagram drafts, hashtags, AI image prompts, and schedule slots.
-- Welded-in delivery ROI placeholders that explicitly compare the app against today's likely manual DMs, calls, Facebook messages, and spreadsheet sorting.
-- Owner-facing placeholders for time saved, delivery questions avoided, structured demand captured, and confirmed box counts before picking starts.
+- Owner-facing impact cards for time saved, delivery questions answered before inbox contact, structured demand captured, and driver-ready delivery lists.
 
 ## Production path
 

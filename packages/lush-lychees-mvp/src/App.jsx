@@ -6,7 +6,6 @@ import {
   Camera,
   CheckCircle2,
   ChevronRight,
-  ClipboardList,
   DollarSign,
   Edit3,
   Facebook,
@@ -111,13 +110,16 @@ function createSocialDraft({ campaign, run, block, platform }) {
   };
 }
 
-function Stat({ label, value, icon: Icon }) {
+function WorkflowCard({ icon: Icon, title, subtitle, detail, active, onClick }) {
   return (
-    <div className="stat">
-      <Icon size={18} />
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
+    <button className={`workflow-card ${active ? "active" : ""}`} onClick={onClick} type="button">
+      <span className="workflow-icon">
+        <Icon size={21} />
+      </span>
+      <strong>{title}</strong>
+      <small>{subtitle}</small>
+      <em>{detail}</em>
+    </button>
   );
 }
 
@@ -257,7 +259,7 @@ function AdminPanel({
       <div className="admin-topbar">
         <div>
           <h2>Lush Lychees admin backend</h2>
-          <p>Clickable MVP backend: delivery runs, orders, products, customer comms, and SocialAI calendar.</p>
+          <p>Owner backend for orders, delivery runs, box pricing, driver handoff, customer comms, and SocialAI calendar.</p>
         </div>
         <div className="admin-actions">
           <button className="secondary-action" onClick={resetDemoData} type="button">
@@ -273,24 +275,24 @@ function AdminPanel({
 
       <div className="owner-roi-panel">
         <div>
-          <span>MVP estimate placeholder</span>
-          <strong>6-10 admin hours saved per week</strong>
+          <span>Demo impact estimate</span>
+          <strong>6-10 admin hours returned weekly</strong>
           <p>Compared with today's manual DMs and spreadsheet sorting: customers self-check suburbs, cut-offs, capacity, and packing groups.</p>
         </div>
         <div>
-          <span>MVP estimate placeholder</span>
-          <strong>40-60 delivery questions avoided per week</strong>
+          <span>Demo impact estimate</span>
+          <strong>40-60 delivery questions answered first</strong>
           <p>Compared with today's inbox workflow: customers answer "do you deliver to me?" before they message the farm.</p>
         </div>
         <div>
-          <span>MVP estimate placeholder</span>
-          <strong>{money.format(orderImpact)} in demo orders captured</strong>
-          <p>Financial gain placeholder: orders and waitlist leads become structured demand instead of being lost in messages.</p>
+          <span>Demo impact estimate</span>
+          <strong>{money.format(orderImpact)} demand captured in demo</strong>
+          <p>Orders and waitlist leads become structured demand instead of being lost across Messenger, calls, and inboxes.</p>
         </div>
         <div>
-          <span>MVP estimate placeholder</span>
-          <strong>Pick to confirmed boxes</strong>
-          <p>Time gain placeholder: delivery limits and cut-offs give the pack shed a confirmed box count before picking starts.</p>
+          <span>Driver app handoff</span>
+          <strong>Route stops from confirmed orders</strong>
+          <p>The same orders become driver stops with address, contact, notes, and delivery status instead of a printed spreadsheet.</p>
         </div>
       </div>
 
@@ -522,6 +524,8 @@ function App() {
   const deliveryFee = matchedRun ? matchedRun.fee : 0;
   const orderTotal = itemTotal + deliveryFee;
   const orderImpact = store.orders.reduce((sum, order) => sum + order.total, 0);
+  const driverOrders = store.orders.filter((order) => order.runId === selectedRun.id && order.status !== "Waitlist");
+  const driverDelivered = driverOrders.filter((order) => order.status === "Delivered").length;
 
   const increaseCapacity = () => {
     setStore((current) => ({
@@ -563,6 +567,22 @@ function App() {
         ...current.socialCalendar
       ],
       activityLog: [`${selectedCampaign.name} saved to SocialAI calendar.`, ...current.activityLog].slice(0, 8)
+    }));
+  };
+
+  const updateDriverOrder = (orderId, status) => {
+    const order = store.orders.find((item) => item.id === orderId);
+    setStore((current) => ({
+      ...current,
+      orders: current.orders.map((item) => (item.id === orderId ? { ...item, status } : item)),
+      activityLog: order ? [`Driver marked ${order.ref} ${status.toLowerCase()}.`, ...current.activityLog].slice(0, 8) : current.activityLog
+    }));
+  };
+
+  const notifyDriverRun = () => {
+    setStore((current) => ({
+      ...current,
+      activityLog: [`Driver SMS draft prepared for ${selectedRun.name}.`, ...current.activityLog].slice(0, 8)
     }));
   };
 
@@ -626,23 +646,19 @@ function App() {
         <nav aria-label="Primary">
           <button className={activeView === "customer" ? "active" : ""} onClick={() => setActiveView("customer")} type="button">
             <Search size={17} />
-            Order
+            Sell
           </button>
-          <button className={activeView === "planner" ? "active" : ""} onClick={() => setActiveView("planner")} type="button">
-            <Route size={17} />
-            Runs
-          </button>
-          <button className={activeView === "scout" ? "active" : ""} onClick={() => setActiveView("scout")} type="button">
-            <Camera size={17} />
-            Scout
-          </button>
-          <button className={activeView === "social" ? "active" : ""} onClick={() => setActiveView("social")} type="button">
-            <Megaphone size={17} />
-            SocialAI
+          <button className={activeView === "driver" || activeView === "planner" ? "active" : ""} onClick={() => setActiveView("driver")} type="button">
+            <Truck size={17} />
+            Deliver
           </button>
           <button className={activeView === "admin" ? "active" : ""} onClick={() => setActiveView("admin")} type="button">
             <Lock size={17} />
-            Admin
+            Manage
+          </button>
+          <button className={activeView === "social" || activeView === "scout" ? "active" : ""} onClick={() => setActiveView("social")} type="button">
+            <Megaphone size={17} />
+            SocialAI
           </button>
         </nav>
       </header>
@@ -650,27 +666,26 @@ function App() {
       <main id="top">
         <section className="hero">
           <div className="hero-copy">
-            <h1>Farm-fresh lychees, picked to order.</h1>
+            <h1>One app for the whole lychee season.</h1>
             <p>
-              A seasonal ordering app for Lush Lychees: customers reserve local boxes, the farm opens delivery runs by suburb,
-              and harvest decisions stay tied to the crop.
+              Lush Lychees can sell boxes, manage delivery runs, guide drivers, and publish seasonal social content from one simple workflow.
             </p>
             <div className="owner-note">
-              <strong>Built around the delivery challenge:</strong>
-              <span>define the run first, then let customers order only inside opened suburbs, cut-offs and capacity.</span>
+              <strong>Not just a selling tool:</strong>
+              <span>the same order becomes a packing total, driver stop, admin record, customer update, and SocialAI campaign prompt.</span>
             </div>
             <div className="hero-actions">
               <button className="primary-action" onClick={() => setActiveView("customer")} type="button">
                 <MapPin size={18} />
-                Check my suburb
+                Customer ordering
               </button>
-              <button className="secondary-action" onClick={() => setActiveView("planner")} type="button">
-                <ClipboardList size={18} />
-                Plan delivery run
+              <button className="secondary-action" onClick={() => setActiveView("driver")} type="button">
+                <Truck size={18} />
+                Driver app
               </button>
               <button className="secondary-action" onClick={() => setActiveView("admin")} type="button">
                 <Lock size={18} />
-                Open owner backend
+                Owner backend
               </button>
             </div>
           </div>
@@ -684,29 +699,56 @@ function App() {
           </div>
         </section>
 
-        <section className="overview-grid" aria-label="Studio summary">
-          <Stat icon={Truck} label="Next run" value="Capricorn Coast" />
-          <Stat icon={CalendarDays} label="Cut-off" value="Thursday 6:00pm" />
-          <Stat icon={PackageCheck} label="Reserved" value="192 boxes" />
-          <Stat icon={Sparkles} label="AI scout" value="Ridge C ready" />
-          <Stat icon={Megaphone} label="SocialAI" value="5 campaigns" />
+        <section className="workflow-grid" aria-label="What the app includes">
+          <WorkflowCard
+            active={activeView === "customer"}
+            detail="Suburb checker, box reservation, waitlist capture."
+            icon={Search}
+            onClick={() => setActiveView("customer")}
+            subtitle="Customers reserve only where a run is open."
+            title="Sell"
+          />
+          <WorkflowCard
+            active={activeView === "driver" || activeView === "planner"}
+            detail="Stops, phone numbers, notes, delivery status."
+            icon={Truck}
+            onClick={() => setActiveView("driver")}
+            subtitle="Drivers see the run without a messy spreadsheet."
+            title="Deliver"
+          />
+          <WorkflowCard
+            active={activeView === "admin"}
+            detail="Orders, cut-offs, capacity, products, comms."
+            icon={Lock}
+            onClick={() => setActiveView("admin")}
+            subtitle="The owner controls the season from one backend."
+            title="Manage"
+          />
+          <WorkflowCard
+            active={activeView === "social" || activeView === "scout"}
+            detail="SocialAI drafts plus harvest-aware content prompts."
+            icon={Megaphone}
+            onClick={() => setActiveView("social")}
+            subtitle="Turn delivery runs and orchard notes into posts."
+            title="Market"
+          />
         </section>
 
         <section className="benefit-band" aria-label="Delivery benefits">
           <div>
             <TimerReset size={22} />
-            <strong>6-10 admin hours saved per week</strong>
-            <span>MVP estimate placeholder: compared with today's manual messages, suburb checks and packing totals are handled by the app.</span>
+            <strong>6-10 admin hours returned each week</strong>
+            <span>Customers self-check delivery areas and cut-offs; captured orders build packing totals automatically.</span>
           </div>
           <div>
             <MessageSquare size={22} />
-            <strong>40-60 delivery questions avoided per week</strong>
-            <span>MVP estimate placeholder: customers can check eligibility before sending a DM, call, or Facebook message.</span>
+            <strong>40-60 questions answered before they message</strong>
+            <span>The app answers "do you deliver to me?" before a DM, call, or Facebook message reaches the farm.</span>
           </div>
           <div>
             <DollarSign size={22} />
-            <strong>{money.format(orderImpact)} structured demand captured</strong>
-            <span>Financial gain placeholder: demo orders and waitlist requests become demand the farm can act on.</span>
+            <strong>{money.format(orderImpact)} demand captured in demo</strong>
+            <span>Orders and waitlist leads become a delivery list for the owner and driver, not scattered inbox notes.</span>
           </div>
         </section>
 
@@ -845,6 +887,110 @@ function App() {
           </section>
         )}
 
+        {activeView === "driver" && (
+          <section className="workspace driver-workspace">
+            <div className="workspace-main">
+              <div className="section-heading">
+                <h2>Driver delivery app</h2>
+                <p>Every confirmed order becomes a simple stop list with route notes, customer contact, and delivery status.</p>
+              </div>
+
+              <div className="run-list compact driver-run-selector" aria-label="Choose driver run">
+                {runs.map((run) => (
+                  <RunCard key={run.id} run={run} selected={run.id === selectedRunId} onClick={() => setSelectedRunId(run.id)} />
+                ))}
+              </div>
+
+              <div className="driver-stop-list">
+                {driverOrders.length > 0 ? (
+                  driverOrders.map((order, index) => (
+                    <article className={`driver-stop ${order.status.toLowerCase()}`} key={order.id}>
+                      <div className="stop-index">{index + 1}</div>
+                      <div className="driver-stop-main">
+                        <div>
+                          <strong>{order.customerName}</strong>
+                          <span>{order.address}</span>
+                        </div>
+                        <small>
+                          {order.quantity} x {order.productName} · {order.notes}
+                        </small>
+                      </div>
+                      <span className={`status-chip ${order.status.toLowerCase()}`}>{order.status}</span>
+                      <div className="driver-stop-actions">
+                        <a href={`tel:${order.mobile}`}>
+                          <Phone size={15} />
+                          Call
+                        </a>
+                        <button onClick={() => updateDriverOrder(order.id, "Packed")} type="button">
+                          Packed
+                        </button>
+                        <button onClick={() => updateDriverOrder(order.id, "Delivered")} type="button">
+                          Delivered
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="empty-driver-state">
+                    <Truck size={24} />
+                    <strong>No stops on this run yet</strong>
+                    <span>Place a demo order in an open suburb and it will appear here for the driver.</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <aside className="driver-phone">
+              <div className="driver-phone-header">
+                <Truck size={22} />
+                <div>
+                  <h2>{selectedRun.name}</h2>
+                  <p>{selectedRun.date} · closes {selectedRun.cutOff}</p>
+                </div>
+              </div>
+
+              <div className="driver-summary">
+                <div>
+                  <span>Stops</span>
+                  <strong>{driverOrders.length}</strong>
+                </div>
+                <div>
+                  <span>Delivered</span>
+                  <strong>{driverDelivered}</strong>
+                </div>
+                <div>
+                  <span>Boxes</span>
+                  <strong>{selectedRun.reserved}</strong>
+                </div>
+              </div>
+
+              <div className="driver-checklist">
+                <div>
+                  <PackageCheck size={18} />
+                  <span>Pack to confirmed order count before the driver leaves.</span>
+                </div>
+                <div>
+                  <Route size={18} />
+                  <span>Keep route suburbs, customer notes, and phone numbers in the same app.</span>
+                </div>
+                <div>
+                  <Bell size={18} />
+                  <span>Draft customer updates through ClickSend or Resend in production.</span>
+                </div>
+              </div>
+
+              <button className="primary-action full" onClick={notifyDriverRun} type="button">
+                <Send size={18} />
+                Draft driver/customer update
+              </button>
+              <button className="secondary-action full" onClick={() => setActiveView("planner")} type="button">
+                <Route size={18} />
+                Open run planner
+              </button>
+            </aside>
+          </section>
+        )}
+
         {activeView === "planner" && (
           <section className="workspace planner-workspace">
             <div className="workspace-main">
@@ -977,7 +1123,7 @@ function App() {
             <div className="workspace-main">
               <div className="section-heading">
                 <h2>SocialAI Studio</h2>
-                <p>Turn harvest notes and delivery-run availability into ready-to-edit posts for Lush Lychees.</p>
+                <p>A social media tool for the farm: turn delivery runs, harvest notes, and box availability into ready-to-edit posts.</p>
               </div>
 
               <div className="social-command">
@@ -1051,6 +1197,10 @@ function App() {
                   <span>Harvest photo prompt</span>
                 </div>
               </div>
+              <button className="secondary-action social-generate" onClick={() => setActiveView("scout")} type="button">
+                <Camera size={18} />
+                Open AI Orchard Scout
+              </button>
             </div>
 
             <aside className="social-preview">

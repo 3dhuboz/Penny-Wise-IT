@@ -255,6 +255,66 @@ main {
   margin-bottom: 26px;
 }
 
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: -8px 0 14px;
+}
+
+.workflow-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 12px;
+  min-height: 184px;
+  padding: 18px;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid #cfe0d4;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(35, 61, 46, 0.07);
+}
+
+.workflow-card.active {
+  border-color: var(--leaf);
+  box-shadow:
+    inset 0 0 0 1px var(--leaf),
+    0 14px 32px rgba(31, 107, 69, 0.12);
+}
+
+.workflow-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: white;
+  background: var(--leaf);
+  border-radius: 8px;
+}
+
+.workflow-card strong {
+  align-self: center;
+  color: var(--leaf-dark);
+  font-size: 1.25rem;
+}
+
+.workflow-card small,
+.workflow-card em {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.workflow-card small {
+  font-size: 0.98rem;
+  font-weight: 750;
+}
+
+.workflow-card em {
+  font-size: 0.86rem;
+  font-style: normal;
+}
+
 .benefit-band {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -266,7 +326,7 @@ main {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 8px 12px;
-  min-height: 128px;
+  min-height: 118px;
   padding: 18px;
   color: var(--leaf-dark);
   background: #ffffff;
@@ -280,7 +340,7 @@ main {
 }
 
 .benefit-band strong {
-  font-size: 1.03rem;
+  font-size: 1.08rem;
   line-height: 1.25;
 }
 
@@ -662,6 +722,183 @@ td:last-child {
   color: var(--leaf-dark);
   font-weight: 900;
   text-align: right;
+}
+
+.driver-run-selector {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.driver-stop-list {
+  display: grid;
+  gap: 10px;
+}
+
+.driver-stop {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  background: #fbfdfb;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.driver-stop.delivered {
+  background: #f2f8ff;
+  border-color: #cfe2f9;
+}
+
+.stop-index {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  color: white;
+  background: var(--leaf);
+  border-radius: 8px;
+  font-weight: 900;
+}
+
+.driver-stop-main {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.driver-stop-main strong,
+.driver-stop-main span,
+.driver-stop-main small {
+  display: block;
+}
+
+.driver-stop-main span,
+.driver-stop-main small {
+  color: var(--muted);
+  line-height: 1.38;
+}
+
+.driver-stop-main small {
+  font-size: 0.86rem;
+}
+
+.driver-stop-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.driver-stop-actions a,
+.driver-stop-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 11px;
+  color: var(--leaf-dark);
+  text-decoration: none;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.empty-driver-state {
+  display: grid;
+  gap: 8px;
+  place-items: center;
+  min-height: 190px;
+  padding: 20px;
+  color: var(--leaf-dark);
+  text-align: center;
+  background: #f8fbf8;
+  border: 1px dashed #bed3c5;
+  border-radius: 8px;
+}
+
+.empty-driver-state span {
+  color: var(--muted);
+}
+
+.driver-phone {
+  position: sticky;
+  top: 98px;
+  display: grid;
+  gap: 14px;
+  padding: clamp(18px, 3vw, 28px);
+  color: #ecf8ef;
+  background: #111a16;
+  border: 1px solid #25372e;
+  border-radius: 8px;
+  box-shadow: 0 12px 34px rgba(35, 61, 46, 0.16);
+}
+
+.driver-phone-header {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.driver-phone-header h2,
+.driver-phone-header p {
+  margin: 0;
+}
+
+.driver-phone-header h2 {
+  color: white;
+  font-size: 1.6rem;
+}
+
+.driver-phone-header p {
+  margin-top: 5px;
+  color: #b8c8bf;
+  font-weight: 700;
+}
+
+.driver-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.driver-summary div,
+.driver-checklist div {
+  padding: 13px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+}
+
+.driver-summary span,
+.driver-checklist span {
+  color: #b8c8bf;
+  line-height: 1.42;
+}
+
+.driver-summary strong {
+  display: block;
+  margin-top: 5px;
+  color: white;
+  font-size: 1.8rem;
+}
+
+.driver-checklist {
+  display: grid;
+  gap: 8px;
+}
+
+.driver-checklist div {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.driver-phone .secondary-action {
+  background: #f6fff8;
 }
 
 .block-card {
@@ -1414,18 +1651,21 @@ td:last-child {
   }
 
   .overview-grid,
+  .workflow-grid,
   .benefit-band,
   .owner-roi-panel,
   .admin-grid,
   .admin-split,
-  .product-editor-grid {
+  .product-editor-grid,
+  .driver-run-selector {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .summary-panel,
   .planner-detail,
   .scout-result,
-  .social-preview {
+  .social-preview,
+  .driver-phone {
     position: static;
   }
 
@@ -1454,6 +1694,7 @@ td:last-child {
 
   .hero-actions,
   .overview-grid,
+  .workflow-grid,
   .benefit-band,
   .product-grid,
   .block-grid,
@@ -1463,7 +1704,10 @@ td:last-child {
   .admin-grid,
   .admin-split,
   .admin-form-grid,
-  .product-editor-grid {
+  .product-editor-grid,
+  .driver-run-selector,
+  .driver-summary,
+  .driver-stop {
     grid-template-columns: 1fr;
   }
 
@@ -1495,7 +1739,8 @@ td:last-child {
   .summary-panel,
   .planner-detail,
   .scout-result,
-  .admin-card {
+  .admin-card,
+  .driver-phone {
     padding: 16px;
   }
 

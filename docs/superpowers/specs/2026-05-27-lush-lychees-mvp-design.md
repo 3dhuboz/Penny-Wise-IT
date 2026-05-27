@@ -11,10 +11,10 @@ The MVP is a standalone prototype called **Lush Lychees Delivery Studio**. It sh
 The prototype has four linked surfaces:
 
 - Customer ordering: season status, delivery-area lookup, box selection, and pre-order confirmation.
-- Delivery planning: admin view of runs, cut-off times, capacity, order totals, and packing totals.
+- Delivery planning and driver app: admin view of runs, cut-off times, capacity, order totals, packing totals, driver stops, customer contact, and delivery status.
 - AI Orchard Scout: photo-based orchard note flow for ripeness, pest/damage observations, and harvest-window guidance.
 - SocialAI Studio: farm-specific content engine that turns delivery runs, harvest notes, and box availability into ready-to-post seasonal campaigns.
-- Owner backend: clickable admin area that shows orders, editable runs, editable box pricing, customer comms, SocialAI calendar, and ROI placeholders.
+- Owner backend: clickable admin area that shows orders, editable runs, editable box pricing, driver handoff, customer comms, SocialAI calendar, and impact estimates.
 
 ## Scope
 
@@ -23,7 +23,9 @@ In scope:
 - A polished local web prototype under `packages/lush-lychees-mvp`.
 - Real interactive local state for suburb lookup, order selection, run capacity, and AI scout result simulation.
 - A branded SocialAI Studio instance for Lush Lychees with post drafts, scheduling prompts, channels, hashtags, and image prompts.
-- Welded-in placeholders that explicitly explain time and financial gains over the current manual delivery workflow: fewer delivery questions, fewer admin hours, structured demand capture, and confirmed packing counts.
+- A simpler four-part product story: Sell, Deliver, Manage, and SocialAI.
+- Driver app proof that the MVP is a delivery tool as well as a selling tool.
+- Welded-in impact estimates that explicitly explain time and financial gains over the current manual delivery workflow: fewer delivery questions, fewer admin hours, structured demand capture, and confirmed packing/driver counts.
 - Queensland/local delivery examples that can be changed later by the producer.
 - Copy grounded in Lush Lychees' current positioning: family farm, farm gate, seasonal boxes, collection/delivery.
 - A production-safe AI framing: assistive crop note-taking, not agronomy replacement.

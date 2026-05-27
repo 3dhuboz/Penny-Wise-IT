@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build an isolated, polished Lush Lychees MVP prototype for scheduled lychee delivery runs, a clickable owner admin backend, AI orchard scouting, and a farm-specific SocialAI Studio instance.
+**Goal:** Build an isolated, polished Lush Lychees MVP prototype for scheduled lychee delivery runs, a clickable owner admin backend, driver delivery app, AI orchard scouting, and a farm-specific SocialAI Studio instance.
 
 **Architecture:** Create a standalone Vite React app under `packages/lush-lychees-mvp` with static data and client-side state. Keep it separate from the existing Penny Wise I.T portal so the current dirty worktree is not disturbed. SocialAI Studio runs as a local demonstrator that drafts editable content from delivery-run and orchard-scout context. The demo backend persists orders, waitlist leads, run edits, product pricing, activity logs, and SocialAI calendar items to localStorage.
 
@@ -146,6 +146,25 @@ Store customer orders, waitlist leads, delivery run edits, product pricing, acti
 
 Add a PIN-gated admin area with Dashboard, Orders, Delivery runs, Boxes, and Comms + SocialAI tabs.
 
-- [ ] **Step 3: Weld in benefit placeholders**
+- [ ] **Step 3: Weld in benefit copy**
 
-Show owner-facing placeholders that explicitly compare the MVP with today's manual DMs, calls, Facebook messages, and spreadsheet sorting. Include time saved, delivery questions avoided, structured demand captured, and confirmed box counts before picking starts.
+Show owner-facing impact estimates that explicitly compare the MVP with today's manual DMs, calls, Facebook messages, and spreadsheet sorting. Include time saved, delivery questions avoided, structured demand captured, confirmed box counts before picking starts, and driver-ready run sheets.
+
+### Task 8: Simplified Owner Pitch Navigation
+
+**Files:**
+- Modify: `packages/lush-lychees-mvp/src/App.jsx`
+- Modify: `packages/lush-lychees-mvp/src/styles.css`
+- Modify: `packages/lush-lychees-mvp/README.md`
+
+- [ ] **Step 1: Simplify the product story**
+
+Replace scattered top-level navigation with four clear workflows: Sell, Deliver, Manage, and SocialAI.
+
+- [ ] **Step 2: Add a driver delivery app**
+
+Show delivery stops, customer call links, driver notes, delivery status actions, and a run summary so the owner sees the MVP is also a delivery tool.
+
+- [ ] **Step 3: Improve the pitch cards**
+
+Remove internal placeholder wording from the visible MVP and use polished owner-facing impact copy instead.

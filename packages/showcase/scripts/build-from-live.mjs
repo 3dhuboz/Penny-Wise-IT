@@ -6,16 +6,16 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = dirname(scriptDir);
 const dist = join(root, "dist");
 
-const builderUrl = "https://builder.pennywiseit.com.au/sign-up";
+const builderUrl = "https://pennybuilder.steve-700.workers.dev/sign-up";
 const talkUrl = "mailto:steve@pennywiseit.com.au?subject=Penny%20Wise%20I.T%20website%20enquiry";
 
 const paths = [
-  { href: "/apps", label: "Apps" },
   { href: "/ai-websites", label: "AI Websites" },
+  { href: "/apps", label: "Apps" },
+  { href: "/tools", label: "Tools" },
   { href: "/pricing", label: "Pricing" },
   { href: "/roi", label: "ROI" },
   { href: "/about", label: "About" },
-  { href: "/admin", label: "Admin" },
 ];
 
 const appPlatforms = [
@@ -43,6 +43,12 @@ const pricing = [
   ["Whitelabel App", "$99/mo+", "For operators who need a business workflow, not just a website.", ["Your brand", "Your domain", "Admin dashboard", "Automation"]],
 ];
 
+const decisions = [
+  ["I just need a website", "Start with PennyBuilder", "Build free, publish from $9/mo, and keep it simple until the business proves it needs more."],
+  ["I need customers to do something", "Use an app platform", "Ordering, bookings, delivery, events, clubs, hire, and field work need workflows, not just pages."],
+  ["I am losing time every week", "Automate the repeat work", "Turn admin, follow-up, content, compliance, or reporting into a repeatable system."],
+];
+
 function esc(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
@@ -58,6 +64,10 @@ function nav(active) {
     const className = active === item.href ? ' class="active"' : "";
     return `<a${className} href="${item.href}">${item.label}</a>`;
   }).join("");
+}
+
+function ctaBand({ title = "Want the simplest next step?", text = "Tell Steve what the business does and what currently wastes time. He will point you to the smallest useful option.", primary = "Talk to Steve", secondary = "Build an AI website" } = {}) {
+  return `<section class="cta-band"><div class="container cta-inner"><div><h2>${title}</h2><p>${text}</p></div><div class="actions"><a class="btn btn-primary" href="${talkUrl}">${primary}</a><a class="btn btn-secondary" href="${builderUrl}">${secondary}</a></div></div></section>`;
 }
 
 function shell({ title, description, active = "/", body }) {
@@ -360,12 +370,29 @@ function shell({ title, description, active = "/", body }) {
       gap: 18px;
       flex-wrap: wrap;
     }
+    .footer-links { display: flex; gap: 14px; flex-wrap: wrap; }
+    .footer a { color: var(--muted); text-decoration-color: rgba(255,255,255,.24); text-underline-offset: 3px; }
+    .cta-band {
+      padding-top: 54px;
+      padding-bottom: 54px;
+      background: linear-gradient(135deg, rgba(212,135,57,.13), rgba(135,183,255,.06));
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .cta-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: center;
+    }
+    .cta-inner h2 { font-size: clamp(1.8rem, 3.2vw, 3rem); margin-bottom: 10px; }
+    .cta-inner p { color: var(--muted); max-width: 700px; margin-bottom: 0; }
     @media (max-width: 880px) {
       .nav-wrap { align-items: flex-start; flex-direction: column; padding-top: 16px; padding-bottom: 16px; gap: 12px; }
       nav { justify-content: flex-start; }
       .nav-cta { margin-left: 0; }
       .hero { padding-top: 64px; }
-      .hero-grid, .split, .path-strip, .pricing-grid { grid-template-columns: 1fr; }
+      .hero-grid, .split, .path-strip, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
       .item { grid-template-columns: 1fr; gap: 10px; }
     }
     @media (max-width: 520px) {
@@ -395,7 +422,7 @@ function shell({ title, description, active = "/", body }) {
   <footer class="footer">
     <div class="container">
       <span>Penny Wise I.T - websites, apps, and automation for Australian small business.</span>
-      <span><a href="${talkUrl}">steve@pennywiseit.com.au</a></span>
+      <span class="footer-links"><a href="/faq">FAQ</a><a href="/admin">Admin</a><a href="${talkUrl}">steve@pennywiseit.com.au</a></span>
     </div>
   </footer>
 </body>
@@ -461,10 +488,10 @@ function appsPage() {
 
 function toolsPage() {
   return shell({
-    active: "/apps",
+    active: "/tools",
     title: "Tools - Penny Wise I.T",
     description: "Self-serve tools from Penny Wise I.T.",
-    body: `<main><section class="hero"><div class="container"><h1>Self-serve tools that solve one job clearly.</h1><p class="lead">Not every customer needs a full custom build. These tools let them start smaller and still stay inside the Penny Wise ecosystem.</p></div></section><section><div class="container list">${tools.map(([name, label, text]) => `<div class="item"><b>${name}<br><span style="color:var(--copper-2);font-size:.92rem;">${label}</span></b><p>${text}</p></div>`).join("")}</div></section></main>`,
+    body: `<main><section class="hero"><div class="container"><h1>Self-serve tools that solve one job clearly.</h1><p class="lead">Not every customer needs a full custom build. These tools let them start smaller and still stay inside the Penny Wise ecosystem.</p></div></section><section><div class="container list">${tools.map(([name, label, text]) => `<div class="item"><b>${name}<br><span style="color:var(--copper-2);font-size:.92rem;">${label}</span></b><p>${text}</p></div>`).join("")}</div></section>${ctaBand({ title: "Not sure which tool fits?", text: "Send the current business problem and Steve can point you at the smallest useful option.", secondary: "Try PennyBuilder" })}</main>`,
   });
 }
 
