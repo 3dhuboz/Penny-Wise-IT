@@ -163,8 +163,23 @@ Replace scattered top-level navigation with four clear workflows: Sell, Deliver,
 
 - [ ] **Step 2: Add a driver delivery app**
 
-Show delivery stops, customer call links, driver notes, delivery status actions, and a run summary so the owner sees the MVP is also a delivery tool.
+Show delivery stops, customer call links, driver notes, delivery status actions, a run summary, and an animated customer tracking map with truck/ETA preview so the owner sees the MVP is also a delivery tool.
 
 - [ ] **Step 3: Improve the pitch cards**
 
 Remove internal placeholder wording from the visible MVP and use polished owner-facing impact copy instead.
+
+### Task 9: Orchard Story and MVP Safety Framing
+
+**Files:**
+- Modify: `packages/lush-lychees-mvp/src/App.jsx`
+- Modify: `packages/lush-lychees-mvp/src/styles.css`
+- Modify: `packages/lush-lychees-mvp/README.md`
+
+- [ ] **Step 1: Add about-the-orchard hero**
+
+Use the current public Lush Lychees orchard story as the emotional hook: family orchard, Fitzroy River country, Rockhampton, 5000 trees, six varieties, and organic farming experience.
+
+- [ ] **Step 2: Make MVP status obvious**
+
+Add persistent and section-level wording that makes it clear this is a clickable MVP preview, not the real production Lush Lychees app.

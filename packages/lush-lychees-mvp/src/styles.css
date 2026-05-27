@@ -58,6 +58,22 @@ button {
   backdrop-filter: blur(18px);
 }
 
+.mvp-banner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 12px;
+  padding: 10px 18px;
+  color: #723919;
+  background: #fff3df;
+  border-bottom: 1px solid #ecd3ad;
+  font-size: 0.9rem;
+}
+
+.mvp-banner span {
+  color: #6f5846;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -150,6 +166,24 @@ main {
   font-weight: 850;
   letter-spacing: 0;
   line-height: 0.9;
+}
+
+.mvp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 9px 12px;
+  color: var(--lychee-dark);
+  background: #fff1f2;
+  border: 1px solid #ffd5da;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.mvp-pill.compact {
+  margin-bottom: 8px;
 }
 
 .hero-copy p {
@@ -245,6 +279,112 @@ main {
   margin: 7px 0;
   color: var(--lychee-dark);
   font-size: 1.45rem;
+}
+
+.about-orchard-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(360px, 0.96fr);
+  gap: clamp(18px, 4vw, 44px);
+  align-items: center;
+  margin: 0 0 26px;
+  padding: clamp(20px, 4vw, 34px);
+  background: #ffffff;
+  border: 1px solid #cfe0d4;
+  border-radius: 8px;
+  box-shadow: 0 16px 42px rgba(35, 61, 46, 0.1);
+}
+
+.about-orchard-copy h2 {
+  margin: 0;
+  color: var(--leaf-dark);
+  font-size: clamp(2rem, 5vw, 4.2rem);
+  line-height: 0.95;
+}
+
+.about-orchard-copy p {
+  max-width: 720px;
+  margin: 14px 0 0;
+  color: #3f524a;
+  font-size: 1.02rem;
+  line-height: 1.62;
+}
+
+.about-proof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.about-proof-grid div {
+  padding: 15px;
+  background: #f8fbf8;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.about-proof-grid strong,
+.about-proof-grid span {
+  display: block;
+}
+
+.about-proof-grid strong {
+  color: var(--lychee-dark);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.about-proof-grid span {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.about-orchard-media {
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.about-orchard-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  object-fit: cover;
+}
+
+.about-orchard-media div {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 8px;
+}
+
+.about-orchard-media span,
+.about-orchard-media strong {
+  display: block;
+}
+
+.about-orchard-media span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.about-orchard-media strong {
+  margin-top: 5px;
+  color: var(--leaf-dark);
+  line-height: 1.25;
 }
 
 .overview-grid {
@@ -384,6 +524,10 @@ main {
   grid-template-columns: minmax(0, 1.45fr) minmax(330px, 0.75fr);
   gap: 18px;
   align-items: start;
+  scroll-margin-top: 100px;
+}
+
+[id^="view-"] {
   scroll-margin-top: 100px;
 }
 
@@ -727,7 +871,294 @@ td:last-child {
 
 .driver-run-selector {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-bottom: 16px;
+  margin: 16px 0;
+}
+
+.tracking-map-card {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 16px;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 12px 34px rgba(35, 61, 46, 0.08);
+}
+
+.tracking-copy {
+  display: grid;
+  gap: 7px;
+}
+
+.tracking-copy span {
+  width: fit-content;
+  padding: 7px 9px;
+  color: var(--lychee-dark);
+  background: #fff1f2;
+  border: 1px solid #ffd5da;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.tracking-copy h3 {
+  margin: 0;
+  color: var(--leaf-dark);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.05;
+}
+
+.tracking-copy p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.tracking-map {
+  position: relative;
+  min-height: 320px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(215, 237, 242, 0.9), rgba(237, 246, 238, 0.82)),
+    #e9f3ee;
+  border: 1px solid #cbded2;
+  border-radius: 8px;
+}
+
+.tracking-map::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-image:
+    linear-gradient(rgba(31, 107, 69, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 107, 69, 0.08) 1px, transparent 1px);
+  background-size: 46px 46px;
+}
+
+.tracking-map::after {
+  position: absolute;
+  inset: 22px 24px auto auto;
+  width: 180px;
+  height: 96px;
+  content: "";
+  background:
+    radial-gradient(circle at 25% 35%, rgba(31, 107, 69, 0.28), transparent 28px),
+    radial-gradient(circle at 60% 55%, rgba(214, 69, 80, 0.2), transparent 34px),
+    rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(31, 107, 69, 0.13);
+  border-radius: 8px;
+  transform: rotate(-4deg);
+}
+
+.tracking-route {
+  position: absolute;
+  inset: 12px;
+  z-index: 2;
+  width: calc(100% - 24px);
+  height: calc(100% - 24px);
+}
+
+.route-shadow,
+.route-main {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.route-shadow {
+  stroke: rgba(255, 255, 255, 0.82);
+  stroke-width: 28;
+}
+
+.route-main {
+  stroke: url("#routeGradient");
+  stroke: var(--leaf);
+  stroke-dasharray: 10 10;
+  stroke-width: 8;
+}
+
+.tracking-route circle {
+  fill: var(--leaf);
+  stroke: white;
+  stroke-width: 5;
+}
+
+.map-road {
+  position: absolute;
+  z-index: 1;
+  height: 42px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(121, 148, 132, 0.22);
+  border-radius: 999px;
+}
+
+.road-one {
+  right: -32px;
+  bottom: 54px;
+  width: 52%;
+  transform: rotate(-18deg);
+}
+
+.road-two {
+  left: -26px;
+  top: 108px;
+  width: 46%;
+  transform: rotate(21deg);
+}
+
+.road-three {
+  left: 38%;
+  top: 38px;
+  width: 28%;
+  transform: rotate(-9deg);
+}
+
+.map-pin,
+.eta-card,
+.truck-marker {
+  position: absolute;
+  z-index: 4;
+}
+
+.map-pin {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 11px;
+  color: var(--leaf-dark);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(31, 107, 69, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 12px 24px rgba(35, 61, 46, 0.12);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.farm-pin {
+  left: 26px;
+  bottom: 34px;
+}
+
+.customer-pin {
+  right: 24px;
+  top: 30px;
+}
+
+.truck-marker {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  left: 46px;
+  bottom: 62px;
+  color: white;
+  background: var(--lychee);
+  border: 4px solid white;
+  border-radius: 999px;
+  box-shadow: 0 14px 28px rgba(168, 45, 57, 0.24);
+  animation: truck-drive 7s ease-in-out infinite;
+}
+
+.eta-card {
+  left: 24px;
+  top: 24px;
+  display: grid;
+  gap: 4px;
+  width: min(230px, calc(100% - 48px));
+  padding: 14px;
+  color: var(--leaf-dark);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(31, 107, 69, 0.14);
+  border-radius: 8px;
+  box-shadow: 0 12px 24px rgba(35, 61, 46, 0.12);
+}
+
+.eta-card span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.eta-card strong {
+  color: var(--lychee-dark);
+  font-size: 2.1rem;
+  line-height: 0.95;
+}
+
+.eta-card small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.tracking-status {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tracking-status div {
+  padding: 13px;
+  background: #f8fbf8;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.tracking-status strong,
+.tracking-status span {
+  display: block;
+}
+
+.tracking-status span {
+  margin-top: 5px;
+  color: var(--muted);
+  line-height: 1.42;
+}
+
+@keyframes truck-drive {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-10deg);
+  }
+
+  28% {
+    transform: translate(118px, -88px) rotate(16deg);
+  }
+
+  56% {
+    transform: translate(262px, -48px) rotate(-7deg);
+  }
+
+  82% {
+    transform: translate(420px, -170px) rotate(14deg);
+  }
+}
+
+@keyframes truck-drive-mobile {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-10deg);
+  }
+
+  30% {
+    transform: translate(72px, -70px) rotate(16deg);
+  }
+
+  58% {
+    transform: translate(148px, -40px) rotate(-7deg);
+  }
+
+  82% {
+    transform: translate(238px, -150px) rotate(14deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .truck-marker {
+    animation: none;
+  }
 }
 
 .driver-stop-list {
@@ -900,6 +1331,22 @@ td:last-child {
 
 .driver-phone .secondary-action {
   background: #f6fff8;
+}
+
+.mvp-disclaimer-panel {
+  display: grid;
+  gap: 6px;
+  margin-top: 22px;
+  padding: 16px;
+  color: #723919;
+  background: #fff3df;
+  border: 1px solid #ecd3ad;
+  border-radius: 8px;
+}
+
+.mvp-disclaimer-panel span {
+  color: #6f5846;
+  line-height: 1.45;
 }
 
 .block-card {
@@ -1638,7 +2085,8 @@ td:last-child {
   }
 
   .hero,
-  .workspace {
+  .workspace,
+  .about-orchard-hero {
     grid-template-columns: 1fr;
   }
 
@@ -1647,7 +2095,9 @@ td:last-child {
   }
 
   .hero-media,
-  .hero-media img {
+  .hero-media img,
+  .about-orchard-media,
+  .about-orchard-media img {
     min-height: 360px;
   }
 
@@ -1697,6 +2147,8 @@ td:last-child {
   .overview-grid,
   .workflow-grid,
   .benefit-band,
+  .tracking-status,
+  .about-proof-grid,
   .product-grid,
   .block-grid,
   .campaign-grid,
@@ -1768,5 +2220,31 @@ td:last-child {
 
   dd {
     text-align: left;
+  }
+
+  .tracking-map {
+    min-height: 280px;
+  }
+
+  .eta-card {
+    left: 12px;
+    top: 12px;
+    width: min(190px, calc(100% - 24px));
+  }
+
+  .customer-pin {
+    right: 12px;
+    top: 132px;
+  }
+
+  .farm-pin {
+    left: 12px;
+    bottom: 18px;
+  }
+
+  .truck-marker {
+    left: 24px;
+    bottom: 45px;
+    animation-name: truck-drive-mobile;
   }
 }

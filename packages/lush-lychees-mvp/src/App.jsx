@@ -123,6 +123,107 @@ function WorkflowCard({ icon: Icon, title, subtitle, detail, active, onClick }) 
   );
 }
 
+function TrackingMap({ run, orders, delivered }) {
+  const nextStop = orders.find((order) => order.status !== "Delivered") ?? orders[0];
+  const eta = orders.length ? `${Math.max(7, 22 - delivered * 6)} min` : "Ready";
+
+  return (
+    <div className="tracking-map-card">
+      <div className="tracking-copy">
+        <span>MVP tracking preview</span>
+        <h3>Driver is on the way</h3>
+        <p>
+          Prototype view only: customers can see how a live truck map, ETA, and next stop status would work in the real app.
+        </p>
+      </div>
+
+      <div className="tracking-map" aria-label="Animated live delivery map">
+        <svg className="tracking-route" viewBox="0 0 620 300" role="img" aria-label={`${run.name} route map`}>
+          <path className="route-shadow" d="M50 235 C145 190 155 86 262 120 C361 151 370 231 474 183 C536 154 556 91 584 64" />
+          <path className="route-main" d="M50 235 C145 190 155 86 262 120 C361 151 370 231 474 183 C536 154 556 91 584 64" />
+          <circle cx="50" cy="235" r="8" />
+          <circle cx="584" cy="64" r="8" />
+        </svg>
+
+        <div className="map-road road-one" />
+        <div className="map-road road-two" />
+        <div className="map-road road-three" />
+
+        <div className="map-pin farm-pin">
+          <Leaf size={15} />
+          Farm
+        </div>
+        <div className="map-pin customer-pin">
+          <Home size={15} />
+          {nextStop?.customerName ?? run.name}
+        </div>
+        <div className="truck-marker" aria-hidden="true">
+          <Truck size={22} />
+        </div>
+        <div className="eta-card">
+          <span>ETA</span>
+          <strong>{eta}</strong>
+          <small>{nextStop ? `Demo next stop: ${nextStop.address}` : "Route preview opens when orders are packed"}</small>
+        </div>
+      </div>
+
+      <div className="tracking-status">
+        <div>
+          <strong>Customer sees</strong>
+          <span>MVP preview of driver location, ETA, delivery status, and contact-safe updates.</span>
+        </div>
+        <div>
+          <strong>Farm sees</strong>
+          <span>Demo data: {orders.length} stops, {delivered} delivered, {run.capacity - run.reserved} boxes still available.</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AboutOrchardHero() {
+  return (
+    <section className="about-orchard-hero" aria-label="About the orchard MVP preview">
+      <div className="about-orchard-copy">
+        <div className="mvp-pill compact">
+          <Sparkles size={15} />
+          MVP about-section preview
+        </div>
+        <h2>About the orchard</h2>
+        <p>
+          Lush Lychees is a family-run Rockhampton orchard on fertile Fitzroy River country, producing premium fresh lychees
+          for local, domestic, and international customers.
+        </p>
+        <p>
+          This MVP uses their real orchard story as the emotional front door, then connects that story to ordering,
+          delivery tracking, owner admin, and SocialAI content.
+        </p>
+        <div className="about-proof-grid">
+          <div>
+            <strong>5000</strong>
+            <span>lychee trees</span>
+          </div>
+          <div>
+            <strong>6</strong>
+            <span>varieties</span>
+          </div>
+          <div>
+            <strong>20+ yrs</strong>
+            <span>organic farming experience</span>
+          </div>
+        </div>
+      </div>
+      <div className="about-orchard-media">
+        <img src="/lychee-orchard-hero.png" alt="Lychees in the orchard for the Lush Lychees MVP preview" />
+        <div>
+          <span>Public-story demo content</span>
+          <strong>Replace with approved owner images before launch</strong>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ProductButton({ product, selected, onClick }) {
   return (
     <button className={`product-card ${selected ? "selected" : ""}`} onClick={onClick} type="button">
@@ -259,7 +360,7 @@ function AdminPanel({
       <div className="admin-topbar">
         <div>
           <h2>Lush Lychees admin backend</h2>
-          <p>Owner backend for orders, delivery runs, box pricing, driver handoff, customer comms, and SocialAI calendar.</p>
+          <p>MVP owner backend preview for orders, delivery runs, box pricing, driver handoff, customer comms, and SocialAI calendar.</p>
         </div>
         <div className="admin-actions">
           <button className="secondary-action" onClick={resetDemoData} type="button">
@@ -531,7 +632,7 @@ function App() {
     setActiveView(view);
     if (typeof window !== "undefined") {
       window.requestAnimationFrame(() => {
-        document.getElementById("workflow-start")?.scrollIntoView({ block: "start" });
+        document.getElementById(`view-${view}`)?.scrollIntoView({ block: "start" });
       });
     }
   };
@@ -649,7 +750,7 @@ function App() {
           </span>
           <span>
             <strong>Lush Lychees</strong>
-            <small>Delivery Studio</small>
+            <small>MVP Delivery Studio</small>
           </span>
         </a>
         <nav aria-label="Primary">
@@ -672,16 +773,26 @@ function App() {
         </nav>
       </header>
 
+      <div className="mvp-banner" role="note">
+        <strong>MVP demo only.</strong>
+        <span>This is not the real Lush Lychees app. Orders, driver GPS, SMS, payments, and AI outputs are prototype previews.</span>
+      </div>
+
       <main id="top">
         <section className="hero">
           <div className="hero-copy">
+            <div className="mvp-pill">
+              <Sparkles size={16} />
+              Clickable MVP preview - not a live customer app
+            </div>
             <h1>One app for the whole lychee season.</h1>
             <p>
-              Lush Lychees can sell boxes, manage delivery runs, guide drivers, and publish seasonal social content from one simple workflow.
+              This prototype shows how Lush Lychees could sell boxes, manage delivery runs, guide drivers, and publish seasonal social
+              content from one simple workflow.
             </p>
             <div className="owner-note">
               <strong>Not just a selling tool:</strong>
-              <span>the same order becomes a packing total, driver stop, admin record, customer update, and SocialAI campaign prompt.</span>
+              <span>in the real build, the same order becomes a packing total, driver stop, admin record, customer update, and SocialAI campaign prompt.</span>
             </div>
             <div className="hero-actions">
               <button className="primary-action" onClick={() => showView("customer")} type="button">
@@ -708,6 +819,8 @@ function App() {
           </div>
         </section>
 
+        <AboutOrchardHero />
+
         <section className="workflow-grid" id="workflow-start" aria-label="What the app includes">
           <WorkflowCard
             active={activeView === "customer"}
@@ -719,10 +832,10 @@ function App() {
           />
           <WorkflowCard
             active={activeView === "driver" || activeView === "planner"}
-            detail="Stops, phone numbers, notes, delivery status."
+            detail="Live truck map, ETA, stops, notes, delivery status."
             icon={Truck}
             onClick={() => showView("driver")}
-            subtitle="Drivers see the run without a messy spreadsheet."
+            subtitle="Customers see the driver on the way; drivers see the run."
             title="Deliver"
           />
           <WorkflowCard
@@ -762,11 +875,11 @@ function App() {
         </section>
 
         {activeView === "customer" && (
-          <section className="workspace customer-workspace">
+          <section className="workspace customer-workspace" id="view-customer">
             <div className="workspace-main">
               <div className="section-heading">
                 <h2>Delivery area check</h2>
-                <p>Local suburbs map to the next available delivery run or collection fallback.</p>
+                <p>MVP demo: local suburbs map to the next available delivery run or collection fallback.</p>
               </div>
 
               <label className="search-field">
@@ -882,11 +995,11 @@ function App() {
                 <div className="confirmation-panel">
                   <CheckCircle2 size={21} />
                   <div>
-                    <strong>{orderResult.ref} captured in admin</strong>
+                    <strong>{orderResult.ref} captured in the MVP admin demo</strong>
                     <span>
                       {orderResult.status === "Waitlist"
                         ? "This became a waitlist lead so the farm can measure delivery demand."
-                        : "This order is now visible in the owner backend for packing and delivery."}
+                        : "This prototype order is now visible in the owner backend for packing, delivery, and tracking preview."}
                     </span>
                   </div>
                 </div>
@@ -897,12 +1010,16 @@ function App() {
         )}
 
         {activeView === "driver" && (
-          <section className="workspace driver-workspace">
+          <section className="workspace driver-workspace" id="view-driver">
             <div className="workspace-main">
               <div className="section-heading">
                 <h2>Driver delivery app</h2>
-                <p>Every confirmed order becomes a simple stop list with route notes, customer contact, and delivery status.</p>
+                <p>
+                  MVP demo: a driver run sheet plus a customer tracking map. Customers see the truck on the way, while the farm sees every stop.
+                </p>
               </div>
+
+              <TrackingMap run={selectedRun} orders={driverOrders} delivered={driverDelivered} />
 
               <div className="run-list compact driver-run-selector" aria-label="Choose driver run">
                 {runs.map((run) => (
@@ -921,7 +1038,7 @@ function App() {
                           <span>{order.address}</span>
                         </div>
                         <small>
-                          {order.quantity} x {order.productName} · {order.notes}
+                          {order.quantity} x {order.productName} - {order.notes}
                         </small>
                       </div>
                       <span className={`status-chip ${order.status.toLowerCase()}`}>{order.status}</span>
@@ -954,7 +1071,7 @@ function App() {
                 <Truck size={22} />
                 <div>
                   <h2>{selectedRun.name}</h2>
-                  <p>{selectedRun.date} · closes {selectedRun.cutOff}</p>
+                  <p>{selectedRun.date} - closes {selectedRun.cutOff}</p>
                 </div>
               </div>
 
@@ -1001,11 +1118,11 @@ function App() {
         )}
 
         {activeView === "planner" && (
-          <section className="workspace planner-workspace">
+          <section className="workspace planner-workspace" id="view-planner">
             <div className="workspace-main">
               <div className="section-heading">
                 <h2>Delivery run planner</h2>
-                <p>Runs carry suburb lists, cut-offs, capacity, fees, and packing totals.</p>
+              <p>MVP demo: runs carry suburb lists, cut-offs, capacity, fees, and packing totals.</p>
               </div>
               <div className="run-list">
                 {runs.map((run) => (
@@ -1055,11 +1172,11 @@ function App() {
         )}
 
         {activeView === "scout" && (
-          <section className="workspace scout-workspace">
+          <section className="workspace scout-workspace" id="view-scout">
             <div className="workspace-main">
               <div className="section-heading">
                 <h2>AI Orchard Scout</h2>
-                <p>Photo notes become harvest-window signals and packing guidance for the next delivery release.</p>
+                <p>MVP demo: photo notes become harvest-window signals and packing guidance for the next delivery release.</p>
               </div>
               <div className="block-grid">
                 {orchardBlocks.map((block) => (
@@ -1128,11 +1245,11 @@ function App() {
         )}
 
         {activeView === "social" && (
-          <section className="workspace social-workspace">
+          <section className="workspace social-workspace" id="view-social">
             <div className="workspace-main">
               <div className="section-heading">
                 <h2>SocialAI Studio</h2>
-                <p>A social media tool for the farm: turn delivery runs, harvest notes, and box availability into ready-to-edit posts.</p>
+                <p>MVP demo: a social media tool for the farm, showing how delivery runs and harvest notes can become ready-to-edit posts.</p>
               </div>
 
               <div className="social-command">
@@ -1270,7 +1387,8 @@ function App() {
         )}
 
         {activeView === "admin" && (
-          <AdminPanel
+          <section id="view-admin">
+            <AdminPanel
             adminAuthed={adminAuthed}
             setAdminAuthed={setAdminAuthed}
             store={store}
@@ -1278,8 +1396,17 @@ function App() {
             selectedRunId={selectedRunId}
             setSelectedRunId={setSelectedRunId}
             orderImpact={orderImpact}
-          />
+            />
+          </section>
         )}
+
+        <section className="mvp-disclaimer-panel" aria-label="MVP disclaimer">
+          <strong>This is a clickable MVP preview, not the live Lush Lychees app.</strong>
+          <span>
+            All orders, driver locations, ETAs, SMS/email drafts, payments, SocialAI content, and orchard AI results are simulated
+            to show what the production app could become after owner approval.
+          </span>
+        </section>
       </main>
     </div>
   );

@@ -11,7 +11,7 @@ The MVP is a standalone prototype called **Lush Lychees Delivery Studio**. It sh
 The prototype has four linked surfaces:
 
 - Customer ordering: season status, delivery-area lookup, box selection, and pre-order confirmation.
-- Delivery planning and driver app: admin view of runs, cut-off times, capacity, order totals, packing totals, driver stops, customer contact, and delivery status.
+- Delivery planning and driver app: admin view of runs, cut-off times, capacity, order totals, packing totals, driver stops, customer contact, delivery status, and customer-facing live tracking preview.
 - AI Orchard Scout: photo-based orchard note flow for ripeness, pest/damage observations, and harvest-window guidance.
 - SocialAI Studio: farm-specific content engine that turns delivery runs, harvest notes, and box availability into ready-to-post seasonal campaigns.
 - Owner backend: clickable admin area that shows orders, editable runs, editable box pricing, driver handoff, customer comms, SocialAI calendar, and impact estimates.
@@ -24,7 +24,9 @@ In scope:
 - Real interactive local state for suburb lookup, order selection, run capacity, and AI scout result simulation.
 - A branded SocialAI Studio instance for Lush Lychees with post drafts, scheduling prompts, channels, hashtags, and image prompts.
 - A simpler four-part product story: Sell, Deliver, Manage, and SocialAI.
+- An about-the-orchard hero section grounded in Lush Lychees' current public orchard story.
 - Driver app proof that the MVP is a delivery tool as well as a selling tool.
+- Clear visible MVP disclaimers stating the app is a prototype preview, not the real production Lush Lychees app.
 - Welded-in impact estimates that explicitly explain time and financial gains over the current manual delivery workflow: fewer delivery questions, fewer admin hours, structured demand capture, and confirmed packing/driver counts.
 - Queensland/local delivery examples that can be changed later by the producer.
 - Copy grounded in Lush Lychees' current positioning: family farm, farm gate, seasonal boxes, collection/delivery.
