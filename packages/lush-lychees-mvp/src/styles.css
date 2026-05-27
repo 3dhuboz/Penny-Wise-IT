@@ -260,6 +260,7 @@ main {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin: -8px 0 14px;
+  scroll-margin-top: 96px;
 }
 
 .workflow-card {

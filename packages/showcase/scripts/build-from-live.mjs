@@ -6,7 +6,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = dirname(scriptDir);
 const dist = join(root, "dist");
 
-const builderUrl = "https://pennybuilder.steve-700.workers.dev/sign-up";
+const builderUrl = "https://builder.pennywiseit.com.au/sign-up";
 const talkUrl = "mailto:steve@pennywiseit.com.au?subject=Penny%20Wise%20I.T%20website%20enquiry";
 
 const paths = [

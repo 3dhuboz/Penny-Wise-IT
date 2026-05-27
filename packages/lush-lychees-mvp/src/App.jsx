@@ -527,6 +527,15 @@ function App() {
   const driverOrders = store.orders.filter((order) => order.runId === selectedRun.id && order.status !== "Waitlist");
   const driverDelivered = driverOrders.filter((order) => order.status === "Delivered").length;
 
+  const showView = (view) => {
+    setActiveView(view);
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        document.getElementById("workflow-start")?.scrollIntoView({ block: "start" });
+      });
+    }
+  };
+
   const increaseCapacity = () => {
     setStore((current) => ({
       ...current,
@@ -644,19 +653,19 @@ function App() {
           </span>
         </a>
         <nav aria-label="Primary">
-          <button className={activeView === "customer" ? "active" : ""} onClick={() => setActiveView("customer")} type="button">
+          <button className={activeView === "customer" ? "active" : ""} onClick={() => showView("customer")} type="button">
             <Search size={17} />
             Sell
           </button>
-          <button className={activeView === "driver" || activeView === "planner" ? "active" : ""} onClick={() => setActiveView("driver")} type="button">
+          <button className={activeView === "driver" || activeView === "planner" ? "active" : ""} onClick={() => showView("driver")} type="button">
             <Truck size={17} />
             Deliver
           </button>
-          <button className={activeView === "admin" ? "active" : ""} onClick={() => setActiveView("admin")} type="button">
+          <button className={activeView === "admin" ? "active" : ""} onClick={() => showView("admin")} type="button">
             <Lock size={17} />
             Manage
           </button>
-          <button className={activeView === "social" || activeView === "scout" ? "active" : ""} onClick={() => setActiveView("social")} type="button">
+          <button className={activeView === "social" || activeView === "scout" ? "active" : ""} onClick={() => showView("social")} type="button">
             <Megaphone size={17} />
             SocialAI
           </button>
@@ -675,15 +684,15 @@ function App() {
               <span>the same order becomes a packing total, driver stop, admin record, customer update, and SocialAI campaign prompt.</span>
             </div>
             <div className="hero-actions">
-              <button className="primary-action" onClick={() => setActiveView("customer")} type="button">
+              <button className="primary-action" onClick={() => showView("customer")} type="button">
                 <MapPin size={18} />
                 Customer ordering
               </button>
-              <button className="secondary-action" onClick={() => setActiveView("driver")} type="button">
+              <button className="secondary-action" onClick={() => showView("driver")} type="button">
                 <Truck size={18} />
                 Driver app
               </button>
-              <button className="secondary-action" onClick={() => setActiveView("admin")} type="button">
+              <button className="secondary-action" onClick={() => showView("admin")} type="button">
                 <Lock size={18} />
                 Owner backend
               </button>
@@ -699,12 +708,12 @@ function App() {
           </div>
         </section>
 
-        <section className="workflow-grid" aria-label="What the app includes">
+        <section className="workflow-grid" id="workflow-start" aria-label="What the app includes">
           <WorkflowCard
             active={activeView === "customer"}
             detail="Suburb checker, box reservation, waitlist capture."
             icon={Search}
-            onClick={() => setActiveView("customer")}
+            onClick={() => showView("customer")}
             subtitle="Customers reserve only where a run is open."
             title="Sell"
           />
@@ -712,7 +721,7 @@ function App() {
             active={activeView === "driver" || activeView === "planner"}
             detail="Stops, phone numbers, notes, delivery status."
             icon={Truck}
-            onClick={() => setActiveView("driver")}
+            onClick={() => showView("driver")}
             subtitle="Drivers see the run without a messy spreadsheet."
             title="Deliver"
           />
@@ -720,7 +729,7 @@ function App() {
             active={activeView === "admin"}
             detail="Orders, cut-offs, capacity, products, comms."
             icon={Lock}
-            onClick={() => setActiveView("admin")}
+            onClick={() => showView("admin")}
             subtitle="The owner controls the season from one backend."
             title="Manage"
           />
@@ -728,7 +737,7 @@ function App() {
             active={activeView === "social" || activeView === "scout"}
             detail="SocialAI drafts plus harvest-aware content prompts."
             icon={Megaphone}
-            onClick={() => setActiveView("social")}
+            onClick={() => showView("social")}
             subtitle="Turn delivery runs and orchard notes into posts."
             title="Market"
           />
@@ -983,7 +992,7 @@ function App() {
                 <Send size={18} />
                 Draft driver/customer update
               </button>
-              <button className="secondary-action full" onClick={() => setActiveView("planner")} type="button">
+              <button className="secondary-action full" onClick={() => showView("planner")} type="button">
                 <Route size={18} />
                 Open run planner
               </button>
@@ -1197,7 +1206,7 @@ function App() {
                   <span>Harvest photo prompt</span>
                 </div>
               </div>
-              <button className="secondary-action social-generate" onClick={() => setActiveView("scout")} type="button">
+              <button className="secondary-action social-generate" onClick={() => showView("scout")} type="button">
                 <Camera size={18} />
                 Open AI Orchard Scout
               </button>
