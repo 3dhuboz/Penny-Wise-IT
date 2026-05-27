@@ -21,9 +21,12 @@ npm run build
 
 - Customer suburb/postcode lookup against configured delivery runs.
 - Seasonal box selection with quantity and total calculation.
+- Clickable demo checkout that creates an order or waitlist lead in the admin backend.
 - Admin delivery run planner with capacity and packing totals.
+- Admin backend with demo PIN, order status controls, editable runs, editable box pricing, customer message preview, and SocialAI calendar.
 - AI Orchard Scout simulation for block notes, ripeness confidence, harvest window, and follow-up.
 - SocialAI Studio instance for campaign angles, Facebook/Instagram drafts, hashtags, AI image prompts, and schedule slots.
+- Welded-in delivery ROI placeholders explaining expected time and financial benefits over a manual delivery workflow.
 
 ## Production path
 

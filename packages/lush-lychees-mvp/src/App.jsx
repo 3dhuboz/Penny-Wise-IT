@@ -1,31 +1,47 @@
 import {
   BarChart3,
+  Bell,
   Brain,
   CalendarDays,
   Camera,
   CheckCircle2,
   ChevronRight,
   ClipboardList,
+  DollarSign,
+  Edit3,
   Facebook,
   Hash,
+  Home,
   Image as ImageIcon,
   Instagram,
   Leaf,
+  ListChecks,
+  Lock,
+  LogOut,
+  Mail,
   MapPin,
   Megaphone,
+  MessageSquare,
   Minus,
   PackageCheck,
+  PackagePlus,
+  Phone,
   Plus,
+  RotateCcw,
   Route,
+  Save,
   Search,
   Send,
   Sparkles,
   Target,
+  TimerReset,
   Truck,
+  User,
   Wand2
 } from "lucide-react";
-import { useMemo, useState } from "react";
-import { deliveryRuns, orchardBlocks, products, socialCampaigns } from "./data.js";
+import { useEffect, useMemo, useState } from "react";
+import { deliveryRuns as seedDeliveryRuns, orchardBlocks, products as seedProducts, socialCampaigns } from "./data.js";
+import { createInitialStore, demoPin, loadStore, resetStore, saveStore } from "./demoStore.js";
 
 const money = new Intl.NumberFormat("en-AU", {
   style: "currency",
@@ -137,12 +153,344 @@ function RunCard({ run, selected, onClick }) {
   );
 }
 
+function TextField({ icon: Icon, label, value, onChange, placeholder, type = "text" }) {
+  return (
+    <label className="text-field">
+      <span>{label}</span>
+      <div>
+        {Icon && <Icon size={17} />}
+        <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} type={type} />
+      </div>
+    </label>
+  );
+}
+
+function AdminPanel({
+  adminAuthed,
+  setAdminAuthed,
+  store,
+  setStore,
+  selectedRunId,
+  setSelectedRunId,
+  orderImpact
+}) {
+  const [pin, setPin] = useState("");
+  const [adminTab, setAdminTab] = useState("overview");
+  const [adminNotice, setAdminNotice] = useState("Backend ready. Place a demo order, edit a run, or save a SocialAI draft.");
+  const selectedRun = store.runs.find((run) => run.id === selectedRunId) ?? store.runs[0];
+  const activeOrders = store.orders.filter((order) => order.status !== "Waitlist");
+  const waitlistOrders = store.orders.filter((order) => order.status === "Waitlist");
+  const reservedBoxes = activeOrders.reduce((sum, order) => sum + order.quantity, 0);
+  const projectedRevenue = store.orders.reduce((sum, order) => sum + order.total, 0);
+
+  const logActivity = (message) => {
+    setAdminNotice(message);
+    setStore((current) => ({
+      ...current,
+      activityLog: [message, ...current.activityLog].slice(0, 8)
+    }));
+  };
+
+  const updateRun = (runId, patch) => {
+    setStore((current) => ({
+      ...current,
+      runs: current.runs.map((run) => (run.id === runId ? { ...run, ...patch } : run))
+    }));
+  };
+
+  const updateProduct = (productId, patch) => {
+    setStore((current) => ({
+      ...current,
+      products: current.products.map((product) => (product.id === productId ? { ...product, ...patch } : product))
+    }));
+  };
+
+  const updateOrderStatus = (orderId, status) => {
+    setStore((current) => ({
+      ...current,
+      orders: current.orders.map((order) => (order.id === orderId ? { ...order, status } : order)),
+      activityLog: [`${orderId} marked ${status}.`, ...current.activityLog].slice(0, 8)
+    }));
+    setAdminNotice(`${orderId} marked ${status}.`);
+  };
+
+  const resetDemoData = () => {
+    resetStore();
+    setStore(createInitialStore(seedProducts, seedDeliveryRuns));
+  };
+
+  if (!adminAuthed) {
+    return (
+      <section className="admin-login">
+        <div>
+          <Lock size={30} />
+          <h2>Farm admin backend</h2>
+          <p>
+            Private demo login for Lush Lychees. This is the control room for runs, capacity, packing,
+            orders, customer messages, and SocialAI content.
+          </p>
+          <div className="demo-pin">Demo PIN: {demoPin}</div>
+          <label>
+            <span>Enter PIN</span>
+            <input value={pin} onChange={(event) => setPin(event.target.value)} placeholder="4702" type="password" />
+          </label>
+          <button
+            className="primary-action"
+            onClick={() => {
+              if (pin === demoPin || pin.trim() === "") {
+                setAdminAuthed(true);
+              }
+            }}
+            type="button"
+          >
+            <Lock size={18} />
+            Open admin backend
+          </button>
+          <small>For the owner demo, leaving it blank also opens admin so she cannot get stuck.</small>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="admin-shell">
+      <div className="admin-topbar">
+        <div>
+          <h2>Lush Lychees admin backend</h2>
+          <p>Clickable MVP backend: delivery runs, orders, products, customer comms, and SocialAI calendar.</p>
+        </div>
+        <div className="admin-actions">
+          <button className="secondary-action" onClick={resetDemoData} type="button">
+            <RotateCcw size={17} />
+            Reset demo data
+          </button>
+          <button className="secondary-action" onClick={() => setAdminAuthed(false)} type="button">
+            <LogOut size={17} />
+            Lock
+          </button>
+        </div>
+      </div>
+
+      <div className="owner-roi-panel">
+        <div>
+          <span>MVP estimate placeholder</span>
+          <strong>6-10 admin hours saved per week</strong>
+          <p>Suburb checker, cut-offs, run capacity, and grouped packing lists replace manual DMs and spreadsheet sorting.</p>
+        </div>
+        <div>
+          <span>MVP estimate placeholder</span>
+          <strong>40-60 delivery questions avoided per week</strong>
+          <p>Customers answer “do you deliver to me?” themselves before they message the farm.</p>
+        </div>
+        <div>
+          <span>MVP estimate placeholder</span>
+          <strong>{money.format(orderImpact)} in demo orders captured</strong>
+          <p>Every order and waitlist request becomes structured demand instead of getting lost in inboxes.</p>
+        </div>
+        <div>
+          <span>MVP estimate placeholder</span>
+          <strong>Pick to confirmed boxes</strong>
+          <p>Run limits and cut-offs protect the pack shed from over-promising during a short harvest window.</p>
+        </div>
+      </div>
+
+      <div className="admin-tabs" aria-label="Admin sections">
+        {[
+          ["overview", "Dashboard", BarChart3],
+          ["orders", "Orders", ListChecks],
+          ["runs", "Delivery runs", Truck],
+          ["products", "Boxes", PackagePlus],
+          ["comms", "Comms + SocialAI", MessageSquare]
+        ].map(([key, label, Icon]) => (
+          <button className={adminTab === key ? "active" : ""} key={key} onClick={() => setAdminTab(key)} type="button">
+            <Icon size={17} />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="admin-notice">
+        <CheckCircle2 size={18} />
+        <span>{adminNotice}</span>
+      </div>
+
+      {adminTab === "overview" && (
+        <div className="admin-grid">
+          <div className="admin-card">
+            <span>Orders</span>
+            <strong>{activeOrders.length}</strong>
+            <p>{reservedBoxes} boxes reserved across open runs.</p>
+          </div>
+          <div className="admin-card">
+            <span>Waitlist</span>
+            <strong>{waitlistOrders.length}</strong>
+            <p>New suburb demand captured for future delivery decisions.</p>
+          </div>
+          <div className="admin-card">
+            <span>Demo revenue</span>
+            <strong>{money.format(projectedRevenue)}</strong>
+            <p>Placeholder total from captured demo orders.</p>
+          </div>
+          <div className="admin-card">
+            <span>Next cut-off</span>
+            <strong>{selectedRun.cutOff}</strong>
+            <p>{selectedRun.name} closes before picking and packing are confirmed.</p>
+          </div>
+        </div>
+      )}
+
+      {adminTab === "orders" && (
+        <div className="admin-card wide">
+          <div className="admin-card-heading">
+            <div>
+              <h3>Live demo orders</h3>
+              <p>Place an order on the customer side, then it appears here for packing and delivery.</p>
+            </div>
+          </div>
+          <div className="orders-table">
+            {store.orders.map((order) => (
+              <article className="order-row" key={order.id}>
+                <div>
+                  <strong>{order.ref}</strong>
+                  <span>{order.customerName} - {order.suburb}</span>
+                </div>
+                <div>
+                  <strong>{order.quantity} x {order.productName}</strong>
+                  <span>{order.runName} - {money.format(order.total)}</span>
+                </div>
+                <div className={`status-chip ${order.status.toLowerCase()}`}>{order.status}</div>
+                <div className="row-actions">
+                  {["Reserved", "Packed", "Delivered"].map((status) => (
+                    <button key={status} onClick={() => updateOrderStatus(order.id, status)} type="button">
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {adminTab === "runs" && (
+        <div className="admin-split">
+          <div className="admin-card">
+            <h3>Open delivery runs</h3>
+            <div className="run-list compact">
+              {store.runs.map((run) => (
+                <RunCard key={run.id} run={run} selected={run.id === selectedRunId} onClick={() => setSelectedRunId(run.id)} />
+              ))}
+            </div>
+          </div>
+          <div className="admin-card">
+            <h3>Edit selected run</h3>
+            <div className="admin-form-grid">
+              <TextField label="Run name" value={selectedRun.name} onChange={(value) => updateRun(selectedRun.id, { name: value })} />
+              <TextField label="Delivery date" value={selectedRun.date} onChange={(value) => updateRun(selectedRun.id, { date: value })} />
+              <TextField label="Cut-off" value={selectedRun.cutOff} onChange={(value) => updateRun(selectedRun.id, { cutOff: value })} />
+              <TextField
+                label="Delivery fee"
+                type="number"
+                value={String(selectedRun.fee)}
+                onChange={(value) => updateRun(selectedRun.id, { fee: Number(value) || 0 })}
+              />
+              <TextField
+                label="Capacity"
+                type="number"
+                value={String(selectedRun.capacity)}
+                onChange={(value) => updateRun(selectedRun.id, { capacity: Number(value) || 0 })}
+              />
+              <TextField
+                label="Reserved boxes"
+                type="number"
+                value={String(selectedRun.reserved)}
+                onChange={(value) => updateRun(selectedRun.id, { reserved: Number(value) || 0 })}
+              />
+            </div>
+            <label className="note-field">
+              <span>Suburbs / postcodes</span>
+              <textarea
+                value={selectedRun.suburbs.join(", ")}
+                onChange={(event) => updateRun(selectedRun.id, { suburbs: event.target.value.split(",").map((item) => item.trim().toLowerCase()).filter(Boolean) })}
+                rows={3}
+              />
+            </label>
+            <button className="secondary-action full" onClick={() => logActivity(`${selectedRun.name} delivery settings saved.`)} type="button">
+              <Save size={18} />
+              Save run settings
+            </button>
+          </div>
+        </div>
+      )}
+
+      {adminTab === "products" && (
+        <div className="admin-card wide">
+          <h3>Lychee boxes and pricing</h3>
+          <div className="product-editor-grid">
+            {store.products.map((product) => (
+              <article className="product-editor" key={product.id}>
+                <strong>{product.name}</strong>
+                <TextField label="Price" type="number" value={String(product.price)} onChange={(value) => updateProduct(product.id, { price: Number(value) || 0 })} />
+                <TextField label="Weight" value={product.weight} onChange={(value) => updateProduct(product.id, { weight: value })} />
+                <label className="note-field">
+                  <span>Description</span>
+                  <textarea value={product.description} onChange={(event) => updateProduct(product.id, { description: event.target.value })} rows={3} />
+                </label>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {adminTab === "comms" && (
+        <div className="admin-split">
+          <div className="admin-card">
+            <h3>Customer update preview</h3>
+            <div className="message-preview">
+              <Bell size={20} />
+              <p>
+                Hi from Lush Lychees. {selectedRun.name} delivery is open for {selectedRun.date}.
+                Orders close {selectedRun.cutOff}. Reserve your box before picking is planned.
+              </p>
+            </div>
+            <button className="primary-action full" onClick={() => logActivity(`${selectedRun.name} customer update drafted.`)} type="button">
+              <Send size={18} />
+              Draft SMS/email update
+            </button>
+          </div>
+          <div className="admin-card">
+            <h3>SocialAI calendar</h3>
+            {store.socialCalendar.length ? (
+              <div className="calendar-list">
+                {store.socialCalendar.map((item) => (
+                  <article key={item.id}>
+                    <strong>{item.platform} - {item.campaign}</strong>
+                    <span>{item.caption}</span>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="empty-copy">Generate a SocialAI draft and save it to the calendar to prove the marketing loop.</p>
+            )}
+            <h3>Activity log</h3>
+            <div className="activity-list">
+              {store.activityLog.map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function App() {
+  const [store, setStore] = useState(() => loadStore(seedProducts, seedDeliveryRuns));
   const [activeView, setActiveView] = useState("customer");
   const [query, setQuery] = useState("Yeppoon");
   const [selectedProductId, setSelectedProductId] = useState("three-kg");
   const [quantity, setQuantity] = useState(1);
-  const [runs, setRuns] = useState(deliveryRuns);
   const [selectedRunId, setSelectedRunId] = useState("capricorn-coast");
   const [selectedBlockId, setSelectedBlockId] = useState("ridge-c");
   const [rowNote, setRowNote] = useState("Deep blush on outer clusters, clean skin, a few small bird marks near row 22.");
@@ -150,7 +498,21 @@ function App() {
   const [selectedCampaignId, setSelectedCampaignId] = useState("delivery-launch");
   const [selectedPlatform, setSelectedPlatform] = useState("Instagram");
   const [socialDraft, setSocialDraft] = useState(null);
+  const [adminAuthed, setAdminAuthed] = useState(false);
+  const [customer, setCustomer] = useState({
+    name: "Demo customer",
+    mobile: "0400 000 000",
+    email: "hello@example.com",
+    address: "Yeppoon QLD"
+  });
+  const [orderResult, setOrderResult] = useState(null);
 
+  useEffect(() => {
+    saveStore(store);
+  }, [store]);
+
+  const products = store.products;
+  const runs = store.runs;
   const matchedRun = useMemo(() => findRun(query, runs), [query, runs]);
   const selectedProduct = products.find((product) => product.id === selectedProductId) ?? products[0];
   const selectedRun = runs.find((run) => run.id === selectedRunId) ?? runs[0];
@@ -159,21 +521,22 @@ function App() {
   const itemTotal = selectedProduct.price * quantity;
   const deliveryFee = matchedRun ? matchedRun.fee : 0;
   const orderTotal = itemTotal + deliveryFee;
+  const orderImpact = store.orders.reduce((sum, order) => sum + order.total, 0);
 
   const increaseCapacity = () => {
-    setRuns((currentRuns) =>
-      currentRuns.map((run) => {
-        if (run.id !== selectedRun.id) {
-          return run;
-        }
+    setStore((current) => ({
+      ...current,
+      runs: current.runs.map((run) => {
+        if (run.id !== selectedRun.id) return run;
 
         return {
           ...run,
           reserved: Math.min(run.capacity, run.reserved + 6),
           orders: run.reserved + 6 <= run.capacity ? run.orders + 2 : run.orders
         };
-      })
-    );
+      }),
+      activityLog: [`${selectedRun.name} sample orders added to demonstrate capacity.`, ...current.activityLog].slice(0, 8)
+    }));
   };
 
   const runScout = () => {
@@ -182,6 +545,70 @@ function App() {
 
   const generateSocialDraft = () => {
     setSocialDraft(createSocialDraft({ campaign: selectedCampaign, run: selectedRun, block: selectedBlock, platform: selectedPlatform }));
+  };
+
+  const saveSocialDraft = () => {
+    if (!socialDraft) return;
+
+    setStore((current) => ({
+      ...current,
+      socialCalendar: [
+        {
+          id: `social-${Date.now()}`,
+          platform: selectedPlatform,
+          campaign: selectedCampaign.name,
+          caption: socialDraft.caption,
+          createdAt: "Just now"
+        },
+        ...current.socialCalendar
+      ],
+      activityLog: [`${selectedCampaign.name} saved to SocialAI calendar.`, ...current.activityLog].slice(0, 8)
+    }));
+  };
+
+  const submitOrder = () => {
+    const runForOrder = matchedRun;
+    const ref = runForOrder ? `LL-${Math.floor(1100 + Math.random() * 800)}` : `WAIT-${Math.floor(300 + Math.random() * 600)}`;
+    const newOrder = {
+      id: `order-${Date.now()}`,
+      ref,
+      customerName: customer.name || "Demo customer",
+      mobile: customer.mobile || "Not supplied",
+      email: customer.email || "Not supplied",
+      address: customer.address || query,
+      suburb: query,
+      productId: selectedProduct.id,
+      productName: selectedProduct.name,
+      quantity,
+      deliveryFee,
+      itemTotal,
+      total: runForOrder ? orderTotal : itemTotal,
+      runId: runForOrder?.id ?? null,
+      runName: runForOrder?.name ?? "Waitlist",
+      status: runForOrder ? "Reserved" : "Waitlist",
+      notes: runForOrder ? "Customer created from demo checkout." : "Customer wants delivery if this suburb is opened.",
+      createdAt: "Just now"
+    };
+
+    setStore((current) => ({
+      ...current,
+      orders: [newOrder, ...current.orders],
+      runs: current.runs.map((run) => {
+        if (!runForOrder || run.id !== runForOrder.id) return run;
+
+        return {
+          ...run,
+          reserved: Math.min(run.capacity, run.reserved + quantity),
+          orders: run.orders + 1,
+          packingTotals: {
+            ...run.packingTotals,
+            [selectedProduct.name]: (run.packingTotals[selectedProduct.name] || 0) + quantity
+          }
+        };
+      }),
+      activityLog: [`${newOrder.ref} captured from customer checkout.`, ...current.activityLog].slice(0, 8)
+    }));
+    setOrderResult(newOrder);
   };
 
   return (
@@ -213,6 +640,10 @@ function App() {
             <Megaphone size={17} />
             SocialAI
           </button>
+          <button className={activeView === "admin" ? "active" : ""} onClick={() => setActiveView("admin")} type="button">
+            <Lock size={17} />
+            Admin
+          </button>
         </nav>
       </header>
 
@@ -224,6 +655,10 @@ function App() {
               A seasonal ordering app for Lush Lychees: customers reserve local boxes, the farm opens delivery runs by suburb,
               and harvest decisions stay tied to the crop.
             </p>
+            <div className="owner-note">
+              <strong>Built around the delivery challenge:</strong>
+              <span>define the run first, then let customers order only inside opened suburbs, cut-offs and capacity.</span>
+            </div>
             <div className="hero-actions">
               <button className="primary-action" onClick={() => setActiveView("customer")} type="button">
                 <MapPin size={18} />
@@ -232,6 +667,10 @@ function App() {
               <button className="secondary-action" onClick={() => setActiveView("planner")} type="button">
                 <ClipboardList size={18} />
                 Plan delivery run
+              </button>
+              <button className="secondary-action" onClick={() => setActiveView("admin")} type="button">
+                <Lock size={18} />
+                Open owner backend
               </button>
             </div>
           </div>
@@ -251,6 +690,24 @@ function App() {
           <Stat icon={PackageCheck} label="Reserved" value="192 boxes" />
           <Stat icon={Sparkles} label="AI scout" value="Ridge C ready" />
           <Stat icon={Megaphone} label="SocialAI" value="5 campaigns" />
+        </section>
+
+        <section className="benefit-band" aria-label="Delivery benefits">
+          <div>
+            <TimerReset size={22} />
+            <strong>6-10 admin hours saved per week</strong>
+            <span>MVP estimate placeholder: suburb checks, cut-offs and packing totals replace manual message sorting.</span>
+          </div>
+          <div>
+            <MessageSquare size={22} />
+            <strong>40-60 delivery questions avoided per week</strong>
+            <span>MVP estimate placeholder: customers can check eligibility before sending a DM.</span>
+          </div>
+          <div>
+            <DollarSign size={22} />
+            <strong>{money.format(orderImpact)} structured demand captured</strong>
+            <span>Demo total: orders and waitlist requests become data the farm can act on.</span>
+          </div>
         </section>
 
         {activeView === "customer" && (
@@ -340,10 +797,49 @@ function App() {
                   <dd>{matchedRun ? money.format(orderTotal) : money.format(itemTotal)}</dd>
                 </div>
               </dl>
-              <button className="primary-action full" type="button">
+              <div className="checkout-fields">
+                <TextField
+                  icon={User}
+                  label="Customer name"
+                  value={customer.name}
+                  onChange={(value) => setCustomer((current) => ({ ...current, name: value }))}
+                />
+                <TextField
+                  icon={Phone}
+                  label="Mobile"
+                  value={customer.mobile}
+                  onChange={(value) => setCustomer((current) => ({ ...current, mobile: value }))}
+                />
+                <TextField
+                  icon={Mail}
+                  label="Email"
+                  value={customer.email}
+                  onChange={(value) => setCustomer((current) => ({ ...current, email: value }))}
+                />
+                <TextField
+                  icon={Home}
+                  label="Delivery address"
+                  value={customer.address}
+                  onChange={(value) => setCustomer((current) => ({ ...current, address: value }))}
+                />
+              </div>
+              <button className="primary-action full" onClick={submitOrder} type="button">
                 Reserve seasonal box
                 <ChevronRight size={18} />
               </button>
+              {orderResult && (
+                <div className="confirmation-panel">
+                  <CheckCircle2 size={21} />
+                  <div>
+                    <strong>{orderResult.ref} captured in admin</strong>
+                    <span>
+                      {orderResult.status === "Waitlist"
+                        ? "This became a waitlist lead so the farm can measure delivery demand."
+                        : "This order is now visible in the owner backend for packing and delivery."}
+                    </span>
+                  </div>
+                </div>
+              )}
               <p className="fine-print">Payments, SMS, and emails can plug into the production build after the run rules are approved.</p>
             </aside>
           </section>
@@ -599,7 +1095,7 @@ function App() {
                     ))}
                   </div>
 
-                  <button className="secondary-action full" type="button">
+                  <button className="secondary-action full" onClick={saveSocialDraft} type="button">
                     <Send size={18} />
                     Save to content calendar
                   </button>
@@ -612,6 +1108,18 @@ function App() {
               )}
             </aside>
           </section>
+        )}
+
+        {activeView === "admin" && (
+          <AdminPanel
+            adminAuthed={adminAuthed}
+            setAdminAuthed={setAdminAuthed}
+            store={store}
+            setStore={setStore}
+            selectedRunId={selectedRunId}
+            setSelectedRunId={setSelectedRunId}
+            orderImpact={orderImpact}
+          />
         )}
       </main>
     </div>
