@@ -263,15 +263,15 @@ function shell({ title, description, active = "/", body }) {
     .path-strip {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1px;
-      border: 1px solid var(--line);
-      background: var(--line);
-      border-radius: 8px;
-      overflow: hidden;
+      gap: 14px;
     }
     .path {
+      display: grid;
+      align-content: start;
       padding: 28px;
-      background: rgba(16,20,29,.88);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.035));
       min-height: 210px;
     }
     .path strong {
@@ -283,6 +283,22 @@ function shell({ title, description, active = "/", body }) {
       margin-bottom: 14px;
     }
     .path p, .item p, .price p, .question p, .mock p { color: var(--muted); margin-bottom: 0; }
+    .section-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 28px;
+      margin-bottom: 22px;
+    }
+    .section-header h2 {
+      margin-bottom: 0;
+      font-size: clamp(1.9rem, 3.6vw, 3.3rem);
+    }
+    .section-header p {
+      max-width: 470px;
+      color: var(--muted);
+      margin-bottom: 0;
+    }
     .offer-head {
       display: flex;
       align-items: end;
@@ -432,20 +448,40 @@ function shell({ title, description, active = "/", body }) {
     }
     .list {
       display: grid;
-      gap: 1px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--line);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }
     .item {
-      display: grid;
-      grid-template-columns: minmax(160px, .32fr) minmax(0, 1fr);
-      gap: 24px;
+      min-height: 168px;
       padding: 24px;
-      background: rgba(255,255,255,.045);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(155deg, rgba(255,255,255,.08), rgba(255,255,255,.035)),
+        rgba(18,22,31,.86);
     }
-    .item b { color: var(--ink); }
+    .item b {
+      display: block;
+      color: var(--ink);
+      font-size: 1.08rem;
+      margin-bottom: 12px;
+    }
+    .item .tag {
+      display: inline-flex;
+      width: fit-content;
+      margin-bottom: 16px;
+      border: 1px solid rgba(240,179,107,.24);
+      border-radius: 999px;
+      padding: 5px 8px;
+      color: var(--copper-2);
+      background: rgba(212,135,57,.08);
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+    .split .list { grid-template-columns: 1fr; }
+    .split .item { min-height: auto; }
     .quiet-band {
       background: rgba(255,255,255,.035);
       border-top: 1px solid var(--line);
@@ -472,7 +508,11 @@ function shell({ title, description, active = "/", body }) {
     }
     ul { margin: 18px 0 0; padding-left: 18px; color: var(--muted); }
     li + li { margin-top: 8px; }
-    .faq-grid { display: grid; gap: 12px; }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
     .question {
       padding: 24px;
       border: 1px solid var(--line);
@@ -512,8 +552,8 @@ function shell({ title, description, active = "/", body }) {
       nav { justify-content: flex-start; }
       .nav-cta, .nav-builder { margin-left: 0; }
       .hero { padding-top: 64px; }
-      .hero-grid, .split, .path-strip, .offer-grid, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
-      .offer-head { align-items: flex-start; flex-direction: column; }
+      .hero-grid, .split, .path-strip, .offer-grid, .list, .faq-grid, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
+      .offer-head, .section-header { align-items: flex-start; flex-direction: column; }
       .offer-card { min-height: auto; }
       .item { grid-template-columns: 1fr; gap: 10px; }
     }
@@ -626,7 +666,7 @@ function appsPage() {
     description: "Whitelabel app platforms for Australian small businesses.",
     body: `<main>
       <section class="hero"><div class="container"><h1>Whitelabel apps for real operators.</h1><p class="lead">Eight practical platforms for businesses that want their own brand, own domain, and own customer flow.</p><div class="actions"><a class="btn btn-primary" href="${talkUrl}">Talk through an app</a><a class="btn btn-secondary" href="/pricing">See pricing</a></div></div></section>
-      <section><div class="container list">${appPlatforms.map(([name, text]) => `<div class="item"><b>${name}</b><p>${text}</p></div>`).join("")}</div></section>
+      <section><div class="container"><div class="section-header"><h2>Practical platforms, not one-off brochure pages.</h2><p>Each option gives the business a branded customer flow, an admin surface, and a clear reason to replace manual work or third-party fees.</p></div><div class="list">${appPlatforms.map(([name, text]) => `<article class="item"><span class="tag">App platform</span><b>${name}</b><p>${text}</p></article>`).join("")}</div></div></section>
     </main>`,
   });
 }
@@ -636,7 +676,7 @@ function toolsPage() {
     active: "/tools",
     title: "Tools - Penny Wise I.T",
     description: "Self-serve tools from Penny Wise I.T.",
-    body: `<main><section class="hero"><div class="container"><h1>Self-serve tools that solve one job clearly.</h1><p class="lead">Not every customer needs a full custom build. These tools let them start smaller and still stay inside the Penny Wise ecosystem.</p></div></section><section><div class="container list">${tools.map(([name, label, text]) => `<div class="item"><b>${name}<br><span style="color:var(--copper-2);font-size:.92rem;">${label}</span></b><p>${text}</p></div>`).join("")}</div></section>${ctaBand({ title: "Not sure which tool fits?", text: "Send the current business problem and Steve can point you at the smallest useful option.", secondary: "Try PennyBuilder" })}</main>`,
+    body: `<main><section class="hero"><div class="container"><h1>Self-serve tools that solve one job clearly.</h1><p class="lead">Not every customer needs a full custom build. These tools let them start smaller and still stay inside the Penny Wise ecosystem.</p></div></section><section><div class="container"><div class="section-header"><h2>Small tools with a clear next action.</h2><p>For buyers who need one useful outcome now: a website, content, ordering, forecasting, or food-safety workflow.</p></div><div class="list">${tools.map(([name, label, text]) => `<article class="item"><span class="tag">${label}</span><b>${name}</b><p>${text}</p></article>`).join("")}</div></div></section>${ctaBand({ title: "Not sure which tool fits?", text: "Send the current business problem and Steve can point you at the smallest useful option.", secondary: "Try PennyBuilder" })}</main>`,
   });
 }
 
@@ -647,7 +687,7 @@ function aiWebsitesPage() {
     description: "Build a simple business website with PennyBuilder. Free to draft and preview, publish from $9/mo.",
     body: `<main>
       <section class="hero"><div class="container hero-grid"><div><h1>AI websites for budget buyers.</h1><p class="lead">Build a simple business website for free, tweak it by chatting, and publish from $9/mo. It catches the cheap AI website market without cheapening Penny Wise custom work.</p><div class="actions"><a class="btn btn-primary" href="${builderUrl}">Build one free</a><a class="btn btn-secondary" href="${talkUrl}">Want Steve to polish it?</a></div></div><div class="mockup"><div class="mock-top"><span>PennyBuilder flow</span><span>$9/mo</span></div><div class="mock-row"><div class="dot">A</div><div class="mock"><h3>Describe the business</h3><p>Type what you do, where you work, and the tone you want.</p></div></div><div class="mock-row"><div class="dot">B</div><div class="mock"><h3>Preview the draft</h3><p>AI builds copy, sections, layout, and a clear contact path.</p></div></div><div class="mock-row"><div class="dot">C</div><div class="mock"><h3>Publish or upgrade</h3><p>Go live from $9/mo or bring Steve in for managed polish.</p></div></div></div></div></section>
-      <section><div class="container path-strip"><div class="path"><strong>Good for</strong><h3>Brochure sites</h3><p>Local service businesses, early-stage ideas, landing pages, and quick web presence.</p></div><div class="path"><strong>Not for</strong><h3>Complex systems</h3><p>Bookings, ordering, portals, and automation should move into SimpleWebsite Pro or a whitelabel app.</p></div><div class="path"><strong>Upgrade path</strong><h3>No dead end</h3><p>Every AI website buyer can grow into hosting, social content, apps, and custom automation.</p></div></div></section>
+      <section><div class="container"><div class="section-header"><h2>A clean way in for budget buyers.</h2><p>Cheap AI website traffic should become a lead path, not a race to the bottom.</p></div><div class="path-strip"><div class="path"><strong>Good for</strong><h3>Brochure sites</h3><p>Local service businesses, early-stage ideas, landing pages, and quick web presence.</p></div><div class="path"><strong>Not for</strong><h3>Complex systems</h3><p>Bookings, ordering, portals, and automation should move into SimpleWebsite Pro or a whitelabel app.</p></div><div class="path"><strong>Upgrade path</strong><h3>No dead end</h3><p>Every AI website buyer can grow into hosting, social content, apps, and custom automation.</p></div></div></div></section>
     </main>`,
   });
 }
@@ -657,7 +697,7 @@ function pricingPage() {
     active: "/pricing",
     title: "Pricing - Penny Wise I.T",
     description: "Simple starting prices for Penny Wise I.T websites, apps, and automation.",
-    body: `<main><section class="hero"><div class="container"><h1>Simple starting points.</h1><p class="lead">Choose the smallest thing that solves the current problem. Upgrade when the business has earned the next step.</p></div></section><section><div class="container pricing-grid">${pricing.map(([name, amount, text, items]) => `<article class="price"><h3>${name}</h3><span class="amount">${amount}</span><p>${text}</p><ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul></article>`).join("")}</div></section></main>`,
+    body: `<main><section class="hero"><div class="container"><h1>Simple starting points.</h1><p class="lead">Choose the smallest thing that solves the current problem. Upgrade when the business has earned the next step.</p></div></section><section><div class="container"><div class="section-header"><h2>Start small, then grow into the right level of help.</h2><p>The pricing is meant to make the first step obvious without trapping the business in the wrong tool.</p></div><div class="pricing-grid">${pricing.map(([name, amount, text, items]) => `<article class="price"><h3>${name}</h3><span class="amount">${amount}</span><p>${text}</p><ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul></article>`).join("")}</div></div></section></main>`,
   });
 }
 
@@ -690,7 +730,7 @@ function faqPage() {
     active: "/about",
     title: "FAQ - Penny Wise I.T",
     description: "Common questions about Penny Wise I.T websites, apps, and automation.",
-    body: `<main><section class="hero"><div class="container"><h1>Frequently asked questions.</h1><p class="lead">The short version: start small, keep ownership, and upgrade only when the business case is clear.</p></div></section><section><div class="container faq-grid">${questions.map(([q, a]) => `<div class="question"><h3>${q}</h3><p>${a}</p></div>`).join("")}</div></section></main>`,
+    body: `<main><section class="hero"><div class="container"><h1>Frequently asked questions.</h1><p class="lead">The short version: start small, keep ownership, and upgrade only when the business case is clear.</p></div></section><section><div class="container"><div class="section-header"><h2>Simple answers before anyone has to book a call.</h2><p>The offer should feel easy to understand before a customer ever talks to Steve.</p></div><div class="faq-grid">${questions.map(([q, a]) => `<article class="question"><h3>${q}</h3><p>${a}</p></article>`).join("")}</div></div></section></main>`,
   });
 }
 
