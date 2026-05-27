@@ -1,5 +1,10 @@
 node_modules/
 client/node_modules/
+packages/*/node_modules/
+packages/*/dist/
+.claude/
+.wrangler/
+showcase-*.png
 .env
 .env.client*
 client/build/

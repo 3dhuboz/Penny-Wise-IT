@@ -1,0 +1,30 @@
+name = "pennywiseit-deliverview"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./frontend/dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "deliverview-db"
+database_id = "b6a88e4c-7450-4ce7-af8b-0b82bff38473"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "deliverview-media"
+
+[vars]
+ENVIRONMENT = "production"
+FRONTEND_URL = "https://pennywiseit-deliverview.steve-700.workers.dev"
+VIEWER_URL = "https://pennywiseit-deliverview.steve-700.workers.dev"
+
+# Custom domain — uncomment after DNS setup
+# [[routes]]
+# pattern = "deliverview.pennywiseit.com.au"
+# custom_domain = true
+# zone_id = "c2a8d4afe99a314c5af95283d98f8f60"
+
+[triggers]
+crons = ["0 22 * * *"]  # Daily 8am AEST (22:00 UTC) reminder check
