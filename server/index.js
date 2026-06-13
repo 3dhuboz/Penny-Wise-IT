@@ -233,6 +233,7 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/hosting', require('./routes/hosting'));
 app.use('/api/client-projects', require('./routes/clientProjects'));
 app.use('/api/scaffold', require('./routes/scaffold'));
+app.use('/api/support-admin', require('./routes/supportAdmin'));
 app.use('/api/foodtruck', require('./routes/foodtruck'));
 app.use('/api/simplewebsite', require('./routes/simplewebsite'));
 app.use('/api/square', require('./routes/squareWebhook'));

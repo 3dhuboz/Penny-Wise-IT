@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Ticket, Workflow, Globe, Server, Settings, AlertCircle, TrendingUp, ArrowRight, Sparkles, Store, FileText, FolderKanban, Zap, GitBranch } from 'lucide-react';
+import { Users, Ticket, Workflow, Globe, Server, Settings, AlertCircle, TrendingUp, ArrowRight, Sparkles, Store, FileText, FolderKanban, Zap, GitBranch, LifeBuoy } from 'lucide-react';
 import api from '../api';
 import { useClientConfig } from '../context/ClientConfigContext';
 import './Admin.css';
@@ -89,6 +89,11 @@ const AdminDashboard = () => {
                 <FolderKanban size={24} />
                 <h3>Client Projects</h3>
                 <p>Deployments, onboarding & tracking</p>
+              </Link>
+              <Link to="/admin/support" className="admin-nav-card card">
+                <LifeBuoy size={24} />
+                <h3>Bug Squasher</h3>
+                <p>Client portals and support queue</p>
               </Link>
               <Link to="/admin/templates" className="admin-nav-card card">
                 <GitBranch size={24} />
