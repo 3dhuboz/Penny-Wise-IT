@@ -39,6 +39,7 @@
   .card-icon-apps { background: rgba(79,142,247,0.14); color: var(--accent-hi); }
   .card-icon-leads { background: rgba(34,197,94,0.14); color: var(--green); }
   .card-icon-team { background: rgba(234,179,8,0.14); color: var(--yellow); }
+  .card-icon-support { background: rgba(239,68,68,0.14); color: var(--red); }
   .card-icon-back { background: rgba(148,163,184,0.14); color: var(--muted); }
   .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
   .card-stat { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
@@ -63,6 +64,7 @@
     <a href="/admin/apps">Apps</a>
     <a href="/admin/leads">Leads</a>
     <a href="/admin/team">Team</a>
+    <a href="/admin/support">Support</a>
     <a href="/" style="margin-left:8px;color:var(--muted);">↗ Sales Portal</a>
   </div>
   <div class="topbar-right">
@@ -97,6 +99,13 @@
       <h2>Team</h2>
       <p>Salesperson accounts, commission rates, won-deal totals, active flags.</p>
       <span class="card-cta">Open Team →</span>
+    </a>
+    <a class="card" href="/admin/support">
+      <div class="card-icon card-icon-support">!</div>
+      <div class="card-stat" id="support-stat"><span class="stat-loading">...</span></div>
+      <h2>Client Support</h2>
+      <p>Bug reports, screenshots, personalised portal links, triage, and status updates.</p>
+      <span class="card-cta">Open Support -&gt;</span>
     </a>
     <a class="card" href="/" style="opacity:0.85;">
       <div class="card-icon card-icon-back">↗</div>
@@ -160,6 +169,14 @@ async function api(path) {
     document.getElementById('pipeline-list').innerHTML = html;
   } catch (err) {
     document.getElementById('pipeline-list').innerHTML = '<div class="quick-row" style="color:var(--red);">Failed to load: ' + err.message + '</div>';
+  }
+
+  try {
+    const support = await api('/admin/api/support/summary');
+    const counts = support.counts || {};
+    document.getElementById('support-stat').textContent = (counts.open || 0) + ' open';
+  } catch (_) {
+    document.getElementById('support-stat').textContent = 'Setup';
   }
 })();
 </script>

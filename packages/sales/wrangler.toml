@@ -6,6 +6,10 @@ routes = [
   { pattern = "sales.pennywiseit.com.au", custom_domain = true, zone_id = "c2a8d4afe99a314c5af95283d98f8f60" }
 ]
 
+[vars]
+BUG_SQUASHER_API_URL = "https://support.pennywiseit.com.au/api"
+BUG_SQUASHER_PORTAL_BASE_URL = "https://support.pennywiseit.com.au"
+
 [[rules]]
 type = "Text"
 globs = ["**/*.html"]

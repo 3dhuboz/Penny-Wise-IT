@@ -2,7 +2,19 @@
 // to catch syntax errors before they take down sign-in (lesson learned).
 import fs from 'fs';
 
-const FILES = ['SALES.html', 'APPLY.html', 'WINS.html', 'HELP.html', 'PRIVACY.html', 'TERMS.html'];
+const FILES = [
+  'SALES.html',
+  'APPLY.html',
+  'WINS.html',
+  'HELP.html',
+  'PRIVACY.html',
+  'TERMS.html',
+  'ADMIN.html',
+  'ADMIN_APPS.html',
+  'ADMIN_LEADS.html',
+  'ADMIN_TEAM.html',
+  'ADMIN_SUPPORT.html',
+];
 let failed = false;
 
 for (const file of FILES) {

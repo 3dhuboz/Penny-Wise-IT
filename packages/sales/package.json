@@ -5,7 +5,7 @@
   "scripts": {
     "validate": "node validate.mjs",
     "predeploy": "npm run validate",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy --config wrangler.toml"
   },
   "dependencies": {
     "hono": "^4.0.0"
