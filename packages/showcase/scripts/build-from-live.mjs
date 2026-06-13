@@ -71,6 +71,7 @@ function ctaBand({ title = "Want the simplest next step?", text = "Tell Steve wh
 }
 
 function shell({ title, description, active = "/", body }) {
+  const routeClass = active === "/" ? "route-home" : `route-${active.replace(/^\//, "").replace(/[^a-z0-9-]/gi, "-")}`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -276,6 +277,196 @@ function shell({ title, description, active = "/", body }) {
       gap: 56px;
       align-items: center;
     }
+    .hero > .container:not(.hero-grid) {
+      max-width: 980px;
+      padding: 42px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.105), rgba(255,255,255,.022)),
+        linear-gradient(90deg, rgba(246,180,95,.12), transparent 58%);
+      box-shadow: 0 44px 120px rgba(0,0,0,.28);
+      overflow: hidden;
+    }
+    .hero > .container:not(.hero-grid)::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(246,180,95,.22), transparent 32%, rgba(143,197,255,.16)),
+        repeating-linear-gradient(90deg, transparent 0 72px, rgba(255,255,255,.045) 73px 74px);
+      mask-image: linear-gradient(135deg, rgba(0,0,0,.8), transparent 70%);
+      opacity: .8;
+    }
+    .hero-kicker, .scene-label {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(246,180,95,.28);
+      border-radius: 999px;
+      padding: 8px 11px;
+      color: var(--copper-2);
+      background: rgba(246,180,95,.08);
+      font-size: .75rem;
+      font-weight: 950;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .hero-kicker::before, .scene-label::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(67,231,172,.9);
+    }
+    .hero-copy { position: relative; z-index: 2; }
+    .hero-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 26px 0 30px;
+      max-width: 650px;
+    }
+    .hero-stat {
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(255,255,255,.055);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .hero-stat b {
+      display: block;
+      color: var(--ink);
+      font-size: 1.34rem;
+      line-height: 1;
+      margin-bottom: 7px;
+    }
+    .hero-stat span {
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 780;
+    }
+    .holo-stage {
+      position: relative;
+      min-height: 560px;
+      perspective: 1200px;
+    }
+    .holo-stage::before {
+      content: "";
+      position: absolute;
+      inset: 6% -4% 0 6%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(246,180,95,.23), transparent 58%),
+        conic-gradient(from 20deg, rgba(246,180,95,.16), rgba(143,197,255,.10), rgba(67,231,172,.11), rgba(246,180,95,.16));
+      filter: blur(2px);
+      opacity: .75;
+      transform: rotateX(68deg) rotateZ(-18deg);
+    }
+    .orbit-ring {
+      position: absolute;
+      inset: 8% 0 auto 4%;
+      aspect-ratio: 1;
+      width: min(520px, 92%);
+      border: 1px solid rgba(246,180,95,.28);
+      border-radius: 50%;
+      transform: rotateX(62deg) rotateZ(-18deg);
+      box-shadow: 0 0 60px rgba(246,180,95,.10), inset 0 0 40px rgba(143,197,255,.08);
+    }
+    .orbit-ring:nth-child(2) {
+      inset: 16% auto auto 24%;
+      width: min(390px, 70%);
+      border-color: rgba(143,197,255,.22);
+      transform: rotateX(66deg) rotateZ(26deg);
+    }
+    .holo-console {
+      position: absolute;
+      top: 12%;
+      right: 0;
+      width: min(440px, 94%);
+      padding: 22px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 20px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.045)),
+        rgba(7,12,20,.78);
+      box-shadow: 0 50px 120px rgba(0,0,0,.42);
+      transform: rotateY(-13deg) rotateX(7deg);
+      transform-style: preserve-3d;
+      overflow: hidden;
+    }
+    .holo-console::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, transparent 0 35%, rgba(255,255,255,.20), transparent 56%),
+        repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0 1px, transparent 1px 9px);
+      opacity: .36;
+      pointer-events: none;
+    }
+    .console-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      color: var(--soft);
+      font-size: .76rem;
+      font-weight: 950;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .console-card {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 0;
+      border-top: 1px solid rgba(255,255,255,.12);
+      position: relative;
+      z-index: 1;
+    }
+    .console-card b { display: block; font-size: 1.02rem; }
+    .console-card span { color: var(--muted); font-size: .88rem; }
+    .console-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      color: #160f08;
+      background: linear-gradient(135deg, var(--copper-2), #c8792d);
+      font-weight: 950;
+      box-shadow: 0 14px 34px rgba(212,135,57,.26);
+    }
+    .console-status {
+      color: var(--green);
+      font-size: .72rem;
+      font-weight: 950;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .floating-chip {
+      position: absolute;
+      z-index: 3;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 999px;
+      padding: 10px 12px;
+      color: var(--ink);
+      background: rgba(255,255,255,.08);
+      box-shadow: 0 22px 60px rgba(0,0,0,.28);
+      font-size: .82rem;
+      font-weight: 900;
+      backdrop-filter: blur(16px);
+    }
+    .chip-one { top: 7%; left: 6%; }
+    .chip-two { bottom: 17%; right: 8%; }
+    .chip-three { bottom: 6%; left: 18%; color: var(--copper-2); }
     h1, h2, h3, p { margin-top: 0; }
     h1 {
       margin-bottom: 24px;
@@ -398,22 +589,22 @@ function shell({ title, description, active = "/", body }) {
     .offer-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
+      gap: 20px;
     }
     .offer-card {
       position: relative;
       display: grid;
       align-content: start;
-      min-height: 300px;
-      padding: 26px;
+      min-height: 340px;
+      padding: 30px;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 22px;
       color: var(--ink);
       text-decoration: none;
       background:
         linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,.04)),
         rgba(12,18,27,.74);
-      box-shadow: 0 22px 52px rgba(0,0,0,.22);
+      box-shadow: 0 34px 90px rgba(0,0,0,.30);
       overflow: hidden;
       transform-style: preserve-3d;
       transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
@@ -427,12 +618,12 @@ function shell({ title, description, active = "/", body }) {
       opacity: .46;
     }
     .offer-card:hover {
-      transform: translateY(-5px) rotateX(1deg);
+      transform: translateY(-10px) rotateX(2deg);
       border-color: rgba(240,179,107,.42);
       background:
         linear-gradient(160deg, rgba(212,135,57,.16), rgba(135,183,255,.06)),
         rgba(17,20,28,.94);
-      box-shadow: 0 30px 70px rgba(0,0,0,.30);
+      box-shadow: 0 46px 100px rgba(0,0,0,.38);
     }
     .offer-card > *, .item > *, .price > *, .question > *, .path > *, .mockup > * { position: relative; z-index: 1; }
     .offer-top {
@@ -461,7 +652,7 @@ function shell({ title, description, active = "/", body }) {
       font-weight: 950;
     }
     .offer-card h3 {
-      font-size: 1.55rem;
+      font-size: 1.75rem;
       margin-bottom: 14px;
     }
     .offer-card p {
@@ -518,6 +709,77 @@ function shell({ title, description, active = "/", body }) {
         rgba(20,16,16,.58);
       box-shadow: 0 36px 90px rgba(0,0,0,.34);
       overflow: hidden;
+    }
+    .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .decision-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 270px;
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 22px;
+      background:
+        linear-gradient(145deg, rgba(143,197,255,.11), transparent 38%),
+        linear-gradient(160deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
+        rgba(9,14,22,.78);
+      box-shadow: 0 32px 86px rgba(0,0,0,.28);
+    }
+    .decision-card::before {
+      content: attr(data-index);
+      position: absolute;
+      right: 18px;
+      top: 12px;
+      color: rgba(246,180,95,.16);
+      font-size: 5.2rem;
+      line-height: 1;
+      font-weight: 950;
+    }
+    .decision-card strong {
+      display: block;
+      color: var(--copper-2);
+      font-size: .76rem;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .decision-card h3 {
+      position: relative;
+      z-index: 1;
+      font-size: 1.55rem;
+      margin-bottom: 14px;
+    }
+    .decision-card p {
+      position: relative;
+      z-index: 1;
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+    .cinema-band {
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(246,180,95,.10), transparent 35%, rgba(143,197,255,.08)),
+        rgba(255,255,255,.025);
+      border-block: 1px solid rgba(255,255,255,.10);
+    }
+    .cinema-band::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, transparent 0 12%, rgba(255,255,255,.08) 13%, transparent 14% 48%, rgba(246,180,95,.11) 49%, transparent 50%),
+        repeating-linear-gradient(90deg, transparent 0 95px, rgba(255,255,255,.035) 96px 97px);
+      opacity: .56;
+      transform: skewY(-2deg);
+    }
+    .cinema-inner {
+      display: grid;
+      grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+      gap: 44px;
+      align-items: center;
     }
     .mock-top {
       display: flex;
@@ -676,10 +938,13 @@ function shell({ title, description, active = "/", body }) {
       nav { justify-content: flex-start; }
       .nav-cta, .nav-builder { margin-left: 0; }
       .hero { padding-top: 64px; }
-      .hero-grid, .split, .path-strip, .offer-grid, .list, .faq-grid, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
+      .hero-grid, .split, .path-strip, .offer-grid, .decision-grid, .cinema-inner, .list, .faq-grid, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
       .offer-head, .section-header { align-items: flex-start; flex-direction: column; }
       .offer-card { min-height: auto; }
       .item { grid-template-columns: 1fr; gap: 10px; }
+      .holo-stage { min-height: 500px; }
+      .holo-console { position: relative; top: auto; right: auto; margin: 40px auto 0; transform: none; }
+      .floating-chip { display: none; }
     }
     @media (max-width: 520px) {
       section { padding: 54px 18px; }
@@ -693,9 +958,13 @@ function shell({ title, description, active = "/", body }) {
       h1 { width: 100%; font-size: clamp(1.95rem, 9vw, 2.28rem); line-height: 1.04; }
       .lead { width: 100%; font-size: 1.02rem; }
       .hero { min-height: auto; padding-top: 74px; padding-bottom: 70px; }
+      .hero > .container:not(.hero-grid) { padding: 24px; border-radius: 16px; }
+      .hero-stat-grid { grid-template-columns: 1fr; }
+      .holo-stage { min-height: auto; }
+      .orbit-ring, .holo-stage::before { display: none; }
       .actions { width: 100%; max-width: 100%; }
       .btn { width: 100%; max-width: 100%; }
-      .path, .offer-card, .price, .question { padding: 22px; }
+      .path, .offer-card, .decision-card, .price, .question { padding: 22px; }
       .scene-canvas { opacity: .34; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -712,7 +981,7 @@ function shell({ title, description, active = "/", body }) {
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 </head>
-<body>
+<body class="${routeClass}">
   <canvas class="scene-canvas" aria-hidden="true"></canvas>
   <div class="ambient" aria-hidden="true"></div>
   <div class="noise" aria-hidden="true"></div>
@@ -739,11 +1008,17 @@ function shell({ title, description, active = "/", body }) {
         .from(".site-header", { autoAlpha: 0, y: -18, duration: .55 }, 0)
         .from(".brand .mark", { scale: .82, rotate: -8, duration: .5 }, .12)
         .from("nav a", { autoAlpha: 0, y: -8, stagger: .035, duration: .38 }, .15)
-        .fromTo(".hero h1", { y: 38, skewY: 1.4 }, { autoAlpha: 1, y: 0, skewY: 0, duration: .9 }, .1)
+        .from(".hero-kicker", { autoAlpha: 0, y: 18, duration: .46 }, .16)
+        .fromTo(".hero h1", { y: 54, skewY: 2.4, scale: .985 }, { autoAlpha: 1, y: 0, skewY: 0, scale: 1, duration: 1.05 }, .2)
         .from(".hero .lead", { autoAlpha: 0, y: 18, duration: .62 }, .28)
-        .from(".hero .actions .btn", { autoAlpha: 0, y: 14, stagger: .08, duration: .48 }, .42)
+        .from(".hero-stat", { autoAlpha: 0, y: 18, scale: .96, stagger: .08, duration: .48 }, .38)
+        .from(".hero .actions .btn", { autoAlpha: 0, y: 14, stagger: .08, duration: .48 }, .52)
         .from(".hero .mockup", { autoAlpha: 0, y: 28, scale: .985, duration: .85 }, .34)
-        .from(".hero .mock-row", { autoAlpha: 0, x: 18, stagger: .08, duration: .42 }, .58);
+        .from(".hero .mock-row", { autoAlpha: 0, x: 18, stagger: .08, duration: .42 }, .58)
+        .from(".orbit-ring", { autoAlpha: 0, rotate: -30, scale: .78, stagger: .12, duration: 1.1 }, .18)
+        .from(".holo-console", { autoAlpha: 0, y: 46, rotateY: -24, rotateX: 16, scale: .92, duration: 1.05 }, .34)
+        .from(".console-card", { autoAlpha: 0, x: 34, stagger: .09, duration: .48 }, .68)
+        .from(".floating-chip", { autoAlpha: 0, y: 22, scale: .84, stagger: .1, duration: .5 }, .72);
 
       ScrollTrigger.create({
         start: 12,
@@ -752,7 +1027,7 @@ function shell({ title, description, active = "/", body }) {
       });
 
       gsap.utils.toArray("section:not(.hero)").forEach(function (section) {
-        var targets = section.querySelectorAll(".section-header, .offer-head, h2, .section-lead, .lead, .item, .offer-card, .price, .question, .path");
+        var targets = section.querySelectorAll(".section-header, .offer-head, .scene-label, h2, .section-lead, .lead, .item, .offer-card, .decision-card, .price, .question, .path");
         if (!targets.length) return;
         gsap.from(targets, {
           autoAlpha: 0,
@@ -767,7 +1042,11 @@ function shell({ title, description, active = "/", body }) {
 
       var finePointer = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
       if (!finePointer) return;
-      gsap.utils.toArray(".offer-card, .item, .price, .question, .path, .mockup").forEach(function (card) {
+      gsap.to(".orbit-ring", { rotate: "+=360", duration: 32, ease: "none", repeat: -1, stagger: 6 });
+      gsap.to(".floating-chip", { y: -12, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: .35 });
+      gsap.to(".holo-console", { y: -10, rotateY: -10, duration: 3.8, ease: "sine.inOut", yoyo: true, repeat: -1 });
+
+      gsap.utils.toArray(".offer-card, .item, .decision-card, .price, .question, .path, .mockup, .holo-console").forEach(function (card) {
         card.addEventListener("mousemove", function (event) {
           var rect = card.getBoundingClientRect();
           var x = (event.clientX - rect.left) / rect.width - .5;
@@ -788,13 +1067,13 @@ function shell({ title, description, active = "/", body }) {
       var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
       var scene = new THREE.Scene();
-      var camera = new THREE.PerspectiveCamera(48, 1, .1, 100);
-      camera.position.set(0, 0, 9);
+      var camera = new THREE.PerspectiveCamera(52, 1, .1, 100);
+      camera.position.set(0, 0, 10);
 
       var group = new THREE.Group();
       scene.add(group);
 
-      var geometry = new THREE.IcosahedronGeometry(1, 2);
+      var geometry = new THREE.IcosahedronGeometry(1, 3);
       var material = new THREE.MeshStandardMaterial({
         color: 0xf0a64f,
         roughness: .42,
@@ -804,12 +1083,33 @@ function shell({ title, description, active = "/", body }) {
         wireframe: true
       });
       var core = new THREE.Mesh(geometry, material);
-      core.scale.set(2.2, 2.2, 2.2);
-      core.position.set(3.8, 1.2, -1);
+      core.scale.set(2.85, 2.85, 2.85);
+      core.position.set(3.95, 1.05, -1.2);
       group.add(core);
 
+      var ringMaterial = new THREE.MeshBasicMaterial({ color: 0xf6b45f, transparent: true, opacity: .18, wireframe: true });
+      var ringOne = new THREE.Mesh(new THREE.TorusGeometry(3.35, .012, 10, 140), ringMaterial);
+      ringOne.position.copy(core.position);
+      ringOne.rotation.set(1.28, .18, -.62);
+      group.add(ringOne);
+      var ringTwo = new THREE.Mesh(new THREE.TorusGeometry(2.55, .01, 10, 120), new THREE.MeshBasicMaterial({ color: 0x8fc5ff, transparent: true, opacity: .16, wireframe: true }));
+      ringTwo.position.copy(core.position);
+      ringTwo.rotation.set(1.05, -.45, .35);
+      group.add(ringTwo);
+
+      var beamGeometry = new THREE.BufferGeometry();
+      var beamPositions = new Float32Array([
+        -5.8, -2.3, -5.5, 3.7, 1.1, -1.2,
+        -3.8, 2.4, -6.8, 3.7, 1.1, -1.2,
+        4.2, -2.8, -4.2, 3.7, 1.1, -1.2,
+        -1.4, -.2, -7.2, 3.7, 1.1, -1.2
+      ]);
+      beamGeometry.setAttribute("position", new THREE.BufferAttribute(beamPositions, 3));
+      var beams = new THREE.LineSegments(beamGeometry, new THREE.LineBasicMaterial({ color: 0x43e7ac, transparent: true, opacity: .20 }));
+      group.add(beams);
+
       var smallMaterial = new THREE.MeshStandardMaterial({ color: 0x8fc5ff, roughness: .55, metalness: .12, transparent: true, opacity: .22, wireframe: true });
-      for (var i = 0; i < 18; i += 1) {
+      for (var i = 0; i < 26; i += 1) {
         var mesh = new THREE.Mesh(new THREE.TetrahedronGeometry(.18 + Math.random() * .32, 0), smallMaterial);
         mesh.position.set((Math.random() - .5) * 12, (Math.random() - .5) * 7, -2 - Math.random() * 9);
         mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
@@ -817,7 +1117,7 @@ function shell({ title, description, active = "/", body }) {
       }
 
       var particles = new THREE.BufferGeometry();
-      var count = window.innerWidth < 700 ? 64 : 150;
+      var count = window.innerWidth < 700 ? 92 : 230;
       var positions = new Float32Array(count * 3);
       for (var p = 0; p < count; p += 1) {
         positions[p * 3] = (Math.random() - .5) * 16;
@@ -867,6 +1167,9 @@ function shell({ title, description, active = "/", body }) {
         group.rotation.x = Math.sin(t * .35) * .07 + mouseY * .05;
         core.rotation.x = t * .18;
         core.rotation.y = t * .28;
+        ringOne.rotation.z = t * .18;
+        ringTwo.rotation.z = -t * .24;
+        beams.rotation.y = Math.sin(t * .28) * .08;
         points.rotation.y = t * .025;
         points.rotation.x = Math.sin(t * .2) * .025;
         renderer.render(scene, camera);
@@ -885,21 +1188,34 @@ function home() {
     title: "Penny Wise I.T - Websites, Apps, and Automation",
     description: "AI websites from $9/mo, whitelabel app platforms, and automation tools for Australian small businesses.",
     body: `<main>
-    <section class="hero">
+    <section class="hero hero-home">
       <div class="container hero-grid">
-        <div>
+        <div class="hero-copy">
+          <span class="hero-kicker">AI websites + apps + automation systems</span>
           <h1>Websites and apps<br>for small business.</h1>
           <p class="lead">Start with a $9/mo AI website, then grow into ordering, field service, delivery, events, and business automation when the business needs more.</p>
+          <div class="hero-stat-grid" aria-label="Penny Wise offer highlights">
+            <div class="hero-stat"><b>$9/mo</b><span>AI website entry point</span></div>
+            <div class="hero-stat"><b>8+</b><span>ready app platforms</span></div>
+            <div class="hero-stat"><b>0%</b><span>third-party platform tax</span></div>
+          </div>
           <div class="actions">
             <a class="btn btn-primary" href="/ai-websites">Build an AI website</a>
             <a class="btn btn-secondary" href="/apps">Browse apps</a>
           </div>
         </div>
-        <div class="mockup" aria-label="Penny Wise product paths">
-          <div class="mock-top"><span>Pick the right starting point</span><span>PWIT</span></div>
-          <div class="mock-row"><div class="dot">1</div><div class="mock"><h3>AI Website</h3><p>Get online quickly from $9/mo.</p></div></div>
-          <div class="mock-row"><div class="dot">2</div><div class="mock"><h3>App Platform</h3><p>Ordering, bookings, delivery, field work, and clubs.</p></div></div>
-          <div class="mock-row"><div class="dot">3</div><div class="mock"><h3>Automation</h3><p>Connect the repetitive work so owners get time back.</p></div></div>
+        <div class="holo-stage" aria-label="Penny Wise operating system paths">
+          <div class="orbit-ring"></div>
+          <div class="orbit-ring"></div>
+          <span class="floating-chip chip-one">Builder live</span>
+          <span class="floating-chip chip-two">Customer flow</span>
+          <span class="floating-chip chip-three">Automation layer</span>
+          <div class="holo-console">
+            <div class="console-top"><span>Penny Wise command centre</span><span>Live paths</span></div>
+            <div class="console-card"><div class="console-icon">AI</div><div><b>AI Website</b><span>Budget buyer to live site</span></div><em class="console-status">Ready</em></div>
+            <div class="console-card"><div class="console-icon">AP</div><div><b>App Platform</b><span>Ordering, bookings, delivery, field work</span></div><em class="console-status">Scale</em></div>
+            <div class="console-card"><div class="console-icon">AU</div><div><b>Automation</b><span>Repeat admin handled in the background</span></div><em class="console-status">Flow</em></div>
+          </div>
         </div>
       </div>
     </section>
@@ -939,6 +1255,18 @@ function home() {
         <div><h2>Clear offer. No platform tax. No confusing stack.</h2><p class="section-lead">The site now points buyers to the right first step instead of making them decode a catalogue. Budget website buyers, app buyers, and automation buyers each get their own path.</p></div>
         <div class="list">
           ${tools.slice(0, 3).map(([name, label, text]) => `<div class="item"><b>${name}</b><p>${label}. ${text}</p></div>`).join("")}
+        </div>
+      </div>
+    </section>
+    <section class="cinema-band">
+      <div class="container cinema-inner">
+        <div>
+          <span class="scene-label">Decision engine</span>
+          <h2>Turn “I need a website” into the right next system.</h2>
+          <p class="section-lead">This is the sales bridge: small website buyers, app buyers, and automation buyers get separated quickly instead of being pushed into one confusing pitch.</p>
+        </div>
+        <div class="decision-grid">
+          ${decisions.map(([problem, path, text], index) => `<article class="decision-card" data-index="0${index + 1}"><strong>${problem}</strong><h3>${path}</h3><p>${text}</p></article>`).join("")}
         </div>
       </div>
     </section>
