@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recent Wins — Penny Wise I.T</title>
+<meta name="description" content="See real Australian small businesses going live with Penny Wise I.T — custom websites and apps built in under a week.">
+<meta property="og:title" content="Recent Wins — Penny Wise I.T">
+<meta property="og:description" content="Real Australian businesses going live with custom websites and apps.">
+<style>
+:root {
+  --bg: #0b0f1a; --surface: #141b2d; --card: #1a2338; --border: #1f2d45;
+  --text: #e8edf5; --muted: #6b7fa3; --soft: #a0aec0;
+  --accent: #4f8ef7; --green: #34d399; --yellow: #fbbf24; --purple: #a78bfa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.65; min-height: 100vh; }
+a { color: var(--accent); text-decoration: none; }
+
+.hero { padding: 3rem 1.5rem 2rem; text-align: center; background: linear-gradient(135deg, rgba(52,211,153,0.06), rgba(167,139,250,0.04)); border-bottom: 1px solid var(--border); }
+.hero img { height: 50px; margin-bottom: 1rem; }
+.hero h1 { font-size: 2rem; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+.hero h1 .grad { background: linear-gradient(135deg, var(--green), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p { font-size: 1rem; color: var(--soft); max-width: 600px; margin: 0 auto 1rem; }
+.hero .cta { display: inline-block; background: var(--accent); color: #fff; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 700; font-size: 0.95rem; margin-top: 0.5rem; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; }
+.stat-val { font-size: 2rem; font-weight: 900; }
+.stat-label { font-size: 0.78rem; color: var(--soft); margin-top: 0.25rem; }
+
+.section-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem; }
+
+.wins { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.75rem; }
+.win { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; transition: transform 0.15s, border-color 0.15s; }
+.win:hover { border-color: rgba(52,211,153,0.4); transform: translateY(-2px); }
+.win-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.win-rep { font-size: 0.72rem; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 0.06em; }
+.win-when { font-size: 0.7rem; color: var(--muted); }
+.win-product { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
+.win-value { font-size: 0.92rem; font-weight: 700; color: var(--green); }
+.win-monthly { color: var(--accent); font-weight: 600; }
+
+.live-pill { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(52,211,153,0.12); color: var(--green); padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+footer { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+footer a { color: var(--soft); }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <img src="https://pub-e9f06ab167a44125b75d7528e2271086.r2.dev/logo-dark.png" alt="Penny Wise I.T">
+  <div class="live-pill"><span class="live-dot"></span>Live wins</div>
+  <h1>Real Aussie businesses <span class="grad">going live</span></h1>
+  <p>Every win on this page is a real small business that started using a custom Penny Wise I.T app this week. Updated in real time as our sales team closes deals.</p>
+  <a class="cta" href="/apply">&#127919; Want to be one of them? Join the team</a>
+</section>
+
+<div class="container">
+
+  <div class="stats" id="stats">
+    <div class="stat"><div class="stat-val" style="color:var(--green)" id="s-wins">—</div><div class="stat-label">Total deals closed</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--purple)" id="s-setup">—</div><div class="stat-label">In setup fees</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--accent)" id="s-monthly">—</div><div class="stat-label">Monthly recurring</div></div>
+  </div>
+
+  <h2 class="section-title">&#127942; Latest wins</h2>
+  <div class="wins" id="wins-grid"><p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:2rem">Loading wins...</p></div>
+
+</div>
+
+<footer>
+  &copy; Penny Wise I.T &mdash; <a href="https://pennywiseit.com.au">pennywiseit.com.au</a> &mdash; <a href="/apply">Join the team</a>
+</footer>
+
+<script>
+async function load() {
+  try {
+    const res = await fetch('https://pennywiseit-validator.steve-700.workers.dev/api/public/recent-wins');
+    const data = await res.json();
+    document.getElementById('s-wins').textContent = data.total_wins || 0;
+    document.getElementById('s-setup').textContent = '$' + Number(data.total_setup || 0).toLocaleString();
+    document.getElementById('s-monthly').textContent = '$' + Number(data.total_monthly || 0).toLocaleString() + '/mo';
+    if (!data.wins || !data.wins.length) {
+      document.getElementById('wins-grid').innerHTML = '<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:2rem">First win coming soon.</p>';
+      return;
+    }
+    document.getElementById('wins-grid').innerHTML = data.wins.map(w => {
+      const ago = w.won_at ? timeAgo(new Date(w.won_at)) : 'recently';
+      return '<div class="win">'
+        + '<div class="win-top"><span class="win-rep">' + esc(w.rep) + ' closed it</span><span class="win-when">' + esc(ago) + '</span></div>'
+        + '<div class="win-product">' + esc(w.app_type || 'Website') + '</div>'
+        + '<div class="win-value">$' + Number(w.setup_value).toLocaleString()
+        + (w.monthly_value ? ' <span class="win-monthly">+ $' + w.monthly_value + '/mo</span>' : '')
+        + '</div>'
+      + '</div>';
+    }).join('');
+  } catch (e) {
+    document.getElementById('wins-grid').innerHTML = '<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:2rem">Could not load wins.</p>';
+  }
+}
+function esc(s) { return String(s||'').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+function timeAgo(d) {
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return days + 'd ago';
+  return d.toLocaleDateString();
+}
+load();
+// Refresh every 30s
+setInterval(load, 30000);
+</script>
+
+</body>
+</html>

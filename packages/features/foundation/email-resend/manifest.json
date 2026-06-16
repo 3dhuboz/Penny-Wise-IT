@@ -1,0 +1,37 @@
+{
+  "id": "email-resend",
+  "name": "Email via Resend",
+  "version": "1.0.0",
+  "category": "foundation",
+  "description": "Transactional and notification email via Resend. Provides a shared send function and template system.",
+  "requires": {
+    "envVars": [
+      { "name": "RESEND_API_KEY", "description": "Resend API key", "required": true, "secret": true, "example": "re_abc123" },
+      { "name": "EMAIL_FROM", "description": "Default from address (must be verified in Resend)", "required": true, "secret": false, "example": "hello@yourdomain.com.au" },
+      { "name": "EMAIL_REPLY_TO", "description": "Default reply-to address", "required": false, "secret": false }
+    ],
+    "features": [],
+    "dbTables": [
+      {
+        "name": "email_log",
+        "sql": "CREATE TABLE IF NOT EXISTS email_log (id TEXT PRIMARY KEY, to_email TEXT NOT NULL, from_email TEXT NOT NULL, subject TEXT, template TEXT, resend_id TEXT, status TEXT DEFAULT 'sent', created_at TEXT DEFAULT (datetime('now')))",
+        "indexes": ["CREATE INDEX IF NOT EXISTS idx_email_log_to ON email_log(to_email, created_at DESC)"]
+      }
+    ],
+    "bindings": []
+  },
+  "provides": {
+    "routes": [
+      { "method": "POST", "path": "/api/email/send", "description": "Send an email (admin only)", "auth": "admin" },
+      { "method": "GET", "path": "/api/email/log", "description": "View email send log", "auth": "admin" }
+    ],
+    "webhooks": [],
+    "cronJobs": [],
+    "middleware": [],
+    "dbTables": ["email_log"]
+  },
+  "conflicts": [],
+  "stackOptions": {
+    "email": ["resend"]
+  }
+}

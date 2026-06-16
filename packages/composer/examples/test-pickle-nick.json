@@ -1,0 +1,17 @@
+{
+  "id": "pickle-nick",
+  "name": "Pickle Nick's Emporium",
+  "domain": "picklenick.com.au",
+  "template": "simple-website",
+  "branding": {
+    "name": "Pickle Nick's Emporium",
+    "color": "#65a30d"
+  },
+  "features": ["auth-clerk", "payments-square", "email-resend"],
+  "env": {
+    "EMAIL_FROM": "hello@picklenick.com.au",
+    "SQUARE_LOCATION_ID": "LID_PLACEHOLDER",
+    "SQUARE_ENVIRONMENT": "production"
+  },
+  "secrets": ["CLERK_SECRET_KEY", "SQUARE_ACCESS_TOKEN", "RESEND_API_KEY"]
+}

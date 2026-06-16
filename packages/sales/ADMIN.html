@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Owner Console · Penny Wise I.T</title>
+<style>
+  :root {
+    --bg: #0b0f1a; --surface: #131a2c; --surface2: #1e2942;
+    --text: #f1f5f9; --muted: #94a3b8; --accent: #4f8ef7; --accent-hi: #76a8ff;
+    --green: #22c55e; --yellow: #eab308; --red: #ef4444;
+    --border: rgba(255,255,255,0.08); --border-hi: rgba(255,255,255,0.16);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  a { color: inherit; text-decoration: none; }
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .topbar-brand { font-size: 18px; font-weight: 700; letter-spacing: 0.01em; }
+  .topbar-brand span { color: var(--accent); }
+  .topbar-nav { display: flex; gap: 4px; }
+  .topbar-nav a { padding: 6px 12px; border-radius: 8px; font-size: 13px; color: var(--muted); }
+  .topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+  .topbar-nav a.is-active { background: rgba(79,142,247,0.14); color: var(--accent-hi); }
+  .topbar-right { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--muted); }
+  .role-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(79,142,247,0.14); color: var(--accent-hi); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; vertical-align: middle; margin-left: 6px; }
+  .topbar-right strong { color: var(--text); font-weight: 600; }
+  .logout-link:hover { color: var(--text); text-decoration: underline; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
+  .page-eyebrow { color: var(--accent-hi); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px; }
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+  .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 32px; max-width: 720px; }
+
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; transition: border-color 0.15s, transform 0.15s; }
+  .card:hover { border-color: var(--border-hi); transform: translateY(-1px); }
+  .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; font-size: 20px; }
+  .card-icon-apps { background: rgba(79,142,247,0.14); color: var(--accent-hi); }
+  .card-icon-leads { background: rgba(34,197,94,0.14); color: var(--green); }
+  .card-icon-team { background: rgba(234,179,8,0.14); color: var(--yellow); }
+  .card-icon-support { background: rgba(239,68,68,0.14); color: var(--red); }
+  .card-icon-back { background: rgba(148,163,184,0.14); color: var(--muted); }
+  .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .card-stat { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .card-stat .stat-loading { color: var(--muted); font-size: 14px; font-weight: 400; }
+  .card p { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+  .card-cta { font-size: 13px; color: var(--accent-hi); font-weight: 500; }
+  .card:hover .card-cta { text-decoration: underline; }
+
+  .section-title { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin: 32px 0 12px; }
+  .quick-list { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .quick-row { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
+  .quick-row:last-child { border-bottom: 0; }
+  .quick-row .quick-label { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand"><span>PennyWise</span>IT — Owner Console</div>
+  <div class="topbar-nav">
+    <a href="/admin" class="is-active">Overview</a>
+    <a href="/admin/apps">Apps</a>
+    <a href="/admin/leads">Leads</a>
+    <a href="/admin/team">Team</a>
+    <a href="/admin/support">Support</a>
+    <a href="/" style="margin-left:8px;color:var(--muted);">↗ Sales Portal</a>
+  </div>
+  <div class="topbar-right">
+    <span><strong id="me-name">…</strong> <span class="role-pill" id="me-role"></span></span>
+    <a href="/admin/logout" class="logout-link">Sign out</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="page-eyebrow">Overview</div>
+  <h1>Welcome back<span id="greet-name"></span>.</h1>
+  <p class="page-sub">Everything you ship, sell, and operate. Click into a section, or jump to the sales portal for the day-to-day pipeline view.</p>
+
+  <div class="card-grid">
+    <a class="card" href="/admin/apps">
+      <div class="card-icon card-icon-apps">⚙</div>
+      <div class="card-stat" id="apps-stat"><span class="stat-loading">…</span></div>
+      <h2>Apps Operations</h2>
+      <p>Every Worker registered in composer-db. Validation status, secrets, health checks, per-app links.</p>
+      <span class="card-cta">Open Apps →</span>
+    </a>
+    <a class="card" href="/admin/leads">
+      <div class="card-icon card-icon-leads">📈</div>
+      <div class="card-stat" id="leads-stat"><span class="stat-loading">…</span></div>
+      <h2>Lead Pipeline</h2>
+      <p>All leads across every salesperson. Filter by stage, drill into details, see who owns what.</p>
+      <span class="card-cta">Open Leads →</span>
+    </a>
+    <a class="card" href="/admin/team">
+      <div class="card-icon card-icon-team">👥</div>
+      <div class="card-stat" id="team-stat"><span class="stat-loading">…</span></div>
+      <h2>Team</h2>
+      <p>Salesperson accounts, commission rates, won-deal totals, active flags.</p>
+      <span class="card-cta">Open Team →</span>
+    </a>
+    <a class="card" href="/admin/support">
+      <div class="card-icon card-icon-support">!</div>
+      <div class="card-stat" id="support-stat"><span class="stat-loading">...</span></div>
+      <h2>Client Support</h2>
+      <p>Bug reports, screenshots, personalised portal links, triage, and status updates.</p>
+      <span class="card-cta">Open Support -&gt;</span>
+    </a>
+    <a class="card" href="/" style="opacity:0.85;">
+      <div class="card-icon card-icon-back">↗</div>
+      <div class="card-stat" style="font-size:18px;color:var(--muted);">Same login</div>
+      <h2>Sales Portal</h2>
+      <p>The salesperson view — dashboard, pitch studio, quote builder, your own leads. Available to every signed-in user.</p>
+      <span class="card-cta">Open Sales Portal →</span>
+    </a>
+  </div>
+
+  <div class="section-title">Lead pipeline at a glance</div>
+  <div class="quick-list" id="pipeline-list">
+    <div class="quick-row"><span class="quick-label">Loading…</span><span></span></div>
+  </div>
+</div>
+
+<script>
+async function api(path) {
+  const res = await fetch(path, { credentials: 'same-origin' });
+  if (res.status === 401 || res.status === 302) {
+    window.location.href = '/admin/logout';
+    throw new Error('Not signed in');
+  }
+  return res.json();
+}
+
+(async function init() {
+  try {
+    const me = await api('/admin/api/me');
+    document.getElementById('me-name').textContent = me.name || 'Admin';
+    document.getElementById('me-role').textContent = (me.role || '').toUpperCase();
+    const greet = document.getElementById('greet-name');
+    if (greet && me.name) greet.textContent = ', ' + me.name.split(' ')[0];
+  } catch (_) {}
+
+  try {
+    const [apps, leads, team] = await Promise.all([
+      api('/admin/api/apps'),
+      api('/admin/api/leads'),
+      api('/admin/api/team'),
+    ]);
+
+    const appsList = apps.apps || [];
+    const leadsList = leads.leads || [];
+    const teamList = team.team || [];
+
+    document.getElementById('apps-stat').textContent = appsList.length + ' active';
+    document.getElementById('leads-stat').textContent = leadsList.length + ' total';
+    document.getElementById('team-stat').textContent = teamList.filter(function(t){ return t.active; }).length + ' active';
+
+    // Pipeline at a glance
+    var stages = ['new', 'contacted', 'demo', 'proposal', 'won', 'lost'];
+    var counts = {}; stages.forEach(function(s){ counts[s] = 0; });
+    leadsList.forEach(function(l){ if (counts[l.stage] !== undefined) counts[l.stage]++; });
+
+    var html = stages.map(function(s){
+      var label = s.charAt(0).toUpperCase() + s.slice(1);
+      var color = s === 'won' ? 'var(--green)' : s === 'lost' ? 'var(--red)' : 'var(--text)';
+      return '<div class="quick-row"><span class="quick-label">' + label + '</span><span style="color:' + color + ';font-weight:600;">' + counts[s] + '</span></div>';
+    }).join('');
+    document.getElementById('pipeline-list').innerHTML = html;
+  } catch (err) {
+    document.getElementById('pipeline-list').innerHTML = '<div class="quick-row" style="color:var(--red);">Failed to load: ' + err.message + '</div>';
+  }
+
+  try {
+    const support = await api('/admin/api/support/summary');
+    const counts = support.counts || {};
+    document.getElementById('support-stat').textContent = (counts.open || 0) + ' open';
+  } catch (_) {
+    document.getElementById('support-stat').textContent = 'Setup';
+  }
+})();
+</script>
+</body>
+</html>

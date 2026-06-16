@@ -1,0 +1,17 @@
+{
+  "name": "@pennywiseit/sales",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "validate": "node validate.mjs",
+    "predeploy": "npm run validate",
+    "deploy": "wrangler deploy --config wrangler.toml"
+  },
+  "dependencies": {
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.0.0",
+    "wrangler": "^3.0.0"
+  }
+}

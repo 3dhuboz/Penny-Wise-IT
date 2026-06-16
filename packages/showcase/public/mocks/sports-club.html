@@ -1,0 +1,66 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>m</title><style>
+html,body{margin:0;height:100%;background:#0b0f1a;font-family:ui-monospace,Menlo,monospace;color:#cbd5e1;overflow:hidden}
+.app{height:100%;padding:12px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px}
+.h{font-size:9px;letter-spacing:2px;font-weight:700;background:linear-gradient(90deg,#1e40af,#10b981,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.alert{background:#451a03;border:1px solid #f59e0b;border-radius:4px;padding:6px 8px;font-size:9px;color:#fde68a;letter-spacing:0.5px;display:flex;align-items:center;gap:6px;box-shadow:0 0 12px #f59e0b33;position:relative}
+.alert b{color:#fbbf24;font-weight:800}
+.alert .ico{font-size:11px}
+.fix{flex:1;display:flex;flex-direction:column;gap:3px;overflow:hidden}
+.row{display:grid;grid-template-columns:1fr auto 60px;gap:8px;padding:5px 8px;background:#111827;border:1px solid #1f2937;border-radius:3px;align-items:center;font-size:9px}
+.row b{color:#e2e8f0;font-size:9px;font-weight:700}
+.row .vs{color:#64748b;font-size:8px}
+.row .sc{font-weight:700;font-family:ui-monospace,Menlo,monospace;text-align:right;font-size:9px;letter-spacing:0.5px}
+.row.live{border-color:#10b981;background:#064e3b22;box-shadow:0 0 10px #10b98144}
+.row.live .sc{color:#10b981}
+.row.fin .sc{color:#94a3b8}
+.row.up .sc{color:#475569}
+.tag{font-size:7px;letter-spacing:0.5px;color:#10b981;font-weight:800}
+.tag.live{color:#10b981}
+.tag.up{color:#475569}
+.tag.fin{color:#94a3b8}
+@media (prefers-reduced-motion:no-preference){
+.alert{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 12px #f59e0b33}50%{box-shadow:0 0 20px #f59e0b88;border-color:#fbbf24}}
+.row.live .sc{animation:tick 4s steps(3) infinite}
+@keyframes tick{0%,30%{content:"12-4"}33%,63%{}66%,99%{}100%{}}
+}
+.score-anim{display:inline-block}
+@media (prefers-reduced-motion:no-preference){
+.score-anim{animation:flicker 6s steps(3) infinite}
+@keyframes flicker{0%,30%{}33%,63%{}66%,99%{}}
+}
+</style></head><body>
+<div class="app">
+<div class="h">YJRL · ROUND 7 · SAT 5 MAY</div>
+<div class="alert"><span class="ico">⏰</span><span><b>U10 SHARKS</b> match starting in <b id="cd">28</b> min · Field 2</span></div>
+<div class="fix">
+<div class="row fin"><div><b>U7 Sharks</b><div class="vs">vs Bandits · 8:00am</div></div><span class="tag fin">FT</span><span class="sc">20–4</span></div>
+<div class="row fin"><div><b>U8 Storm</b><div class="vs">vs Capras · 8:30am</div></div><span class="tag fin">FT</span><span class="sc">14–14</span></div>
+<div class="row live"><div><b>U10 Sharks</b><div class="vs">vs Eagles · LIVE</div></div><span class="tag live">⏰ HT</span><span class="sc"><span class="score-anim" id="sc">12-4</span></span></div>
+<div class="row up"><div><b>U12 Storm</b><div class="vs">vs Roos · 10:30am</div></div><span class="tag up">UP</span><span class="sc">—</span></div>
+<div class="row up"><div><b>U14 Sharks</b><div class="vs">vs Bulls · 12:00pm</div></div><span class="tag up">UP</span><span class="sc">—</span></div>
+<div class="row up"><div><b>U16 Storm</b><div class="vs">vs Tigers · 2:00pm</div></div><span class="tag up">UP</span><span class="sc">—</span></div>
+</div>
+</div>
+<script>
+(function(){
+  var pmRm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (pmRm) return;
+  var scores = ['12-4','12-4','18-4','18-10','18-10','24-10'];
+  var i = 0;
+  setInterval(function(){
+    i = (i+1) % scores.length;
+    var el = document.getElementById('sc');
+    if (el) el.textContent = scores[i];
+  }, 3500);
+  var cd = document.getElementById('cd');
+  var n = 28;
+  setInterval(function(){
+    n--;
+    if (n < 5) n = 28;
+    if (cd) cd.textContent = n;
+  }, 1500);
+})();
+</script>
+</body></html>

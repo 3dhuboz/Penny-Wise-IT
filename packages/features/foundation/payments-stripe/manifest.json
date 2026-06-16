@@ -1,0 +1,48 @@
+{
+  "id": "payments-stripe",
+  "name": "Stripe Payments",
+  "version": "1.0.0",
+  "category": "foundation",
+  "description": "Payment processing via Stripe. Supports one-time charges, subscriptions, and webhook handling.",
+  "requires": {
+    "envVars": [
+      { "name": "STRIPE_SECRET_KEY", "description": "Stripe secret key", "required": true, "secret": true, "example": "sk_live_abc123" },
+      { "name": "STRIPE_WEBHOOK_SECRET", "description": "Stripe webhook signing secret", "required": true, "secret": true, "example": "whsec_abc123" },
+      { "name": "STRIPE_PUBLISHABLE_KEY", "description": "Stripe publishable key for frontend", "required": false, "secret": false }
+    ],
+    "features": [],
+    "dbTables": [
+      {
+        "name": "payments",
+        "sql": "CREATE TABLE IF NOT EXISTS payments (id TEXT PRIMARY KEY, user_id TEXT, stripe_payment_id TEXT UNIQUE, stripe_customer_id TEXT, amount INTEGER NOT NULL, currency TEXT DEFAULT 'aud', status TEXT DEFAULT 'pending', description TEXT, metadata TEXT, created_at TEXT DEFAULT (datetime('now')))",
+        "indexes": ["CREATE INDEX IF NOT EXISTS idx_payments_user ON payments(user_id)", "CREATE INDEX IF NOT EXISTS idx_payments_stripe ON payments(stripe_payment_id)"]
+      },
+      {
+        "name": "subscriptions",
+        "sql": "CREATE TABLE IF NOT EXISTS subscriptions (id TEXT PRIMARY KEY, user_id TEXT, stripe_subscription_id TEXT UNIQUE, stripe_customer_id TEXT, plan_id TEXT, status TEXT DEFAULT 'active', current_period_start TEXT, current_period_end TEXT, cancel_at_period_end INTEGER DEFAULT 0, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')))",
+        "indexes": ["CREATE INDEX IF NOT EXISTS idx_subs_user ON subscriptions(user_id)", "CREATE INDEX IF NOT EXISTS idx_subs_stripe ON subscriptions(stripe_subscription_id)"]
+      }
+    ],
+    "bindings": []
+  },
+  "provides": {
+    "routes": [
+      { "method": "POST", "path": "/api/payments/create-checkout", "description": "Create a Stripe Checkout session", "auth": "authenticated" },
+      { "method": "POST", "path": "/api/payments/create-subscription", "description": "Create a subscription checkout", "auth": "authenticated" },
+      { "method": "GET", "path": "/api/payments/history", "description": "Get payment history for current user", "auth": "authenticated" },
+      { "method": "GET", "path": "/api/payments/subscription", "description": "Get current subscription status", "auth": "authenticated" },
+      { "method": "POST", "path": "/api/payments/cancel-subscription", "description": "Cancel subscription at period end", "auth": "authenticated" },
+      { "method": "POST", "path": "/webhooks/stripe", "description": "Handle Stripe webhook events", "auth": "public" }
+    ],
+    "webhooks": [
+      { "path": "/webhooks/stripe", "provider": "stripe", "events": ["checkout.session.completed", "invoice.paid", "invoice.payment_failed", "customer.subscription.updated", "customer.subscription.deleted"], "description": "Process Stripe payment and subscription events" }
+    ],
+    "cronJobs": [],
+    "middleware": [],
+    "dbTables": ["payments", "subscriptions"]
+  },
+  "conflicts": [],
+  "stackOptions": {
+    "payments": ["stripe"]
+  }
+}

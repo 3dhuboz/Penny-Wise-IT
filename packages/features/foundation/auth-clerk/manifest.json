@@ -1,0 +1,39 @@
+{
+  "id": "auth-clerk",
+  "name": "Clerk Authentication",
+  "version": "1.0.0",
+  "category": "foundation",
+  "description": "User authentication and session management via Clerk. Provides middleware for protecting routes and user identity.",
+  "requires": {
+    "envVars": [
+      { "name": "CLERK_SECRET_KEY", "description": "Clerk secret key (sk_live_ or sk_test_)", "required": true, "secret": true, "example": "sk_live_abc123" },
+      { "name": "CLERK_PUBLISHABLE_KEY", "description": "Clerk publishable key for frontend", "required": false, "secret": false, "example": "pk_live_abc123" }
+    ],
+    "features": [],
+    "dbTables": [
+      {
+        "name": "users",
+        "sql": "CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, clerk_id TEXT UNIQUE, email TEXT, name TEXT, role TEXT DEFAULT 'user', avatar_url TEXT, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')))",
+        "indexes": ["CREATE INDEX IF NOT EXISTS idx_users_clerk ON users(clerk_id)", "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)"]
+      }
+    ],
+    "bindings": []
+  },
+  "provides": {
+    "routes": [
+      { "method": "POST", "path": "/api/auth/verify", "description": "Verify Clerk session token", "auth": "public" },
+      { "method": "GET", "path": "/api/auth/me", "description": "Get current user profile", "auth": "authenticated" },
+      { "method": "POST", "path": "/webhooks/clerk", "description": "Clerk webhook handler for user events", "auth": "public" }
+    ],
+    "webhooks": [
+      { "path": "/webhooks/clerk", "provider": "clerk", "events": ["user.created", "user.updated", "user.deleted"], "description": "Sync Clerk user changes to D1" }
+    ],
+    "cronJobs": [],
+    "middleware": ["requireAuth", "optionalAuth", "requireAdmin"],
+    "dbTables": ["users"]
+  },
+  "conflicts": ["auth-custom-jwt"],
+  "stackOptions": {
+    "auth": ["clerk"]
+  }
+}

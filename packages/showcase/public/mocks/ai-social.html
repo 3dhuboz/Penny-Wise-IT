@@ -1,0 +1,33 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>m</title><style>
+html,body{margin:0;height:100%;background:#0b0f1a;font-family:system-ui,sans-serif;color:#e2e8f0;overflow:hidden}
+.app{height:100%;padding:14px 28%;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;justify-content:center}
+.h{font-size:9px;letter-spacing:2px;color:#f472b6;font-weight:700;text-align:center}
+.feed{display:flex;flex-direction:column;gap:8px;position:relative}
+.p{background:#111827;border:1px solid #1f2937;border-radius:8px;padding:10px;font-size:10px;line-height:1.4;position:relative}
+.p .av{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.dot{width:18px;height:18px;border-radius:99px;background:linear-gradient(135deg,#f472b6,#a78bfa)}
+.p .av b{font-size:9px;color:#cbd5e1}
+.p .av span{font-size:8px;color:#64748b;margin-left:auto}
+.p .body{color:#cbd5e1;font-size:9.5px}
+.rx{margin-top:6px;display:flex;gap:6px;font-size:11px}
+.rx span{background:#0b0f1a;border:1px solid #1f2937;border-radius:99px;padding:1px 7px;font-size:9px;color:#cbd5e1}
+@media (prefers-reduced-motion:no-preference){
+.p:first-child .rx span{animation:po 4s ease-out infinite;opacity:0;transform:scale(.5)}
+.p:first-child .rx span:nth-child(1){animation-delay:.5s}
+.p:first-child .rx span:nth-child(2){animation-delay:1.2s}
+.p:first-child .rx span:nth-child(3){animation-delay:1.9s}
+@keyframes po{0%{opacity:0;transform:scale(.5)}30%,90%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
+.feed{animation:scroll 8s ease-in-out infinite}
+@keyframes scroll{0%,75%{transform:translateY(0)}90%,100%{transform:translateY(-58px)}}
+}
+</style></head><body>
+<div class="app">
+<div class="h">COMMUNITY FEED</div>
+<div class="feed">
+<div class="p"><div class="av"><div class="dot"></div><b>@maya</b><span>2m</span></div><div class="body">Drop just landed in the makers channel. Members-only colour palette inside.</div><div class="rx"><span>&hearts; 24</span><span>&#128293; 12</span><span>&#128079; 8</span></div></div>
+<div class="p"><div class="av"><div class="dot" style="background:linear-gradient(135deg,#34d399,#4f8ef7)"></div><b>@sam</b><span>14m</span></div><div class="body">Live Q&amp;A tonight 7pm. RSVP in events.</div><div class="rx"><span>&hearts; 6</span></div></div>
+<div class="p"><div class="av"><div class="dot" style="background:linear-gradient(135deg,#fbbf24,#fb923c)"></div><b>@kai</b><span>1h</span></div><div class="body">New thread: best welding rigs under $2k.</div><div class="rx"><span>&hearts; 3</span></div></div>
+</div>
+</div>
+</body></html>

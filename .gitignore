@@ -1,8 +1,13 @@
 node_modules/
-client/node_modules/
-.env
-.env.client*
-client/build/
+dist/
+.wrangler/
+.dev.vars
 *.log
-.DS_Store
-uploads/
+
+# Local-only Claude Code state
+.claude/
+
+# Local browser/test profiles + one-off scripts
+.puppeteer-profile/
+capture-wirez.mjs
+wirez.png

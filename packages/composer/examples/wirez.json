@@ -1,0 +1,31 @@
+{
+  "id": "wirez",
+  "name": "Wirez Electrical",
+  "domain": "wirez.steve-700.workers.dev",
+  "template": "wirez",
+  "branding": {
+    "name": "Wirez Electrical",
+    "color": "#f59e0b"
+  },
+  "features": [
+    "auth-bearer",
+    "payments-stripe",
+    "email-resend",
+    "sms-twilio",
+    "ai-openrouter"
+  ],
+  "env": {
+    "EMAIL_FROM": "admin@wirezelectrical.com.au",
+    "OWNER_PHONE": "+61400000000"
+  },
+  "secrets": [
+    "JWT_SECRET",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "RESEND_API_KEY",
+    "TWILIO_ACCOUNT_SID",
+    "TWILIO_AUTH_TOKEN",
+    "TWILIO_FROM_NUMBER",
+    "OPENROUTER_API_KEY"
+  ]
+}

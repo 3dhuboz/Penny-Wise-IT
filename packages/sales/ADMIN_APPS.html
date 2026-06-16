@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Apps · Owner Console · Penny Wise I.T</title>
+<style>
+  :root {
+    --bg: #0b0f1a; --surface: #131a2c; --surface2: #1e2942;
+    --text: #f1f5f9; --muted: #94a3b8; --accent: #4f8ef7; --accent-hi: #76a8ff;
+    --green: #22c55e; --yellow: #eab308; --red: #ef4444;
+    --border: rgba(255,255,255,0.08); --border-hi: rgba(255,255,255,0.16);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  a { color: inherit; text-decoration: none; }
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .topbar-brand { font-size: 18px; font-weight: 700; }
+  .topbar-brand span { color: var(--accent); }
+  .topbar-nav { display: flex; gap: 4px; }
+  .topbar-nav a { padding: 6px 12px; border-radius: 8px; font-size: 13px; color: var(--muted); }
+  .topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+  .topbar-nav a.is-active { background: rgba(79,142,247,0.14); color: var(--accent-hi); }
+  .topbar-right { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--muted); }
+  .role-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(79,142,247,0.14); color: var(--accent-hi); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; vertical-align: middle; margin-left: 6px; }
+  .topbar-right strong { color: var(--text); font-weight: 600; }
+  .logout-link:hover { color: var(--text); text-decoration: underline; }
+  .btn { padding: 8px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: background 0.15s; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #2d77e8; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border-hi); }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+
+  .page-head { padding: 28px 24px 0; max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 16px; }
+  .page-head h1 { font-size: 26px; font-weight: 700; }
+  .page-eyebrow { color: var(--accent-hi); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px; }
+  .page-actions { display: flex; gap: 10px; align-items: center; }
+  #last-refresh { color: var(--muted); font-size: 12px; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding: 24px; max-width: 1280px; margin: 0 auto; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .stat-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; font-weight: 600; }
+  .stat-value { font-size: 28px; font-weight: 700; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.yellow { color: var(--yellow); }
+  .stat-value.red { color: var(--red); }
+
+  .main { padding: 0 24px 32px; max-width: 1280px; margin: 0 auto; }
+  .section-title { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
+  .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  .app-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: border-color 0.2s; }
+  .app-card:hover { border-color: var(--border-hi); }
+  .app-card-header { padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+  .app-color { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
+  .app-info { flex: 1; min-width: 0; }
+  .app-name { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-template { color: var(--muted); font-size: 12px; }
+  .app-status { padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .status-healthy { background: rgba(34,197,94,0.15); color: var(--green); }
+  .status-partial { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .status-failing { background: rgba(239,68,68,0.15); color: var(--red); }
+  .status-unknown { background: rgba(148,163,184,0.15); color: var(--muted); }
+  .app-card-body { padding: 16px; }
+  .checks-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .check { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+  .check-pass { background: rgba(34,197,94,0.1); color: var(--green); }
+  .check-fail { background: rgba(239,68,68,0.1); color: var(--red); }
+  .features-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .feature-tag { padding: 3px 8px; border-radius: 4px; font-size: 11px; background: rgba(79,142,247,0.1); color: var(--accent-hi); }
+  .app-card-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+  .app-card-footer a { color: var(--accent-hi); text-decoration: none; font-size: 12px; font-weight: 500; }
+  .app-card-footer a:hover { text-decoration: underline; }
+  .loading { text-align: center; padding: 48px; color: var(--muted); }
+  .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid var(--border-hi); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border-hi); padding: 12px 20px; border-radius: 10px; font-size: 13px; z-index: 100; display: none; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand"><span>PennyWise</span>IT — Owner Console</div>
+  <div class="topbar-nav">
+    <a href="/admin">Overview</a>
+    <a href="/admin/apps" class="is-active">Apps</a>
+    <a href="/admin/leads">Leads</a>
+    <a href="/admin/team">Team</a>
+    <a href="/admin/support">Support</a>
+    <a href="/" style="margin-left:8px;color:var(--muted);">↗ Sales Portal</a>
+  </div>
+  <div class="topbar-right">
+    <span><strong id="me-name">…</strong> <span class="role-pill" id="me-role"></span></span>
+    <a href="/admin/logout" class="logout-link">Sign out</a>
+  </div>
+</div>
+
+<div class="page-head">
+  <div>
+    <div class="page-eyebrow">Apps</div>
+    <h1>App Command Centre</h1>
+  </div>
+  <div class="page-actions">
+    <span id="last-refresh"></span>
+    <button class="btn btn-ghost" onclick="refreshAll()">Refresh</button>
+    <button class="btn btn-primary" onclick="validateAll()">Validate All</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-label">Total Apps</div><div class="stat-value" id="stat-total">-</div></div>
+  <div class="stat"><div class="stat-label">Composed</div><div class="stat-value green" id="stat-composed">-</div></div>
+  <div class="stat"><div class="stat-label">Templates</div><div class="stat-value" id="stat-templates">-</div></div>
+  <div class="stat"><div class="stat-label">Features Available</div><div class="stat-value" id="stat-features">-</div></div>
+</div>
+
+<div class="main">
+  <div class="section-title">Composed &amp; Deployed Apps</div>
+  <div class="app-grid" id="app-grid">
+    <div class="loading"><div class="spinner"></div><p style="margin-top:12px;">Loading apps…</p></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let apps = [];
+
+function toast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', duration);
+}
+
+async function api(method, path, body) {
+  const res = await fetch(path, {
+    method,
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (res.status === 401 || res.status === 302) {
+    window.location.href = '/admin/logout';
+    throw new Error('Not signed in');
+  }
+  return res.json();
+}
+
+async function loadMe() {
+  try {
+    const me = await api('GET', '/admin/api/me');
+    if (me && me.name) {
+      document.getElementById('me-name').textContent = me.name;
+      document.getElementById('me-role').textContent = (me.role || '').toUpperCase();
+    }
+  } catch (_) {}
+}
+
+async function refreshAll() {
+  document.getElementById('app-grid').innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top:12px;">Loading…</p></div>';
+  try {
+    const data = await api('GET', '/admin/api/apps');
+    apps = data.apps || [];
+    updateStats();
+    renderApps();
+    document.getElementById('last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    toast('Loaded ' + apps.length + ' apps');
+  } catch (err) {
+    document.getElementById('app-grid').innerHTML = '<div class="loading" style="color:var(--red);">Failed to load: ' + err.message + '</div>';
+  }
+}
+
+function updateStats() {
+  const composed = apps.filter(a => a.features && a.features !== '[]' && a.features.length > 2);
+  const templates = [...new Set(apps.map(a => a.template))];
+  document.getElementById('stat-total').textContent = apps.length;
+  document.getElementById('stat-composed').textContent = composed.length;
+  document.getElementById('stat-templates').textContent = templates.length;
+  document.getElementById('stat-features').textContent = '7';
+}
+
+function renderApps() {
+  const grid = document.getElementById('app-grid');
+  if (apps.length === 0) {
+    grid.innerHTML = '<div class="loading">No apps registered yet</div>';
+    return;
+  }
+  grid.innerHTML = apps.map(app => {
+    const features = parseFeatures(app.features);
+    const statusClass = app.validation_status === 'healthy' ? 'status-healthy' :
+                       app.validation_status === 'partial' ? 'status-partial' :
+                       app.validation_status === 'failing' ? 'status-failing' : 'status-unknown';
+    const statusLabel = app.validation_status || 'unknown';
+    const workerUrl = app.domain ? ('https://' + app.domain) : '#';
+    const lastValidated = app.last_validated_at ? new Date(app.last_validated_at + 'Z').toLocaleString() : 'never';
+    return `
+      <div class="app-card" data-id="${app.id}">
+        <div class="app-card-header">
+          <div class="app-color" style="background:${app.brand_color || '#4f8ef7'}"></div>
+          <div class="app-info">
+            <div class="app-name">${app.brand_name || app.name}</div>
+            <div class="app-template">${app.template} · validated ${lastValidated}</div>
+          </div>
+          <span class="app-status ${statusClass}">${statusLabel}</span>
+        </div>
+        <div class="app-card-body">
+          <div class="checks-row" id="checks-${app.id}">
+            ${app.clerk_enabled ? '<span class="check check-' + (app.clerk_secret_key ? 'pass' : 'fail') + '">Auth</span>' : ''}
+            ${app.payment_provider ? '<span class="check check-' + (app.payment_configured ? 'pass' : 'fail') + '">' + app.payment_provider + '</span>' : ''}
+            ${app.resend_enabled ? '<span class="check check-' + (app.resend_domain_verified ? 'pass' : 'fail') + '">Email</span>' : ''}
+            ${app.sms_enabled ? '<span class="check check-fail">SMS</span>' : ''}
+            ${app.d1_database_id ? '<span class="check check-pass">D1</span>' : ''}
+          </div>
+          <div class="features-row">
+            ${features.map(f => `<span class="feature-tag">${f}</span>`).join('')}
+          </div>
+        </div>
+        <div class="app-card-footer">
+          <a href="${workerUrl}" target="_blank" rel="noopener">Open Worker ↗</a>
+          <a href="javascript:void(0)" onclick="validateApp('${app.id}')">Run Validation</a>
+          <a href="${workerUrl}/api/health" target="_blank" rel="noopener">Health Check ↗</a>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function parseFeatures(features) {
+  if (!features) return [];
+  try {
+    const parsed = JSON.parse(features);
+    if (Array.isArray(parsed)) return parsed;
+  } catch {}
+  if (typeof features === 'string') return features.split(',').filter(Boolean);
+  return [];
+}
+
+async function validateApp(appId) {
+  toast('Validating ' + appId + '…');
+  try {
+    const result = await api('POST', '/admin/api/validate/' + appId);
+    if (result.error) { toast(result.error, 6000); return; }
+    setTimeout(refreshAll, 500);
+  } catch (err) {
+    toast('Validation failed: ' + err.message, 6000);
+  }
+}
+
+async function validateAll() {
+  toast('Running validation across all apps…');
+  try {
+    const result = await api('POST', '/admin/api/validate-all');
+    if (result.error) { toast(result.error, 6000); return; }
+    setTimeout(refreshAll, 1000);
+  } catch (err) {
+    toast('Validate-all failed: ' + err.message, 6000);
+  }
+}
+
+loadMe();
+refreshAll();
+</script>
+</body>
+</html>

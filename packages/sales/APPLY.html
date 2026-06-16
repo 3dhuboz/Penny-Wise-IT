@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join Penny Wise I.T — Commission-Only Sales</title>
+<style>
+:root {
+  --bg: #0b0f1a; --surface: #141b2d; --card: #1a2338; --border: #1f2d45;
+  --text: #e8edf5; --muted: #6b7fa3; --soft: #a0aec0;
+  --accent: #4f8ef7; --green: #34d399; --yellow: #fbbf24; --purple: #a78bfa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.65; min-height: 100vh; }
+a { color: var(--accent); text-decoration: none; }
+
+.hero { background: linear-gradient(135deg, rgba(79,142,247,0.06), rgba(167,139,250,0.04)); border-bottom: 1px solid var(--border); padding: 3rem 1.5rem 2rem; text-align: center; }
+.hero img { height: 50px; margin-bottom: 1rem; }
+.hero h1 { font-size: 2rem; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+.hero h1 .grad { background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p { font-size: 1rem; color: var(--soft); max-width: 600px; margin: 0 auto; }
+.hero .pill { display: inline-block; background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.3); color: var(--green); padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.08em; }
+
+.container { max-width: 720px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+.section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 1rem; }
+
+.benefits { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; margin-bottom: 2.5rem; }
+.benefit { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; }
+.benefit-icon { font-size: 1.6rem; margin-bottom: 0.5rem; }
+.benefit h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
+.benefit p { font-size: 0.82rem; color: var(--soft); }
+
+.numbers { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 2.5rem; }
+.numbers h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--accent); }
+.numbers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+.number-block { text-align: center; }
+.number-val { font-size: 1.8rem; font-weight: 900; }
+.number-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.2rem; }
+
+.apply-card { background: var(--surface); border: 1px solid var(--accent); border-radius: 16px; padding: 2rem; }
+.apply-card h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.3rem; }
+.apply-card .sub { color: var(--soft); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+.form-group { margin-bottom: 1rem; }
+.form-label { display: block; font-size: 0.78rem; color: var(--soft); margin-bottom: 0.3rem; font-weight: 600; }
+.form-input, .form-select, .form-textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 0.875rem; color: var(--text); font-size: 0.9rem; font-family: inherit; outline: none; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-textarea { resize: vertical; min-height: 90px; }
+
+.btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.95rem; font-weight: 700; border: none; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.btn-primary { background: var(--accent); color: #fff; width: 100%; justify-content: center; }
+.btn-primary:hover { background: #3b7ce5; }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.success { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3); border-radius: 12px; padding: 1.5rem; text-align: center; }
+.success h3 { color: var(--green); font-size: 1.2rem; margin-bottom: 0.5rem; }
+.success p { color: var(--soft); font-size: 0.9rem; }
+
+.error { color: var(--red, #f87171); font-size: 0.85rem; margin-top: 0.5rem; }
+
+footer { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+footer a { color: var(--soft); }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <img src="https://pub-e9f06ab167a44125b75d7528e2271086.r2.dev/logo-dark.png" alt="Penny Wise I.T">
+  <div class="pill">Now hiring &mdash; commission only</div>
+  <h1>Sell custom <span class="grad">web apps</span> for Aussie small business</h1>
+  <p>No experience needed. We give you the AI-powered lead scanner, the quote builder, the pitch scripts, and the portal &mdash; all built by us. You bring the conversations.</p>
+</section>
+
+<div class="container">
+
+  <h2 class="section-title">Why this is different</h2>
+  <div class="benefits">
+    <div class="benefit">
+      <div class="benefit-icon">&#128176;</div>
+      <h3>Real commission</h3>
+      <p>15% of every setup fee + 10% of monthly recurring &mdash; the recurring compounds with every win.</p>
+    </div>
+    <div class="benefit">
+      <div class="benefit-icon">&#129302;</div>
+      <h3>AI finds your leads</h3>
+      <p>Our scanner crawls Reddit, Facebook, Airtasker, Quora &mdash; surfaces real people asking for websites today.</p>
+    </div>
+    <div class="benefit">
+      <div class="benefit-icon">&#127942;</div>
+      <h3>You don't build anything</h3>
+      <p>You sell. We build. From "yes" to a live app in under a week.</p>
+    </div>
+    <div class="benefit">
+      <div class="benefit-icon">&#9989;</div>
+      <h3>No quotas, no calls</h3>
+      <p>Work when you want. Most reps make their first sale in 10-14 days of part-time activity.</p>
+    </div>
+  </div>
+
+  <div class="numbers">
+    <h3>What one deal a week looks like</h3>
+    <div class="numbers-grid">
+      <div class="number-block">
+        <div class="number-val" style="color:var(--purple)">$180</div>
+        <div class="number-label">Setup commission per deal (avg)</div>
+      </div>
+      <div class="number-block">
+        <div class="number-val" style="color:var(--green)">$9.50</div>
+        <div class="number-label">Per deal monthly recurring</div>
+      </div>
+      <div class="number-block">
+        <div class="number-val" style="color:var(--accent)">$720</div>
+        <div class="number-label">Setup income per month (4 deals)</div>
+      </div>
+      <div class="number-block">
+        <div class="number-val" style="color:var(--yellow)">$455</div>
+        <div class="number-label">Recurring/mo after year 1</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="testimonials-section" style="display:none;margin-bottom:2.5rem">
+    <h2 class="section-title">&#127942; Recent wins from current reps</h2>
+    <div id="testimonial-stats" style="background:linear-gradient(135deg,rgba(52,211,153,0.06),rgba(167,139,250,0.04));border:1px solid rgba(52,211,153,0.2);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;display:flex;gap:2rem;flex-wrap:wrap;align-items:center"></div>
+    <div id="testimonial-wall" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.75rem"></div>
+  </div>
+
+  <div class="apply-card" id="apply-section">
+    <h2>Apply now &mdash; 60 seconds</h2>
+    <p class="sub">We review every application personally. You'll hear back within 48 hours.</p>
+
+    <form id="apply-form" onsubmit="return submitApplication(event)">
+      <div class="form-group"><label class="form-label">Your name</label><input type="text" id="ap-name" class="form-input" required placeholder="e.g. Sarah Mitchell"></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" id="ap-email" class="form-input" required placeholder="e.g. sarah@email.com"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input type="tel" id="ap-phone" class="form-input" required placeholder="e.g. 0412 345 678"></div>
+      <div class="form-group"><label class="form-label">Where are you based?</label><input type="text" id="ap-location" class="form-input" required placeholder="e.g. Brisbane, Gold Coast, Regional NSW"></div>
+      <div class="form-group"><label class="form-label">A bit about yourself <span style="color:var(--muted);font-weight:400">(sales experience, businesses you know, why this interests you)</span></label><textarea id="ap-about" class="form-textarea" placeholder="Optional but helpful..."></textarea></div>
+      <button type="submit" id="ap-submit" class="btn btn-primary">Send my application</button>
+      <div class="error" id="ap-error" style="display:none"></div>
+    </form>
+  </div>
+
+  <div class="success" id="ap-success" style="display:none;margin-top:1.5rem">
+    <h3>&#10003; Application received</h3>
+    <p>Thanks! Steve will review your application within 48 hours and email you back at the address you provided. If you're a fit, you'll get login details to your sales portal and we'll set you up with everything you need to start earning.</p>
+  </div>
+
+</div>
+
+<footer>
+  &copy; Penny Wise I.T &mdash; <a href="https://pennywiseit.com.au">pennywiseit.com.au</a>
+  &nbsp;&middot;&nbsp; <a href="/privacy">Privacy</a>
+  &nbsp;&middot;&nbsp; <a href="/terms">Terms</a>
+  &nbsp;&middot;&nbsp; <a href="/help">Help</a>
+  <p style="margin-top:0.5rem;font-size:0.72rem;opacity:0.7">By submitting this form you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</p>
+</footer>
+
+<script>
+// Load real wins from the API for the testimonial wall
+async function loadTestimonials() {
+  try {
+    const res = await fetch('https://pennywiseit-validator.steve-700.workers.dev/api/public/recent-wins');
+    const data = await res.json();
+    if (!data.wins || !data.wins.length) return;
+    document.getElementById('testimonials-section').style.display = '';
+    document.getElementById('testimonial-stats').innerHTML = `
+      <div><span style="font-size:1.5rem;font-weight:900;color:var(--green)">${data.total_wins}</span><span style="color:var(--muted);font-size:0.8rem;margin-left:0.4rem">deals closed</span></div>
+      <div><span style="font-size:1.5rem;font-weight:900;color:var(--purple)">$${Number(data.total_setup).toLocaleString()}</span><span style="color:var(--muted);font-size:0.8rem;margin-left:0.4rem">in setup fees</span></div>
+      ${data.total_monthly ? `<div><span style="font-size:1.5rem;font-weight:900;color:var(--accent)">$${Number(data.total_monthly)}/mo</span><span style="color:var(--muted);font-size:0.8rem;margin-left:0.4rem">recurring</span></div>` : ''}
+    `;
+    document.getElementById('testimonial-wall').innerHTML = data.wins.slice(0, 8).map(w => {
+      const ago = w.won_at ? timeAgo(new Date(w.won_at)) : 'recently';
+      return `<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:0.85rem 1rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;flex-wrap:wrap">
+          <strong style="font-size:0.9rem;color:var(--green)">${w.rep}</strong>
+          <span style="font-size:0.7rem;color:var(--muted)">${ago}</span>
+        </div>
+        <div style="font-size:0.78rem;color:var(--soft);margin-bottom:0.3rem">closed a ${w.app_type || 'website'}</div>
+        <div style="font-size:0.85rem;font-weight:700;color:var(--green)">$${Number(w.setup_value).toLocaleString()}${w.monthly_value ? ' + $' + w.monthly_value + '/mo' : ''}</div>
+      </div>`;
+    }).join('');
+  } catch {}
+}
+
+function timeAgo(d) {
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return days + 'd ago';
+  return d.toLocaleDateString();
+}
+
+loadTestimonials();
+
+// Pick up the ref= query parameter if present
+const urlParams = new URLSearchParams(window.location.search);
+const REFERRAL_CODE = urlParams.get('ref') || '';
+if (REFERRAL_CODE) {
+  // Show a tiny "referred by" note
+  const note = document.createElement('div');
+  note.style.cssText = 'background:rgba(52,211,153,0.08);color:var(--green);padding:0.5rem 0.75rem;border-radius:8px;font-size:0.78rem;margin-bottom:1rem;text-align:center;border:1px solid rgba(52,211,153,0.2)';
+  note.innerHTML = '&#127881; You were referred by <strong>' + REFERRAL_CODE.replace(/[^a-zA-Z0-9_]/g, '') + '</strong>';
+  const apply = document.getElementById('apply-section');
+  if (apply) apply.insertBefore(note, apply.firstChild.nextSibling);
+}
+
+async function submitApplication(e) {
+  e.preventDefault();
+  const btn = document.getElementById('ap-submit');
+  const errorEl = document.getElementById('ap-error');
+  errorEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  const body = {
+    name: document.getElementById('ap-name').value.trim(),
+    email: document.getElementById('ap-email').value.trim(),
+    phone: document.getElementById('ap-phone').value.trim(),
+    location: document.getElementById('ap-location').value.trim(),
+    about: document.getElementById('ap-about').value.trim(),
+    referred_by: REFERRAL_CODE,
+  };
+
+  try {
+    const res = await fetch('https://pennywiseit-validator.steve-700.workers.dev/api/applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Submit failed');
+    }
+    document.getElementById('apply-section').style.display = 'none';
+    document.getElementById('ap-success').style.display = '';
+    document.getElementById('ap-success').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (err) {
+    errorEl.textContent = err.message || 'Something went wrong. Please try again.';
+    errorEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Send my application';
+  }
+
+  return false;
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "id": "aussie-saver",
+  "name": "Aussie Saver",
+  "domain": "aussiesaver.com.au",
+  "template": "aussie-saver",
+  "branding": {
+    "name": "Aussie Saver",
+    "color": "#16a34a"
+  },
+  "features": [
+    "auth-bearer",
+    "email-resend"
+  ],
+  "env": {
+    "EMAIL_FROM": "hello@aussiesaver.com.au",
+    "JWT_ACCESS_EXPIRY": "3600",
+    "JWT_REFRESH_EXPIRY": "2592000"
+  },
+  "secrets": [
+    "JWT_SECRET",
+    "RESEND_API_KEY"
+  ]
+}

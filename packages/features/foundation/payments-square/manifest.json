@@ -1,0 +1,41 @@
+{
+  "id": "payments-square",
+  "name": "Square Payments",
+  "version": "1.0.0",
+  "category": "foundation",
+  "description": "Payment processing via Square. Supports one-time charges and POS integration.",
+  "requires": {
+    "envVars": [
+      { "name": "SQUARE_ACCESS_TOKEN", "description": "Square access token", "required": true, "secret": true, "example": "EAAAl..." },
+      { "name": "SQUARE_LOCATION_ID", "description": "Square location ID", "required": true, "secret": false, "example": "LID..." },
+      { "name": "SQUARE_WEBHOOK_SIGNATURE_KEY", "description": "Square webhook signature key", "required": false, "secret": true },
+      { "name": "SQUARE_ENVIRONMENT", "description": "Square environment (sandbox or production)", "required": false, "secret": false, "example": "production" }
+    ],
+    "features": [],
+    "dbTables": [
+      {
+        "name": "payments",
+        "sql": "CREATE TABLE IF NOT EXISTS payments (id TEXT PRIMARY KEY, user_id TEXT, square_payment_id TEXT UNIQUE, square_customer_id TEXT, amount INTEGER NOT NULL, currency TEXT DEFAULT 'aud', status TEXT DEFAULT 'pending', description TEXT, metadata TEXT, created_at TEXT DEFAULT (datetime('now')))",
+        "indexes": ["CREATE INDEX IF NOT EXISTS idx_payments_user ON payments(user_id)", "CREATE INDEX IF NOT EXISTS idx_payments_square ON payments(square_payment_id)"]
+      }
+    ],
+    "bindings": []
+  },
+  "provides": {
+    "routes": [
+      { "method": "POST", "path": "/api/payments/create-checkout", "description": "Create a Square Checkout link", "auth": "authenticated" },
+      { "method": "GET", "path": "/api/payments/history", "description": "Get payment history for current user", "auth": "authenticated" },
+      { "method": "POST", "path": "/webhooks/square", "description": "Handle Square webhook events", "auth": "public" }
+    ],
+    "webhooks": [
+      { "path": "/webhooks/square", "provider": "square", "events": ["payment.completed", "payment.updated"], "description": "Process Square payment events" }
+    ],
+    "cronJobs": [],
+    "middleware": [],
+    "dbTables": ["payments"]
+  },
+  "conflicts": ["payments-stripe", "payments-paypal"],
+  "stackOptions": {
+    "payments": ["square"]
+  }
+}

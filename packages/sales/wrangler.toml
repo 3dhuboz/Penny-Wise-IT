@@ -1,0 +1,23 @@
+name = "pennywiseit-sales"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+
+routes = [
+  { pattern = "sales.pennywiseit.com.au", custom_domain = true, zone_id = "c2a8d4afe99a314c5af95283d98f8f60" }
+]
+
+[vars]
+BUG_SQUASHER_API_URL = "https://support.pennywiseit.com.au/api"
+BUG_SQUASHER_PORTAL_BASE_URL = "https://support.pennywiseit.com.au"
+
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+fallthrough = true
+
+# composer-db — shared with the validator. Used by /admin/* routes for
+# auth (sales_sessions) and read-only views (apps, leads, salespeople).
+[[d1_databases]]
+binding = "DB"
+database_name = "composer-db"
+database_id = "02e349ac-6932-4d38-a0b1-08f917086124"

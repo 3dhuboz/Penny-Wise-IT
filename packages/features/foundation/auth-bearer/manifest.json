@@ -1,0 +1,54 @@
+{
+  "id": "auth-bearer",
+  "name": "Bearer Token Authentication",
+  "version": "1.0.0",
+  "category": "foundation",
+  "description": "Custom JWT-based Bearer authentication with email/password. No third-party auth provider. Provides middleware for protecting routes with role-based access control (user/staff/admin).",
+  "requires": {
+    "envVars": [
+      { "name": "JWT_SECRET", "description": "Secret key for signing JWT tokens (min 32 chars)", "required": true, "secret": true, "example": "super-secret-jwt-signing-key-32chars" },
+      { "name": "JWT_ACCESS_EXPIRY", "description": "Access token expiry in seconds (default 3600 = 1hr)", "required": false, "secret": false, "example": "3600" },
+      { "name": "JWT_REFRESH_EXPIRY", "description": "Refresh token expiry in seconds (default 604800 = 7 days)", "required": false, "secret": false, "example": "604800" }
+    ],
+    "features": [],
+    "dbTables": [
+      {
+        "name": "users",
+        "sql": "CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, name TEXT, role TEXT DEFAULT 'user', active INTEGER DEFAULT 1, last_login TEXT, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')))",
+        "indexes": [
+          "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)",
+          "CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)"
+        ]
+      },
+      {
+        "name": "refresh_tokens",
+        "sql": "CREATE TABLE IF NOT EXISTS refresh_tokens (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, token_hash TEXT UNIQUE NOT NULL, expires_at TEXT NOT NULL, revoked INTEGER DEFAULT 0, created_at TEXT DEFAULT (datetime('now')), FOREIGN KEY (user_id) REFERENCES users(id))",
+        "indexes": [
+          "CREATE INDEX IF NOT EXISTS idx_tokens_user ON refresh_tokens(user_id)",
+          "CREATE INDEX IF NOT EXISTS idx_tokens_hash ON refresh_tokens(token_hash)"
+        ]
+      }
+    ],
+    "bindings": []
+  },
+  "provides": {
+    "routes": [
+      { "method": "POST", "path": "/api/auth/register", "description": "Register a new user account", "auth": "public" },
+      { "method": "POST", "path": "/api/auth/login", "description": "Login with email/password, returns access + refresh tokens", "auth": "public" },
+      { "method": "POST", "path": "/api/auth/refresh", "description": "Exchange refresh token for new access token", "auth": "public" },
+      { "method": "POST", "path": "/api/auth/logout", "description": "Revoke refresh token", "auth": "authenticated" },
+      { "method": "GET", "path": "/api/auth/me", "description": "Get current user profile", "auth": "authenticated" },
+      { "method": "PUT", "path": "/api/auth/me", "description": "Update own profile (name, password)", "auth": "authenticated" },
+      { "method": "GET", "path": "/api/admin/users", "description": "List all users", "auth": "admin" },
+      { "method": "PUT", "path": "/api/admin/users/:id/role", "description": "Update user role", "auth": "admin" },
+      { "method": "DELETE", "path": "/api/admin/users/:id", "description": "Deactivate user", "auth": "admin" }
+    ],
+    "webhooks": [],
+    "cronJobs": [
+      { "schedule": "0 3 * * *", "handler": "cleanupExpiredTokens", "description": "Nightly cleanup of expired refresh tokens" }
+    ],
+    "middleware": ["requireAuth", "optionalAuth", "requireAdmin", "requireRole"],
+    "dbTables": ["users", "refresh_tokens"]
+  },
+  "conflicts": ["auth-clerk"]
+}

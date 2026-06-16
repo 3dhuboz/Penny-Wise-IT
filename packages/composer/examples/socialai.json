@@ -1,0 +1,27 @@
+{
+  "id": "socialai",
+  "name": "SocialAI Studio",
+  "domain": "socialaistudio.au",
+  "template": "socialai",
+  "branding": {
+    "name": "SocialAI Studio",
+    "color": "#a78bfa"
+  },
+  "features": [
+    "auth-bearer",
+    "payments-paypal",
+    "email-resend",
+    "ai-openrouter"
+  ],
+  "env": {
+    "EMAIL_FROM": "hello@socialaistudio.au",
+    "OPENROUTER_MODEL": "anthropic/claude-haiku-4-5"
+  },
+  "secrets": [
+    "JWT_SECRET",
+    "PAYPAL_CLIENT_ID",
+    "PAYPAL_CLIENT_SECRET",
+    "RESEND_API_KEY",
+    "OPENROUTER_API_KEY"
+  ]
+}

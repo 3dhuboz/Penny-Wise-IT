@@ -1,0 +1,82 @@
+name: Deploy Client App
+
+# Triggered from HUB.html via the "Deploy via GitHub Actions" button.
+# Payload: { slug, config, d1_database_id }
+on:
+  repository_dispatch:
+    types: [deploy-client]
+
+jobs:
+  deploy:
+    name: "Deploy ${{ github.event.client_payload.slug }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: pennywiseit-composer/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: pennywiseit-composer
+
+      - name: Write client config
+        working-directory: pennywiseit-composer
+        env:
+          CONFIG_JSON: ${{ toJSON(github.event.client_payload.config) }}
+          SLUG: ${{ github.event.client_payload.slug }}
+        run: |
+          echo "$CONFIG_JSON" > "packages/composer/examples/${SLUG}.json"
+          echo "Config written for: ${SLUG}"
+          cat "packages/composer/examples/${SLUG}.json"
+
+      - name: Compose app
+        working-directory: pennywiseit-composer/packages/composer
+        env:
+          SLUG: ${{ github.event.client_payload.slug }}
+        run: |
+          npm run compose -- --config "examples/${SLUG}.json" --output "dist/${SLUG}"
+          echo "Compose complete. Output:"
+          ls -la "dist/${SLUG}/"
+
+      - name: Patch D1 database_id into wrangler.toml
+        if: ${{ github.event.client_payload.d1_database_id != '' }}
+        working-directory: pennywiseit-composer/packages/composer
+        env:
+          SLUG: ${{ github.event.client_payload.slug }}
+          DB_ID: ${{ github.event.client_payload.d1_database_id }}
+        run: |
+          TOML="dist/${SLUG}/wrangler.toml"
+          echo "Patching ${TOML} with database_id=${DB_ID}"
+          sed -i "s/database_id = \"[^\"]*\"/database_id = \"${DB_ID}\"/" "$TOML"
+          grep database_id "$TOML" || true
+
+      - name: Deploy to Cloudflare Workers
+        working-directory: pennywiseit-composer/packages/composer
+        env:
+          SLUG: ${{ github.event.client_payload.slug }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          cd "dist/${SLUG}"
+          npx wrangler deploy
+          echo "Deployment complete!"
+
+      - name: Summary
+        if: always()
+        env:
+          SLUG: ${{ github.event.client_payload.slug }}
+          DB_ID: ${{ github.event.client_payload.d1_database_id }}
+        run: |
+          echo "## Deploy Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **App**: \`${SLUG}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Database ID**: \`${DB_ID}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Worker URL**: https://${SLUG}.steve-700.workers.dev" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY

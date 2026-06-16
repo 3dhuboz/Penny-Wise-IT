@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>m</title><style>
+html,body{margin:0;height:100%;background:#0b0f1a;font-family:ui-monospace,Menlo,monospace;color:#cbd5e1;overflow:hidden}
+.app{height:100%;padding:12px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px}
+.h{font-size:9px;letter-spacing:2px;font-weight:700;background:linear-gradient(90deg,#0ea5e9,#06b6d4,#fbbf24);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cal{flex:1;display:grid;grid-template-rows:auto repeat(4,1fr);gap:3px;position:relative}
+.row{display:grid;grid-template-columns:80px repeat(7,1fr);gap:2px;font-size:8px;align-items:center}
+.row.hd{font-size:7px;letter-spacing:1px;color:#475569;font-weight:700}
+.row.hd .d{text-align:center;padding:2px 0}
+.row .veh{font-size:8px;font-weight:700;color:#e2e8f0;letter-spacing:0.5px;padding:0 4px;line-height:1.2}
+.row .veh small{display:block;color:#475569;font-weight:400;font-size:7px;margin-top:1px}
+.cell{background:#111827;border-radius:2px;border:1px solid #1f2937;height:100%;position:relative;overflow:hidden}
+.bk{position:absolute;inset:1px;border-radius:2px;background:linear-gradient(90deg,#0ea5e9,#06b6d4);box-shadow:0 0 6px #06b6d488;display:flex;align-items:center;justify-content:center;color:#031414;font-size:7px;font-weight:800;letter-spacing:0.5px}
+.bd{position:absolute;inset:1px;border-radius:2px;background:#7f1d1d33;border:1px dashed #b91c1c;}
+.tag{position:absolute;top:6px;right:6px;background:#fbbf24;color:#0f0a04;padding:2px 6px;border-radius:99px;font-size:7px;font-weight:800;letter-spacing:0.5px;box-shadow:0 0 8px #fbbf2488;z-index:5}
+@media (prefers-reduced-motion:no-preference){
+.tag{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.06);opacity:0.85;box-shadow:0 0 14px #fbbf24cc}}
+.bk-anim{animation:slide 14s ease-in-out infinite}
+@keyframes slide{0%,15%{left:1px;right:71%}25%,40%{left:1px;right:43%}50%,65%{left:29%;right:15%}75%,90%{left:57%;right:1px}100%{left:1px;right:71%}}
+}
+@media (prefers-reduced-motion:reduce){.bk-anim{left:1px;right:43%}}
+</style></head><body>
+<div class="app">
+<div class="h">YAPOON AUTO RENTALS · MAY 2026</div>
+<div class="tag">PICKUP TODAY</div>
+<div class="cal">
+<div class="row hd"><span></span><span class="d">MON</span><span class="d">TUE</span><span class="d">WED</span><span class="d">THU</span><span class="d">FRI</span><span class="d">SAT</span><span class="d">SUN</span></div>
+<div class="row"><span class="veh">HILUX SR5<small>BAY 3</small></span><span class="cell"><span class="bk bk-anim" style="left:1px;right:71%;">BOOKED</span></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span></div>
+<div class="row"><span class="veh">CX-5 TOURING<small>BAY 1</small></span><span class="cell"><span class="bk" style="left:1px;right:1px;">BOOKED</span></span><span class="cell"><span class="bk" style="left:1px;right:1px;">BOOKED</span></span><span class="cell"><span class="bk" style="left:1px;right:1px;">BOOKED</span></span><span class="cell"></span><span class="cell"><span class="bd"></span></span><span class="cell"><span class="bd"></span></span><span class="cell"></span></div>
+<div class="row"><span class="veh">i30 HATCH<small>BAY 2</small></span><span class="cell"></span><span class="cell"><span class="bk" style="left:1px;right:1px;">BOOKED</span></span><span class="cell"><span class="bk" style="left:1px;right:1px;">BOOKED</span></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span></div>
+<div class="row"><span class="veh">HIACE VAN<small>BAY 4</small></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"><span class="bk" style="left:1px;right:1px;">BOOKED</span></span><span class="cell"><span class="bk" style="left:1px;right:1px;">BOOKED</span></span><span class="cell"><span class="bk" style="left:1px;right:1px;">BOOKED</span></span><span class="cell"><span class="bk" style="left:1px;right:1px;">BOOKED</span></span></div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,29 @@
+{
+  "id": "oconnor-delivery",
+  "name": "O'Connor Quality Meats",
+  "domain": "oconnor-delivery.steve-700.workers.dev",
+  "template": "oconnor",
+  "branding": {
+    "name": "O'Connor Quality Meats",
+    "color": "#dc2626"
+  },
+  "features": [
+    "auth-bearer",
+    "payments-stripe",
+    "email-resend",
+    "sms-twilio"
+  ],
+  "env": {
+    "EMAIL_FROM": "orders@oconnormeats.com.au",
+    "OWNER_PHONE": "+61400000001"
+  },
+  "secrets": [
+    "JWT_SECRET",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "RESEND_API_KEY",
+    "TWILIO_ACCOUNT_SID",
+    "TWILIO_AUTH_TOKEN",
+    "TWILIO_FROM_NUMBER"
+  ]
+}

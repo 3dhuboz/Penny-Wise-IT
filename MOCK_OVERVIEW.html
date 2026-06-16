@@ -1,0 +1,569 @@
+<!-- REPLACED BELOW -->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PennyWiseIT Composer — System Overview</title>
+<style>
+  :root {
+    --bg: #0f172a; --surface: #1e293b; --surface2: #283548; --border: #334155;
+    --text: #f1f5f9; --muted: #94a3b8; --accent: #6366f1;
+    --green: #22c55e; --yellow: #eab308; --red: #ef4444; --blue: #3b82f6;
+    --purple: #a78bfa; --teal: #2dd4bf; --orange: #f97316;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; }
+
+  /* HEADER */
+  header { background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 100%); border-bottom: 1px solid var(--border); padding: 2rem 3rem; }
+  header h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px; }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--muted); margin-top: 0.4rem; font-size: 0.95rem; }
+  .header-meta { display: flex; gap: 1.5rem; margin-top: 1.25rem; flex-wrap: wrap; }
+  .meta-pill { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); color: var(--purple); padding: 0.3rem 0.875rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+
+  /* LAYOUT */
+  main { max-width: 1400px; margin: 0 auto; padding: 2.5rem 2rem; }
+  section { margin-bottom: 3rem; }
+  h2 { font-size: 1.1rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+  h2::before { content: ''; display: block; width: 3px; height: 1rem; background: var(--accent); border-radius: 2px; }
+
+  /* PIPELINE */
+  .pipeline { display: flex; align-items: center; gap: 0; overflow-x: auto; padding-bottom: 0.5rem; }
+  .pipe-step { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; min-width: 160px; text-align: center; }
+  .pipe-step .icon { font-size: 1.75rem; margin-bottom: 0.4rem; }
+  .pipe-step .label { font-weight: 700; font-size: 0.875rem; }
+  .pipe-step .sub { color: var(--muted); font-size: 0.75rem; margin-top: 0.2rem; }
+  .pipe-arrow { color: var(--accent); font-size: 1.5rem; padding: 0 0.5rem; flex-shrink: 0; }
+
+  /* PACKAGE GRID */
+  .pkg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+  .pkg { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .pkg-head { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; }
+  .pkg-icon { font-size: 1.5rem; }
+  .pkg-title { font-weight: 700; font-size: 0.95rem; }
+  .pkg-sub { color: var(--muted); font-size: 0.775rem; }
+  .pkg-body { padding: 1rem 1.25rem; }
+  .pkg-body ul { list-style: none; }
+  .pkg-body li { font-size: 0.825rem; color: var(--muted); padding: 0.25rem 0; border-bottom: 1px solid rgba(51,65,85,0.5); display: flex; align-items: flex-start; gap: 0.5rem; }
+  .pkg-body li:last-child { border-bottom: none; }
+  .pkg-body li::before { content: '→'; color: var(--accent); flex-shrink: 0; font-size: 0.75rem; margin-top: 0.1rem; }
+  .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-left: 0.25rem; }
+  .badge-new { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge-fixed { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .badge-done { background: rgba(99,102,241,0.15); color: var(--purple); }
+
+  /* TEMPLATE CARDS */
+  .tmpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.875rem; }
+  .tmpl { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; position: relative; }
+  .tmpl.highlight { border-color: var(--green); }
+  .tmpl-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .tmpl-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.25rem; }
+  .tmpl-id { font-family: monospace; font-size: 0.75rem; color: var(--accent); margin-bottom: 0.5rem; }
+  .tmpl-desc { font-size: 0.775rem; color: var(--muted); line-height: 1.4; }
+  .tmpl-new { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--green); color: #000; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 999px; text-transform: uppercase; }
+
+  /* FEATURE TABLE */
+  .feat-table { width: 100%; border-collapse: collapse; font-size: 0.825rem; }
+  .feat-table th { background: var(--surface2); padding: 0.625rem 1rem; text-align: left; color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+  .feat-table td { padding: 0.625rem 1rem; border-bottom: 1px solid rgba(51,65,85,0.5); vertical-align: middle; }
+  .feat-table tr:last-child td { border-bottom: none; }
+  .feat-table tr:hover td { background: rgba(255,255,255,0.02); }
+  code { font-family: 'Courier New', monospace; font-size: 0.8rem; background: rgba(99,102,241,0.1); color: #a5b4fc; padding: 0.1rem 0.35rem; border-radius: 3px; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+  .dot-green { background: var(--green); }
+  .dot-blue { background: var(--blue); }
+
+  /* TOOLS */
+  .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1rem; }
+  .tool { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .tool-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.875rem; }
+  .tool-icon { font-size: 1.4rem; }
+  .tool-name { font-weight: 700; font-size: 0.9rem; }
+  .tool-file { font-family: monospace; font-size: 0.75rem; color: var(--accent); }
+  .tool-desc { font-size: 0.825rem; color: var(--muted); margin-bottom: 0.875rem; }
+  .cmd { background: #060d1b; border: 1px solid var(--border); border-radius: 6px; padding: 0.625rem 1rem; font-family: monospace; font-size: 0.775rem; color: #7dd3fc; display: flex; align-items: center; gap: 0.5rem; }
+  .cmd::before { content: '$'; color: var(--muted); flex-shrink: 0; }
+
+  /* FLOW DIAGRAM */
+  .flow { display: flex; flex-direction: column; gap: 0.5rem; }
+  .flow-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  .flow-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.825rem; white-space: nowrap; }
+  .flow-box.input { border-color: var(--blue); color: #93c5fd; }
+  .flow-box.process { border-color: var(--accent); color: var(--purple); }
+  .flow-box.output { border-color: var(--green); color: var(--green); }
+  .flow-arr { color: var(--muted); font-size: 1rem; }
+
+  /* STATUS BAR */
+  .status-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; gap: 2rem; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-n { font-size: 2rem; font-weight: 800; line-height: 1; }
+  .stat-l { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem; }
+
+  footer { border-top: 1px solid var(--border); padding: 1.5rem 3rem; color: var(--muted); font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span>PennyWise</span>IT — App Composer System</h1>
+  <p>A monorepo toolkit for composing, deploying, validating, and monitoring bespoke Cloudflare Workers apps.</p>
+  <div class="header-meta">
+    <span class="meta-pill">8 Feature Modules</span>
+    <span class="meta-pill">8 App Templates</span>
+    <span class="meta-pill">5 Packages</span>
+    <span class="meta-pill">Cloudflare Workers + D1</span>
+    <span class="meta-pill">Hono Framework</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- PIPELINE -->
+  <section>
+    <h2>Composition Pipeline</h2>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="icon">📝</div>
+        <div class="label">app-config.json</div>
+        <div class="sub">Template + features + secrets</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="icon">🔨</div>
+        <div class="label">compose.ts</div>
+        <div class="sub">Resolve deps · Generate files</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="icon">📦</div>
+        <div class="label">dist/app/</div>
+        <div class="sub">schema.sql · index.ts · wrangler.toml</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="icon">🚀</div>
+        <div class="label">deploy.ts</div>
+        <div class="sub">D1 create · migrate · wrangler deploy</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="icon">✅</div>
+        <div class="label">Validator</div>
+        <div class="sub">Register · run checks · dashboard</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATUS -->
+  <section>
+    <h2>Session Stats</h2>
+    <div class="status-bar">
+      <div class="stat"><div class="stat-n" style="color:var(--green)">8</div><div class="stat-l">Templates</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--blue)">8</div><div class="stat-l">Feature Modules</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--purple)">2</div><div class="stat-l">New Templates Added</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--teal)">5</div><div class="stat-l">Packages</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--orange)">1</div><div class="stat-l">Bug Fixed</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--yellow)">11</div><div class="stat-l">Files Created/Updated</div></div>
+    </div>
+  </section>
+
+  <!-- PACKAGES -->
+  <section>
+    <h2>Packages</h2>
+    <div class="pkg-grid">
+
+      <div class="pkg">
+        <div class="pkg-head">
+          <div class="pkg-icon">🔨</div>
+          <div>
+            <div class="pkg-title">composer</div>
+            <div class="pkg-sub">packages/composer · CLI toolkit</div>
+          </div>
+        </div>
+        <div class="pkg-body">
+          <ul>
+            <li><code>compose.ts</code> — feature resolver + file generator <span class="badge badge-fixed">bug fixed</span></li>
+            <li><code>deploy.ts</code> — full deploy pipeline (D1 → schema → worker → register)</li>
+            <li><code>drift.ts</code> — schema drift detection CLI <span class="badge badge-new">new</span></li>
+            <li><code>validate-manifest.ts</code> — manifest linter</li>
+            <li>9 example configs incl. <code>aussie-saver.json</code>, <code>socialai.json</code> <span class="badge badge-new">new</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pkg">
+        <div class="pkg-head">
+          <div class="pkg-icon">🧩</div>
+          <div>
+            <div class="pkg-title">features</div>
+            <div class="pkg-sub">packages/features · composable modules</div>
+          </div>
+        </div>
+        <div class="pkg-body">
+          <ul>
+            <li><code>auth-bearer</code> — JWT auth, PBKDF2 passwords, role middleware</li>
+            <li><code>auth-clerk</code> — Clerk managed auth + D1 sync webhook</li>
+            <li><code>email-resend</code> — Resend transactional email + log</li>
+            <li><code>payments-stripe</code> — Checkout, subscriptions, webhooks</li>
+            <li><code>payments-paypal</code> — Orders, subscriptions, webhooks</li>
+            <li><code>payments-square</code> — One-time charges, payment links</li>
+            <li><code>sms-twilio</code> — SMS send + broadcast + log</li>
+            <li><code>ai-openrouter</code> — Multi-model AI completions + usage log</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pkg">
+        <div class="pkg-head">
+          <div class="pkg-icon">🔍</div>
+          <div>
+            <div class="pkg-title">validator</div>
+            <div class="pkg-sub">packages/validator · Cloudflare Worker</div>
+          </div>
+        </div>
+        <div class="pkg-body">
+          <ul>
+            <li>App registry CRUD (D1-backed)</li>
+            <li>Validation runner — health, auth, email, payments, DB, storage checks</li>
+            <li>Cron: scheduled health checks every 6h</li>
+            <li>HTML dashboard UI with per-app validation cards</li>
+            <li><code>types.ts</code> updated — aussie-saver + socialai tables <span class="badge badge-fixed">updated</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pkg">
+        <div class="pkg-head">
+          <div class="pkg-icon">📊</div>
+          <div>
+            <div class="pkg-title">dashboard</div>
+            <div class="pkg-sub">packages/dashboard · Cloudflare Worker</div>
+          </div>
+        </div>
+        <div class="pkg-body">
+          <ul>
+            <li>Standalone admin command centre</li>
+            <li>Connects to validator API via secret token</li>
+            <li>App cards: status, features, last validated</li>
+            <li>Run validation per-app or all at once</li>
+            <li>Stats: total apps, composed, templates, features</li>
+            <li>Auto-connect from URL hash</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pkg">
+        <div class="pkg-head">
+          <div class="pkg-icon">🗂️</div>
+          <div>
+            <div class="pkg-title">registry</div>
+            <div class="pkg-sub">packages/registry · Cloudflare Worker <span class="badge badge-new">new</span></div>
+          </div>
+        </div>
+        <div class="pkg-body">
+          <ul>
+            <li>Feature browser — searchable card UI for all 8 modules</li>
+            <li>Template catalog — all 8 templates with recommended stacks</li>
+            <li>Compose helper — pick template + features → generate JSON config</li>
+            <li>REST API: <code>/api/features</code>, <code>/api/templates</code></li>
+            <li>Deployed to Cloudflare Workers edge</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TEMPLATES -->
+  <section>
+    <h2>App Templates</h2>
+    <div class="tmpl-grid">
+
+      <div class="tmpl">
+        <div class="tmpl-icon">🍖</div>
+        <div class="tmpl-name">Food Truck</div>
+        <div class="tmpl-id">food-truck</div>
+        <div class="tmpl-desc">Online ordering, menu, loyalty raffle, SMS notifications, schedule &amp; alerts.</div>
+      </div>
+
+      <div class="tmpl">
+        <div class="tmpl-icon">🎪</div>
+        <div class="tmpl-name">Festival / Event</div>
+        <div class="tmpl-id">festival</div>
+        <div class="tmpl-desc">Ticketing, raffle draw, vendor directory, POI map, schedule &amp; alerts.</div>
+      </div>
+
+      <div class="tmpl">
+        <div class="tmpl-icon">🛒</div>
+        <div class="tmpl-name">Simple Website</div>
+        <div class="tmpl-id">simple-website</div>
+        <div class="tmpl-desc">Product catalogue, orders, CMS posts, contact form.</div>
+      </div>
+
+      <div class="tmpl">
+        <div class="tmpl-icon">⚡</div>
+        <div class="tmpl-name">Trade / Field Service</div>
+        <div class="tmpl-id">wirez</div>
+        <div class="tmpl-desc">CRM, job management, time tracking, materials, GST invoices.</div>
+      </div>
+
+      <div class="tmpl">
+        <div class="tmpl-icon">🚚</div>
+        <div class="tmpl-name">Delivery / Agriculture</div>
+        <div class="tmpl-id">oconnor</div>
+        <div class="tmpl-desc">Orders, delivery run planning, stop tracking, driver GPS, subscriptions.</div>
+      </div>
+
+      <div class="tmpl">
+        <div class="tmpl-icon">🖥️</div>
+        <div class="tmpl-name">Desktop App Licensing</div>
+        <div class="tmpl-id">autohue</div>
+        <div class="tmpl-desc">License key gen, machine activation, R2-gated release downloads.</div>
+      </div>
+
+      <div class="tmpl highlight">
+        <div class="tmpl-new">New</div>
+        <div class="tmpl-icon">⛽</div>
+        <div class="tmpl-name">Fuel / Utility Comparison</div>
+        <div class="tmpl-id">aussie-saver</div>
+        <div class="tmpl-desc">Crowdsourced fuel prices, station search, vehicle tracker, fill-up log + cost analytics.</div>
+      </div>
+
+      <div class="tmpl highlight">
+        <div class="tmpl-new">New</div>
+        <div class="tmpl-icon">📲</div>
+        <div class="tmpl-name">AI Social Media Mgmt</div>
+        <div class="tmpl-id">socialai</div>
+        <div class="tmpl-desc">White-label social agency. AI post drafts, client approval portal, activation/cancellation flows.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FEATURES TABLE -->
+  <section>
+    <h2>Feature Modules</h2>
+    <table class="feat-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>ID</th>
+          <th>Tables</th>
+          <th>Routes</th>
+          <th>Secrets Required</th>
+          <th>Conflicts</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🔐 Bearer Token Auth</td>
+          <td><code>auth-bearer</code></td>
+          <td>users, refresh_tokens</td>
+          <td>9</td>
+          <td><code>JWT_SECRET</code></td>
+          <td><code>auth-clerk</code></td>
+        </tr>
+        <tr>
+          <td>🪪 Clerk Auth</td>
+          <td><code>auth-clerk</code></td>
+          <td>users</td>
+          <td>1 + webhook</td>
+          <td><code>CLERK_SECRET_KEY</code></td>
+          <td><code>auth-bearer</code></td>
+        </tr>
+        <tr>
+          <td>📧 Email via Resend</td>
+          <td><code>email-resend</code></td>
+          <td>email_log</td>
+          <td>2</td>
+          <td><code>RESEND_API_KEY</code></td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>💳 Stripe Payments</td>
+          <td><code>payments-stripe</code></td>
+          <td>payments, subscriptions</td>
+          <td>6 + webhook</td>
+          <td><code>STRIPE_SECRET_KEY</code>, <code>STRIPE_WEBHOOK_SECRET</code></td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>🅿️ PayPal Payments</td>
+          <td><code>payments-paypal</code></td>
+          <td>payments, subscriptions</td>
+          <td>5 + webhook</td>
+          <td><code>PAYPAL_CLIENT_ID</code>, <code>PAYPAL_CLIENT_SECRET</code></td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>🟦 Square Payments</td>
+          <td><code>payments-square</code></td>
+          <td>payments</td>
+          <td>4 + webhook</td>
+          <td><code>SQUARE_ACCESS_TOKEN</code></td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>📱 SMS via Twilio</td>
+          <td><code>sms-twilio</code></td>
+          <td>sms_log</td>
+          <td>3</td>
+          <td><code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code></td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>🤖 AI via OpenRouter</td>
+          <td><code>ai-openrouter</code></td>
+          <td>ai_log</td>
+          <td>5</td>
+          <td><code>OPENROUTER_API_KEY</code></td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- TOOLS -->
+  <section>
+    <h2>CLI Tools</h2>
+    <div class="tool-grid">
+
+      <div class="tool">
+        <div class="tool-head">
+          <div class="tool-icon">🔨</div>
+          <div>
+            <div class="tool-name">Composer</div>
+            <div class="tool-file">packages/composer/src/compose.ts</div>
+          </div>
+        </div>
+        <div class="tool-desc">Resolves feature dependencies, generates schema.sql, wrangler.toml, index.ts, package.json, COMPOSITION_REPORT.md, and copies feature source files.</div>
+        <div class="cmd">npm run compose -- --config examples/aussie-saver.json --output dist/aussie-saver</div>
+      </div>
+
+      <div class="tool">
+        <div class="tool-head">
+          <div class="tool-icon">🚀</div>
+          <div>
+            <div class="tool-name">Deployer</div>
+            <div class="tool-file">packages/composer/src/deploy.ts</div>
+          </div>
+        </div>
+        <div class="tool-desc">Full pipeline: compose → create D1 database → run schema migrations → wrangler deploy → register with validator → trigger validation run.</div>
+        <div class="cmd">npm run deploy -- --config examples/wirez.json</div>
+      </div>
+
+      <div class="tool">
+        <div class="tool-head">
+          <div class="tool-icon">🕵️</div>
+          <div>
+            <div class="tool-name">Drift Detector</div>
+            <div class="tool-file">packages/composer/src/drift.ts <span class="badge badge-new">new</span></div>
+          </div>
+        </div>
+        <div class="tool-desc">Queries live D1 via Cloudflare REST API. Compares actual tables vs schema.sql. Column-level diff with --verbose, auto-fix SQL with --fix, scan all apps with --all.</div>
+        <div class="cmd">npm run drift -- --config examples/socialai.json --verbose --fix</div>
+      </div>
+
+      <div class="tool">
+        <div class="tool-head">
+          <div class="tool-icon">🔎</div>
+          <div>
+            <div class="tool-name">Manifest Validator</div>
+            <div class="tool-file">packages/composer/src/validate-manifest.ts</div>
+          </div>
+        </div>
+        <div class="tool-desc">Lints feature manifest.json files against the schema. Checks required fields, valid categories, route shapes, dependency references.</div>
+        <div class="cmd">npm run validate-manifest -- --feature auth-bearer</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- NEW TEMPLATE ROUTES -->
+  <section>
+    <h2>New Template: Aussie Saver — API Routes</h2>
+    <table class="feat-table">
+      <thead><tr><th>Method</th><th>Path</th><th>Auth</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>GET</td><td><code>/api/stations</code></td><td>public</td><td>Search stations by suburb, state, brand, or query</td></tr>
+        <tr><td>GET</td><td><code>/api/stations/:id</code></td><td>public</td><td>Station detail + latest prices per fuel type</td></tr>
+        <tr><td>POST</td><td><code>/api/stations</code></td><td>admin</td><td>Add a new station</td></tr>
+        <tr><td>PUT</td><td><code>/api/stations/:id</code></td><td>admin</td><td>Update station details</td></tr>
+        <tr><td>POST</td><td><code>/api/stations/:id/prices</code></td><td>authenticated</td><td>Report a fuel price</td></tr>
+        <tr><td>POST</td><td><code>/api/prices/:id/confirm</code></td><td>authenticated</td><td>Confirm a reported price</td></tr>
+        <tr><td>GET</td><td><code>/api/prices/compare</code></td><td>public</td><td>Compare prices for a fuel type across stations</td></tr>
+        <tr><td>GET/POST</td><td><code>/api/vehicles</code></td><td>authenticated</td><td>User vehicle management</td></tr>
+        <tr><td>GET/POST</td><td><code>/api/vehicles/:id/fillups</code></td><td>authenticated</td><td>Fill-up log with cost tracking</td></tr>
+        <tr><td>GET</td><td><code>/api/stats</code></td><td>authenticated</td><td>User fuel spend analytics</td></tr>
+        <tr><td>GET/PUT</td><td><code>/api/settings</code></td><td>mixed</td><td>App-wide settings (fuel types, max price age)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>New Template: SocialAI — API Routes</h2>
+    <table class="feat-table">
+      <thead><tr><th>Method</th><th>Path</th><th>Auth</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>GET/POST/PUT/DELETE</td><td><code>/api/clients</code></td><td>admin</td><td>Client management (auto-creates approval portal token)</td></tr>
+        <tr><td>POST</td><td><code>/api/clients/:id/portal/refresh</code></td><td>admin</td><td>Rotate client's portal token</td></tr>
+        <tr><td>GET/POST/PUT/DELETE</td><td><code>/api/posts</code></td><td>admin</td><td>Post CRUD with client_id, status, platform filters</td></tr>
+        <tr><td>POST</td><td><code>/api/posts/generate</code></td><td>admin</td><td>AI-generated post draft via OpenRouter (if feature enabled)</td></tr>
+        <tr><td>POST</td><td><code>/api/posts/:id/approve</code></td><td>public</td><td>Client approves a post via portal</td></tr>
+        <tr><td>POST</td><td><code>/api/posts/:id/reject</code></td><td>public</td><td>Client rejects with reason</td></tr>
+        <tr><td>POST</td><td><code>/api/posts/:id/publish</code></td><td>admin</td><td>Mark post as published</td></tr>
+        <tr><td>GET/POST</td><td><code>/api/portal/:token</code></td><td>public (token)</td><td>Token-based client portal — view &amp; respond to posts</td></tr>
+        <tr><td>POST</td><td><code>/api/activate</code></td><td>admin</td><td>Initiate client activation (sends email link)</td></tr>
+        <tr><td>GET/POST</td><td><code>/api/activate/:token</code></td><td>public (token)</td><td>Client completes onboarding, auto-creates record + portal</td></tr>
+        <tr><td>POST</td><td><code>/api/clients/:id/cancel</code></td><td>public</td><td>Submit cancellation request</td></tr>
+        <tr><td>GET/POST</td><td><code>/api/admin/cancellations</code></td><td>admin</td><td>Process pending cancellations</td></tr>
+        <tr><td>GET</td><td><code>/api/admin/queue</code></td><td>admin</td><td>View approved posts ready to publish</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- DRIFT TOOL -->
+  <section>
+    <h2>Drift Detector — How It Works</h2>
+    <div class="flow">
+      <div class="flow-row">
+        <div class="flow-box input">app-config.json</div>
+        <div class="flow-arr">+</div>
+        <div class="flow-box input">dist/schema.sql</div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box process">Parse expected tables + columns</div>
+      </div>
+      <div class="flow-row">
+        <div class="flow-box input">CF_ACCOUNT_ID + CF_API_TOKEN</div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box process">Query D1 REST API: sqlite_master</div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box process">Get actual tables in live DB</div>
+      </div>
+      <div class="flow-row">
+        <div class="flow-box process">Diff expected vs actual</div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box output">missing_tables / extra_tables / column drift</div>
+      </div>
+      <div class="flow-row">
+        <div class="flow-box process">--fix flag</div>
+        <div class="flow-arr">→</div>
+        <div class="flow-box output">Print corrective CREATE TABLE / ALTER TABLE SQL</div>
+      </div>
+      <div class="flow-row">
+        <div class="flow-box output">DRIFT_REPORT.json written to output dir</div>
+        <div class="flow-arr">·</div>
+        <div class="flow-box output">Exit code 1 if drift detected (CI-friendly)</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>PennyWiseIT App Composer — Session Summary</span>
+  <span style="color:var(--accent)">pennywiseit-composer monorepo</span>
+</footer>
+
+</body>
+</html>

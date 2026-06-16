@@ -1,0 +1,50 @@
+name = "pennywiseit-validator"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+
+[vars]
+ENVIRONMENT = "production"
+# Cloudflare zone ID for pennywiseit.com.au — used by Email Routing API to create
+# forwarding rules like sarah@pennywiseit.com.au → sarah.personal@gmail.com.
+# Same zone as the sales worker (sales.pennywiseit.com.au).
+PENNYWISEIT_ZONE_ID = "c2a8d4afe99a314c5af95283d98f8f60"
+
+# The validator's own database — stores app registry and validation results
+[[d1_databases]]
+binding = "DB"
+database_name = "composer-db"
+database_id = "02e349ac-6932-4d38-a0b1-08f917086124"
+
+# Cloudflare Workers AI — used for Lead Finder lead generation (free tier)
+[ai]
+binding = "AI"
+
+# R2 bucket for prospect logos uploaded via Pitch Studio.
+# Logos are served back through the worker at /api/public/drafts/logo/:key so we
+# don't need to enable public R2 access.
+[[r2_buckets]]
+binding = "DRAFTS_LOGOS"
+bucket_name = "pennywiseit-drafts"
+
+# R2 bucket for cold storage of old auto_scan_leads rows (>60 days). Daily cron
+# writes JSONL archives so we can shrink the hot D1 table without losing the
+# rejection-pattern data the lead scanner uses to tune itself.
+[[r2_buckets]]
+binding = "ARCHIVE"
+bucket_name = "pennywiseit-archive"
+
+# Workers Analytics Engine \u2014 free, time-series metrics for cron task health,
+# request rates, AI failures. Query via SQL API at:
+# https://api.cloudflare.com/client/v4/accounts/<acct>/analytics_engine/sql
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "pennywiseit_metrics"
+
+# KV namespace for sliding-window rate limiting on public + AI endpoints.
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "401dc02d6e314caeb4fccbdcb59824ff"
+
+# Cron trigger for scheduled health checks
+[triggers]
+crons = ["0 * * * *"]

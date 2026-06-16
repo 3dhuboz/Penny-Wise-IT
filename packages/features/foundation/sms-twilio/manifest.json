@@ -1,0 +1,36 @@
+{
+  "id": "sms-twilio",
+  "name": "SMS via Twilio",
+  "version": "1.0.0",
+  "category": "foundation",
+  "description": "SMS messaging via Twilio. Provides send function, broadcast capability, and delivery logging.",
+  "requires": {
+    "envVars": [
+      { "name": "TWILIO_ACCOUNT_SID", "description": "Twilio Account SID", "required": true, "secret": true },
+      { "name": "TWILIO_AUTH_TOKEN", "description": "Twilio Auth Token", "required": true, "secret": true },
+      { "name": "TWILIO_FROM_NUMBER", "description": "Twilio phone number to send from", "required": true, "secret": false, "example": "+61400000000" }
+    ],
+    "features": [],
+    "dbTables": [
+      {
+        "name": "sms_log",
+        "sql": "CREATE TABLE IF NOT EXISTS sms_log (id TEXT PRIMARY KEY, to_number TEXT NOT NULL, from_number TEXT NOT NULL, message TEXT NOT NULL, twilio_sid TEXT, status TEXT DEFAULT 'sent', created_at TEXT DEFAULT (datetime('now')))",
+        "indexes": ["CREATE INDEX IF NOT EXISTS idx_sms_log_to ON sms_log(to_number, created_at DESC)"]
+      }
+    ],
+    "bindings": []
+  },
+  "provides": {
+    "routes": [
+      { "method": "POST", "path": "/api/sms/send", "description": "Send a single SMS", "auth": "admin" },
+      { "method": "POST", "path": "/api/sms/broadcast", "description": "Send SMS to multiple recipients", "auth": "admin" },
+      { "method": "GET", "path": "/api/sms/log", "description": "View SMS send log", "auth": "admin" }
+    ],
+    "webhooks": [],
+    "cronJobs": [],
+    "middleware": [],
+    "dbTables": ["sms_log"]
+  },
+  "conflicts": [],
+  "stackOptions": { "sms": ["twilio"] }
+}

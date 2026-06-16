@@ -1,0 +1,34 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>m</title><style>
+html,body{margin:0;height:100%;background:#0b0f1a;font-family:system-ui,sans-serif;color:#e2e8f0;overflow:hidden}
+.app{height:100%;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px}
+.t{font-size:10px;letter-spacing:2px;font-weight:700;background:linear-gradient(90deg,#a78bfa,#f472b6,#f87171);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grid{display:grid;grid-template-columns:48px 1fr 1fr 1fr;grid-template-rows:auto 1fr 1fr 1fr 1fr;gap:5px;flex:1}
+.hd{font-size:8px;letter-spacing:1.2px;color:#64748b;text-align:center;padding:4px;font-weight:700}
+.tm{font-size:8px;color:#64748b;align-self:center;text-align:right;padding-right:4px}
+.cell{background:#111827;border:1px solid #1f2937;border-radius:5px;padding:5px;font-size:8.5px;line-height:1.25;display:flex;flex-direction:column;justify-content:center;position:relative}
+.cell b{color:#cbd5e1;font-weight:600;font-size:9px}
+.cell em{color:#64748b;font-style:normal;font-size:7.5px;margin-top:1px}
+.cell.live{background:linear-gradient(135deg,#a78bfa,#f472b6,#f87171);border-color:transparent}
+.cell.live b,.cell.live em{color:#fff}
+@media (prefers-reduced-motion:no-preference){
+.cell.live{animation:pulse 2.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #f472b677}50%{box-shadow:0 0 0 6px #f472b600}}
+}
+</style></head><body>
+<div class="app">
+<div class="t">GLADSTONE BBQ FEST · NOW PLAYING</div>
+<div class="grid" id="g">
+<div></div><div class="hd">MAIN</div><div class="hd">RIVER</div><div class="hd">BARN</div>
+<div class="tm">2PM</div><div class="cell" data-i="0"><b>The Reckless</b><em>indie</em></div><div class="cell" data-i="1"><b>BBQ Pit Talk</b><em>Q&A</em></div><div class="cell" data-i="2"><b>Local Heroes</b><em>folk</em></div>
+<div class="tm">4PM</div><div class="cell" data-i="3"><b>Gold Coast Gun</b><em>rock</em></div><div class="cell" data-i="4"><b>Smoke School</b><em>demo</em></div><div class="cell" data-i="5"><b>Lonesome Hwy</b><em>country</em></div>
+<div class="tm">6PM</div><div class="cell" data-i="6"><b>Dust Devils</b><em>blues</em></div><div class="cell" data-i="7"><b>Sauce Battle</b><em>cookoff</em></div><div class="cell" data-i="8"><b>The Outliers</b><em>rock</em></div>
+<div class="tm">8PM</div><div class="cell" data-i="9"><b>HEADLINER</b><em>rock</em></div><div class="cell" data-i="10"><b>Fireworks</b><em>show</em></div><div class="cell" data-i="11"><b>After Dark DJs</b><em>dance</em></div>
+</div>
+</div>
+<script>
+let i=0,c=document.querySelectorAll('.cell');
+function s(){c.forEach(x=>x.classList.remove('live'));c[i].classList.add('live');i=(i+1)%c.length}
+s();setInterval(s,8000);
+</script>
+</body></html>
