@@ -836,6 +836,17 @@ select:focus-visible,
       </div>
 
       <!-- ═════════════ ROW 2: PIPELINE COUNTS (always visible, click to drill) ═════════════ -->
+      <div id="sales-queue-card" style="display:none;background:var(--surface);border:1px solid rgba(79,142,247,0.28);border-radius:12px;padding:0.95rem 1.1rem;margin-bottom:1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.65rem">
+          <div>
+            <div style="font-size:0.62rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:0.1rem">AI Sales Queue</div>
+            <div id="sales-queue-summary" style="font-size:0.82rem;color:var(--soft)">Ranking your warm leads, follow-ups, quotes, and drafts.</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="loadFunnelActions()">Refresh</button>
+        </div>
+        <div id="sales-queue-list" style="display:flex;flex-direction:column;gap:0.45rem"></div>
+      </div>
+
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.65rem;margin-bottom:1rem">
         <button class="dash-tile" onclick="switchTab('leads')" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1rem;cursor:pointer;text-align:left;font-family:inherit;color:inherit;transition:all 0.15s" onmouseover="this.style.borderColor='var(--purple)'" onmouseout="this.style.borderColor='var(--border)'">
           <div style="font-size:1.5rem;font-weight:900;color:var(--purple);line-height:1" id="wf-find">0</div>
@@ -2438,6 +2449,7 @@ function showApp() {
   initLeadHunter();
   loadBenchmarks();
   loadForecast();
+  loadFunnelActions();
 
   // Check onboarding
   if (!localStorage.getItem('pwsales_onboarded') && !session.salesperson?.onboarding_completed) {
@@ -2456,7 +2468,7 @@ function switchTab(name, btn) {
   document.getElementById('panel-' + name)?.classList.add('active');
   if (name === 'commission') updateCommEarned();
   if (name === 'leads') { loadScanStatus(); loadSavedScans(); }
-  if (name === 'dashboard') { updateDashboard(); loadTeamWins(); loadLeaderboard(); initLeadHunter(); loadBenchmarks(); loadForecast(); }
+  if (name === 'dashboard') { updateDashboard(); loadTeamWins(); loadLeaderboard(); initLeadHunter(); loadBenchmarks(); loadForecast(); loadFunnelActions(); }
   if (name === 'messages') loadMessages();
   if (name === 'settings') { loadProfile(); loadPayoutHistory(); }
   if (name === 'quote') { populateQuoteLeadSelect(); loadQuoteTemplates(); }
@@ -2543,7 +2555,7 @@ function renderSubNav(section, activeSub) {
 function fireTabLoader(panel) {
   if (panel === 'commission') updateCommEarned();
   if (panel === 'leads') { loadScanStatus(); loadSavedScans(); }
-  if (panel === 'dashboard') { updateDashboard(); loadTeamWins(); loadLeaderboard(); initLeadHunter(); loadBenchmarks(); loadForecast(); }
+  if (panel === 'dashboard') { updateDashboard(); loadTeamWins(); loadLeaderboard(); initLeadHunter(); loadBenchmarks(); loadForecast(); loadFunnelActions(); }
   if (panel === 'messages') loadMessages();
   if (panel === 'settings') { loadProfile(); loadPayoutHistory(); }
   if (panel === 'quote') { populateQuoteLeadSelect(); loadQuoteTemplates(); }
@@ -4525,6 +4537,112 @@ function doNextAction() {
   if (typeof window.__nextAction === 'function') window.__nextAction();
 }
 
+async function loadFunnelActions() {
+  const card = document.getElementById('sales-queue-card');
+  const list = document.getElementById('sales-queue-list');
+  const summary = document.getElementById('sales-queue-summary');
+  if (!card || !list) return;
+  try {
+    const data = await api('GET', '/salesperson/funnel-actions?limit=6');
+    const actions = data.actions || [];
+    window.__funnelActions = actions;
+    if (!actions.length) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    const s = data.summary || {};
+    if (summary) {
+      const parts = [];
+      if (s.fresh_leads) parts.push(`${s.fresh_leads} fresh`);
+      if (s.follow_ups) parts.push(`${s.follow_ups} follow-up${s.follow_ups === 1 ? '' : 's'}`);
+      if (s.quotes_due) parts.push(`${s.quotes_due} quote${s.quotes_due === 1 ? '' : 's'}`);
+      summary.textContent = parts.length ? parts.join(' · ') : 'Best next moves ranked by live pipeline signals.';
+    }
+    list.innerHTML = actions.map(a => renderFunnelActionRow(a)).join('');
+    const top = actions[0];
+    if (top) {
+      const cardNow = document.getElementById('do-now-card');
+      const txt = document.getElementById('do-now-text');
+      const btn = document.getElementById('do-now-btn');
+      if (cardNow && txt && btn) {
+        cardNow.style.display = '';
+        txt.textContent = `${top.title} - ${top.reason}`;
+        btn.textContent = top.action_label || 'Open';
+        window.__nextAction = () => runFunnelAction(top.id);
+      }
+    }
+  } catch (e) {
+    if (summary) summary.textContent = 'Sales queue could not load.';
+  }
+}
+
+function renderFunnelActionRow(a) {
+  const priority = Number(a.priority || 0);
+  const color = priority >= 85 ? 'var(--red)' : priority >= 70 ? 'var(--yellow)' : priority >= 55 ? 'var(--accent)' : 'var(--muted)';
+  const meta = [
+    a.confidence ? a.confidence.toUpperCase() : '',
+    a.quality_score ? 'QS ' + a.quality_score : '',
+    a.age_days ? a.age_days + 'd' : '',
+    a.estimated_commission ? '~$' + Number(a.estimated_commission).toLocaleString() + ' 1st yr' : '',
+    a.is_unverified ? 'verify source' : '',
+  ].filter(Boolean).join(' · ');
+  return `<div style="background:var(--card);border:1px solid var(--border);border-left:3px solid ${color};border-radius:8px;padding:0.65rem 0.8rem;display:flex;gap:0.65rem;align-items:flex-start;flex-wrap:wrap">
+    <div style="font-size:0.78rem;font-weight:900;color:${color};min-width:34px">#${a.rank || ''}</div>
+    <div style="flex:1;min-width:220px">
+      <div style="font-size:0.88rem;font-weight:800">${esc(a.title || a.business_name || 'Sales action')}</div>
+      <div style="font-size:0.74rem;color:var(--soft);line-height:1.45;margin-top:0.12rem">${esc(a.reason || '')}</div>
+      ${meta ? `<div style="font-size:0.65rem;color:var(--muted);margin-top:0.25rem;text-transform:uppercase;letter-spacing:0.04em">${esc(meta)}</div>` : ''}
+    </div>
+    <div style="display:flex;gap:0.35rem;flex-wrap:wrap;margin-left:auto">
+      ${a.suggested_message ? `<button class="btn btn-secondary btn-sm" onclick="copyFunnelMessage('${esc(a.id)}')">Copy</button>` : ''}
+      ${a.source_url ? `<button class="btn btn-secondary btn-sm" onclick="safeOpen('${esc(a.source_url)}','_blank')">Source</button>` : ''}
+      <button class="btn btn-primary btn-sm" onclick="runFunnelAction('${esc(a.id)}')">${esc(a.action_label || 'Open')}</button>
+    </div>
+  </div>`;
+}
+
+function getFunnelAction(id) {
+  return (window.__funnelActions || []).find(a => a.id === id);
+}
+
+function copyFunnelMessage(id) {
+  const a = getFunnelAction(id);
+  if (!a?.suggested_message) return;
+  navigator.clipboard.writeText(a.suggested_message).then(() => showToast('Message copied', 'success')).catch(() => {});
+}
+
+function runFunnelAction(id) {
+  const a = getFunnelAction(id);
+  if (!a) return;
+  if (a.auto_lead_id) {
+    switchTab('dashboard');
+    setTimeout(() => {
+      if ((window.autoLeadsCache || []).some(l => l.id === a.auto_lead_id)) openCrystalLead(a.auto_lead_id);
+      else { loadFreshLeads(); switchTab('leads'); }
+    }, 150);
+    return;
+  }
+  if (a.target === 'quote' && a.lead_id) {
+    switchTab('quote');
+    setTimeout(() => {
+      const sel = document.getElementById('qb-lead-id');
+      if (sel) { sel.value = a.lead_id; loadLeadIntoQuote(); }
+    }, 250);
+    return;
+  }
+  if (a.lead_id) {
+    switchTab('leads');
+    setTimeout(() => editLead(a.lead_id), 250);
+    return;
+  }
+  if (a.draft_slug) {
+    switchTab('pitch-studio');
+    setTimeout(loadPitchStudio, 100);
+    if (a.source_url) safeOpen(a.source_url, '_blank');
+    return;
+  }
+  switchTab('leads');
+  setTimeout(() => document.getElementById('scan-btn')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 250);
+}
+
 async function loadLeaderboard() {
   const el = document.getElementById('dash-leaderboard');
   const myRank = document.getElementById('my-rank-pill');
@@ -4768,7 +4886,7 @@ async function enableHunterAutoScan() {
   if (!location) { showToast('Set a location first', 'error'); document.getElementById('lh-location').focus(); return; }
   try {
     await api('PUT', '/salesperson/scan-config', {
-      location, app_type: apptype === 'all' ? null : apptype, email: repEmail, auto_scan: true,
+      scan_location: location, scan_app_type: apptype === 'all' ? 'all' : apptype, scan_email: repEmail, auto_scan: true,
     });
     showToast('\u2705 Auto-scan ON for ' + location + '. New leads land here every hour.', 'success');
     loadFreshLeads();
@@ -7120,7 +7238,7 @@ async function saveCurrentScanAsAuto() {
   // Pre-fill the auto-scan settings card in Settings then save
   try {
     await api('PUT', '/salesperson/scan-config', {
-      location, app_type: apptype === 'all' ? null : apptype, email: repEmail, auto_scan: true,
+      scan_location: location, scan_app_type: apptype === 'all' ? 'all' : apptype, scan_email: repEmail, auto_scan: true,
     });
     showToast('\u2705 Auto-scan enabled for ' + location + '. New leads will arrive every hour.', 'success');
   } catch (e) {

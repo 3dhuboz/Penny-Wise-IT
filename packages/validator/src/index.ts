@@ -5,6 +5,40 @@ import { runValidation, saveValidationRun } from './runner';
 import { renderDashboard } from './ui/dashboard';
 
 const app = new Hono<{ Bindings: Env }>();
+// Cloudflare deprecated @cf/meta/llama-3.1-8b-instruct on 2026-05-30.
+// Keep model IDs central so the sales AI can be swapped without hunting routes.
+const WORKERS_AI_TEXT_MODEL = '@cf/meta/llama-3.1-8b-instruct-fast';
+const WORKERS_AI_REASONING_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+
+function coerceAiText(value: any, depth = 0): string {
+  if (value === null || value === undefined || depth > 5) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value)) return value.map(v => coerceAiText(v, depth + 1)).filter(Boolean).join('\n').trim();
+  if (typeof value === 'object') {
+    for (const key of ['text', 'content', 'message', 'response', 'result', 'output_text']) {
+      const nested = coerceAiText(value[key], depth + 1);
+      if (nested) return nested;
+    }
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return '';
+    }
+  }
+  return '';
+}
+
+function getAiResponseText(response: any): string {
+  return (
+    coerceAiText(response?.response) ||
+    coerceAiText(response?.result) ||
+    coerceAiText(response?.text) ||
+    coerceAiText(response?.output_text) ||
+    coerceAiText(response?.choices) ||
+    coerceAiText(response)
+  ).trim();
+}
 
 // Global error handler. Forwards unhandled exceptions to Sentry (if SENTRY_DSN
 // set) and Workers Analytics so we have a unified error trail. Re-throws so
@@ -762,14 +796,24 @@ app.get('/api/leads', async (c) => {
 // ============ SALESPERSON AUTH + LEAD ROUTES (separate from owner auth) ============
 // These routes accept EITHER the owner secret OR a valid salesperson session token.
 
-async function getSalespersonFromToken(db: D1Database, authHeader: string | null) {
+type SalespersonSession = {
+  salesperson_id: string;
+  name?: string | null;
+  commission_pct?: number | string | null;
+  monthly_comm_pct?: number | string | null;
+  active?: number | string | null;
+  role?: string | null;
+  [key: string]: unknown;
+};
+
+async function getSalespersonFromToken(db: D1Database, authHeader?: string | null): Promise<SalespersonSession | null> {
   if (!authHeader?.startsWith('Bearer ')) return null;
   const token = authHeader.slice(7);
   const session = await db.prepare(
     `SELECT s.salesperson_id, sp.name, sp.commission_pct, sp.monthly_comm_pct, sp.active, sp.role
      FROM sales_sessions s JOIN salespeople sp ON sp.id = s.salesperson_id
      WHERE s.token = ? AND s.expires_at > datetime('now') AND sp.active = 1`
-  ).bind(token).first();
+  ).bind(token).first<SalespersonSession>();
   return session || null;
 }
 
@@ -1115,7 +1159,7 @@ Lead: ${text}
   "urgency": "<one of: hot / warm / cold>"
 }`;
   try {
-    const r: any = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    const r: any = await env.AI.run(WORKERS_AI_TEXT_MODEL, {
       messages: [{ role: 'user', content: prompt }], max_tokens: 150,
     });
     const t = (r.response || '').trim();
@@ -1327,7 +1371,7 @@ ${wrapForLLM(text, 3000)}
   "potential_pain": "<what aspect of their business could a custom website/app help with? one sentence>"
 }`;
   try {
-    const r: any = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    const r: any = await c.env.AI.run(WORKERS_AI_TEXT_MODEL, {
       messages: [{ role: 'user', content: prompt }], max_tokens: 400,
     });
     const t = (r.response || '').trim();
@@ -1363,7 +1407,7 @@ Write 3 short open-ended discovery questions the rep should ask in the first con
 
 Output ONLY the 3 questions, one per line, prefixed "1.", "2.", "3.". No preamble.`;
   try {
-    const r: any = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    const r: any = await c.env.AI.run(WORKERS_AI_TEXT_MODEL, {
       messages: [{ role: 'user', content: prompt }], max_tokens: 250,
     });
     return c.json({ questions: ((r.response || '').trim()) });
@@ -1457,7 +1501,7 @@ Write a SHORT (max 4 sentences), genuine re-engagement message that:
 
 Output ONLY the message text. No preamble.`;
   try {
-    const r: any = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    const r: any = await c.env.AI.run(WORKERS_AI_TEXT_MODEL, {
       messages: [{ role: 'user', content: prompt }], max_tokens: 250,
     });
     const text = (r.response || '').trim().replace(/^["']/, '').replace(/["']$/, '');
@@ -1501,11 +1545,11 @@ Output ONLY valid JSON:
   "next_action": "<one specific action e.g. 'Send a follow-up referencing their kitchen reno mention' or 'Quote needs to go out today'>"
 }`;
   try {
-    const response: any = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    const response: any = await c.env.AI.run(WORKERS_AI_TEXT_MODEL, {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 300,
     });
-    const text = (response.response || '').trim();
+    const text = getAiResponseText(response);
     const m = text.match(/\{[\s\S]*\}/);
     if (!m) return c.json({ summary: 'No summary available', next_action: '' });
     const parsed = safeParse<any>(m[0], { summary: '', next_action: '' });
@@ -1659,7 +1703,7 @@ const LEAD_QUERIES: Record<string, { targets: string[]; painPhrases: string[] }>
 };
 
 // Salesperson OR owner can call this — accepts either session token or validator bearer
-async function authLeadFinder(db: D1Database, authHeader: string | null, validatorSecret: string): Promise<boolean> {
+async function authLeadFinder(db: D1Database, authHeader: string | null | undefined, validatorSecret: string): Promise<boolean> {
   if (!authHeader) return false;
   if (authHeader === `Bearer ${validatorSecret}`) return true;
   const sp = await getSalespersonFromToken(db, authHeader);
@@ -1669,6 +1713,10 @@ async function authLeadFinder(db: D1Database, authHeader: string | null, validat
 app.get('/salesperson/find-leads', async (c) => {
   const isAuth = await authLeadFinder(c.env.DB, c.req.header('Authorization'), c.env.VALIDATOR_SECRET);
   if (!isAuth) return c.json({ error: 'Unauthorized' }, 401);
+  return c.json({
+    error: 'Generated leads disabled',
+    message: 'Use POST /salesperson/scan-leads instead. It only returns source-backed warm/hot opportunities from live search results.',
+  }, 410);
 
   const appId = c.req.query('appId') || '';
   const location = c.req.query('location') || 'Australia';
@@ -1704,17 +1752,17 @@ Rules:
 - Make business names, suburbs, and pain points realistic for ${location}, Australia. Vary the suburbs.`;
 
   try {
-    const response: any = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    const response: any = await c.env.AI.run(WORKERS_AI_TEXT_MODEL, {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 1200,
     });
 
-    const text = (response.response || '').trim();
+    const text = getAiResponseText(response);
     // Extract JSON array from response
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) return c.json({ leads: [], total: 0, location, appId });
+    const jsonText: string = text.match(/\[[\s\S]*\]/)?.[0] || '';
+    if (!jsonText) return c.json({ leads: [], total: 0, location, appId });
 
-    const leads = safeParse<any[]>(jsonMatch[0], []);
+    const leads = safeParse<any[]>(jsonText, []);
     return c.json({ leads, total: leads.length, location, appId });
   } catch (e: any) {
     return c.json({ error: 'AI generation failed: ' + e?.message }, 500);
@@ -1855,14 +1903,31 @@ function sanitiseForAI(text: string): string {
 
 // Compute a 0-100 quality score from confidence + signals + recency + geo match.
 // Higher = more worth a rep's attention.
-function scoreLead(opts: { confidence: string; snippet: string; title: string; location: string; createdAtIso?: string; webAppSignals: string[] }): number {
+function scoreLead(opts: { confidence: string; snippet: string; title: string; source?: string; link?: string; location: string; createdAtIso?: string; webAppSignals: string[]; productWinBoost?: number }): number {
   let score = 0;
   // Confidence base
-  score += opts.confidence === 'hot' ? 60 : opts.confidence === 'warm' ? 35 : 10;
-  // Web/app signal strength (each adds 4, capped at 20)
+  score += opts.confidence === 'hot' ? 72 : opts.confidence === 'warm' ? 48 : 0;
   const text = (opts.title + ' ' + opts.snippet).toLowerCase();
+  const hotSignals = [
+    'need a website', 'need a web site', 'looking for web developer', 'looking for a web developer',
+    'recommend web developer', 'recommend a web developer', 'recommend web designer',
+    'who can build', 'who builds websites', 'anyone know a good web', 'need someone to build',
+    'build me a website', 'build a website for', 'website quote', 'app developer needed',
+    'looking for app developer', 'need an app developer', 'hire a developer', 'airtasker',
+  ];
+  const warmSignals = [
+    'my website is broken', 'website is broken', 'website sucks', 'need new website',
+    'website is slow', 'shopify too expensive', 'wix frustrating', 'wix is terrible',
+    'squarespace is too expensive', 'wordpress keeps breaking', 'need online ordering',
+    'need a booking system', 'need online booking', 'taking orders by phone',
+    'manual bookings', 'manual orders', 'no online ordering',
+  ];
   const sigCount = opts.webAppSignals.filter(s => text.includes(s)).length;
-  score += Math.min(20, sigCount * 4);
+  const hotCount = hotSignals.filter(s => text.includes(s)).length;
+  const warmCount = warmSignals.filter(s => text.includes(s)).length;
+  score += Math.min(16, sigCount * 3);
+  score += Math.min(18, hotCount * 9);
+  score += Math.min(14, warmCount * 7);
   // Geographic match: rep's location keyword appears in snippet
   if (opts.location) {
     const loc = opts.location.toLowerCase().split(/[\s,]+/).filter(p => p.length > 3);
@@ -1872,12 +1937,20 @@ function scoreLead(opts: { confidence: string; snippet: string; title: string; l
   // Contact info visible (email or phone) → easier to act on
   if (/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(opts.snippet)) score += 5;
   if (/\b04\d{2}[\s-]?\d{3}[\s-]?\d{3}\b/.test(opts.snippet)) score += 5;
+  const sourceText = ((opts.source || '') + ' ' + (opts.link || '')).toLowerCase();
+  if (sourceText.includes('airtasker.com.au')) score += 12;
+  else if (sourceText.includes('facebook.com/groups')) score += 10;
+  else if (sourceText.includes('reddit.com')) score += 7;
+  else if (sourceText.includes('linkedin.com/posts')) score += 6;
+  else if (sourceText.includes('productreview.com.au')) score += 4;
+  score += clamp(opts.productWinBoost || 0, 0, 10);
   // Recency penalty if very old age in snippet
   if (/\b\d+\s*(?:weeks?|months?|years?)\s*ago\b/i.test(opts.snippet)) score -= 10;
+  if (opts.confidence === 'cold') score = Math.min(score, 30);
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
-async function analyseLeadResults(ai: any, results: Array<{title:string;link:string;snippet:string;source:string}>, location: string) {
+async function analyseLeadResults(ai: any, results: Array<{title:string;link:string;snippet:string;source:string}>, location: string, productWinBoosts: Record<string, number> = {}) {
   if (!results.length) return [];
   // Pre-filter: reject obvious competitors before wasting AI tokens
   const competitorPhrases = [
@@ -2068,6 +2141,22 @@ async function analyseLeadResults(ai: any, results: Array<{title:string;link:str
     'practice my', 'sharpen my', 'beginner question', 'newbie question',
     'self-hosted', 'self hosted', 'homelab', 'raspberry pi',
   ];
+  const jobListingMarkers = [
+    'web development jobs', 'developer jobs', 'web developer jobs', 'web design jobs',
+    'jobs going', 'job going', 'now hiring', 'we are hiring', 'we\'re hiring',
+    'hiring:', 'hiring -', 'hiring a', 'hiring for', 'career opportunity',
+    'position available', 'role available', 'job vacancy', 'vacancy for',
+    'apply now', 'send your resume', 'send resume', 'submit your cv',
+    'resume to', 'cv to', 'salary package', 'full-time', 'full time',
+    'part-time', 'part time', 'hybrid remote', 'qa specialist',
+    'website quality assurance', 'looking for a first job',
+  ];
+  const sellerPageMarkers = [
+    'website designer - facebook', 'web designer - facebook', 'web developer - facebook',
+    'website developer - facebook', 'web design - facebook', 'digital marketing - facebook',
+    'website designer |', 'web designer |', 'web developer |', 'website developer |',
+    'website designer -', 'web designer -', 'web developer -', 'website developer -',
+  ];
 
   // Also reject old posts
   const oldPostPatterns = /\b(\d+y)\b|\b(20[0-2][0-9])\b|\b(20[2][0-4])\b|\b\d+ years? ago\b/i;
@@ -2085,13 +2174,55 @@ async function analyseLeadResults(ai: any, results: Array<{title:string;link:str
     'domain name', 'hosting', 'dns', 'ssl', 'html', 'css', 'javascript', 'react', 'next.js',
     'webflow', 'framer', 'bubble.io', 'no-code', 'no code website', 'low-code',
   ];
+  const hotBuyerSignals = [
+    'need a website', 'need a web site', 'need a site built', 'need a website built',
+    'looking for web developer', 'looking for a web developer', 'looking for web designer',
+    'recommend web developer', 'recommend a web developer', 'recommend web designer',
+    'anyone know a good web', 'who can build', 'who builds websites',
+    'need someone to build', 'build me a website', 'build my website',
+    'website quote', 'quote for a website', 'need an app', 'need an app developer',
+    'looking for app developer', 'app developer needed', 'build an app',
+    'need online ordering', 'need a booking system', 'need online booking',
+    'looking for a developer', 'hire a developer', 'paid task', 'budget is',
+  ];
+  const warmDigitalPainSignals = [
+    'my website is broken', 'website is broken', 'website is down', 'website keeps breaking',
+    'website is slow', 'website sucks', 'need new website', 'website redesign',
+    'shopify too expensive', 'shopify fees', 'replace shopify', 'leave shopify',
+    'wix frustrating', 'wix is terrible', 'getting off wix', 'squarespace is too expensive',
+    'wordpress keeps breaking', 'no online ordering', 'taking orders by phone',
+    'manual orders', 'manual bookings', 'spreadsheet for bookings', 'booking system',
+    'online store not working', 'checkout not working', 'customers cannot book',
+  ];
+  const speculativeSourceMarkers = [
+    'yellowpages.com.au', 'truelocal.com.au', 'wordofmouth.com.au',
+    'business directory', 'small business directory', '/find/', '/directory/',
+    'google.com/maps', 'maps.google', 'linkedin.com', 'quora.com',
+    'flyingsolo.com.au', 'smallbusiness.com.au', 'medium.com',
+    'twitter.com', 'x.com', 'indiehackers.com', 'discord.com', 'slack.com',
+  ];
+  const hasAny = (text: string, phrases: string[]) => phrases.some(p => text.includes(p));
   const filtered = results.filter(r => {
     const text = (r.title + ' ' + r.snippet).toLowerCase();
     const url = (r.link || '').toLowerCase();
+    const allowedBuyerSource =
+      url.includes('airtasker.com.au') ||
+      url.includes('productreview.com.au') ||
+      url.includes('facebook.com') ||
+      url.includes('reddit.com');
+    if (!allowedBuyerSource) return false;
+    // Reject "business exists" sources. Those are cold prospects, not live intent.
+    if (speculativeSourceMarkers.some(p => url.includes(p) || text.includes(p))) return false;
     // Reject if URL is a dev/programmer/freelancer community
     if (devCommunityUrlBlocklist.some(p => url.includes(p))) return false;
     // Reject if any hobbyist/dev-collab phrase appears
     if (hobbyistPhrases.some(p => text.includes(p))) return false;
+    // Reject hiring/job-seeker posts. "Looking for web developer jobs" is not a buyer.
+    if (jobListingMarkers.some(p => text.includes(p) || url.includes(p))) return false;
+    // Reject seller pages, content pages, and profile surfaces. Keep buyer posts/tasks.
+    if (sellerPageMarkers.some(p => text.includes(p))) return false;
+    if (url.includes('facebook.com') && !/(\/groups\/|\/posts\/|story\.php|permalink\.php|\/share\/)/.test(url)) return false;
+    if (url.includes('reddit.com') && !/\/comments\//.test(url)) return false;
     // Reject competitors
     if (competitorPhrases.some(phrase => text.includes(phrase))) return false;
     // Reject old posts (8y, 2y, 2024, 2023, etc.)
@@ -2102,9 +2233,59 @@ async function analyseLeadResults(ai: any, results: Array<{title:string;link:str
       const hasWebSignal = webAppSignals.some(sig => text.includes(sig));
       if (!hasWebSignal) return false;
     }
+    // A source-backed lead still needs explicit buying intent or concrete
+    // digital pain. "They have no website" without the buyer saying anything is
+    // a cold list-building guess, so it is rejected here.
+    const hasHotIntent = hasAny(text, hotBuyerSignals);
+    const hasWarmPain = hasAny(text, warmDigitalPainSignals);
+    if (!hasHotIntent && !hasWarmPain) return false;
     return true;
   });
   if (!filtered.length) return [];
+
+  const deterministicLeads = () => filtered
+    .filter((r) => !(r.link || '').toLowerCase().includes('facebook.com'))
+    .map((r) => {
+      const text = `${r.title || ''} ${r.snippet || ''}`.toLowerCase();
+      const matchedProduct = productIdFromText(text) || 'online-store';
+      const confidence = hasAny(text, hotBuyerSignals) ? 'hot' : 'warm';
+      const signal = [...hotBuyerSignals, ...warmDigitalPainSignals].find(s => text.includes(s));
+      const evidenceQuote = (signal || sanitiseForAI(r.snippet || '')).replace(/\s+/g, ' ').slice(0, 180);
+      const qualityScore = scoreLead({
+        confidence,
+        snippet: r.snippet || '',
+        title: r.title || '',
+        source: r.source || '',
+        link: r.link || '',
+        location,
+        webAppSignals,
+        productWinBoost: productWinBoosts[matchedProduct] || 0,
+      });
+      const demoLink = matchedProduct === 'food-truck' ? 'streetmeatzbbq.com.au'
+        : matchedProduct === 'tradie' ? 'wirezapp.au'
+        : matchedProduct === 'online-store' ? 'picklenick.au'
+        : matchedProduct === 'festival' ? 'gladstonebbqfest.au'
+        : matchedProduct === 'delivery' ? 'oconnoragriculture.com.au'
+        : matchedProduct === 'desktop' ? 'autohue.app'
+        : matchedProduct === 'ai-social' ? 'socialaistudio.au'
+        : 'pennywiseit.com.au';
+      return {
+        ...r,
+        businessName: null,
+        matchedProduct,
+        matchedProductName: PRODUCT_NAMES[matchedProduct] || 'Online Store',
+        confidence,
+        painPoint: confidence === 'hot'
+          ? `Source post shows active buying intent for ${PRODUCT_NAMES[matchedProduct] || 'a website or app'}: ${evidenceQuote || 'asking for help now'}`
+          : `Source post shows current digital friction around ${PRODUCT_NAMES[matchedProduct] || 'a website or app'}: ${evidenceQuote || 'existing system pain'}`,
+        evidenceQuote,
+        approachMessage: `Hey! I saw your post about ${evidenceQuote || 'getting a better website/app setup'}. I've got 30+ years in software and app development, and I build practical systems for small businesses. Recent example: ${demoLink} - happy to have a chat if you're keen.`,
+        qualityScore,
+      };
+    })
+    .filter((l: any) => (l.qualityScore || 0) >= 55)
+    .sort((a: any, b: any) => (b.qualityScore || 0) - (a.qualityScore || 0));
+
   const productList = Object.entries(PRODUCT_NAMES).map(([k,v]) => `${k}: ${v}`).join(', ');
   // Sanitise + truncate before sending to AI \u2014 defends against prompt-injection
   // hidden in scraped content. Wrap each result in clear delimiters so the AI
@@ -2128,6 +2309,10 @@ ONLY mark relevant=true if the poster is a BUSINESS OWNER OR INDIVIDUAL who is t
 - Asking for recommendations for a developer/agency
 
 REJECT EVERYTHING ELSE. Set relevant=false. Be paranoid. The cost of a bad lead is much higher than the cost of missing a lead.
+
+NEVER RETURN COLD LEADS. "cold" is a reject bucket, not a result bucket. If the source only implies a business might need a website/app, set relevant=false. A valid result must be:
+- hot: the buyer explicitly asks for a developer, website, app, online ordering, booking system, quote, or recommendation now.
+- warm: the buyer describes first-person pain with their current website/app/store/booking/order system.
 
 EXAMPLES OF PITCH-PATTERNS TO REJECT (these are sellers, NOT leads):
 - "I am a professional web developer. If you need a website built or have any web development requirements, feel free to contact me. WhatsApp: +92..." — SELLER, REJECT.
@@ -2171,7 +2356,7 @@ ${resultBlock}
 Return JSON array. If NONE qualify, return [].
 
 Schema (replace EVERY field with real values you extracted from the post \u2014 do NOT echo back the placeholder text):
-[{"index":<NUMBER>,"businessName":<STRING_OR_NULL>,"matchedProduct":<ONE_OF_PRODUCT_IDS>,"confidence":<"hot"|"warm"|"cold">,"painPoint":<STRING_DESCRIBING_BUSINESS_PROBLEM_5+_WORDS>,"approachMessage":<STRING_REPLY_AS_STEVE>,"relevant":<true|false>}]
+[{"index":<NUMBER>,"businessName":<STRING_OR_NULL>,"matchedProduct":<ONE_OF_PRODUCT_IDS>,"confidence":<"hot"|"warm">,"painPoint":<STRING_DESCRIBING_BUSINESS_PROBLEM_5+_WORDS>,"evidenceQuote":<SHORT_SOURCE_PHRASE_THAT_PROVES_INTENT>,"approachMessage":<STRING_REPLY_AS_STEVE>,"relevant":<true|false>}]
 
 CRITICAL: If you can't extract a real businessName from the post, set it to null (the JSON literal null, not the string "null"). Do NOT use placeholder text like "Name or null" \u2014 that example syntax was just to show the field name.
 
@@ -2194,27 +2379,30 @@ APPROACH MESSAGE RULES — write as if Steve is personally replying to their Fac
 
 Example: "Hey! I've got 30+ years in software and app development — I build custom websites and apps for small businesses. Here's one I did recently for a food truck: streetmeatzbbq.com.au — happy to have a chat if you're interested!"
 
-"hot" = actively looking for someone to build them something. "warm" = complaining about their current website/lack of one.
+"hot" = actively looking for someone to build them something. "warm" = complaining about their current website/app/store/booking/order system. If you would call it "cold", return relevant=false instead.
 
 Be EXTREMELY strict on filtering. Return [] rather than bad leads.`;
 
   try {
-    const response: any = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
+    const response: any = await ai.run(WORKERS_AI_TEXT_MODEL, {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 2000,
     });
-    const text = (response.response || '').trim();
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    const text = getAiResponseText(response);
+    const jsonText = text.match(/\[[\s\S]*\]/)?.[0] || '';
     // Fail-closed: if AI can't give us a parsable array, return NOTHING rather
     // than poisoning the lead feed with unvetted results. Better to miss a
     // lead than fire emails/pipelines about plumbing quotes.
-    if (!jsonMatch) return [];
+    if (!jsonText) return deterministicLeads();
     let analysed: any[];
-    try { analysed = JSON.parse(jsonMatch[0]); } catch { return []; }
-    if (!Array.isArray(analysed)) return [];
-    return analysed
+    try { analysed = JSON.parse(jsonText); } catch { return deterministicLeads(); }
+    if (!Array.isArray(analysed)) return deterministicLeads();
+    const qualified = analysed
       // Only accept explicit relevant=true. Silence-means-reject.
-      .filter((a: any) => a && a.relevant === true && typeof a.index === 'number' && results[a.index])
+      .filter((a: any) => a && a.relevant === true && typeof a.index === 'number' && filtered[a.index])
+      // Cold is not useful enough for the sales app. If the model cannot call
+      // it hot or warm from source evidence, drop it before a rep sees it.
+      .filter((a: any) => a.confidence === 'hot' || a.confidence === 'warm')
       // Post-AI sanity check: painPoint must be a real sentence (5+ words). Generic
       // 1-2 word labels like "business website" or "needs app" mean the AI had
       // nothing concrete to go on — treat as a bad lead.
@@ -2228,13 +2416,13 @@ Be EXTREMELY strict on filtering. Return [] rather than bad leads.`;
       // combined, so if the AI accidentally passes a Frank-P-style pitch through,
       // our hardcoded phrase list still blocks it at the last mile.
       .filter((a: any) => {
-        const r = results[a.index];
+        const r = filtered[a.index];
         const text = ((r.title || '') + ' ' + (r.snippet || '')).toLowerCase();
         if (competitorPhrases.some(phrase => text.includes(phrase))) return false;
         return true;
       })
       .map((a: any) => {
-        const r = results[a.index];
+        const r = filtered[a.index];
         // Sanitize businessName \u2014 the AI sometimes echoes the schema placeholder
         // text ("Name or null", "Unnamed", etc.) when it can't extract a real one.
         let rawName = (a.businessName || '').toString().trim();
@@ -2252,10 +2440,10 @@ Be EXTREMELY strict on filtering. Return [] rather than bad leads.`;
             businessName = null; // hallucinated
           }
         }
-        const confidence = ['hot', 'warm', 'cold'].includes(a.confidence) ? a.confidence : 'cold';
+        const confidence = ['hot', 'warm'].includes(a.confidence) ? a.confidence : 'cold';
         const qualityScore = scoreLead({
-          confidence, snippet: r.snippet || '', title: r.title || '',
-          location, webAppSignals,
+          confidence, snippet: r.snippet || '', title: r.title || '', source: r.source || '', link: r.link || '',
+          location, webAppSignals, productWinBoost: productWinBoosts[a.matchedProduct] || 0,
         });
         return {
           ...r,
@@ -2264,19 +2452,61 @@ Be EXTREMELY strict on filtering. Return [] rather than bad leads.`;
           matchedProductName: PRODUCT_NAMES[a.matchedProduct] || 'Online Store',
           confidence,
           painPoint: a.painPoint || '',
+          evidenceQuote: (a.evidenceQuote || '').toString().slice(0, 180),
           approachMessage: a.approachMessage || '',
           qualityScore,
         };
       })
+      // Warm/hot only, with enough source signals to be worth a rep's time.
+      .filter((l: any) => l.confidence !== 'cold' && (l.qualityScore || 0) >= 55)
       // Sort by quality score descending so the best leads surface first
       .sort((a: any, b: any) => (b.qualityScore || 0) - (a.qualityScore || 0));
+    return qualified.length ? qualified : deterministicLeads();
   } catch {
     // AI call itself failed — fail closed. No leads today beats a bad lead.
-    return [];
+    return deterministicLeads();
   }
 }
 
 // Lead Scanner — scan endpoint
+function productIdFromText(text: unknown): string | null {
+  const s = String(text || '').toLowerCase();
+  if (!s) return null;
+  if (s.includes('food') || s.includes('ordering') || s.includes('truck') || s.includes('cafe') || s.includes('restaurant')) return 'food-truck';
+  if (s.includes('tradie') || s.includes('field') || s.includes('plumb') || s.includes('electric') || s.includes('quote') || s.includes('job management')) return 'tradie';
+  if (s.includes('store') || s.includes('shop') || s.includes('ecommerce') || s.includes('e-commerce') || s.includes('retail') || s.includes('shopify')) return 'online-store';
+  if (s.includes('festival') || s.includes('event') || s.includes('ticket')) return 'festival';
+  if (s.includes('delivery') || s.includes('logistics') || s.includes('courier')) return 'delivery';
+  if (s.includes('desktop') || s.includes('licens') || s.includes('software')) return 'desktop';
+  if (s.includes('comparison') || s.includes('compare')) return 'price-comparison';
+  if (s.includes('social') || s.includes('community') || s.includes('ai')) return 'ai-social';
+  return null;
+}
+
+async function loadWonProductBoosts(db: D1Database, salespersonId?: string): Promise<Record<string, number>> {
+  const boosts: Record<string, number> = {};
+  try {
+    const rows = await db.prepare(
+      `SELECT app_type, COUNT(*) as wins
+       FROM leads
+       WHERE stage = 'won'
+         AND app_type IS NOT NULL
+         AND (? IS NULL OR salesperson_id = ?)
+       GROUP BY app_type
+       ORDER BY wins DESC
+       LIMIT 12`
+    ).bind(salespersonId || null, salespersonId || null).all();
+    for (const row of (rows.results || []) as any[]) {
+      const productId = productIdFromText(row.app_type);
+      if (!productId) continue;
+      boosts[productId] = clamp((boosts[productId] || 0) + asNum(row.wins) * 3, 0, 10);
+    }
+  } catch {
+    // No win data yet. Scanner still runs from live intent.
+  }
+  return boosts;
+}
+
 app.post('/salesperson/scan-leads', async (c) => {
   const sp = await getSalespersonFromToken(c.env.DB, c.req.header('Authorization'));
   if (!sp) return c.json({ error: 'Unauthorized' }, 401);
@@ -2383,7 +2613,7 @@ app.post('/salesperson/scan-leads', async (c) => {
     // ProductReview.com.au — people complaining about Wix/Shopify/Squarespace (very hot)
     `site:productreview.com.au ("Wix" OR "Shopify" OR "Squarespace" OR "GoDaddy") "frustrating" OR "terrible" OR "expensive" OR "support" OR "not working"`,
     // Word of Mouth — frustrated business reviews
-    `site:wordofmouth.com.au "website" OR "online" "${location}"`,
+    `site:facebook.com/groups ("looking for a web developer" OR "recommend a web designer" OR "need a website built") "${location}"`,
     // LinkedIn posts (people venting publicly)
     `site:linkedin.com/posts "need a website" OR "need a developer" OR "recommend a web" OR "looking for a developer" Australia`,
     // X/Twitter — short-form complaints
@@ -2391,13 +2621,13 @@ app.post('/salesperson/scan-leads', async (c) => {
     // Aussie startup forums
     `site:reddit.com/r/EntrepreneurRideAlong OR site:reddit.com/r/sweatystartup ("website" OR "app") Australia ${location}`,
     // Business owner forums
-    `site:flyingsolo.com.au OR site:smallbusiness.com.au "website" OR "developer" OR "web design"`,
+    `site:flyingsolo.com.au OR site:smallbusiness.com.au ("need a website" OR "recommend web developer" OR "website quote")`,
     // Service-marketplace alternatives
-    `site:hipages.com.au OR site:oneflare.com.au "website" OR "app development"`,
+    `site:airtasker.com.au/tasks ("website" OR "web developer" OR "online store" OR "shopify") "${location}"`,
     // Indeed / Seek for projects (some businesses post tiny "build me a site" gigs)
-    `site:au.indeed.com OR site:seek.com.au "build a website" OR "build website" small business contract`,
+    `"${location}" ("anyone recommend a web developer" OR "looking for a website designer" OR "need a website built") -directory -yellowpages`,
     // Local council / chamber sites with member discussions
-    `"chamber of commerce" OR "small business" "${location}" "need a website" OR "looking for"`,
+    `"${location}" ("website quote" OR "web developer quote" OR "app developer quote") "small business"`,
     // IndieHackers — bootstrappers asking for tech help
     `site:indiehackers.com "need a developer" OR "looking for a developer" OR "build my MVP" OR "where to find" Australia`,
     // Discord public previews indexed by Google
@@ -2405,13 +2635,13 @@ app.post('/salesperson/scan-leads', async (c) => {
     // Slack public archives
     `site:slack.com OR site:reddit.com/r/auswomeninbusiness "need a website" OR "web developer" Australia`,
     // Tradify / ServiceM8 / Tradiepad complaints (people fed up with their tradie software, may need custom)
-    `("Tradify" OR "ServiceM8" OR "Tradiepad" OR "AroFlo") "frustrating" OR "expensive" OR "limited" Australia`,
+    `("Tradify" OR "ServiceM8" OR "Tradiepad" OR "AroFlo") ("too expensive" OR "frustrating" OR "limited") "my business" Australia`,
     // Yellow Pages / TrueLocal listings missing websites (these businesses NEED what we sell)
-    `site:yellowpages.com.au OR site:truelocal.com.au "${location}" -site:yellowpages.com.au/find/`,
+    `("${location}" OR Australia) ("need online ordering" OR "taking orders by phone" OR "need a booking system" OR "manual bookings")`,
     // Council/business association directories (older sites, often lacking a real web presence)
-    `"${location}" "small business directory" OR "business association" small business`,
+    `site:facebook.com/groups ("shopify is too expensive" OR "wix is terrible" OR "wordpress keeps breaking") Australia`,
     // Reviews on local businesses showing they have a website pain
-    `site:google.com/maps "${location}" "couldn't find their website" OR "no online ordering"`,
+    `site:reddit.com ("shopify fees" OR "wix frustrating" OR "need online booking") ("my business" OR "small business") Australia`,
   ];
   // Pick 3 queries based on page to rotate through sources broadly
   const serperStart = (page * 3) % serperQueries.length;
@@ -2489,12 +2719,19 @@ app.post('/salesperson/scan-leads', async (c) => {
     }
   } catch { /* if table missing, just use all */ }
 
-  // AI analyses results (cap to keep prompt manageable)
-  const leads = await analyseLeadResults(c.env.AI, workingResults.slice(0, 25), location);
+  // AI analyses results (cap to keep prompt manageable). Product boosts come
+  // from this rep's wins, falling back to team wins if the rep is new.
+  const personalBoosts = await loadWonProductBoosts(c.env.DB, String(sp.salesperson_id));
+  const teamBoosts = Object.keys(personalBoosts).length ? personalBoosts : await loadWonProductBoosts(c.env.DB);
+  const leads = await analyseLeadResults(c.env.AI, workingResults.slice(0, 25), location, teamBoosts);
 
-  // Sort: hot > warm > cold
+  // Sort: hot > warm, then higher evidence quality.
   const order = { hot: 0, warm: 1, cold: 2 };
-  leads.sort((a: any, b: any) => (order[a.confidence as keyof typeof order] ?? 2) - (order[b.confidence as keyof typeof order] ?? 2));
+  leads.sort((a: any, b: any) => {
+    const byConfidence = (order[a.confidence as keyof typeof order] ?? 2) - (order[b.confidence as keyof typeof order] ?? 2);
+    if (byConfidence) return byConfidence;
+    return (b.qualityScore || 0) - (a.qualityScore || 0);
+  });
 
   // Record scan
   const scanId = crypto.randomUUID();
@@ -2920,11 +3157,11 @@ If the page couldn't be fetched, do your best from the URL alone (the URL might 
 
   let suggestion: any = null;
   try {
-    const response: any = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    const response: any = await c.env.AI.run(WORKERS_AI_TEXT_MODEL, {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 800,
     });
-    const text = (response.response || '').trim();
+    const text = getAiResponseText(response);
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) suggestion = safeParse<any>(jsonMatch[0], {});
   } catch (e: any) {
@@ -4932,10 +5169,10 @@ Return JSON only:
 { "subject": <STRING_OR_NULL \u2014 only for email>, "message": <STRING \u2014 the reply>, "alternative_short_version": <STRING \u2014 a 1-paragraph version for SMS/DM> }`;
   try {
     // Creative copywriting \u2014 70B produces meaningfully better tone + structure than 8B.
-    const response: any = await c.env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+    const response: any = await c.env.AI.run(WORKERS_AI_REASONING_MODEL, {
       messages: [{ role: 'user', content: prompt }], max_tokens: 600,
     });
-    const text = (response.response || '').trim();
+    const text = getAiResponseText(response);
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return c.json({ error: 'AI output unparseable', subject: null, message: '', alternative_short_version: '' }, 200);
     const parsed = safeParse<any>(jsonMatch[0], {});
@@ -4981,10 +5218,10 @@ Return JSON only:
 }`;
   try {
     // Objection handling \u2014 multi-style creative output, 70B noticeably outperforms 8B.
-    const response: any = await c.env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+    const response: any = await c.env.AI.run(WORKERS_AI_REASONING_MODEL, {
       messages: [{ role: 'user', content: prompt }], max_tokens: 600,
     });
-    const text = (response.response || '').trim();
+    const text = getAiResponseText(response);
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return c.json({ error: 'AI output unparseable', empathetic: '', evidence_based: '', low_risk_offer: '', diagnosis: '' }, 200);
     const parsed = safeParse<any>(jsonMatch[0], {});
@@ -5056,11 +5293,11 @@ Return JSON only, no markdown:
 
   try {
     // Industry-tailored pitch + 2 follow-ups \u2014 70B gives noticeably better tone match.
-    const response: any = await c.env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+    const response: any = await c.env.AI.run(WORKERS_AI_REASONING_MODEL, {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 800,
     });
-    const text = (response.response || '').trim();
+    const text = getAiResponseText(response);
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return c.json({ error: 'AI output unparseable', subject: null, message: '', follow_up_after_3_days: '', follow_up_after_7_days: '' }, 200);
     const parsed = safeParse<any>(jsonMatch[0], {});
@@ -5381,7 +5618,7 @@ If is_a_lead is false (they're a competitor offering services), set everything e
       image: Array.from(bytes),
       max_tokens: 500,
     });
-    const text = (response.response || '').trim();
+    const text = getAiResponseText(response);
     const m = text.match(/\{[\s\S]*\}/);
     if (!m) return c.json({ error: 'Could not parse AI response', raw: text });
     const parsed = safeParse<any>(m[0], { is_a_lead: false, error: 'AI output unparseable' });
@@ -5419,11 +5656,11 @@ Return ONLY the three responses, separated by "---" and prefixed with "Option 1:
 
   try {
     // Objection coach \u2014 needs varied tone across 3 options. 70B does this much better.
-    const response: any = await c.env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+    const response: any = await c.env.AI.run(WORKERS_AI_REASONING_MODEL, {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 600,
     });
-    const text = (response.response || '').trim();
+    const text = getAiResponseText(response);
     return c.json({ responses: text });
   } catch (e: any) {
     return c.json({ error: 'AI failed: ' + e.message }, 502);
@@ -5451,11 +5688,11 @@ ${wrapForLLM(text, 1000)}
 Return JSON: {"product_id":"<one of the keys above>","reason":"<one sentence>"}
 If unclear or no match, return {"product_id":"online-store","reason":"default fallback"}.`;
   try {
-    const response: any = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    const response: any = await c.env.AI.run(WORKERS_AI_TEXT_MODEL, {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 150,
     });
-    const raw = (response.response || '').trim();
+    const raw = getAiResponseText(response);
     const m = raw.match(/\{[\s\S]*\}/);
     if (!m) return c.json({ product_id: 'online-store', product_name: PRODUCT_NAMES['online-store'], reason: 'no parse' });
     const parsed = safeParse<any>(m[0], { product_id: 'online-store', reason: 'parse failed' });
@@ -5528,11 +5765,11 @@ Write the message:`;
 
   try {
     // Opener writer \u2014 tone match against business type matters; 70B is noticeably better.
-    const response: any = await c.env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+    const response: any = await c.env.AI.run(WORKERS_AI_REASONING_MODEL, {
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 300,
     });
-    const text = (response.response || '').trim()
+    const text = getAiResponseText(response)
       .replace(/^["']/, '').replace(/["']$/, '')
       .replace(/^Here(?:'s| is) (?:a|the|your) (?:follow-up|message)[^:]*:\s*/i, '')
       .replace(/^Message:\s*/i, '')
@@ -5630,8 +5867,8 @@ app.get('/salesperson/forecast', async (c) => {
   const rows = await c.env.DB.prepare(
     `SELECT stage, setup_value, monthly_value, updated_at FROM leads WHERE salesperson_id = ? AND stage NOT IN ('won','lost')`
   ).bind(sp.salesperson_id).all();
-  const cp = sp.commission_pct || 15;
-  const mp = sp.monthly_comm_pct || 10;
+  const cp = Number(sp.commission_pct || 15);
+  const mp = Number(sp.monthly_comm_pct || 10);
   // Stage-based expected close window (rough)
   const closeWindow: Record<string, { days: number; prob: number }> = {
     proposal: { days: 14, prob: 0.5 },
@@ -5642,9 +5879,10 @@ app.get('/salesperson/forecast', async (c) => {
   const buckets = { d30: { setup: 0, monthly: 0 }, d60: { setup: 0, monthly: 0 }, d90: { setup: 0, monthly: 0 } };
   for (const r of (rows.results || [])) {
     const lead = r as any;
-    const cw = closeWindow[lead.stage] || closeWindow.new;
-    const setupComm = Number(lead.setup_value || 0) * cw.prob * cp / 100;
-    const monthComm = Number(lead.monthly_value || 0) * cw.prob * mp / 100;
+    const cw = closeWindow[String(lead.stage || 'new')] || closeWindow.new;
+    const prob = Number(cw.prob || 0);
+    const setupComm = Number(lead.setup_value || 0) * prob * cp / 100;
+    const monthComm = Number(lead.monthly_value || 0) * prob * mp / 100;
     if (cw.days <= 30) { buckets.d30.setup += setupComm; buckets.d30.monthly += monthComm; }
     else if (cw.days <= 60) { buckets.d60.setup += setupComm; buckets.d60.monthly += monthComm; }
     else { buckets.d90.setup += setupComm; buckets.d90.monthly += monthComm; }
@@ -5654,6 +5892,376 @@ app.get('/salesperson/forecast', async (c) => {
   const d60 = { setup: Math.round(buckets.d30.setup + buckets.d60.setup), monthly: Math.round(buckets.d30.monthly + buckets.d60.monthly) };
   const d90 = { setup: Math.round(buckets.d30.setup + buckets.d60.setup + buckets.d90.setup), monthly: Math.round(buckets.d30.monthly + buckets.d60.monthly + buckets.d90.monthly) };
   return c.json({ d30, d60, d90 });
+});
+
+type FunnelActionKind = 'fresh_lead' | 'first_contact' | 'follow_up' | 'quote' | 'quote_follow_up' | 'draft_follow_up' | 'scan';
+type FunnelActionTarget = 'auto_lead' | 'lead' | 'quote' | 'draft' | 'scanner';
+type FunnelAction = {
+  id: string;
+  kind: FunnelActionKind;
+  target: FunnelActionTarget;
+  priority: number;
+  rank?: number;
+  business_name: string;
+  title: string;
+  reason: string;
+  action_label: string;
+  suggested_message?: string;
+  lead_id?: string;
+  auto_lead_id?: string;
+  draft_slug?: string;
+  source?: string;
+  source_url?: string;
+  stage?: string;
+  confidence?: string;
+  quality_score?: number;
+  age_days?: number;
+  estimated_setup_value?: number;
+  estimated_monthly_value?: number;
+  estimated_commission?: number;
+  created_at?: string;
+  updated_at?: string;
+  is_unverified?: boolean;
+};
+
+function asNum(v: unknown, fallback = 0): number {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function clamp(n: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, n));
+}
+
+function parseDbMs(value: unknown): number | null {
+  if (!value) return null;
+  const text = String(value);
+  const hasTz = /(?:Z|[+-]\d\d:?\d\d)$/i.test(text);
+  const iso = hasTz ? text : text.replace(' ', 'T') + 'Z';
+  const ms = Date.parse(iso);
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function ageDays(value: unknown): number {
+  const ms = parseDbMs(value);
+  if (ms === null) return 0;
+  return Math.max(0, Math.floor((Date.now() - ms) / 86400000));
+}
+
+function snoozedUntil(notes: unknown): Date | null {
+  const m = String(notes || '').match(/Snoozed until: (\d{4}-\d{2}-\d{2})/);
+  if (!m) return null;
+  const d = new Date(m[1] + 'T00:00:00Z');
+  return Number.isFinite(d.getTime()) ? d : null;
+}
+
+function isLeadSnoozedNow(notes: unknown): boolean {
+  const d = snoozedUntil(notes);
+  return !!d && d.getTime() > Date.now();
+}
+
+function extractUrlFromNotes(notes: unknown): string | undefined {
+  const m = String(notes || '').match(/https?:\/\/[^\s)]+/i);
+  return m ? m[0] : undefined;
+}
+
+function estimateCommission(setupValue: unknown, monthlyValue: unknown, setupPct: unknown, monthlyPct: unknown): number {
+  const setup = asNum(setupValue) * asNum(setupPct, 15) / 100;
+  const monthly = asNum(monthlyValue) * asNum(monthlyPct, 10) / 100;
+  return Math.round(setup + monthly * 12);
+}
+
+function valuePriorityBoost(setupValue: unknown, monthlyValue: unknown): number {
+  const setup = asNum(setupValue);
+  const monthly = asNum(monthlyValue);
+  return clamp(Math.round(setup / 500 + monthly / 35), 0, 18);
+}
+
+function contactName(row: any): string {
+  return String(row.contact_name || row.prospect_name || row.business_name || 'there').split(/\s+/)[0] || 'there';
+}
+
+function messageForLead(row: any): string {
+  const name = contactName(row);
+  const biz = String(row.business_name || 'your business');
+  const app = String(row.app_type || 'the app idea');
+  const stage = String(row.stage || 'new');
+  if (stage === 'proposal') {
+    return `Hey ${name}, just checking where you landed with the ${app} quote for ${biz}. If the timing is still right, I can help you lock in the next step this week.`;
+  }
+  if (stage === 'demo') {
+    return `Hey ${name}, based on what we looked at for ${biz}, the next sensible step is a clear quote so you can decide properly. Want me to send that through today?`;
+  }
+  if (stage === 'contacted') {
+    return `Hey ${name}, circling back on ${biz}. I had one practical idea for making ${app} easier for customers - worth a quick look?`;
+  }
+  return `Hey ${name}, quick one - I had a look at ${biz} and thought a simple branded app/website could remove a bit of manual admin. Worth a 10 minute chat this week?`;
+}
+
+function addAction(actions: FunnelAction[], action: FunnelAction): void {
+  actions.push({ ...action, priority: clamp(Math.round(action.priority), 0, 100) });
+}
+
+function summariseFunnelActions(actions: FunnelAction[]) {
+  const counts: Record<string, number> = {};
+  for (const a of actions) counts[a.kind] = (counts[a.kind] || 0) + 1;
+  const top = actions[0];
+  return {
+    total: actions.length,
+    fresh_leads: counts.fresh_lead || 0,
+    follow_ups: (counts.follow_up || 0) + (counts.quote_follow_up || 0) + (counts.draft_follow_up || 0),
+    quotes_due: counts.quote || 0,
+    first_contacts: counts.first_contact || 0,
+    top_priority: top ? { kind: top.kind, business_name: top.business_name, priority: top.priority } : null,
+  };
+}
+
+async function buildRepFunnelActions(env: Env, salespersonId: string, opts?: { limit?: number; setupPct?: number; monthlyPct?: number }): Promise<FunnelAction[]> {
+  const limit = clamp(opts?.limit || 12, 1, 50);
+  const setupPct = opts?.setupPct ?? 15;
+  const monthlyPct = opts?.monthlyPct ?? 10;
+  const actions: FunnelAction[] = [];
+
+  try {
+    const autoRows = await env.DB.prepare(
+      `SELECT id, title, snippet, link, source, business_name, matched_product, confidence,
+              pain_point, approach_message, quality_score, created_at
+       FROM auto_scan_leads
+       WHERE salesperson_id = ? AND seen = 0
+       ORDER BY COALESCE(quality_score, 0) DESC, created_at DESC
+       LIMIT 16`
+    ).bind(salespersonId).all();
+
+    for (const row of (autoRows.results || []) as any[]) {
+      const qs = asNum(row.quality_score);
+      const conf = String(row.confidence || 'warm');
+      const age = ageDays(row.created_at);
+      const confidenceBoost = conf === 'hot' ? 16 : conf === 'warm' ? 8 : 0;
+      const biz = String(row.business_name || row.title || 'New prospect');
+      addAction(actions, {
+        id: `auto:${row.id}`,
+        kind: 'fresh_lead',
+        target: 'auto_lead',
+        auto_lead_id: row.id,
+        business_name: biz,
+        title: `Reply to ${biz}`,
+        reason: `Fresh ${row.source || 'web'} signal found by the scanner. Check the source, then reply while the need is warm.`,
+        action_label: 'Review and reply',
+        suggested_message: row.approach_message || undefined,
+        source: row.source || undefined,
+        source_url: row.link || undefined,
+        confidence: conf,
+        quality_score: qs || undefined,
+        age_days: age,
+        created_at: row.created_at || undefined,
+        is_unverified: true,
+        priority: 70 + confidenceBoost + Math.min(18, Math.round(qs / 5)) - Math.min(12, age * 2),
+      });
+    }
+  } catch {
+    // The sales queue should still work even if the scanner table is absent.
+  }
+
+  try {
+    const leadRows = await env.DB.prepare(
+      `SELECT id, business_name, contact_name, phone, email, industry, app_type, stage,
+              setup_value, monthly_value, notes, tags, created_at, updated_at
+       FROM leads
+       WHERE salesperson_id = ? AND stage NOT IN ('won','lost')
+       ORDER BY COALESCE(updated_at, created_at) ASC
+       LIMIT 120`
+    ).bind(salespersonId).all();
+
+    for (const row of (leadRows.results || []) as any[]) {
+      if (isLeadSnoozedNow(row.notes)) continue;
+      const stage = String(row.stage || 'new');
+      const touchedAt = row.updated_at || row.created_at;
+      const age = ageDays(touchedAt);
+      const valueBoost = valuePriorityBoost(row.setup_value, row.monthly_value);
+      const commission = estimateCommission(row.setup_value, row.monthly_value, setupPct, monthlyPct);
+      const biz = String(row.business_name || 'Unnamed lead');
+      const common = {
+        lead_id: row.id,
+        business_name: biz,
+        source_url: extractUrlFromNotes(row.notes),
+        stage,
+        age_days: age,
+        estimated_setup_value: asNum(row.setup_value),
+        estimated_monthly_value: asNum(row.monthly_value),
+        estimated_commission: commission || undefined,
+        created_at: row.created_at || undefined,
+        updated_at: row.updated_at || undefined,
+        suggested_message: messageForLead(row),
+      };
+
+      if (stage === 'proposal') {
+        addAction(actions, {
+          ...common,
+          id: `lead:${row.id}:quote-follow-up`,
+          kind: 'quote_follow_up',
+          target: 'lead',
+          title: `Follow up the quote for ${biz}`,
+          reason: age >= 3 ? `Quote has been out for ${age} days. The money is usually made in the follow-up.` : 'Quote is out. Keep momentum before it goes cold.',
+          action_label: 'Open and follow up',
+          priority: 82 + Math.min(16, age * 2) + valueBoost,
+        });
+      } else if (stage === 'demo') {
+        addAction(actions, {
+          ...common,
+          id: `lead:${row.id}:quote`,
+          kind: 'quote',
+          target: 'quote',
+          title: `Send a quote to ${biz}`,
+          reason: 'They have seen enough to decide. Turn the conversation into a clear price and next step.',
+          action_label: 'Build quote',
+          priority: 76 + Math.min(12, age) + valueBoost,
+        });
+      } else if (stage === 'contacted') {
+        addAction(actions, {
+          ...common,
+          id: `lead:${row.id}:follow-up`,
+          kind: 'follow_up',
+          target: 'lead',
+          title: `Follow up ${biz}`,
+          reason: age >= 2 ? `${age} days since contact. Send a useful nudge before the lead goes quiet.` : 'Conversation has started. Keep the next step explicit.',
+          action_label: 'Open and draft',
+          priority: 62 + (age >= 2 ? 14 : 0) + Math.min(12, age) + valueBoost,
+        });
+      } else {
+        addAction(actions, {
+          ...common,
+          id: `lead:${row.id}:first-contact`,
+          kind: 'first_contact',
+          target: 'lead',
+          title: `Contact ${biz}`,
+          reason: age >= 1 ? `Lead has waited ${age} days without a first contact.` : 'New lead. First contact should happen while the context is fresh.',
+          action_label: 'Open lead',
+          priority: 58 + Math.min(14, age * 2) + valueBoost,
+        });
+      }
+    }
+  } catch {
+    // If leads fail, the endpoint can still return scanner/draft actions.
+  }
+
+  try {
+    const draftRows = await env.DB.prepare(
+      `SELECT d.slug, d.prospect_name, d.prospect_email, d.prospect_phone, d.products_json,
+              d.lead_id, d.created_at, d.last_viewed_at, d.view_count, d.feedback_count,
+              l.stage as lead_stage
+       FROM drafts d
+       LEFT JOIN leads l ON l.id = d.lead_id
+       WHERE d.created_by_id = ?
+         AND COALESCE(d.feedback_count, 0) = 0
+         AND COALESCE(l.stage, 'new') NOT IN ('won','lost')
+         AND d.created_at <= datetime('now', '-2 days')
+       ORDER BY COALESCE(d.last_viewed_at, d.created_at) ASC
+       LIMIT 20`
+    ).bind(salespersonId).all();
+
+    for (const row of (draftRows.results || []) as any[]) {
+      const viewed = asNum(row.view_count);
+      const lastSignal = row.last_viewed_at || row.created_at;
+      const age = ageDays(lastSignal);
+      const biz = String(row.prospect_name || 'Draft prospect');
+      const viewedText = viewed > 0 ? `They opened the draft ${viewed} time${viewed === 1 ? '' : 's'} but have not left feedback.` : 'Draft sent but not opened yet.';
+      addAction(actions, {
+        id: `draft:${row.slug}`,
+        kind: 'draft_follow_up',
+        target: 'draft',
+        draft_slug: row.slug,
+        lead_id: row.lead_id || undefined,
+        business_name: biz,
+        title: `Follow up the draft for ${biz}`,
+        reason: `${viewedText} Follow up with a simple yes/no question.`,
+        action_label: viewed > 0 ? 'Ask for feedback' : 'Resend link',
+        suggested_message: `Hey ${contactName({ prospect_name: biz })}, just checking you got the draft for ${biz}. Anything you would change, or is it close enough that I should send a quote?`,
+        source_url: row.slug ? `https://demos.pennywiseit.com.au/draft/${row.slug}` : undefined,
+        stage: row.lead_stage || 'new',
+        age_days: age,
+        created_at: row.created_at || undefined,
+        updated_at: row.last_viewed_at || row.created_at || undefined,
+        priority: (viewed > 0 ? 80 : 64) + Math.min(12, age),
+      });
+    }
+  } catch {
+    // Pitch Studio is additive; never let it break the core sales queue.
+  }
+
+  if (!actions.length) {
+    addAction(actions, {
+      id: 'scan:next',
+      kind: 'scan',
+      target: 'scanner',
+      business_name: 'New prospects',
+      title: 'Run a fresh lead scan',
+      reason: 'There are no urgent follow-ups in the queue. Feed the top of the funnel now.',
+      action_label: 'Run lead scan',
+      priority: 45,
+    });
+  }
+
+  return actions
+    .sort((a, b) => b.priority - a.priority || String(b.updated_at || b.created_at || '').localeCompare(String(a.updated_at || a.created_at || '')))
+    .slice(0, limit)
+    .map((action, idx) => ({ ...action, rank: idx + 1 }));
+}
+
+app.get('/salesperson/funnel-actions', async (c) => {
+  const sp = await getSalespersonFromToken(c.env.DB, c.req.header('Authorization') || null);
+  if (!sp) return c.json({ error: 'Unauthorized' }, 401);
+  const limit = clamp(Number(c.req.query('limit') || 12), 1, 30);
+  const actions = await buildRepFunnelActions(c.env, String(sp.salesperson_id), {
+    limit,
+    setupPct: asNum(sp.commission_pct, 15),
+    monthlyPct: asNum(sp.monthly_comm_pct, 10),
+  });
+  return c.json({
+    generated_at: new Date().toISOString(),
+    actions,
+    summary: summariseFunnelActions(actions),
+  });
+});
+
+app.get('/api/admin/funnel-actions', async (c) => {
+  const sp = await getSalespersonFromToken(c.env.DB, c.req.header('Authorization') || null);
+  if (!sp) return c.json({ error: 'Unauthorized' }, 401);
+  if (sp.role !== 'owner' && sp.role !== 'admin') return c.json({ error: 'Admin only' }, 403);
+
+  const reps = await c.env.DB.prepare(
+    `SELECT id, name, username, role, commission_pct, monthly_comm_pct
+     FROM salespeople
+     WHERE active = 1
+     ORDER BY CASE WHEN role = 'owner' THEN 1 ELSE 0 END, name`
+  ).all();
+
+  const repQueues: Array<{ salesperson_id: string; name: string; username: string; role: string; actions: FunnelAction[]; summary: ReturnType<typeof summariseFunnelActions> }> = [];
+  const allActions: Array<FunnelAction & { salesperson_id: string; salesperson_name: string }> = [];
+  for (const rep of (reps.results || []) as any[]) {
+    const actions = await buildRepFunnelActions(c.env, String(rep.id), {
+      limit: 5,
+      setupPct: asNum(rep.commission_pct, 15),
+      monthlyPct: asNum(rep.monthly_comm_pct, 10),
+    });
+    const name = String(rep.name || rep.username || 'Rep');
+    repQueues.push({
+      salesperson_id: String(rep.id),
+      name,
+      username: String(rep.username || ''),
+      role: String(rep.role || 'salesperson'),
+      actions,
+      summary: summariseFunnelActions(actions),
+    });
+    for (const action of actions) allActions.push({ ...action, salesperson_id: String(rep.id), salesperson_name: name });
+  }
+
+  allActions.sort((a, b) => b.priority - a.priority);
+  return c.json({
+    generated_at: new Date().toISOString(),
+    reps: repQueues,
+    top_actions: allActions.slice(0, 20).map((a, idx) => ({ ...a, rank: idx + 1 })),
+    summary: summariseFunnelActions(allActions),
+  });
 });
 
 // Admin: rep performance trend over last 12 weeks
@@ -7383,8 +7991,10 @@ async function runAutoScans(env: Env) {
 
     if (!results.length) continue;
 
-    // AI analysis
-    const leads = await analyseLeadResults(env.AI, results.slice(0, 10), location);
+    // AI analysis. Bias toward product types this rep/team has already closed.
+    const personalBoosts = await loadWonProductBoosts(env.DB, String(rep.id));
+    const teamBoosts = Object.keys(personalBoosts).length ? personalBoosts : await loadWonProductBoosts(env.DB);
+    const leads = await analyseLeadResults(env.AI, results.slice(0, 10), location, teamBoosts);
     if (!leads.length) continue;
 
     // Check for duplicates — skip links already stored for this rep
@@ -7569,10 +8179,10 @@ Write a SHORT (max 5 sentences), warm Sunday-evening planning note that:
 Output ONLY the message body.`;
     let aiText = '';
     try {
-      const resp: any = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+      const resp: any = await env.AI.run(WORKERS_AI_TEXT_MODEL, {
         messages: [{ role: 'user', content: prompt }], max_tokens: 300,
       });
-      aiText = (resp.response || '').trim();
+      aiText = getAiResponseText(resp);
     } catch {
       aiText = `Hey ${firstName},\n\nNew week. ${newCount} new leads, ${warmCount} warm, ${quotedCount} quoted. Focus on the warm middle \u2014 those are easiest to move forward.\n\nAim for 1 close this week.\n\nSteve`;
     }
@@ -7635,11 +8245,11 @@ Day ${dayOfJourney} suggestions to weave in:
 Output ONLY the email body. No subject. Sign as "Steve".`;
     let aiText = '';
     try {
-      const response: any = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+      const response: any = await env.AI.run(WORKERS_AI_TEXT_MODEL, {
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 250,
       });
-      aiText = (response.response || '').trim();
+      aiText = getAiResponseText(response);
     } catch {
       // Fallback message
       aiText = `Hey ${(repName as string).split(' ')[0]},\n\nDay ${dayOfJourney} of your first 14. ${total === 0 ? 'No leads yet \u2014 run a scan today, even one conversation gets the ball rolling.' : won === 0 ? `You've got ${total} leads in the pipeline. Pick the warmest one and ask for the sale today.` : `${won} won so far \u2014 keep that momentum.`}\n\nKeep going.\n\nSteve`;
