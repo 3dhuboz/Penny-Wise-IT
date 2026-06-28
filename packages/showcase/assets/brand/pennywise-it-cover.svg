@@ -1,0 +1,70 @@
+<svg width="1365" height="497" viewBox="0 0 1365 497" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Penny Wise I.T professional cover v2</title>
+  <desc id="desc">A professional dark cover banner for Penny Wise I.T focused on practical apps, automation, AI workflows, managed hosting, and support.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1365" y2="497" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#10141B"/>
+      <stop offset="0.52" stop-color="#171C25"/>
+      <stop offset="1" stop-color="#231725"/>
+    </linearGradient>
+    <radialGradient id="leftGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(335 238) rotate(6) scale(450 265)">
+      <stop stop-color="#C87632" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#C87632" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="rightGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1034 213) rotate(11) scale(370 245)">
+      <stop stop-color="#D8292F" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#D8292F" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="91" y1="68" x2="305" y2="328" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F0AA55"/>
+      <stop offset="0.52" stop-color="#C87632"/>
+      <stop offset="1" stop-color="#74301F"/>
+    </linearGradient>
+    <linearGradient id="face" x1="145" y1="112" x2="255" y2="276" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF4DE"/>
+      <stop offset="1" stop-color="#E8D0AA"/>
+    </linearGradient>
+    <pattern id="grid" width="68" height="62" patternUnits="userSpaceOnUse">
+      <path d="M68 0H0V62" stroke="#FFFFFF" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="0" y="0" width="400" height="400" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <rect width="1365" height="497" fill="url(#bg)"/>
+  <rect width="1365" height="497" fill="url(#grid)"/>
+  <rect width="1365" height="497" fill="url(#leftGlow)"/>
+  <rect width="1365" height="497" fill="url(#rightGlow)"/>
+
+  <g opacity="0.24">
+    <path d="M841 102H1038C1064 102 1085 123 1085 149V174" stroke="#C87632" stroke-width="1.5"/>
+    <circle cx="1085" cy="177" r="5" fill="#C87632"/>
+    <path d="M765 386H1008C1034 386 1055 365 1055 339V314" stroke="#D8292F" stroke-width="1.5"/>
+    <circle cx="1055" cy="311" r="5" fill="#D8292F"/>
+    <path d="M1035 248H1208" stroke="#C87632" stroke-width="1.5"/>
+    <circle cx="1216" cy="248" r="6" fill="#C87632"/>
+    <circle cx="586" cy="86" r="3" fill="#C87632"/>
+    <circle cx="671" cy="408" r="3" fill="#C87632"/>
+  </g>
+
+  <g transform="translate(94 98)" filter="url(#shadow)">
+    <circle cx="150" cy="150" r="122" fill="#151A21"/>
+    <circle cx="150" cy="150" r="122" stroke="url(#ring)" stroke-width="20"/>
+    <circle cx="150" cy="150" r="88" fill="url(#face)" stroke="#FFE7C2" stroke-width="7"/>
+    <path d="M130 121L108 143L130 165" stroke="#151A21" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M170 121L192 143L170 165" stroke="#151A21" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="150" cy="159" r="16" fill="#D8292F"/>
+    <circle cx="144" cy="153" r="4.5" fill="#FFB3A0" opacity="0.85"/>
+    <path d="M120 190C136 204 164 204 180 190" stroke="#151A21" stroke-width="11" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(386 123)">
+    <text x="0" y="72" fill="#FFF4DE" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="68" font-weight="820">Penny Wise I.T</text>
+    <path d="M0 104H376" stroke="#C87632" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="403" cy="104" r="8" fill="#D8292F"/>
+    <text x="0" y="158" fill="#F3E9DA" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="34" font-weight="780">Smarter systems for busy businesses.</text>
+    <text x="0" y="203" fill="#BFC7D5" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="23" font-weight="560">Custom apps, automation, AI workflows, managed hosting, and support.</text>
+    <text x="0" y="251" fill="#C87632" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20" font-weight="720">Business tech without the circus.</text>
+  </g>
+</svg>

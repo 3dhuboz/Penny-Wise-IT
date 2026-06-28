@@ -1,0 +1,32 @@
+<svg width="760" height="760" viewBox="0 0 760 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Penny Wise I.T stacked logo v2</title>
+  <desc id="desc">A stacked Penny Wise I.T logo with simplified coded jester icon, one-line wordmark, and service line.</desc>
+  <defs>
+    <linearGradient id="ring" x1="191" y1="70" x2="567" y2="449" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F0AA55"/>
+      <stop offset="0.52" stop-color="#C87632"/>
+      <stop offset="1" stop-color="#74301F"/>
+    </linearGradient>
+    <linearGradient id="face" x1="273" y1="151" x2="487" y2="403" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF4DE"/>
+      <stop offset="1" stop-color="#E8D0AA"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(170 48)">
+    <circle cx="210" cy="210" r="170" fill="#151A21"/>
+    <circle cx="210" cy="210" r="170" stroke="url(#ring)" stroke-width="28"/>
+    <circle cx="210" cy="210" r="123" fill="url(#face)" stroke="#FFE7C2" stroke-width="9"/>
+    <path d="M182 169L152 199L182 229" stroke="#151A21" stroke-width="23" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M238 169L268 199L238 229" stroke="#151A21" stroke-width="23" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="210" cy="223" r="23" fill="#D8292F"/>
+    <circle cx="202" cy="215" r="6" fill="#FFB3A0" opacity="0.85"/>
+    <path d="M168 264C190 283 230 283 252 264" stroke="#151A21" stroke-width="15" stroke-linecap="round"/>
+  </g>
+
+  <text x="380" y="552" text-anchor="middle" fill="#151A21" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="70" font-weight="820">Penny Wise I.T</text>
+  <path d="M230 588H500" stroke="#C87632" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="530" cy="588" r="9" fill="#D8292F"/>
+  <text x="380" y="647" text-anchor="middle" fill="#4F5A68" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="650">Custom Apps | Automation | AI Workflows</text>
+  <text x="380" y="685" text-anchor="middle" fill="#4F5A68" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="650">Managed Hosting | Support</text>
+</svg>

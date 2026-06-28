@@ -1,0 +1,29 @@
+<svg width="980" height="220" viewBox="0 0 980 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Penny Wise I.T header logo</title>
+  <desc id="desc">A clean header logo for Penny Wise I.T with simplified coded jester icon and one-line wordmark.</desc>
+  <defs>
+    <linearGradient id="ring" x1="35" y1="26" x2="185" y2="196" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F0AA55"/>
+      <stop offset="0.52" stop-color="#C87632"/>
+      <stop offset="1" stop-color="#74301F"/>
+    </linearGradient>
+    <linearGradient id="face" x1="77" y1="58" x2="145" y2="164" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF4DE"/>
+      <stop offset="1" stop-color="#E8D0AA"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(24 20)">
+    <circle cx="90" cy="90" r="76" fill="#151A21"/>
+    <circle cx="90" cy="90" r="76" stroke="url(#ring)" stroke-width="13"/>
+    <circle cx="90" cy="90" r="55" fill="url(#face)" stroke="#FFE7C2" stroke-width="4"/>
+    <path d="M77 72L64 86L77 100" stroke="#151A21" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M103 72L116 86L103 100" stroke="#151A21" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="90" cy="96" r="10" fill="#D8292F"/>
+    <path d="M70 114C80 123 100 123 110 114" stroke="#151A21" stroke-width="7" stroke-linecap="round"/>
+  </g>
+
+  <text x="230" y="133" fill="#151A21" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="72" font-weight="820">Penny Wise I.T</text>
+  <circle cx="884" cy="109" r="8" fill="#D8292F"/>
+  <path d="M825 109H876" stroke="#C87632" stroke-width="5" stroke-linecap="round"/>
+</svg>

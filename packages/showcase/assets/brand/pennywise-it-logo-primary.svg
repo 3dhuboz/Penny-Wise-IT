@@ -1,0 +1,36 @@
+<svg width="1180" height="300" viewBox="0 0 1180 300" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Penny Wise I.T primary logo v2</title>
+  <desc id="desc">A professional Penny Wise I.T logo with simplified coded jester icon, wordmark, and service line.</desc>
+  <defs>
+    <linearGradient id="ring" x1="55" y1="34" x2="250" y2="266" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F0AA55"/>
+      <stop offset="0.52" stop-color="#C87632"/>
+      <stop offset="1" stop-color="#74301F"/>
+    </linearGradient>
+    <linearGradient id="face" x1="105" y1="78" x2="195" y2="214" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF4DE"/>
+      <stop offset="1" stop-color="#E8D0AA"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="300" height="300" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#111418" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(30 28)" filter="url(#shadow)">
+    <circle cx="120" cy="120" r="98" fill="#151A21"/>
+    <circle cx="120" cy="120" r="98" stroke="url(#ring)" stroke-width="17"/>
+    <circle cx="120" cy="120" r="71" fill="url(#face)" stroke="#FFE7C2" stroke-width="6"/>
+    <path d="M103 94L86 112L103 130" stroke="#151A21" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M137 94L154 112L137 130" stroke="#151A21" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="120" cy="124" r="14" fill="#D8292F"/>
+    <circle cx="115" cy="119" r="4" fill="#FFB3A0" opacity="0.85"/>
+    <path d="M95 151C108 162 132 162 145 151" stroke="#151A21" stroke-width="9" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(310 78)">
+    <text x="0" y="75" fill="#151A21" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="72" font-weight="820">Penny Wise I.T</text>
+    <path d="M0 102H520" stroke="#C87632" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="544" cy="102" r="8" fill="#D8292F"/>
+    <text x="0" y="153" fill="#4F5A68" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="650">Custom Apps | Automation | AI Workflows | Managed Hosting | Support</text>
+  </g>
+</svg>

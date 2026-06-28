@@ -1,10 +1,11 @@
-import { mkdir, rm, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = dirname(scriptDir);
 const dist = join(root, "dist");
+const brandDir = join(root, "assets", "brand");
 
 const builderUrl = "https://builder.pennywiseit.com.au/sign-up";
 const talkUrl = "mailto:steve@pennywiseit.com.au?subject=Penny%20Wise%20I.T%20website%20enquiry";
@@ -82,8 +83,11 @@ function shell({ title, description, active = "/", body }) {
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="/brand/pennywise-it-cover.svg">
   <meta name="theme-color" content="#0b0d12">
-  <link rel="icon" href="/favicon.svg">
+  <link rel="icon" href="/brand/pennywise-it-icon-small.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/brand/pennywise-it-icon-small.svg">
+  <link rel="manifest" href="/manifest.json">
   <style>
     :root {
       --bg: #05070b;
@@ -180,11 +184,31 @@ function shell({ title, description, active = "/", body }) {
     .brand {
       display: inline-flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
+      padding: 8px 12px 8px 9px;
+      border: 1px solid rgba(246,180,95,.34);
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(255,249,239,.98), rgba(255,231,194,.88));
+      box-shadow: 0 16px 42px rgba(0,0,0,.22), 0 0 0 1px rgba(255,255,255,.05) inset;
       text-decoration: none;
       font-weight: 850;
       letter-spacing: 0;
       white-space: nowrap;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .brand:hover {
+      transform: translateY(-1px);
+      border-color: rgba(246,180,95,.68);
+      box-shadow: 0 18px 46px rgba(212,135,57,.20), 0 0 0 1px rgba(255,255,255,.08) inset;
+    }
+    .brand-logo {
+      width: clamp(180px, 18vw, 245px);
+      height: auto;
+      display: block;
+      filter:
+        drop-shadow(0 14px 26px rgba(212,135,57,.22))
+        drop-shadow(0 2px 0 rgba(255,255,255,.04));
+      transform-origin: left center;
     }
     .brand-copy {
       display: grid;
@@ -935,6 +959,7 @@ function shell({ title, description, active = "/", body }) {
     .cta-inner p { color: var(--muted); max-width: 700px; margin-bottom: 0; }
     @media (max-width: 880px) {
       .nav-wrap { align-items: flex-start; flex-direction: column; padding-top: 16px; padding-bottom: 16px; gap: 12px; }
+      .brand-logo { width: clamp(172px, 52vw, 230px); }
       nav { justify-content: flex-start; }
       .nav-cta, .nav-builder { margin-left: 0; }
       .hero { padding-top: 64px; }
@@ -952,6 +977,7 @@ function shell({ title, description, active = "/", body }) {
       nav { width: 100%; justify-content: flex-start; gap: 2px 6px; }
       nav a { padding: 8px 7px; font-size: .82rem; }
       .nav-cta { width: auto; }
+      .brand-logo { width: min(76vw, 210px); }
       .brand-sub, .nav-builder { display: none; }
       .container { width: min(100%, var(--max)); max-width: var(--max); margin-inline: auto; }
       .hero-grid, .hero-grid > *, h1, .lead { min-width: 0; max-width: 100%; }
@@ -987,7 +1013,7 @@ function shell({ title, description, active = "/", body }) {
   <div class="noise" aria-hidden="true"></div>
   <header class="site-header">
     <div class="nav-wrap">
-      <a class="brand" href="/" aria-label="Penny Wise I.T home"><span class="mark">P</span><span class="brand-copy"><span class="brand-name">Penny Wise I.T</span><span class="brand-sub">Websites, apps & automation</span></span></a>
+      <a class="brand" href="/" aria-label="Penny Wise I.T home"><img class="brand-logo" src="/brand/pennywise-it-logo-header.svg" width="980" height="220" alt="Penny Wise I.T"></a>
       <nav aria-label="Primary navigation">${nav(active)}<a class="nav-builder" href="${builderUrl}">Build AI Website</a><a class="nav-cta" href="${talkUrl}">Talk to Steve</a></nav>
     </div>
   </header>
@@ -1006,7 +1032,7 @@ function shell({ title, description, active = "/", body }) {
       var intro = gsap.timeline({ defaults: { ease: "power3.out" } });
       intro
         .from(".site-header", { autoAlpha: 0, y: -18, duration: .55 }, 0)
-        .from(".brand .mark", { scale: .82, rotate: -8, duration: .5 }, .12)
+        .from(".brand-logo", { autoAlpha: 0, scale: .9, x: -12, duration: .58 }, .12)
         .from("nav a", { autoAlpha: 0, y: -8, stagger: .035, duration: .38 }, .15)
         .from(".hero-kicker", { autoAlpha: 0, y: 18, duration: .46 }, .16)
         .fromTo(".hero h1", { y: 54, skewY: 2.4, scale: .985 }, { autoAlpha: 1, y: 0, skewY: 0, scale: 1, duration: 1.05 }, .2)
@@ -1373,6 +1399,12 @@ async function write(relativePath, content) {
   await writeFile(file, content);
 }
 
+async function copyAsset(sourceName, targetPath = `brand/${sourceName}`) {
+  const file = join(dist, targetPath);
+  await mkdir(dirname(file), { recursive: true });
+  await copyFile(join(brandDir, sourceName), file);
+}
+
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 
@@ -1386,7 +1418,14 @@ await write("about/index.html", aboutPage());
 await write("faq/index.html", faqPage());
 await write("admin/index.html", adminPage());
 await write("numbers/index.html", numbersPage());
-await write("favicon.svg", `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="#d48739"/><text x="32" y="42" text-anchor="middle" font-family="Arial,sans-serif" font-size="34" font-weight="900" fill="#17100a">P</text></svg>`);
+await copyAsset("pennywise-it-cover.svg");
+await copyAsset("pennywise-it-icon-one-color.svg");
+await copyAsset("pennywise-it-icon-small.svg");
+await copyAsset("pennywise-it-logo-header.svg");
+await copyAsset("pennywise-it-logo-primary.svg");
+await copyAsset("pennywise-it-logo-stacked.svg");
+await copyAsset("README.md");
+await copyAsset("pennywise-it-icon-small.svg", "favicon.svg");
 await write("manifest.json", JSON.stringify({
   name: "Penny Wise I.T",
   short_name: "Penny Wise",
@@ -1394,6 +1433,14 @@ await write("manifest.json", JSON.stringify({
   display: "standalone",
   background_color: "#090b10",
   theme_color: "#0b0d12",
+  icons: [
+    {
+      src: "/brand/pennywise-it-icon-small.svg",
+      sizes: "any",
+      type: "image/svg+xml",
+      purpose: "any maskable"
+    }
+  ],
 }, null, 2));
 await write("sw.js", "self.addEventListener('install', function(event) { self.skipWaiting(); });\nself.addEventListener('activate', function(event) { event.waitUntil(self.clients.claim()); });\n");
 
