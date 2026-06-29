@@ -29,6 +29,17 @@ const appPlatforms = [
   ["SimpleWebsite Pro", "Managed sites, storefronts, content, and support."],
 ];
 
+const appStoriesPremium = [
+  ["Live Ordering", "When customers want to order without calling, messaging, or paying marketplace markups.", "Menu, payments, pickup windows, reminders", "OWN THE ORDER", "Table ready", "warm"],
+  ["Field Service", "When quote requests, job photos, customer updates, and follow-ups keep getting lost in messages.", "Quotes, jobs, photos, updates", "LESS CHASING", "Job booked", "green"],
+  ["Delivery", "When dispatch needs a clear local run sheet instead of another spreadsheet and call-around.", "Runs, stops, driver updates", "LOCAL RUNS", "Run mapped", "blue"],
+  ["Events", "When guests need a simple path to tickets, bookings, reminders, and event-day details.", "Tickets, guests, reminders", "FILL THE ROOM", "Seats held", "red"],
+  ["Car Hire", "When people need availability, handover notes, reminders, and an easy way to book.", "Availability, handover, reminders", "READY TO GO", "Keys ready", "warm"],
+  ["Butchers", "When weekly specials, pre-orders, pickup windows, and fresh updates should be simple.", "Specials, pickup, catalogue", "FRESH THIS WEEK", "Fresh list", "green"],
+  ["Sports Clubs", "When memberships, sponsors, events, payments, and announcements need one proper home.", "Members, events, sponsors", "CLUB RUNS SMOOTHER", "Members in", "blue"],
+  ["SimpleWebsite Pro", "When the business needs a premium managed site with storefronts, updates, and support.", "Content, store, updates", "POLISHED PRESENCE", "Site polished", "red"],
+];
+
 const tools = [
   ["PennyBuilder", "AI websites from $9/mo", "Build a simple site for free, refine it by chatting, then publish when ready."],
   ["SocialAI Studio", "Local content engine", "Turn offers, events, and product updates into usable social posts."],
@@ -384,6 +395,142 @@ function shell({ title, description, active = "/", body }) {
         repeating-linear-gradient(90deg, transparent 0 72px, rgba(255,255,255,.045) 73px 74px);
       mask-image: linear-gradient(135deg, rgba(0,0,0,.8), transparent 70%);
       opacity: .8;
+    }
+    .apps-hero {
+      min-height: clamp(640px, calc(100vh - 82px), 800px);
+      background:
+        radial-gradient(ellipse at 12% 18%, rgba(246,180,95,.20), transparent 28%),
+        radial-gradient(ellipse at 84% 38%, rgba(67,231,172,.11), transparent 30%);
+    }
+    .apps-hero .hero-grid {
+      grid-template-columns: minmax(0, .92fr) minmax(330px, .72fr);
+      gap: 48px;
+      align-items: center;
+    }
+    .apps-hero h1 {
+      max-width: 880px;
+      font-size: clamp(3.2rem, 6.35vw, 6rem);
+      line-height: .9;
+    }
+    .apps-hero .lead {
+      max-width: 760px;
+      color: rgba(223,231,245,.86);
+    }
+    .workflow-poster {
+      position: relative;
+      min-height: 540px;
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 44px 24px 52px 30px;
+      background:
+        radial-gradient(circle at 22% 10%, rgba(246,180,95,.20), transparent 26%),
+        linear-gradient(155deg, rgba(255,249,239,.12), rgba(255,255,255,.035)),
+        rgba(7,11,17,.76);
+      box-shadow: 0 44px 130px rgba(0,0,0,.40);
+      overflow: hidden;
+      transform-style: preserve-3d;
+    }
+    .workflow-poster::before {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      border-radius: 34px 18px 42px 22px;
+      background:
+        linear-gradient(rgba(21,26,33,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(21,26,33,.05) 1px, transparent 1px),
+        linear-gradient(150deg, #fff2d6, #f8dcc0 58%, #e8fff6);
+      background-size: 34px 34px, 34px 34px, auto;
+      box-shadow: inset 0 0 0 1px rgba(21,26,33,.08);
+      transform: rotate(1.6deg);
+    }
+    .workflow-poster > * {
+      position: relative;
+      z-index: 1;
+    }
+    .poster-clip {
+      width: 36%;
+      height: 22px;
+      margin: -6px auto 22px;
+      border-radius: 0 0 8px 8px;
+      background: rgba(246,180,95,.58);
+      box-shadow: 0 10px 20px rgba(21,26,33,.13);
+      transform: rotate(1.6deg);
+    }
+    .poster-label {
+      display: inline-flex;
+      padding: 8px 11px;
+      color: #fff9ef;
+      background: #121820;
+      box-shadow: 8px 8px 0 rgba(216,41,47,.82);
+      font-size: .72rem;
+      font-weight: 950;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      transform: rotate(-1deg);
+    }
+    .workflow-poster h2 {
+      max-width: 410px;
+      margin: 30px 0 20px;
+      color: #121820;
+      font-size: clamp(2.65rem, 4.45vw, 4.35rem);
+      line-height: .88;
+      letter-spacing: 0;
+    }
+    .poster-note {
+      width: fit-content;
+      max-width: 260px;
+      margin-left: auto;
+      padding: 13px 15px;
+      color: #fff9ef;
+      background: #d8292f;
+      font-size: .88rem;
+      font-weight: 950;
+      line-height: 1.15;
+      box-shadow: 0 12px 28px rgba(216,41,47,.32);
+      transform: rotate(4deg) translateY(-12px);
+    }
+    .workflow-steps {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+      color: #121820;
+    }
+    .workflow-step {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr);
+      gap: 13px;
+      align-items: start;
+      padding-top: 14px;
+      border-top: 1px solid rgba(21,26,33,.16);
+      font-size: .95rem;
+      font-weight: 850;
+    }
+    .workflow-step span {
+      color: #d48739;
+      font-weight: 950;
+      letter-spacing: .08em;
+    }
+    .workflow-step p {
+      margin: 0;
+      color: rgba(18,24,32,.78);
+    }
+    .poster-stamp {
+      position: absolute;
+      right: 28px;
+      bottom: 24px;
+      width: 112px;
+      height: 112px;
+      display: grid;
+      place-items: center;
+      border: 2px solid rgba(18,24,32,.72);
+      border-radius: 50%;
+      color: #121820;
+      font-size: .68rem;
+      font-weight: 950;
+      letter-spacing: .09em;
+      text-align: center;
+      text-transform: uppercase;
+      transform: rotate(-9deg);
     }
     .hero-kicker, .scene-label {
       display: inline-flex;
@@ -1228,6 +1375,153 @@ function shell({ title, description, active = "/", body }) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
     }
+    .story-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+    .app-story {
+      position: relative;
+      min-height: 330px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 205px;
+      gap: 24px;
+      align-items: stretch;
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 38px 22px 44px 26px;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(246,180,95,.16), transparent 34%),
+        linear-gradient(135deg, rgba(255,244,222,.105), rgba(255,255,255,.035)),
+        rgba(8,13,20,.74);
+      box-shadow: 0 34px 90px rgba(0,0,0,.28);
+      overflow: hidden;
+    }
+    .app-story::before {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 190px;
+      right: -90px;
+      top: -60px;
+      border-radius: 999px;
+      background: rgba(246,180,95,.14);
+      transform: rotate(-18deg);
+      pointer-events: none;
+    }
+    .app-story.green::before { background: rgba(67,231,172,.14); }
+    .app-story.blue::before { background: rgba(143,197,255,.14); }
+    .app-story.red::before { background: rgba(216,41,47,.16); }
+    .app-story > * { position: relative; z-index: 1; }
+    .story-copy {
+      display: grid;
+      align-content: space-between;
+      gap: 18px;
+    }
+    .story-kicker {
+      width: fit-content;
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: #151a21;
+      background: var(--copper-2);
+      font-size: .72rem;
+      font-weight: 950;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    .app-story h3 {
+      margin-bottom: 10px;
+      font-size: clamp(1.55rem, 2vw, 2.05rem);
+    }
+    .app-story p {
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+    .story-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .story-meta span {
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: rgba(255,249,239,.88);
+      border: 1px solid rgba(255,255,255,.13);
+      background: rgba(255,255,255,.055);
+      font-size: .78rem;
+      font-weight: 800;
+    }
+    .story-visual {
+      position: relative;
+      min-height: 210px;
+      display: grid;
+      align-content: space-between;
+      gap: 12px;
+      padding: 18px;
+      border-radius: 38% 62% 52% 48% / 36% 44% 56% 64%;
+      color: #121820;
+      background:
+        linear-gradient(rgba(18,24,32,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(18,24,32,.05) 1px, transparent 1px),
+        linear-gradient(135deg, #fff4de, #f6b45f);
+      background-size: 24px 24px, 24px 24px, auto;
+      box-shadow: inset 0 0 0 2px rgba(21,26,33,.08), 0 26px 70px rgba(0,0,0,.25);
+      transform: rotate(2deg);
+    }
+    .app-story.green .story-visual { background: linear-gradient(135deg, #e8fff6, #43e7ac); }
+    .app-story.blue .story-visual { background: linear-gradient(135deg, #eef7ff, #8fc5ff); }
+    .app-story.red .story-visual { background: linear-gradient(135deg, #fff1ef, #f37b76); }
+    .story-icon {
+      align-self: start;
+      width: fit-content;
+      padding: 8px 10px;
+      color: #fff9ef;
+      background: #121820;
+      box-shadow: 6px 6px 0 rgba(216,41,47,.72);
+      font-size: .76rem;
+      font-weight: 950;
+      letter-spacing: .11em;
+      line-height: 1;
+      text-transform: uppercase;
+      transform: rotate(-2deg);
+    }
+    .story-visual::before,
+    .story-visual::after {
+      content: "";
+      display: block;
+      border-radius: 999px;
+      background: rgba(18,24,32,.82);
+      box-shadow:
+        0 18px 0 rgba(18,24,32,.22),
+        0 36px 0 rgba(18,24,32,.14);
+    }
+    .story-visual::before {
+      width: 74%;
+      height: 12px;
+      margin-top: 36px;
+    }
+    .story-visual::after {
+      width: 44%;
+      height: 12px;
+      margin-left: auto;
+      opacity: .72;
+    }
+    .story-caption {
+      justify-self: end;
+      width: fit-content;
+      max-width: 154px;
+      padding: 9px 11px;
+      border-radius: 999px;
+      color: #121820;
+      border: 1px solid rgba(18,24,32,.18);
+      background: rgba(255,249,239,.64);
+      font-size: .72rem;
+      font-weight: 950;
+      letter-spacing: .05em;
+      text-align: center;
+      text-transform: uppercase;
+      transform: rotate(-2deg);
+    }
     .item {
       position: relative;
       min-height: 168px;
@@ -1342,7 +1636,11 @@ function shell({ title, description, active = "/", body }) {
       nav { justify-content: flex-start; }
       .nav-cta, .nav-builder { margin-left: 0; }
       .hero { padding-top: 64px; }
-      .hero-grid, .split, .path-strip, .offer-grid, .situation-grid, .plain-steps, .reassurance-grid, .example-grid, .myth-card, .decision-grid, .cinema-inner, .list, .faq-grid, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
+      .hero-grid, .split, .path-strip, .offer-grid, .situation-grid, .plain-steps, .reassurance-grid, .example-grid, .myth-card, .decision-grid, .cinema-inner, .list, .story-grid, .faq-grid, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
+      .apps-hero .hero-grid { grid-template-columns: 1fr; }
+      .workflow-poster { min-height: 480px; }
+      .app-story { grid-template-columns: 1fr; }
+      .story-visual { min-height: 190px; }
       .offer-head, .section-header { align-items: flex-start; flex-direction: column; }
       .offer-card { min-height: auto; }
       .situation-card { min-height: auto; }
@@ -1369,6 +1667,13 @@ function shell({ title, description, active = "/", body }) {
       .poster-board { display: none; }
       .lead { width: 100%; font-size: 1.02rem; }
       .hero { min-height: auto; padding-top: 74px; padding-bottom: 70px; }
+      .apps-hero h1 { font-size: clamp(2.35rem, 11vw, 3.2rem); line-height: .98; }
+      .workflow-poster { min-height: 390px; padding: 20px; border-radius: 28px 18px 34px 20px; }
+      .workflow-poster::before { inset: 14px; }
+      .workflow-poster h2 { display: none; }
+      .poster-note { display: none; }
+      .workflow-step { grid-template-columns: 34px minmax(0, 1fr); font-size: .86rem; }
+      .poster-stamp { display: none; }
       .hero > .container:not(.hero-grid) { padding: 24px; border-radius: 16px; }
       .hero-stat-grid { grid-template-columns: 1fr; }
       .hero-home .hero-stat-grid { display: none; }
@@ -1377,7 +1682,8 @@ function shell({ title, description, active = "/", body }) {
       .orbit-ring, .holo-stage::before { display: none; }
       .actions { width: 100%; max-width: 100%; }
       .btn { width: 100%; max-width: 100%; }
-      .path, .offer-card, .situation-card, .plain-step, .reassurance-card, .example-card, .myth-card, .decision-card, .price, .question { padding: 22px; }
+      .path, .offer-card, .app-story, .situation-card, .plain-step, .reassurance-card, .example-card, .myth-card, .decision-card, .price, .question { padding: 22px; }
+      .story-visual { min-height: 160px; }
       .scene-canvas { opacity: .34; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -1426,8 +1732,9 @@ function shell({ title, description, active = "/", body }) {
         .from(".hero .lead", { autoAlpha: 0, y: 18, duration: .62 }, .28)
         .from(".hero-stat", { autoAlpha: 0, y: 18, scale: .96, stagger: .08, duration: .48 }, .38)
         .from(".hero .actions .btn", { autoAlpha: 0, y: 14, stagger: .08, duration: .48 }, .52)
-        .from(".hero .mockup", { autoAlpha: 0, y: 28, scale: .985, duration: .85 }, .34)
+        .from(".hero .mockup, .workflow-poster", { autoAlpha: 0, y: 28, scale: .985, duration: .85 }, .34)
         .from(".hero .mock-row", { autoAlpha: 0, x: 18, stagger: .08, duration: .42 }, .58)
+        .from(".workflow-step", { autoAlpha: 0, x: 18, stagger: .08, duration: .42 }, .58)
         .from(".orbit-ring", { autoAlpha: 0, rotate: -30, scale: .78, stagger: .12, duration: 1.1 }, .18)
         .from(".holo-console", { autoAlpha: 0, y: 46, rotateY: -24, rotateX: 16, scale: .92, duration: 1.05 }, .34)
         .from(".console-card", { autoAlpha: 0, x: 34, stagger: .09, duration: .48 }, .68)
@@ -1440,7 +1747,7 @@ function shell({ title, description, active = "/", body }) {
       });
 
       gsap.utils.toArray("section:not(.hero)").forEach(function (section) {
-        var targets = section.querySelectorAll(".section-header, .offer-head, .scene-label, h2, .section-lead, .lead, .item, .offer-card, .decision-card, .price, .question, .path");
+        var targets = section.querySelectorAll(".section-header, .offer-head, .scene-label, h2, .section-lead, .lead, .item, .app-story, .offer-card, .decision-card, .price, .question, .path");
         if (!targets.length) return;
         gsap.from(targets, {
           autoAlpha: 0,
@@ -1459,7 +1766,7 @@ function shell({ title, description, active = "/", body }) {
       gsap.to(".floating-chip", { y: -12, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: .35 });
       gsap.to(".holo-console", { y: -10, rotateY: -10, duration: 3.8, ease: "sine.inOut", yoyo: true, repeat: -1 });
 
-      gsap.utils.toArray(".offer-card, .item, .decision-card, .price, .question, .path, .mockup, .holo-console").forEach(function (card) {
+      gsap.utils.toArray(".offer-card, .item, .app-story, .decision-card, .price, .question, .path, .mockup, .workflow-poster, .holo-console").forEach(function (card) {
         card.addEventListener("mousemove", function (event) {
           var rect = card.getBoundingClientRect();
           var x = (event.clientX - rect.left) / rect.width - .5;
@@ -1687,13 +1994,19 @@ function home() {
 }
 
 function appsPage() {
+  const workflowSteps = [
+    ["01", "Customer finds a clear path instead of guessing what to do next."],
+    ["02", "Your brand collects the details, payment, booking, or request."],
+    ["03", "The business gets a cleaner admin view and fewer repeated messages."],
+  ];
   return shell({
     active: "/apps",
-    title: "Apps - Penny Wise I.T",
-    description: "Whitelabel app platforms for Australian small businesses.",
+    title: "Bookings, Orders, and Customer Tools - Penny Wise I.T",
+    description: "Premium customer workflows for Australian small businesses: ordering, bookings, field service, delivery, events, clubs, and managed websites.",
     body: `<main>
-      <section class="hero"><div class="container"><h1>Whitelabel apps for real operators.</h1><p class="lead">Eight practical platforms for businesses that want their own brand, own domain, and own customer flow.</p><div class="actions"><a class="btn btn-primary" href="${talkUrl}">Talk through an app</a><a class="btn btn-secondary" href="/pricing">See pricing</a></div></div></section>
-      <section><div class="container"><div class="section-header"><h2>Practical platforms, not one-off brochure pages.</h2><p>Each option gives the business a branded customer flow, an admin surface, and a clear reason to replace manual work or third-party fees.</p></div><div class="list">${appPlatforms.map(([name, text]) => `<article class="item"><span class="tag">App platform</span><b>${name}</b><p>${text}</p></article>`).join("")}</div></div></section>
+      <section class="hero apps-hero"><div class="container hero-grid"><div><span class="hero-kicker">Customer tools that feel like your business</span><h1>Turn messy customer moments into smooth owned workflows.</h1><p class="lead">Bookings, orders, requests, payments, reminders, menus, memberships, and admin should not live across Facebook messages, missed calls, and spreadsheets. Build the path customers need, under your brand, only when it clearly helps the business.</p><div class="actions"><a class="btn btn-primary" href="${talkUrl}">Talk through my workflow</a><a class="btn btn-secondary" href="/pricing">See starting points</a></div></div><aside class="workflow-poster" aria-label="How Penny Wise apps help customers"><div class="poster-clip"></div><span class="poster-label">Owned customer path</span><h2>Find it. Choose it. Book it. Come back.</h2><div class="poster-note">The app is not the point. The smoother customer decision is.</div><div class="workflow-steps">${workflowSteps.map(([step, text]) => `<div class="workflow-step"><span>${step}</span><p>${text}</p></div>`).join("")}</div><div class="poster-stamp">Your brand first</div></aside></div></section>
+      <section><div class="container"><div class="section-header"><h2>Pick the moment customers get stuck.</h2><p>Each path starts with a real customer decision, then turns it into a branded experience with your name, your domain, and a clearer admin flow behind it.</p></div><div class="story-grid">${appStoriesPremium.map(([name, text, meta, caption, visualLabel, tone]) => `<article class="app-story ${tone}"><div class="story-copy"><div><span class="story-kicker">${caption}</span><h3>${name}</h3><p>${text}</p></div><div class="story-meta">${meta.split(", ").map((item) => `<span>${item}</span>`).join("")}</div></div><div class="story-visual" aria-hidden="true"><span class="story-icon">${visualLabel}</span><span class="story-caption">${caption}</span></div></article>`).join("")}</div></div></section>
+      ${ctaBand({ title: "Not sure if this should be an app?", text: "That is exactly the right question. Steve can help decide whether you need a workflow, a simple form, a managed website, or nothing custom yet.", primary: "Ask Steve", secondary: "Compare pricing", primaryHref: talkUrl, secondaryHref: "/pricing" })}
     </main>`,
   });
 }
@@ -1791,7 +2104,12 @@ async function copyAsset(sourceName, targetPath = `brand/${sourceName}`) {
   await copyFile(join(brandDir, sourceName), file);
 }
 
-await rm(dist, { recursive: true, force: true });
+try {
+  await rm(dist, { recursive: true, force: true });
+} catch (error) {
+  if (error?.code !== "EBUSY") throw error;
+  console.warn(`Output folder is busy; updating files in place at ${dist}`);
+}
 await mkdir(dist, { recursive: true });
 
 await write("index.html", home());
