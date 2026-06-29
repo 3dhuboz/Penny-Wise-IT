@@ -11,11 +11,10 @@ const builderUrl = "https://builder.pennywiseit.com.au/sign-up";
 const talkUrl = "mailto:steve@pennywiseit.com.au?subject=Penny%20Wise%20I.T%20website%20enquiry";
 
 const paths = [
-  { href: "/ai-websites", label: "AI Websites" },
-  { href: "/apps", label: "Apps" },
-  { href: "/tools", label: "Tools" },
+  { href: "/ai-websites", label: "Premium Websites" },
+  { href: "/apps", label: "Bookings & Orders" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/roi", label: "ROI" },
+  { href: "/faq", label: "Questions" },
   { href: "/about", label: "About" },
 ];
 
@@ -50,6 +49,38 @@ const decisions = [
   ["I am losing time every week", "Automate the repeat work", "Turn admin, follow-up, content, compliance, or reporting into a repeatable system."],
 ];
 
+const situations = [
+  ["I want a professional website", "Launch with a polished site that makes the business look credible.", "Start with a guided draft, refine the wording and layout, then publish from $9/month or upgrade to managed polish when presentation matters.", "Start my website", builderUrl],
+  ["I need customers to book, order, or enquire online", "Make it easier for customers to deal with you.", "Add practical online tools for bookings, orders, requests, payments, delivery, events, or service jobs without sending people through a generic platform.", "Plan customer tools", "/apps"],
+  ["I want admin handled properly", "Get repeat jobs off your plate.", "Steve can help with reminders, customer messages, forms, reports, content, logs, and other weekly jobs that slow the business down.", "Talk through my admin", talkUrl],
+  ["I want advice before I choose", "A premium build starts with the right call.", "Explain what you are trying to improve. Steve will point you at the smallest serious option, even if that means not building the bigger thing yet.", "Ask Steve what fits", talkUrl],
+];
+
+const howItWorks = [
+  ["Tell us what you need", "Send through what your business does and what you are trying to fix: a website, bookings, orders, admin, or something customers keep asking for."],
+  ["Pick the right level of polish", "Start lean if that is enough, or move into managed website, booking, ordering, and automation work when the business case is clear."],
+  ["Go live, then improve it", "Launch a professional first version, then add useful extras as the business grows instead of paying for a big system before you need one."],
+];
+
+const reassurance = [
+  ["Premium does not mean bloated", "If a professional website is enough, we stop at the website. You do not need to rebuild the whole business at once."],
+  ["Your business stays yours", "Your brand, your domain, your customer relationship. The goal is not to trap you inside software you do not understand."],
+  ["Commercial advice first", "If an app will not save time, avoid fees, or help customers buy from you more easily, it should not be built yet."],
+];
+
+const examples = [
+  ["Cafe or takeaway", "Replace marketplace fees with simple own-brand ordering when the numbers make sense."],
+  ["Tradie or service business", "Turn calls and scattered messages into clear quote requests, job details, photos, and follow-ups."],
+  ["Club, event, or local group", "Move memberships, bookings, payments, guest lists, and updates out of spreadsheets."],
+];
+
+const myths = [
+  ["My customers are already on Facebook", "Facebook mainly helps people who already know the business. A website helps the next customer check the menu, prices, hours, photos, reviews, location, and contact details before they decide. Facebook is useful. It should not be the only front door."],
+  ["My menu changes every week", "That is a reason to make the website easy to update, not a reason to avoid one. A weekly menu page can be built so the latest menu, specials, photos, or PDF are quick to change, then Facebook and Google can point people to the current version."],
+  ["A Google listing is enough because I just want calls", "A Google listing can make the phone ring, but many people check details before calling. A simple website answers the repeat questions first: what you do, where you service, prices or menu, proof, photos, opening hours, and whether you look trustworthy enough to contact."],
+  ["Shopify will make the store SEO friendly", "Shopify can be right for product-heavy stores. But a platform does not automatically create search demand, local trust, useful pages, or better margins. SEO still depends on clear product pages, helpful content, local intent, technical structure, speed, and a customer journey that turns visits into orders."],
+];
+
 function esc(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
@@ -67,8 +98,8 @@ function nav(active) {
   }).join("");
 }
 
-function ctaBand({ title = "Want the simplest next step?", text = "Tell Steve what the business does and what currently wastes time. He will point you to the smallest useful option.", primary = "Talk to Steve", secondary = "Build an AI website" } = {}) {
-  return `<section class="cta-band"><div class="container cta-inner"><div><h2>${title}</h2><p>${text}</p></div><div class="actions"><a class="btn btn-primary" href="${talkUrl}">${primary}</a><a class="btn btn-secondary" href="${builderUrl}">${secondary}</a></div></div></section>`;
+function ctaBand({ title = "Want the simplest next step?", text = "Tell Steve what the business does and what currently wastes time. He will point you to the smallest useful option.", primary = "Talk to Steve", secondary = "Build an AI website", primaryHref = talkUrl, secondaryHref = builderUrl } = {}) {
+  return `<section class="cta-band"><div class="container cta-inner"><div><h2>${title}</h2><p>${text}</p></div><div class="actions"><a class="btn btn-primary" href="${primaryHref}">${primary}</a><a class="btn btn-secondary" href="${secondaryHref}">${secondary}</a></div></div></section>`;
 }
 
 function shell({ title, description, active = "/", body }) {
@@ -119,6 +150,12 @@ function shell({ title, description, active = "/", body }) {
       line-height: 1.55;
       overflow-x: hidden;
     }
+    body.route-home {
+      background:
+        radial-gradient(circle at 12% 10%, rgba(246,180,95,.24), transparent 26%),
+        radial-gradient(circle at 88% 22%, rgba(67,231,172,.13), transparent 26%),
+        linear-gradient(135deg, #0a0b0d 0%, #17100d 46%, #06140f 100%);
+    }
     a { color: inherit; }
     a:focus-visible, .btn:focus-visible, nav a:focus-visible {
       outline: 3px solid rgba(246,180,95,.72);
@@ -133,6 +170,7 @@ function shell({ title, description, active = "/", body }) {
       opacity: .78;
       pointer-events: none;
     }
+    .route-home .scene-canvas { opacity: .08; filter: saturate(.45) contrast(.75); }
     .ambient {
       position: fixed;
       inset: 0;
@@ -301,6 +339,29 @@ function shell({ title, description, active = "/", body }) {
       gap: 56px;
       align-items: center;
     }
+    .route-home .hero-home {
+      min-height: clamp(720px, calc(100vh - 82px), 880px);
+      background:
+        radial-gradient(circle at 38% 54%, rgba(212,135,57,.16), transparent 34%),
+        radial-gradient(ellipse at 14% 68%, rgba(67,231,172,.16), transparent 30%),
+        radial-gradient(ellipse at 78% 20%, rgba(246,180,95,.22), transparent 34%);
+    }
+    .route-home .hero-home::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(110deg, rgba(246,180,95,.12), transparent 24%),
+        radial-gradient(ellipse at 18% 24%, rgba(255,244,222,.08), transparent 30%),
+        radial-gradient(ellipse at 72% 72%, rgba(67,231,172,.07), transparent 28%);
+      opacity: .9;
+      pointer-events: none;
+    }
+    .route-home .hero-grid {
+      grid-template-columns: minmax(0, .96fr) minmax(330px, .64fr);
+      gap: 44px;
+      align-items: stretch;
+    }
     .hero > .container:not(.hero-grid) {
       max-width: 980px;
       padding: 42px;
@@ -349,6 +410,22 @@ function shell({ title, description, active = "/", body }) {
       box-shadow: 0 0 18px rgba(67,231,172,.9);
     }
     .hero-copy { position: relative; z-index: 2; }
+    .route-home .hero-copy {
+      display: grid;
+      align-content: center;
+      min-height: 620px;
+      padding-left: 6px;
+    }
+    .route-home .hero-kicker {
+      border-radius: 999px;
+      border-color: rgba(246,180,95,.48);
+      background: rgba(246,180,95,.13);
+      box-shadow: 0 16px 34px rgba(0,0,0,.18);
+      transform: rotate(-1.2deg);
+    }
+    .route-home .hero-kicker::before {
+      border-radius: 50%;
+    }
     .hero-stat-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -363,6 +440,12 @@ function shell({ title, description, active = "/", body }) {
       background: rgba(255,255,255,.055);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
     }
+    .route-home .hero-stat {
+      border-radius: 999px;
+      border-color: rgba(255,244,222,.18);
+      background: linear-gradient(135deg, rgba(255,244,222,.09), rgba(255,255,255,.025));
+      box-shadow: 0 18px 48px rgba(0,0,0,.18);
+    }
     .hero-stat b {
       display: block;
       color: var(--ink);
@@ -374,6 +457,158 @@ function shell({ title, description, active = "/", body }) {
       color: var(--muted);
       font-size: .78rem;
       font-weight: 780;
+    }
+    .clarity-note {
+      margin-top: 20px;
+      max-width: 680px;
+      display: grid;
+      gap: 8px;
+      padding: 18px 20px;
+      border: 1px solid rgba(67,231,172,.28);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(67,231,172,.10), rgba(255,255,255,.045));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .clarity-note b { color: var(--ink); font-size: 1rem; }
+    .clarity-note span { color: var(--muted); font-weight: 650; }
+    .route-home .clarity-note {
+      border-radius: 28px;
+      border-color: rgba(246,180,95,.34);
+      background:
+        linear-gradient(135deg, rgba(246,180,95,.12), rgba(255,255,255,.045));
+      box-shadow: 0 26px 70px rgba(0,0,0,.22);
+      transform: rotate(.35deg);
+    }
+    .poster-board {
+      position: relative;
+      align-self: center;
+      min-height: 620px;
+      padding: 34px;
+      display: grid;
+      align-content: space-between;
+      border: 2px solid rgba(21,26,33,.18);
+      border-radius: 32px 18px 38px 24px;
+      background:
+        radial-gradient(circle at 88% 8%, rgba(216,41,47,.16), transparent 18%),
+        linear-gradient(135deg, rgba(255,244,222,.98), rgba(240,210,166,.92)),
+        #fff4de;
+      color: #151a21;
+      box-shadow: 22px 22px 0 rgba(0,0,0,.42), -10px 10px 0 rgba(67,231,172,.20), 0 42px 110px rgba(0,0,0,.34);
+      overflow: hidden;
+      transform: rotate(1.5deg);
+    }
+    .poster-board::before {
+      content: "";
+      position: absolute;
+      top: -18px;
+      left: 32%;
+      width: 160px;
+      height: 42px;
+      background: rgba(246,180,95,.74);
+      border: 1px solid rgba(21,26,33,.15);
+      transform: rotate(-3deg);
+      box-shadow: 0 10px 24px rgba(0,0,0,.12);
+      pointer-events: none;
+    }
+    .poster-board::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(21,26,33,.055) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(21,26,33,.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+      opacity: .65;
+      pointer-events: none;
+    }
+    .poster-board > * { position: relative; z-index: 1; }
+    .poster-frame {
+      position: absolute;
+      inset: 22px;
+      z-index: 0;
+      border: 2px solid rgba(21,26,33,.18);
+      border-radius: 24px 12px 30px 18px;
+      pointer-events: none;
+    }
+    .poster-label {
+      width: fit-content;
+      padding: 8px 10px;
+      color: #fff4de;
+      background: #151a21;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 950;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      box-shadow: 7px 7px 0 rgba(216,41,47,.82);
+    }
+    .poster-board h2 {
+      max-width: 430px;
+      margin: 44px 0 28px;
+      color: #151a21;
+      font-size: clamp(2.45rem, 4.2vw, 4.35rem);
+      line-height: .9;
+      text-shadow: none;
+    }
+    .poster-lines {
+      display: grid;
+      gap: 12px;
+    }
+    .poster-line {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding-top: 14px;
+      border-top: 2px solid rgba(21,26,33,.18);
+    }
+    .poster-line b {
+      font-size: 1.35rem;
+      line-height: 1;
+      color: #151a21;
+    }
+    .poster-line span {
+      color: rgba(21,26,33,.76);
+      font-weight: 800;
+      line-height: 1.32;
+    }
+    .poster-stamp {
+      justify-self: end;
+      width: 116px;
+      height: 116px;
+      display: grid;
+      place-items: center;
+      border: 2px solid #151a21;
+      border-radius: 50%;
+      color: #151a21;
+      font-weight: 950;
+      text-align: center;
+      line-height: 1;
+      transform: rotate(-10deg);
+    }
+    .poster-note {
+      position: absolute;
+      right: -4px;
+      top: 118px;
+      z-index: 2;
+      max-width: 158px;
+      padding: 14px 14px 16px;
+      color: #fff4de;
+      background: #d8292f;
+      border: 2px solid rgba(21,26,33,.22);
+      border-radius: 22px 14px 26px 16px;
+      box-shadow: 10px 10px 0 rgba(0,0,0,.20);
+      font-weight: 950;
+      line-height: 1.05;
+      transform: rotate(5deg);
+    }
+    .poster-note small {
+      display: block;
+      margin-top: 8px;
+      color: rgba(255,244,222,.78);
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
     }
     .holo-stage {
       position: relative;
@@ -501,6 +736,16 @@ function shell({ title, description, active = "/", body }) {
       overflow-wrap: anywhere;
       text-wrap: balance;
       text-shadow: 0 18px 70px rgba(0,0,0,.62);
+    }
+    .hero-home h1 {
+      font-size: clamp(3.3rem, 6.3vw, 5.9rem);
+      line-height: .88;
+      max-width: 790px;
+      text-shadow: 8px 8px 0 rgba(0,0,0,.22), 0 22px 80px rgba(0,0,0,.54);
+    }
+    .route-home .lead {
+      max-width: 710px;
+      font-size: clamp(1.15rem, 1.8vw, 1.42rem);
     }
     h2 {
       font-size: clamp(2rem, 4.5vw, 4rem);
@@ -723,6 +968,140 @@ function shell({ title, description, active = "/", body }) {
       transition: transform .18s ease;
     }
     .offer-card:hover .offer-link::after { transform: translateX(4px); }
+    .situation-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .situation-card {
+      position: relative;
+      min-height: 310px;
+      display: grid;
+      align-content: start;
+      padding: 26px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(246,180,95,.16), transparent 42%),
+        linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.035));
+      color: var(--ink);
+      text-decoration: none;
+      overflow: hidden;
+      box-shadow: 0 26px 72px rgba(0,0,0,.24);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .situation-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(246,180,95,.42);
+      background:
+        radial-gradient(circle at 18% 0%, rgba(246,180,95,.23), transparent 42%),
+        linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+    }
+    .route-home .situation-card,
+    .route-home .plain-step,
+    .route-home .reassurance-card,
+    .route-home .example-card,
+    .route-home .myth-card {
+      border-radius: 0;
+      border-color: rgba(246,180,95,.24);
+      background:
+        linear-gradient(135deg, rgba(255,244,222,.10), transparent 44%),
+        rgba(255,255,255,.045);
+      box-shadow: 12px 12px 0 rgba(0,0,0,.24);
+    }
+    .route-home .situation-card:nth-child(2),
+    .route-home .example-card:nth-child(2),
+    .route-home .reassurance-card:nth-child(2) {
+      transform: rotate(.45deg);
+    }
+    .route-home .situation-card:nth-child(3),
+    .route-home .example-card:nth-child(3),
+    .route-home .reassurance-card:nth-child(3) {
+      transform: rotate(-.35deg);
+    }
+    .route-home .situation-card:hover {
+      transform: translateY(-8px) rotate(0);
+      box-shadow: 16px 16px 0 rgba(0,0,0,.30);
+    }
+    .situation-number {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--copper-2), #c7752c);
+      color: #130e08;
+      font-weight: 950;
+      margin-bottom: 22px;
+    }
+    .situation-card h3 { font-size: 1.25rem; margin-bottom: 10px; }
+    .situation-card p { color: var(--muted); margin-bottom: 18px; }
+    .situation-card span:last-child {
+      align-self: end;
+      color: var(--copper-2);
+      font-weight: 900;
+    }
+    .plain-steps, .reassurance-grid, .example-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .myth-grid {
+      display: grid;
+      gap: 16px;
+    }
+    .plain-step, .reassurance-card, .example-card, .myth-card {
+      position: relative;
+      padding: 28px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.13);
+      background:
+        linear-gradient(135deg, rgba(67,231,172,.08), transparent 38%),
+        rgba(255,255,255,.055);
+      box-shadow: 0 24px 60px rgba(0,0,0,.22);
+    }
+    .myth-card {
+      display: grid;
+      grid-template-columns: minmax(210px, .42fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+      background:
+        linear-gradient(135deg, rgba(246,180,95,.12), transparent 35%),
+        rgba(255,255,255,.055);
+    }
+    .route-home .myth-card {
+      grid-template-columns: minmax(250px, .38fr) minmax(0, 1fr);
+      background:
+        linear-gradient(90deg, rgba(246,180,95,.16), transparent 38%),
+        rgba(255,244,222,.055);
+    }
+    .myth-card strong {
+      color: var(--copper-2);
+      font-size: .76rem;
+      font-weight: 950;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .myth-card h3 { font-size: 1.32rem; margin-bottom: 0; }
+    .myth-card p { color: var(--muted); margin-bottom: 0; }
+    .plain-steps { counter-reset: step; }
+    .plain-step::before {
+      counter-increment: step;
+      content: counter(step);
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      color: #111;
+      font-weight: 950;
+      background: var(--green);
+    }
+    .plain-step h3, .reassurance-card h3, .example-card h3 { font-size: 1.28rem; margin-bottom: 10px; }
+    .plain-step p, .reassurance-card p, .example-card p { color: var(--muted); margin-bottom: 0; }
     .mockup {
       position: relative;
       border: 1px solid var(--line);
@@ -963,9 +1342,10 @@ function shell({ title, description, active = "/", body }) {
       nav { justify-content: flex-start; }
       .nav-cta, .nav-builder { margin-left: 0; }
       .hero { padding-top: 64px; }
-      .hero-grid, .split, .path-strip, .offer-grid, .decision-grid, .cinema-inner, .list, .faq-grid, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
+      .hero-grid, .split, .path-strip, .offer-grid, .situation-grid, .plain-steps, .reassurance-grid, .example-grid, .myth-card, .decision-grid, .cinema-inner, .list, .faq-grid, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
       .offer-head, .section-header { align-items: flex-start; flex-direction: column; }
       .offer-card { min-height: auto; }
+      .situation-card { min-height: auto; }
       .item { grid-template-columns: 1fr; gap: 10px; }
       .holo-stage { min-height: 500px; }
       .holo-console { position: relative; top: auto; right: auto; margin: 40px auto 0; transform: none; }
@@ -982,15 +1362,22 @@ function shell({ title, description, active = "/", body }) {
       .container { width: min(100%, var(--max)); max-width: var(--max); margin-inline: auto; }
       .hero-grid, .hero-grid > *, h1, .lead { min-width: 0; max-width: 100%; }
       h1 { width: 100%; font-size: clamp(1.95rem, 9vw, 2.28rem); line-height: 1.04; }
+      .hero-home h1 { font-size: clamp(2.35rem, 11vw, 3.15rem); line-height: 1; max-width: 100%; overflow-wrap: normal; word-break: normal; }
+      .route-home .hero-grid { display: block; }
+      .route-home .hero-copy { display: block; min-height: auto; }
+      .route-home .hero-kicker { max-width: 100%; box-shadow: none; }
+      .poster-board { display: none; }
       .lead { width: 100%; font-size: 1.02rem; }
       .hero { min-height: auto; padding-top: 74px; padding-bottom: 70px; }
       .hero > .container:not(.hero-grid) { padding: 24px; border-radius: 16px; }
       .hero-stat-grid { grid-template-columns: 1fr; }
+      .hero-home .hero-stat-grid { display: none; }
+      .hero-home .holo-stage { display: none; }
       .holo-stage { min-height: auto; }
       .orbit-ring, .holo-stage::before { display: none; }
       .actions { width: 100%; max-width: 100%; }
       .btn { width: 100%; max-width: 100%; }
-      .path, .offer-card, .decision-card, .price, .question { padding: 22px; }
+      .path, .offer-card, .situation-card, .plain-step, .reassurance-card, .example-card, .myth-card, .decision-card, .price, .question { padding: 22px; }
       .scene-canvas { opacity: .34; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -1014,7 +1401,7 @@ function shell({ title, description, active = "/", body }) {
   <header class="site-header">
     <div class="nav-wrap">
       <a class="brand" href="/" aria-label="Penny Wise I.T home"><img class="brand-logo" src="/brand/pennywise-it-logo-header.svg" width="980" height="220" alt="Penny Wise I.T"></a>
-      <nav aria-label="Primary navigation">${nav(active)}<a class="nav-builder" href="${builderUrl}">Build AI Website</a><a class="nav-cta" href="${talkUrl}">Talk to Steve</a></nav>
+      <nav aria-label="Primary navigation">${nav(active)}<a class="nav-cta" href="${talkUrl}">Talk to Steve</a></nav>
     </div>
   </header>
   ${body}
@@ -1211,91 +1598,90 @@ function shell({ title, description, active = "/", body }) {
 function home() {
   return shell({
     active: "/",
-    title: "Penny Wise I.T - Websites, Apps, and Automation",
-    description: "AI websites from $9/mo, whitelabel app platforms, and automation tools for Australian small businesses.",
+    title: "Penny Wise I.T - Premium Websites and Business Systems",
+    description: "Premium websites, customer tools, and automation for Australian small businesses that want a clear, guided build without the tech headache.",
     body: `<main>
     <section class="hero hero-home">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <span class="hero-kicker">AI websites + apps + automation systems</span>
-          <h1>Websites and apps<br>for small business.</h1>
-          <p class="lead">Start with a $9/mo AI website, then grow into ordering, field service, delivery, events, and business automation when the business needs more.</p>
+          <span class="hero-kicker">Premium websites + practical business systems</span>
+          <h1>Professional websites and tools without the tech headache.</h1>
+          <p class="lead">Penny Wise I.T helps local businesses launch with a polished website, then add bookings, ordering, forms, follow-ups, or automation only when it clearly helps the business.</p>
           <div class="hero-stat-grid" aria-label="Penny Wise offer highlights">
-            <div class="hero-stat"><b>$9/mo</b><span>AI website entry point</span></div>
-            <div class="hero-stat"><b>8+</b><span>ready app platforms</span></div>
-            <div class="hero-stat"><b>0%</b><span>third-party platform tax</span></div>
+            <div class="hero-stat"><b>Local</b><span>Central QLD business focus</span></div>
+            <div class="hero-stat"><b>Pro</b><span>managed polish available</span></div>
+            <div class="hero-stat"><b>Yours</b><span>brand, domain, customers</span></div>
           </div>
           <div class="actions">
-            <a class="btn btn-primary" href="/ai-websites">Build an AI website</a>
-            <a class="btn btn-secondary" href="/apps">Browse apps</a>
+            <a class="btn btn-primary" href="${builderUrl}">Start my website</a>
+            <a class="btn btn-secondary" href="${talkUrl}">Ask Steve what fits</a>
           </div>
+          <div class="clarity-note"><b>Built for Central QLD small businesses, not anonymous templates.</b><span>Bring the hearsay, doubts, and half-advice you have been given. Steve will help sort what matters, what can wait, and what is worth building properly.</span></div>
         </div>
-        <div class="holo-stage" aria-label="Penny Wise operating system paths">
-          <div class="orbit-ring"></div>
-          <div class="orbit-ring"></div>
-          <span class="floating-chip chip-one">Builder live</span>
-          <span class="floating-chip chip-two">Customer flow</span>
-          <span class="floating-chip chip-three">Automation layer</span>
-          <div class="holo-console">
-            <div class="console-top"><span>Penny Wise command centre</span><span>Live paths</span></div>
-            <div class="console-card"><div class="console-icon">AI</div><div><b>AI Website</b><span>Budget buyer to live site</span></div><em class="console-status">Ready</em></div>
-            <div class="console-card"><div class="console-icon">AP</div><div><b>App Platform</b><span>Ordering, bookings, delivery, field work</span></div><em class="console-status">Scale</em></div>
-            <div class="console-card"><div class="console-icon">AU</div><div><b>Automation</b><span>Repeat admin handled in the background</span></div><em class="console-status">Flow</em></div>
+        <div class="poster-board" aria-label="Penny Wise premium website poster">
+          <span class="poster-frame" aria-hidden="true"></span>
+          <span class="poster-label">Central QLD buying reality</span>
+          <span class="poster-note">Customers check before they call.<small>Give them somewhere solid</small></span>
+          <h2>People do not just find you. They compare you.</h2>
+          <div class="poster-lines">
+            <div class="poster-line"><b>01</b><span>Facebook keeps warm customers updated. Your website helps strangers understand why they should trust you.</span></div>
+            <div class="poster-line"><b>02</b><span>Google can surface the business. Your website gives the proof, menu, services, answers, and next step.</span></div>
+            <div class="poster-line"><b>03</b><span>Premium means the customer journey feels considered before anyone spends money or picks up the phone.</span></div>
           </div>
+          <div class="poster-stamp">Control the first impression</div>
         </div>
       </div>
     </section>
     <section>
       <div class="container">
         <div class="offer-head">
-          <h2>Pick the service that fits where you are now.</h2>
-          <p>Start small, prove the idea, then move into the apps and automation that actually save time or make money.</p>
+          <h2>Choose the starting point that sounds like you.</h2>
+          <p>One clear decision first. The product names can come later.</p>
         </div>
-        <div class="offer-grid">
-          <a class="offer-card" href="/ai-websites">
-            <div class="offer-top"><span class="offer-kicker">AI Websites</span><span class="offer-icon">$9</span></div>
-            <h3>Get a clean site online without a big project.</h3>
-            <p>Build a free draft, preview it first, then publish from $9/mo when it is ready to be seen.</p>
-            <div class="offer-meta"><span>Free draft</span><span>Fast publish</span><span>Upgrade later</span></div>
-            <span class="offer-link">Build an AI website</span>
-          </a>
-          <a class="offer-card" href="/apps">
-            <div class="offer-top"><span class="offer-kicker">Whitelabel Apps</span><span class="offer-icon">APP</span></div>
-            <h3>Give customers a branded way to order, book, or request work.</h3>
-            <p>Practical platforms for food, trades, delivery, hire, events, clubs, and local operators.</p>
-            <div class="offer-meta"><span>Your brand</span><span>Your domain</span><span>Admin tools</span></div>
-            <span class="offer-link">Browse app paths</span>
-          </a>
-          <a class="offer-card" href="/tools">
-            <div class="offer-top"><span class="offer-kicker">Self-Serve Tools</span><span class="offer-icon">AI</span></div>
-            <h3>Use focused tools for the jobs owners keep putting off.</h3>
-            <p>Social content, ordering, forecasting, HACCP logs, and website polish without starting from scratch.</p>
-            <div class="offer-meta"><span>Simple SaaS</span><span>Local support</span><span>No bloat</span></div>
-            <span class="offer-link">See the tools</span>
-          </a>
+        <div class="situation-grid">
+          ${situations.map(([title, heading, text, cta, href], index) => `<a class="situation-card" href="${href}"><span class="situation-number">0${index + 1}</span><h3>${title}</h3><p><b>${heading}</b></p><p>${text}</p><span>${cta}</span></a>`).join("")}
         </div>
       </div>
     </section>
     <section class="quiet-band">
       <div class="container split">
-        <div><h2>Clear offer. No platform tax. No confusing stack.</h2><p class="section-lead">The site now points buyers to the right first step instead of making them decode a catalogue. Budget website buyers, app buyers, and automation buyers each get their own path.</p></div>
-        <div class="list">
-          ${tools.slice(0, 3).map(([name, label, text]) => `<div class="item"><b>${name}</b><p>${label}. ${text}</p></div>`).join("")}
+        <div><span class="scene-label">How it works</span><h2>Simple steps. No tech lecture.</h2><p class="section-lead">A premium build should feel calm and guided. The first job is to understand the business, not bury you in product names.</p></div>
+        <div class="plain-steps">
+          ${howItWorks.map(([title, text]) => `<article class="plain-step"><h3>${title}</h3><p>${text}</p></article>`).join("")}
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="container">
+        <div class="section-header"><h2>Built for real business jobs.</h2><p>Use the website as the polished front door. Add the serious parts when customers need to do something.</p></div>
+        <div class="example-grid">
+          ${examples.map(([title, text]) => `<article class="example-card"><h3>${title}</h3><p>${text}</p></article>`).join("")}
+        </div>
+      </div>
+    </section>
+    <section class="quiet-band">
+      <div class="container">
+        <div class="section-header">
+          <h2>Worth knowing before you rely on Facebook, Google, or Shopify alone.</h2>
+          <p>Those platforms can all help. Your own website gives Central QLD customers one clear place to understand the business, trust it, and take the next step.</p>
+        </div>
+        <div class="myth-grid">
+          ${myths.map(([title, text]) => `<article class="myth-card"><div><strong>Worth knowing</strong><h3>${title}</h3></div><p>${text}</p></article>`).join("")}
         </div>
       </div>
     </section>
     <section class="cinema-band">
-      <div class="container cinema-inner">
-        <div>
-          <span class="scene-label">Decision engine</span>
-          <h2>Turn “I need a website” into the right next system.</h2>
-          <p class="section-lead">This is the sales bridge: small website buyers, app buyers, and automation buyers get separated quickly instead of being pushed into one confusing pitch.</p>
+      <div class="container">
+        <div class="section-header">
+          <h2>Premium means clear advice, not unnecessary complexity.</h2>
+          <p>Start with the right level of build. Add more only when it earns its place.</p>
         </div>
-        <div class="decision-grid">
-          ${decisions.map(([problem, path, text], index) => `<article class="decision-card" data-index="0${index + 1}"><strong>${problem}</strong><h3>${path}</h3><p>${text}</p></article>`).join("")}
+        <div class="reassurance-grid">
+          ${reassurance.map(([title, text]) => `<article class="reassurance-card"><h3>${title}</h3><p>${text}</p></article>`).join("")}
         </div>
       </div>
     </section>
+    ${ctaBand({ title: "Start with a professional first step.", text: "Build a guided website draft, or talk to Steve about what is worth building before you spend more.", primary: "Start my website", secondary: "Ask Steve what fits", primaryHref: builderUrl, secondaryHref: talkUrl })}
   </main>`,
   });
 }
