@@ -163,9 +163,10 @@ function shell({ title, description, active = "/", body }) {
     }
     body.route-home {
       background:
-        radial-gradient(circle at 12% 10%, rgba(246,180,95,.24), transparent 26%),
-        radial-gradient(circle at 88% 22%, rgba(67,231,172,.13), transparent 26%),
-        linear-gradient(135deg, #0a0b0d 0%, #17100d 46%, #06140f 100%);
+        radial-gradient(circle at 9% 8%, rgba(246,180,95,.34), transparent 27%),
+        radial-gradient(circle at 76% 14%, rgba(255,244,222,.13), transparent 22%),
+        radial-gradient(circle at 86% 42%, rgba(67,231,172,.18), transparent 26%),
+        linear-gradient(135deg, #080706 0%, #21170f 44%, #04130e 100%);
     }
     a { color: inherit; }
     a:focus-visible, .btn:focus-visible, nav a:focus-visible {
@@ -181,7 +182,7 @@ function shell({ title, description, active = "/", body }) {
       opacity: .78;
       pointer-events: none;
     }
-    .route-home .scene-canvas { opacity: .08; filter: saturate(.45) contrast(.75); }
+    .route-home .scene-canvas { opacity: .22; filter: saturate(.95) contrast(1.05); }
     .ambient {
       position: fixed;
       inset: 0;
@@ -209,9 +210,11 @@ function shell({ title, description, active = "/", body }) {
       position: sticky;
       top: 0;
       z-index: 40;
-      background: rgba(5,7,11,.70);
-      border-bottom: 1px solid var(--line);
-      backdrop-filter: blur(22px) saturate(1.25);
+      background:
+        linear-gradient(180deg, rgba(12,13,16,.92), rgba(5,7,11,.72)),
+        rgba(5,7,11,.70);
+      border-bottom: 1px solid rgba(246,180,95,.16);
+      backdrop-filter: blur(24px) saturate(1.35);
       will-change: background-color, box-shadow, border-color;
       transition: background-color .22s ease, box-shadow .22s ease, border-color .22s ease;
     }
@@ -231,25 +234,44 @@ function shell({ title, description, active = "/", body }) {
       gap: 28px;
     }
     .brand {
+      position: relative;
       display: inline-flex;
       align-items: center;
       gap: 14px;
       padding: 8px 12px 8px 9px;
-      border: 1px solid rgba(246,180,95,.34);
+      border: 1px solid rgba(246,180,95,.52);
       border-radius: 999px;
-      background: linear-gradient(135deg, rgba(255,249,239,.98), rgba(255,231,194,.88));
-      box-shadow: 0 16px 42px rgba(0,0,0,.22), 0 0 0 1px rgba(255,255,255,.05) inset;
+      background:
+        linear-gradient(115deg, rgba(255,255,255,.72), transparent 28% 62%, rgba(255,255,255,.22)),
+        radial-gradient(circle at 16% 22%, rgba(255,255,255,.94), transparent 24%),
+        linear-gradient(135deg, rgba(255,247,232,.98), rgba(235,190,126,.94));
+      box-shadow:
+        0 22px 54px rgba(0,0,0,.32),
+        0 0 0 1px rgba(255,255,255,.18) inset,
+        0 -18px 34px rgba(112,64,24,.14) inset;
       text-decoration: none;
       font-weight: 850;
       letter-spacing: 0;
       white-space: nowrap;
       transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+      overflow: hidden;
+    }
+    .brand::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(105deg, transparent 0 34%, rgba(255,255,255,.58) 43%, transparent 54% 100%);
+      transform: translateX(-120%);
+      transition: transform .7s ease;
+      pointer-events: none;
     }
     .brand:hover {
       transform: translateY(-1px);
       border-color: rgba(246,180,95,.68);
       box-shadow: 0 18px 46px rgba(212,135,57,.20), 0 0 0 1px rgba(255,255,255,.08) inset;
     }
+    .brand:hover::after { transform: translateX(120%); }
     .brand-logo {
       width: clamp(180px, 18vw, 245px);
       height: auto;
@@ -353,16 +375,18 @@ function shell({ title, description, active = "/", body }) {
     .route-home .hero-home {
       min-height: clamp(720px, calc(100vh - 82px), 880px);
       background:
-        radial-gradient(circle at 38% 54%, rgba(212,135,57,.16), transparent 34%),
-        radial-gradient(ellipse at 14% 68%, rgba(67,231,172,.16), transparent 30%),
-        radial-gradient(ellipse at 78% 20%, rgba(246,180,95,.22), transparent 34%);
+        radial-gradient(circle at 36% 46%, rgba(255,244,222,.11), transparent 22%),
+        radial-gradient(circle at 69% 45%, rgba(246,180,95,.24), transparent 28%),
+        radial-gradient(ellipse at 14% 68%, rgba(67,231,172,.18), transparent 30%),
+        radial-gradient(ellipse at 78% 20%, rgba(246,180,95,.24), transparent 34%);
     }
     .route-home .hero-home::before {
       content: "";
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(110deg, rgba(246,180,95,.12), transparent 24%),
+        linear-gradient(110deg, rgba(246,180,95,.18), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.035), transparent 26%),
         radial-gradient(ellipse at 18% 24%, rgba(255,244,222,.08), transparent 30%),
         radial-gradient(ellipse at 72% 72%, rgba(67,231,172,.07), transparent 28%);
       opacity: .9;
@@ -565,9 +589,13 @@ function shell({ title, description, active = "/", body }) {
     }
     .route-home .hero-kicker {
       border-radius: 999px;
-      border-color: rgba(246,180,95,.48);
-      background: rgba(246,180,95,.13);
-      box-shadow: 0 16px 34px rgba(0,0,0,.18);
+      border-color: rgba(246,180,95,.62);
+      background:
+        linear-gradient(120deg, rgba(255,244,222,.10), rgba(246,180,95,.18)),
+        rgba(246,180,95,.13);
+      box-shadow:
+        0 20px 44px rgba(0,0,0,.24),
+        0 0 24px rgba(246,180,95,.10) inset;
       transform: rotate(-1.2deg);
     }
     .route-home .hero-kicker::before {
@@ -589,9 +617,13 @@ function shell({ title, description, active = "/", body }) {
     }
     .route-home .hero-stat {
       border-radius: 999px;
-      border-color: rgba(255,244,222,.18);
-      background: linear-gradient(135deg, rgba(255,244,222,.09), rgba(255,255,255,.025));
-      box-shadow: 0 18px 48px rgba(0,0,0,.18);
+      border-color: rgba(255,244,222,.26);
+      background:
+        linear-gradient(125deg, rgba(255,255,255,.12), rgba(255,255,255,.035)),
+        rgba(255,244,222,.035);
+      box-shadow:
+        0 22px 54px rgba(0,0,0,.24),
+        0 1px 0 rgba(255,255,255,.16) inset;
     }
     .hero-stat b {
       display: block;
@@ -633,14 +665,21 @@ function shell({ title, description, active = "/", body }) {
       padding: 34px;
       display: grid;
       align-content: space-between;
-      border: 2px solid rgba(21,26,33,.18);
+      border: 1px solid rgba(255,244,222,.54);
       border-radius: 32px 18px 38px 24px;
       background:
+        radial-gradient(circle at 14% 9%, rgba(255,255,255,.95), transparent 18%),
         radial-gradient(circle at 88% 8%, rgba(216,41,47,.16), transparent 18%),
-        linear-gradient(135deg, rgba(255,244,222,.98), rgba(240,210,166,.92)),
+        linear-gradient(112deg, rgba(255,255,255,.34), transparent 22% 58%, rgba(255,255,255,.16)),
+        linear-gradient(135deg, rgba(255,246,225,.99), rgba(238,204,157,.95)),
         #fff4de;
       color: #151a21;
-      box-shadow: 22px 22px 0 rgba(0,0,0,.42), -10px 10px 0 rgba(67,231,172,.20), 0 42px 110px rgba(0,0,0,.34);
+      box-shadow:
+        30px 28px 0 rgba(0,0,0,.46),
+        -13px 12px 0 rgba(67,231,172,.26),
+        0 50px 130px rgba(0,0,0,.46),
+        0 1px 0 rgba(255,255,255,.82) inset,
+        0 -42px 70px rgba(167,104,38,.16) inset;
       overflow: hidden;
       transform: rotate(1.5deg);
     }
@@ -651,7 +690,9 @@ function shell({ title, description, active = "/", body }) {
       left: 32%;
       width: 160px;
       height: 42px;
-      background: rgba(246,180,95,.74);
+      background:
+        linear-gradient(115deg, rgba(255,255,255,.38), transparent 46%),
+        rgba(246,180,95,.78);
       border: 1px solid rgba(21,26,33,.15);
       transform: rotate(-3deg);
       box-shadow: 0 10px 24px rgba(0,0,0,.12);
@@ -662,10 +703,11 @@ function shell({ title, description, active = "/", body }) {
       position: absolute;
       inset: 0;
       background:
+        linear-gradient(110deg, transparent 0 18%, rgba(255,255,255,.38) 26%, transparent 36% 100%),
         linear-gradient(90deg, rgba(21,26,33,.055) 1px, transparent 1px),
         linear-gradient(180deg, rgba(21,26,33,.05) 1px, transparent 1px);
-      background-size: 24px 24px;
-      opacity: .65;
+      background-size: auto, 24px 24px, 24px 24px;
+      opacity: .74;
       pointer-events: none;
     }
     .poster-board > * { position: relative; z-index: 1; }
@@ -681,13 +723,15 @@ function shell({ title, description, active = "/", body }) {
       width: fit-content;
       padding: 8px 10px;
       color: #fff4de;
-      background: #151a21;
+      background: linear-gradient(135deg, #202832, #0f141b);
       border-radius: 999px;
       font-size: .78rem;
       font-weight: 950;
       letter-spacing: .12em;
       text-transform: uppercase;
-      box-shadow: 7px 7px 0 rgba(216,41,47,.82);
+      box-shadow:
+        8px 8px 0 rgba(216,41,47,.82),
+        0 14px 24px rgba(0,0,0,.20);
     }
     .poster-board h2 {
       max-width: 430px;
@@ -741,10 +785,14 @@ function shell({ title, description, active = "/", body }) {
       max-width: 158px;
       padding: 14px 14px 16px;
       color: #fff4de;
-      background: #d8292f;
+      background:
+        linear-gradient(135deg, #ff474d, #b9141b);
       border: 2px solid rgba(21,26,33,.22);
       border-radius: 22px 14px 26px 16px;
-      box-shadow: 10px 10px 0 rgba(0,0,0,.20);
+      box-shadow:
+        0 22px 42px rgba(0,0,0,.30),
+        10px 10px 0 rgba(0,0,0,.20),
+        0 1px 0 rgba(255,255,255,.34) inset;
       font-weight: 950;
       line-height: 1.05;
       transform: rotate(5deg);
@@ -888,11 +936,17 @@ function shell({ title, description, active = "/", body }) {
       font-size: clamp(3.3rem, 6.3vw, 5.9rem);
       line-height: .88;
       max-width: 790px;
-      text-shadow: 8px 8px 0 rgba(0,0,0,.22), 0 22px 80px rgba(0,0,0,.54);
+      text-shadow:
+        1px 1px 0 rgba(255,255,255,.10),
+        9px 10px 0 rgba(0,0,0,.28),
+        0 28px 90px rgba(0,0,0,.62),
+        0 0 34px rgba(246,180,95,.10);
     }
     .route-home .lead {
       max-width: 710px;
       font-size: clamp(1.15rem, 1.8vw, 1.42rem);
+      color: rgba(223,231,245,.88);
+      text-shadow: 0 12px 42px rgba(0,0,0,.55);
     }
     h2 {
       font-size: clamp(2rem, 4.5vw, 4rem);
@@ -917,6 +971,7 @@ function shell({ title, description, active = "/", body }) {
     }
     .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
     .btn {
+      position: relative;
       display: inline-flex;
       min-height: 48px;
       align-items: center;
@@ -931,15 +986,37 @@ function shell({ title, description, active = "/", body }) {
       line-height: 1;
       transform: translateZ(0);
       transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 0 34%, rgba(255,255,255,.44) 45%, transparent 56% 100%);
+      transform: translateX(-130%);
+      transition: transform .65s ease;
+      pointer-events: none;
     }
     .btn-primary {
       border: 0;
       color: #17100a;
-      background: linear-gradient(135deg, var(--copper-2), #b86e27);
-      box-shadow: 0 14px 34px rgba(212,135,57,.24);
+      background:
+        radial-gradient(circle at 24% 20%, rgba(255,255,255,.46), transparent 22%),
+        linear-gradient(135deg, var(--copper-2), #b86e27);
+      box-shadow:
+        0 18px 42px rgba(212,135,57,.30),
+        0 1px 0 rgba(255,255,255,.30) inset,
+        0 -16px 24px rgba(112,64,24,.16) inset;
     }
-    .btn-secondary { background: rgba(255,255,255,.07); color: var(--ink); }
+    .btn-secondary {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.11), rgba(255,255,255,.035));
+      color: var(--ink);
+      box-shadow: 0 18px 42px rgba(0,0,0,.18), 0 1px 0 rgba(255,255,255,.10) inset;
+      backdrop-filter: blur(14px);
+    }
     .btn:hover { transform: translateY(-2px); border-color: rgba(246,180,95,.46); }
+    .btn:hover::after { transform: translateX(130%); }
     .btn-primary:hover { box-shadow: 0 20px 42px rgba(212,135,57,.34); }
     .path-strip {
       display: grid;
@@ -1660,7 +1737,16 @@ function shell({ title, description, active = "/", body }) {
       .container { width: min(100%, var(--max)); max-width: var(--max); margin-inline: auto; }
       .hero-grid, .hero-grid > *, h1, .lead { min-width: 0; max-width: 100%; }
       h1 { width: 100%; font-size: clamp(1.95rem, 9vw, 2.28rem); line-height: 1.04; }
-      .hero-home h1 { font-size: clamp(2.35rem, 11vw, 3.15rem); line-height: 1; max-width: 100%; overflow-wrap: normal; word-break: normal; }
+      .hero-home h1 {
+        font-size: clamp(2.35rem, 11vw, 3.15rem);
+        line-height: 1;
+        max-width: 100%;
+        overflow-wrap: normal;
+        word-break: normal;
+        text-shadow:
+          0 8px 28px rgba(0,0,0,.58),
+          0 1px 0 rgba(255,255,255,.08);
+      }
       .route-home .hero-grid { display: block; }
       .route-home .hero-copy { display: block; min-height: auto; }
       .route-home .hero-kicker { max-width: 100%; box-shadow: none; }
@@ -1796,23 +1882,23 @@ function shell({ title, description, active = "/", body }) {
       var geometry = new THREE.IcosahedronGeometry(1, 3);
       var material = new THREE.MeshStandardMaterial({
         color: 0xf0a64f,
-        roughness: .42,
-        metalness: .18,
+        roughness: .28,
+        metalness: .46,
         transparent: true,
-        opacity: .34,
+        opacity: .40,
         wireframe: true
       });
       var core = new THREE.Mesh(geometry, material);
-      core.scale.set(2.85, 2.85, 2.85);
-      core.position.set(3.95, 1.05, -1.2);
+      core.scale.set(3.15, 3.15, 3.15);
+      core.position.set(4.35, 1.02, -1.35);
       group.add(core);
 
-      var ringMaterial = new THREE.MeshBasicMaterial({ color: 0xf6b45f, transparent: true, opacity: .18, wireframe: true });
-      var ringOne = new THREE.Mesh(new THREE.TorusGeometry(3.35, .012, 10, 140), ringMaterial);
+      var ringMaterial = new THREE.MeshBasicMaterial({ color: 0xf6b45f, transparent: true, opacity: .30, wireframe: true });
+      var ringOne = new THREE.Mesh(new THREE.TorusGeometry(3.58, .014, 10, 160), ringMaterial);
       ringOne.position.copy(core.position);
       ringOne.rotation.set(1.28, .18, -.62);
       group.add(ringOne);
-      var ringTwo = new THREE.Mesh(new THREE.TorusGeometry(2.55, .01, 10, 120), new THREE.MeshBasicMaterial({ color: 0x8fc5ff, transparent: true, opacity: .16, wireframe: true }));
+      var ringTwo = new THREE.Mesh(new THREE.TorusGeometry(2.76, .012, 10, 140), new THREE.MeshBasicMaterial({ color: 0x8fc5ff, transparent: true, opacity: .22, wireframe: true }));
       ringTwo.position.copy(core.position);
       ringTwo.rotation.set(1.05, -.45, .35);
       group.add(ringTwo);
@@ -1825,10 +1911,10 @@ function shell({ title, description, active = "/", body }) {
         -1.4, -.2, -7.2, 3.7, 1.1, -1.2
       ]);
       beamGeometry.setAttribute("position", new THREE.BufferAttribute(beamPositions, 3));
-      var beams = new THREE.LineSegments(beamGeometry, new THREE.LineBasicMaterial({ color: 0x43e7ac, transparent: true, opacity: .20 }));
+      var beams = new THREE.LineSegments(beamGeometry, new THREE.LineBasicMaterial({ color: 0x43e7ac, transparent: true, opacity: .28 }));
       group.add(beams);
 
-      var smallMaterial = new THREE.MeshStandardMaterial({ color: 0x8fc5ff, roughness: .55, metalness: .12, transparent: true, opacity: .22, wireframe: true });
+      var smallMaterial = new THREE.MeshStandardMaterial({ color: 0x8fc5ff, roughness: .38, metalness: .22, transparent: true, opacity: .28, wireframe: true });
       for (var i = 0; i < 26; i += 1) {
         var mesh = new THREE.Mesh(new THREE.TetrahedronGeometry(.18 + Math.random() * .32, 0), smallMaterial);
         mesh.position.set((Math.random() - .5) * 12, (Math.random() - .5) * 7, -2 - Math.random() * 9);
@@ -1845,17 +1931,20 @@ function shell({ title, description, active = "/", body }) {
         positions[p * 3 + 2] = -Math.random() * 13;
       }
       particles.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-      var particleMaterial = new THREE.PointsMaterial({ color: 0xf6b45f, size: .025, transparent: true, opacity: .62 });
+      var particleMaterial = new THREE.PointsMaterial({ color: 0xf6b45f, size: .028, transparent: true, opacity: .72 });
       var points = new THREE.Points(particles, particleMaterial);
       scene.add(points);
 
-      scene.add(new THREE.AmbientLight(0xffffff, .8));
-      var key = new THREE.DirectionalLight(0xf6b45f, 1.4);
+      scene.add(new THREE.AmbientLight(0xfff4de, .62));
+      var key = new THREE.DirectionalLight(0xf6b45f, 2.1);
       key.position.set(5, 3, 4);
       scene.add(key);
-      var fill = new THREE.DirectionalLight(0x8fc5ff, .8);
+      var fill = new THREE.DirectionalLight(0x8fc5ff, .95);
       fill.position.set(-4, -2, 3);
       scene.add(fill);
+      var rim = new THREE.PointLight(0xffffff, 1.2, 18);
+      rim.position.set(2.8, 2.2, 3.6);
+      scene.add(rim);
 
       var mouseX = 0;
       var mouseY = 0;
