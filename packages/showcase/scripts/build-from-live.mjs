@@ -1226,12 +1226,30 @@ function shell({ title, description, active = "/", body }) {
     .route-home .reassurance-card,
     .route-home .example-card,
     .route-home .myth-card {
-      border-radius: 0;
-      border-color: rgba(246,180,95,.24);
+      border-radius: 28px 18px 34px 22px;
+      border-color: rgba(246,180,95,.28);
       background:
-        linear-gradient(135deg, rgba(255,244,222,.10), transparent 44%),
+        radial-gradient(circle at 18% 0%, rgba(255,244,222,.18), transparent 35%),
+        linear-gradient(135deg, rgba(255,244,222,.12), transparent 44%),
+        linear-gradient(150deg, rgba(255,255,255,.10), rgba(255,255,255,.025)),
         rgba(255,255,255,.045);
-      box-shadow: 12px 12px 0 rgba(0,0,0,.24);
+      box-shadow:
+        0 34px 92px rgba(0,0,0,.30),
+        0 1px 0 rgba(255,255,255,.13) inset,
+        0 -26px 48px rgba(0,0,0,.12) inset;
+      overflow: hidden;
+    }
+    .route-home .situation-card::before,
+    .route-home .plain-step::after,
+    .route-home .reassurance-card::before,
+    .route-home .example-card::before,
+    .route-home .myth-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 0 26%, rgba(255,255,255,.16) 37%, transparent 50% 100%);
+      opacity: .58;
+      pointer-events: none;
     }
     .route-home .situation-card:nth-child(2),
     .route-home .example-card:nth-child(2),
@@ -1245,7 +1263,9 @@ function shell({ title, description, active = "/", body }) {
     }
     .route-home .situation-card:hover {
       transform: translateY(-8px) rotate(0);
-      box-shadow: 16px 16px 0 rgba(0,0,0,.30);
+      box-shadow:
+        0 42px 110px rgba(0,0,0,.38),
+        0 0 0 1px rgba(246,180,95,.16) inset;
     }
     .situation-number {
       width: 38px;
@@ -1296,6 +1316,7 @@ function shell({ title, description, active = "/", body }) {
     .route-home .myth-card {
       grid-template-columns: minmax(250px, .38fr) minmax(0, 1fr);
       background:
+        radial-gradient(circle at 0% 0%, rgba(216,41,47,.16), transparent 26%),
         linear-gradient(90deg, rgba(246,180,95,.16), transparent 38%),
         rgba(255,244,222,.055);
     }
@@ -1695,9 +1716,14 @@ function shell({ title, description, active = "/", body }) {
     .cta-band {
       padding-top: 54px;
       padding-bottom: 54px;
-      background: linear-gradient(135deg, rgba(212,135,57,.18), rgba(135,183,255,.09));
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255,244,222,.13), transparent 22%),
+        linear-gradient(135deg, rgba(212,135,57,.23), rgba(67,231,172,.08) 52%, rgba(135,183,255,.10));
+      border-top: 1px solid rgba(246,180,95,.22);
+      border-bottom: 1px solid rgba(246,180,95,.18);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,.08) inset,
+        0 -42px 90px rgba(0,0,0,.16) inset;
     }
     .cta-inner {
       display: grid;
