@@ -6,6 +6,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = dirname(scriptDir);
 const dist = join(root, "dist");
 const brandDir = join(root, "assets", "brand");
+const visualsDir = join(root, "assets", "visuals");
 
 const builderUrl = "https://builder.pennywiseit.com.au/sign-up";
 const talkUrl = "mailto:steve@pennywiseit.com.au?subject=Penny%20Wise%20I.T%20website%20enquiry";
@@ -1983,9 +1984,9 @@ function shell({ title, description, active = "/", body }) {
       box-shadow: none;
     }
     .route-home .hero-home {
-      min-height: 1120px;
-      padding-top: 210px;
-      padding-bottom: 120px;
+      min-height: 960px;
+      padding-top: 180px;
+      padding-bottom: 110px;
       background: #344f5c;
     }
     .route-home .hero-home::before {
@@ -1997,18 +1998,85 @@ function shell({ title, description, active = "/", body }) {
       display: none;
     }
     .route-home .hero-grid {
-      display: block;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(420px, .82fr);
+      align-items: center;
+      gap: clamp(44px, 6vw, 96px);
       max-width: min(1368px, calc(100vw - 72px));
     }
     .route-home .hero-copy {
-      min-height: 780px;
-      max-width: 940px;
+      min-height: 620px;
+      max-width: 830px;
       padding-left: 0;
       display: grid;
       align-content: end;
     }
     .route-home .poster-board {
-      display: none;
+      display: block;
+      position: relative;
+      min-height: 0;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      border-radius: 42px;
+      background: transparent;
+      box-shadow: none;
+      transform: rotate(2deg);
+      overflow: visible;
+      isolation: isolate;
+    }
+    .route-home .poster-board::before {
+      content: "";
+      position: absolute;
+      inset: 8% -4% -5% 7%;
+      border-radius: 44px;
+      background: rgba(7,18,24,.26);
+      filter: blur(18px);
+      z-index: -1;
+      transform: rotate(-3deg);
+    }
+    .route-home .poster-board::after {
+      content: "";
+      position: absolute;
+      inset: -14px;
+      border: 1px solid rgba(247,251,248,.20);
+      border-radius: 52px;
+      transform: rotate(-2deg);
+      z-index: -2;
+    }
+    .route-home .hero-visual-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 42px;
+      box-shadow: 0 36px 90px rgba(7,18,24,.32);
+    }
+    .route-home .hero-visual-caption {
+      position: absolute;
+      left: -34px;
+      bottom: 46px;
+      max-width: 270px;
+      padding: 18px 20px;
+      border: 1px solid rgba(247,251,248,.28);
+      border-radius: 26px;
+      color: #f7fbf8;
+      background: rgba(24,52,62,.78);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 24px 60px rgba(7,18,24,.26);
+      transform: rotate(-2deg);
+    }
+    .route-home .hero-visual-caption b {
+      display: block;
+      margin-bottom: 6px;
+      font-size: .82rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+    .route-home .hero-visual-caption span {
+      display: block;
+      color: rgba(247,251,248,.76);
+      font-size: .92rem;
+      line-height: 1.35;
     }
     .route-home .hero-kicker {
       color: #f7fbf8;
@@ -2023,9 +2091,9 @@ function shell({ title, description, active = "/", body }) {
       box-shadow: none;
     }
     .route-home .hero-home h1 {
-      max-width: 940px;
-      font-size: clamp(4.8rem, 10vw, 9.6rem);
-      line-height: .86;
+      max-width: 850px;
+      font-size: clamp(4rem, 5.9vw, 6.55rem);
+      line-height: .88;
       text-shadow: none;
     }
     .route-home .lead {
@@ -2059,6 +2127,17 @@ function shell({ title, description, active = "/", body }) {
     .route-home .hero-stat span {
       color: rgba(247,251,248,.72);
       font-size: .82rem;
+    }
+    .route-home .wide-proof-image {
+      margin: 54px 0 0;
+      border-radius: 42px;
+      overflow: hidden;
+      box-shadow: 0 32px 90px rgba(24,52,62,.16);
+    }
+    .route-home .wide-proof-image img {
+      display: block;
+      width: 100%;
+      height: auto;
     }
     .route-home .hero-home .actions { margin-top: 28px; }
     .route-home .btn {
@@ -2255,6 +2334,26 @@ function shell({ title, description, active = "/", body }) {
       .route-home .hero-grid { display: block; }
       .route-home .hero-copy { display: block; min-height: auto; }
       .route-home .hero-kicker { max-width: 100%; box-shadow: none; }
+      .route-home .poster-board {
+        display: block;
+        margin-top: 44px;
+        transform: none;
+      }
+      .route-home .poster-board::before,
+      .route-home .poster-board::after {
+        display: none;
+      }
+      .route-home .hero-visual-image {
+        border-radius: 26px;
+      }
+      .route-home .hero-visual-caption {
+        position: relative;
+        left: auto;
+        bottom: auto;
+        max-width: none;
+        margin-top: 14px;
+        transform: none;
+      }
       .route-home .site-header { padding: 14px 14px 0; }
       .route-home .nav-wrap {
         padding: 14px;
@@ -2291,6 +2390,7 @@ function shell({ title, description, active = "/", body }) {
         margin-top: 34px;
       }
       .poster-board { display: none; }
+      .route-home .poster-board { display: block; }
       .lead { width: 100%; font-size: 1.02rem; }
       .hero { min-height: auto; padding-top: 74px; padding-bottom: 70px; }
       .apps-hero h1 { font-size: clamp(2.35rem, 11vw, 3.2rem); line-height: .98; }
@@ -2556,17 +2656,9 @@ function home() {
           </div>
           <div class="clarity-note"><b>Built for Central QLD small businesses, not anonymous templates.</b><span>Bring the hearsay, doubts, and half-advice you have been given. Steve will help sort what matters, what can wait, and what is worth building properly.</span></div>
         </div>
-        <div class="poster-board" aria-label="Penny Wise premium website poster">
-          <span class="poster-frame" aria-hidden="true"></span>
-          <span class="poster-label">Central QLD buying reality</span>
-          <span class="poster-note">Customers check before they call.<small>Give them somewhere solid</small></span>
-          <h2>People do not just find you. They compare you.</h2>
-          <div class="poster-lines">
-            <div class="poster-line"><b>01</b><span>Facebook keeps warm customers updated. Your website helps strangers understand why they should trust you.</span></div>
-            <div class="poster-line"><b>02</b><span>Google can surface the business. Your website gives the proof, menu, services, answers, and next step.</span></div>
-            <div class="poster-line"><b>03</b><span>Premium means the customer journey feels considered before anyone spends money or picks up the phone.</span></div>
-          </div>
-          <div class="poster-stamp">Control the first impression</div>
+        <div class="poster-board" aria-label="Penny Wise premium website preview">
+          <img class="hero-visual-image" src="/visuals/premium-site-stack.svg" width="1200" height="900" alt="Layered preview of a premium Penny Wise website and customer workflow">
+          <div class="hero-visual-caption"><b>Not a blank brochure</b><span>Customers get proof, answers, and a clear next step before they call.</span></div>
         </div>
       </div>
     </section>
@@ -2576,6 +2668,9 @@ function home() {
         <div class="proof-rail">
           ${proofPoints.map(([title, text]) => `<article class="proof-tile"><strong>${title}</strong><p>${text}</p></article>`).join("")}
         </div>
+        <figure class="wide-proof-image">
+          <img src="/visuals/local-proof-board.svg" width="1200" height="620" alt="Editorial board showing the details customers check before they contact a local business">
+        </figure>
       </div>
     </section>
     <section>
@@ -2757,6 +2852,12 @@ async function copyAsset(sourceName, targetPath = `brand/${sourceName}`) {
   await copyFile(join(brandDir, sourceName), file);
 }
 
+async function copyVisual(sourceName, targetPath = `visuals/${sourceName}`) {
+  const file = join(dist, targetPath);
+  await mkdir(dirname(file), { recursive: true });
+  await copyFile(join(visualsDir, sourceName), file);
+}
+
 try {
   await rm(dist, { recursive: true, force: true });
 } catch (error) {
@@ -2783,6 +2884,8 @@ await copyAsset("pennywise-it-logo-primary.svg");
 await copyAsset("pennywise-it-logo-stacked.svg");
 await copyAsset("README.md");
 await copyAsset("pennywise-it-icon-small.svg", "favicon.svg");
+await copyVisual("premium-site-stack.svg");
+await copyVisual("local-proof-board.svg");
 await write("manifest.json", JSON.stringify({
   name: "Penny Wise I.T",
   short_name: "Penny Wise",
