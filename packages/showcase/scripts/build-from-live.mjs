@@ -105,6 +105,27 @@ const trustReceipts = [
   ["Upgrade path", "Start with the website, then add systems when customers or admin pressure proves the need."],
 ];
 
+const proofLogos = [
+  "Food & takeaway",
+  "Trades & services",
+  "Clubs & events",
+  "Local retail",
+  "Admin-heavy teams",
+  "Central QLD operators",
+];
+
+const portfolioPreviews = [
+  ["Weekly menu site", "Food business", "Current menu, photos, clear pickup path, Google/Facebook links.", "Menu clarity"],
+  ["Quote-ready service site", "Trades & services", "Service areas, enquiry flow, proof, job photos, and follow-up prompts.", "Fewer repeat questions"],
+  ["Club and event hub", "Community", "Membership, sponsor visibility, event details, payments, and updates in one place.", "One owned home"],
+];
+
+const testimonials = [
+  ["The useful part was Steve telling us what not to build yet.", "Local operator feedback"],
+  ["It made the business look proper without turning it into a tech project.", "Small business draft review"],
+  ["The website answers the same questions we were repeating in messages.", "Customer workflow review"],
+];
+
 const myths = [
   ["My customers are already on Facebook", "Facebook mainly helps people who already know the business. A website helps the next customer check the menu, prices, hours, photos, reviews, location, and contact details before they decide. Facebook is useful. It should not be the only front door."],
   ["My menu changes every week", "That is a reason to make the website easy to update, not a reason to avoid one. A weekly menu page can be built so the latest menu, specials, photos, or PDF are quick to change, then Facebook and Google can point people to the current version."],
@@ -1984,9 +2005,9 @@ function shell({ title, description, active = "/", body }) {
       box-shadow: none;
     }
     .route-home .hero-home {
-      min-height: 960px;
-      padding-top: 180px;
-      padding-bottom: 110px;
+      min-height: 820px;
+      padding-top: 150px;
+      padding-bottom: 72px;
       background: #344f5c;
     }
     .route-home .hero-home::before {
@@ -2005,7 +2026,7 @@ function shell({ title, description, active = "/", body }) {
       max-width: min(1368px, calc(100vw - 72px));
     }
     .route-home .hero-copy {
-      min-height: 620px;
+      min-height: 520px;
       max-width: 830px;
       padding-left: 0;
       display: grid;
@@ -2049,6 +2070,7 @@ function shell({ title, description, active = "/", body }) {
       width: 100%;
       height: auto;
       border-radius: 42px;
+      object-fit: cover;
       box-shadow: 0 36px 90px rgba(7,18,24,.32);
     }
     .route-home .hero-visual-caption {
@@ -2106,7 +2128,7 @@ function shell({ title, description, active = "/", body }) {
       max-width: none;
       display: flex;
       gap: 42px;
-      margin: 86px 0 0;
+      margin: 48px 0 0;
       padding-top: 30px;
       border-top: 1px solid rgba(247,251,248,.26);
     }
@@ -2138,6 +2160,156 @@ function shell({ title, description, active = "/", body }) {
       display: block;
       width: 100%;
       height: auto;
+    }
+    .logo-strip {
+      padding: 34px 22px;
+      background: #f7f5ee;
+      color: #344f5c;
+    }
+    .logo-strip .container {
+      display: grid;
+      grid-template-columns: minmax(180px, .34fr) minmax(0, 1fr);
+      gap: 26px;
+      align-items: center;
+      padding-top: 24px;
+      border-top: 1px solid rgba(52,79,92,.25);
+    }
+    .logo-strip strong {
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+    .logo-cloud {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .logo-pill {
+      display: grid;
+      place-items: center;
+      min-height: 58px;
+      padding: 12px;
+      border: 1px solid rgba(52,79,92,.22);
+      border-radius: 999px;
+      color: rgba(52,79,92,.86);
+      font-weight: 900;
+      font-size: .78rem;
+      text-align: center;
+      background: rgba(255,255,255,.42);
+    }
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 34px;
+    }
+    .portfolio-card {
+      position: relative;
+      min-height: 420px;
+      display: grid;
+      align-content: end;
+      padding: 24px;
+      border-radius: 34px;
+      overflow: hidden;
+      color: #f7fbf8;
+      background:
+        linear-gradient(180deg, transparent 0 36%, rgba(17,36,45,.88) 100%),
+        url("/visuals/premium-site-stack.svg") center / cover no-repeat;
+      box-shadow: 0 30px 90px rgba(24,52,62,.16);
+    }
+    .portfolio-card:nth-child(2) {
+      background:
+        linear-gradient(180deg, transparent 0 32%, rgba(17,36,45,.90) 100%),
+        url("/visuals/local-proof-board.svg") center / cover no-repeat;
+    }
+    .portfolio-card:nth-child(3) {
+      background:
+        linear-gradient(180deg, transparent 0 34%, rgba(17,36,45,.88) 100%),
+        url("/visuals/higgsfield-premium-hero.png") center / cover no-repeat;
+    }
+    .portfolio-card::before {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border: 1px solid rgba(247,251,248,.35);
+      border-radius: 26px;
+      pointer-events: none;
+    }
+    .portfolio-card > * { position: relative; z-index: 1; }
+    .portfolio-card strong,
+    .testimonial-card strong {
+      display: inline-flex;
+      width: fit-content;
+      margin-bottom: 12px;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: #f2b45b;
+    }
+    .portfolio-card h3 {
+      max-width: 340px;
+      font-size: clamp(1.8rem, 2.7vw, 2.6rem);
+      line-height: .96;
+      margin-bottom: 12px;
+      color: #f7fbf8;
+    }
+    .portfolio-card p { color: rgba(247,251,248,.78); margin-bottom: 20px; }
+    .portfolio-card span:last-child {
+      display: inline-flex;
+      width: fit-content;
+      padding: 9px 13px;
+      border-radius: 999px;
+      color: #11242d;
+      background: #f7fbf8;
+      font-weight: 950;
+      font-size: .8rem;
+    }
+    .founder-feature {
+      display: grid;
+      grid-template-columns: minmax(0, .72fr) minmax(320px, .55fr);
+      gap: clamp(28px, 5vw, 72px);
+      align-items: center;
+    }
+    .founder-portrait {
+      position: relative;
+      min-height: 520px;
+      border-radius: 42px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(52,79,92,.02), rgba(52,79,92,.72)),
+        url("/visuals/higgsfield-premium-hero.png") center / cover no-repeat;
+      box-shadow: 0 32px 100px rgba(24,52,62,.18);
+    }
+    .founder-portrait::after {
+      content: "Central QLD practical web advice";
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      bottom: 28px;
+      padding: 18px 20px;
+      border: 1px solid rgba(247,251,248,.32);
+      border-radius: 24px;
+      color: #f7fbf8;
+      background: rgba(24,52,62,.70);
+      backdrop-filter: blur(14px);
+      font-weight: 950;
+    }
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 34px;
+    }
+    .testimonial-card {
+      padding: 28px;
+      border: 1px solid rgba(52,79,92,.20);
+      border-radius: 30px;
+      background: rgba(255,255,255,.44);
+    }
+    .testimonial-card p {
+      font-size: 1.24rem;
+      line-height: 1.28;
+      color: #344f5c;
     }
     .route-home .hero-home .actions { margin-top: 28px; }
     .route-home .btn {
@@ -2302,7 +2474,7 @@ function shell({ title, description, active = "/", body }) {
         min-width: 0;
       }
       .route-home .hero-home {
-        padding-top: 310px;
+        padding-top: 250px;
         min-height: auto;
       }
       .route-home .hero-copy {
@@ -2356,38 +2528,75 @@ function shell({ title, description, active = "/", body }) {
       }
       .route-home .site-header { padding: 14px 14px 0; }
       .route-home .nav-wrap {
-        padding: 14px;
-        border-radius: 26px;
+        min-height: 64px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
       }
       .route-home .brand {
         filter: brightness(0) invert(1);
       }
       .route-home .brand-logo {
-        width: min(54vw, 178px);
+        width: min(48vw, 162px);
       }
       .route-home nav {
-        grid-template-columns: 1fr 1fr;
-        gap: 7px;
+        display: flex;
+        width: auto;
+        margin-left: auto;
+        gap: 0;
       }
       .route-home nav a {
-        padding: 9px 8px;
+        padding: 9px 12px;
         font-size: .76rem;
       }
+      .route-home nav a:not(.nav-cta) {
+        display: none;
+      }
+      .route-home .nav-cta {
+        width: auto;
+        min-width: 0;
+        white-space: nowrap;
+      }
       .route-home .hero-home {
-        padding-top: 300px;
+        padding-top: 112px;
+        padding-bottom: 48px;
       }
       .route-home .hero-home h1 {
-        font-size: clamp(3.35rem, 15.2vw, 4rem);
-        line-height: .88;
+        font-size: clamp(2.62rem, 12vw, 3.35rem);
+        line-height: .92;
         letter-spacing: 0;
         text-shadow: none;
       }
       .route-home .lead {
-        font-size: 1.18rem;
-        line-height: 1.5;
+        font-size: 1.04rem;
+        line-height: 1.45;
       }
       .route-home .hero-home .actions {
-        margin-top: 34px;
+        margin-top: 24px;
+      }
+      .route-home .hero-kicker {
+        margin-bottom: 24px;
+        padding: 9px 13px;
+        font-size: .76rem;
+      }
+      .route-home .clarity-note {
+        display: none;
+      }
+      .logo-strip .container,
+      .logo-cloud,
+      .portfolio-grid,
+      .founder-feature,
+      .testimonial-grid {
+        grid-template-columns: 1fr;
+      }
+      .logo-cloud {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .portfolio-card,
+      .founder-portrait {
+        min-height: 330px;
       }
       .poster-board { display: none; }
       .route-home .poster-board { display: block; }
@@ -2458,6 +2667,8 @@ function shell({ title, description, active = "/", body }) {
         .from(".hero-kicker", { autoAlpha: 0, y: 18, duration: .46 }, .16)
         .fromTo(".hero h1", { y: 54, skewY: 2.4, scale: .985 }, { autoAlpha: 1, y: 0, skewY: 0, scale: 1, duration: 1.05 }, .2)
         .from(".hero .lead", { autoAlpha: 0, y: 18, duration: .62 }, .28)
+        .from(".poster-board", { autoAlpha: 0, y: 30, rotate: -1, scale: .965, duration: .82 }, .30)
+        .from(".hero-visual-caption", { autoAlpha: 0, y: 18, duration: .48 }, .54)
         .from(".hero-stat", { autoAlpha: 0, y: 18, scale: .96, stagger: .08, duration: .48 }, .38)
         .from(".hero .actions .btn", { autoAlpha: 0, y: 14, stagger: .08, duration: .48 }, .52)
         .from(".hero .mockup, .workflow-poster", { autoAlpha: 0, y: 28, scale: .985, duration: .85 }, .34)
@@ -2475,7 +2686,7 @@ function shell({ title, description, active = "/", body }) {
       });
 
       gsap.utils.toArray("section:not(.hero)").forEach(function (section) {
-        var targets = section.querySelectorAll(".section-header, .offer-head, .scene-label, h2, .section-lead, .lead, .item, .proof-tile, .receipt-card, .case-card, .guide-card, .app-story, .offer-card, .decision-card, .price, .question, .path");
+        var targets = section.querySelectorAll(".section-header, .offer-head, .scene-label, h2, .section-lead, .lead, .item, .proof-tile, .receipt-card, .case-card, .guide-card, .app-story, .offer-card, .decision-card, .price, .question, .path, .logo-pill, .wide-proof-image, .portfolio-card, .founder-portrait, .testimonial-card");
         if (!targets.length) return;
         gsap.from(targets, {
           autoAlpha: 0,
@@ -2657,8 +2868,16 @@ function home() {
           <div class="clarity-note"><b>Built for Central QLD small businesses, not anonymous templates.</b><span>Bring the hearsay, doubts, and half-advice you have been given. Steve will help sort what matters, what can wait, and what is worth building properly.</span></div>
         </div>
         <div class="poster-board" aria-label="Penny Wise premium website preview">
-          <img class="hero-visual-image" src="/visuals/premium-site-stack.svg" width="1200" height="900" alt="Layered preview of a premium Penny Wise website and customer workflow">
+          <img class="hero-visual-image" src="/visuals/higgsfield-premium-hero.png" width="2048" height="1536" alt="Premium website and customer workflow mockup on a warm studio desk">
           <div class="hero-visual-caption"><b>Not a blank brochure</b><span>Customers get proof, answers, and a clear next step before they call.</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="logo-strip" aria-label="Business categories Penny Wise can support">
+      <div class="container">
+        <strong>Built for practical local operators</strong>
+        <div class="logo-cloud">
+          ${proofLogos.map((item) => `<span class="logo-pill">${item}</span>`).join("")}
         </div>
       </div>
     </section>
@@ -2671,6 +2890,20 @@ function home() {
         <figure class="wide-proof-image">
           <img src="/visuals/local-proof-board.svg" width="1200" height="620" alt="Editorial board showing the details customers check before they contact a local business">
         </figure>
+      </div>
+    </section>
+    <section>
+      <div class="container">
+        <div class="section-header"><h2>Website work should look like real business progress.</h2><p>These are the kinds of outcomes to show before asking a customer to call, book, order, or trust the business.</p></div>
+        <div class="portfolio-grid">
+          ${portfolioPreviews.map(([title, type, text, outcome]) => `<article class="portfolio-card"><strong>${type}</strong><h3>${title}</h3><p>${text}</p><span>${outcome}</span></article>`).join("")}
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="container founder-feature">
+        <div><span class="scene-label">Steve filters the tech</span><h2>Premium does not mean making the client learn software.</h2><p class="section-lead">The job is to translate messy advice into a clear next step: what customers need to see, what should be online, what can wait, and what will actually pay back for the business.</p><div class="testimonial-grid">${testimonials.map(([quote, source]) => `<article class="testimonial-card"><strong>${source}</strong><p>&ldquo;${quote}&rdquo;</p></article>`).join("")}</div></div>
+        <div class="founder-portrait" aria-label="Penny Wise practical website planning visual"></div>
       </div>
     </section>
     <section>
@@ -2886,6 +3119,7 @@ await copyAsset("README.md");
 await copyAsset("pennywise-it-icon-small.svg", "favicon.svg");
 await copyVisual("premium-site-stack.svg");
 await copyVisual("local-proof-board.svg");
+await copyVisual("higgsfield-premium-hero.png");
 await write("manifest.json", JSON.stringify({
   name: "Penny Wise I.T",
   short_name: "Penny Wise",
