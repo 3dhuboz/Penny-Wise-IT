@@ -85,6 +85,25 @@ const examples = [
   ["Club, event, or local group", "Move memberships, bookings, payments, guest lists, and updates out of spreadsheets."],
 ];
 
+const proofPoints = [
+  ["Website first", "A polished front door that answers the questions people check before they call."],
+  ["Workflow ready", "Bookings, orders, forms, reminders, and customer paths can be added when they earn their place."],
+  ["Local guidance", "Central QLD advice from someone who will tell you when the bigger build is not worth it yet."],
+  ["Own the customer", "Your brand, your domain, your enquiries, and less dependence on noisy platform feeds."],
+];
+
+const caseStudies = [
+  ["Weekly-menu food business", "Problem", "Customers see old Facebook posts and ask the same menu questions.", "Build a current menu page, update path, photos, Google/Facebook links, and optional pickup ordering."],
+  ["Service operator", "Problem", "Jobs arrive through calls, screenshots, and scattered messages.", "Build a proper enquiry path with service areas, quote details, photos, status updates, and follow-up."],
+  ["Local group or event", "Problem", "Bookings, payments, guest lists, and updates are spread across spreadsheets.", "Build one branded place for members, sponsors, payments, events, and announcements."],
+];
+
+const trustReceipts = [
+  ["No platform theatre", "If Facebook, Google, or Shopify is enough for the job, Steve will say so."],
+  ["Plain-English scope", "You see what is being built, why it matters, and what can wait."],
+  ["Upgrade path", "Start with the website, then add systems when customers or admin pressure proves the need."],
+];
+
 const myths = [
   ["My customers are already on Facebook", "Facebook mainly helps people who already know the business. A website helps the next customer check the menu, prices, hours, photos, reviews, location, and contact details before they decide. Facebook is useful. It should not be the only front door."],
   ["My menu changes every week", "That is a reason to make the website easy to update, not a reason to avoid one. A weekly menu page can be built so the latest menu, specials, photos, or PDF are quick to change, then Facebook and Google can point people to the current version."],
@@ -1347,6 +1366,162 @@ function shell({ title, description, active = "/", body }) {
     }
     .plain-step h3, .reassurance-card h3, .example-card h3 { font-size: 1.28rem; margin-bottom: 10px; }
     .plain-step p, .reassurance-card p, .example-card p { color: var(--muted); margin-bottom: 0; }
+    .proof-rail {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .proof-tile,
+    .receipt-card,
+    .case-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(246,180,95,.24);
+      background:
+        radial-gradient(circle at 14% 0%, rgba(255,244,222,.18), transparent 34%),
+        linear-gradient(145deg, rgba(255,255,255,.11), rgba(255,255,255,.035)),
+        rgba(8,13,20,.68);
+      box-shadow:
+        0 32px 90px rgba(0,0,0,.30),
+        0 1px 0 rgba(255,255,255,.13) inset;
+    }
+    .proof-tile {
+      min-height: 180px;
+      padding: 22px;
+      border-radius: 26px 18px 30px 20px;
+    }
+    .proof-tile::before,
+    .receipt-card::before,
+    .case-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 0 30%, rgba(255,255,255,.16) 42%, transparent 55% 100%);
+      opacity: .50;
+      pointer-events: none;
+    }
+    .proof-tile strong,
+    .receipt-card strong,
+    .case-card strong {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      width: fit-content;
+      margin-bottom: 14px;
+      color: var(--copper-2);
+      font-size: .76rem;
+      font-weight: 950;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .proof-tile p,
+    .receipt-card p,
+    .case-card p {
+      position: relative;
+      z-index: 1;
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+    .guide-panel {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(300px, .62fr);
+      gap: 36px;
+      align-items: stretch;
+      padding: 34px;
+      border: 1px solid rgba(246,180,95,.28);
+      border-radius: 42px 24px 48px 28px;
+      background:
+        radial-gradient(circle at 86% 18%, rgba(67,231,172,.14), transparent 28%),
+        linear-gradient(135deg, rgba(255,244,222,.12), rgba(255,255,255,.035)),
+        rgba(8,13,20,.70);
+      box-shadow: 0 42px 120px rgba(0,0,0,.34), 0 1px 0 rgba(255,255,255,.12) inset;
+      overflow: hidden;
+    }
+    .guide-copy h2 { margin-bottom: 18px; }
+    .guide-copy p { color: var(--muted); max-width: 720px; }
+    .guide-card {
+      position: relative;
+      min-height: 360px;
+      display: grid;
+      align-content: space-between;
+      padding: 28px;
+      border-radius: 34px 20px 40px 24px;
+      color: #121820;
+      background:
+        linear-gradient(rgba(18,24,32,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(18,24,32,.045) 1px, transparent 1px),
+        linear-gradient(145deg, #fff4de, #eac48e);
+      background-size: 28px 28px, 28px 28px, auto;
+      box-shadow: 18px 18px 0 rgba(0,0,0,.30), 0 26px 80px rgba(0,0,0,.26);
+      transform: rotate(1.2deg);
+      overflow: hidden;
+    }
+    .guide-card::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -12px;
+      width: 120px;
+      height: 34px;
+      transform: translateX(-50%) rotate(-2deg);
+      background: rgba(246,180,95,.78);
+      box-shadow: 0 10px 22px rgba(0,0,0,.16);
+    }
+    .guide-avatar {
+      width: 86px;
+      height: 86px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff4de;
+      background:
+        radial-gradient(circle at 35% 28%, rgba(255,255,255,.32), transparent 28%),
+        linear-gradient(135deg, #202832, #0f141b);
+      box-shadow: 0 0 0 8px rgba(212,135,57,.20), 0 18px 42px rgba(0,0,0,.28);
+      font-size: 2.4rem;
+      font-weight: 950;
+    }
+    .guide-card h3 {
+      max-width: 280px;
+      color: #121820;
+      font-size: clamp(2rem, 3.2vw, 3.2rem);
+      line-height: .92;
+      margin-bottom: 16px;
+    }
+    .guide-card p { color: rgba(18,24,32,.76); font-weight: 850; margin-bottom: 0; }
+    .receipt-grid,
+    .case-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .receipt-card,
+    .case-card {
+      border-radius: 30px 18px 36px 22px;
+      padding: 26px;
+    }
+    .case-card {
+      min-height: 330px;
+      display: grid;
+      align-content: space-between;
+    }
+    .case-card h3 {
+      position: relative;
+      z-index: 1;
+      font-size: 1.55rem;
+      margin-bottom: 16px;
+    }
+    .case-answer {
+      position: relative;
+      z-index: 1;
+      margin-top: 22px;
+      padding: 16px;
+      border-radius: 22px 14px 26px 16px;
+      color: #121820;
+      background: linear-gradient(135deg, #fff4de, #f6b45f);
+      box-shadow: 0 18px 46px rgba(0,0,0,.20);
+      font-weight: 850;
+    }
     .mockup {
       position: relative;
       border: 1px solid var(--line);
@@ -1739,7 +1914,7 @@ function shell({ title, description, active = "/", body }) {
       nav { justify-content: flex-start; }
       .nav-cta, .nav-builder { margin-left: 0; }
       .hero { padding-top: 64px; }
-      .hero-grid, .split, .path-strip, .offer-grid, .situation-grid, .plain-steps, .reassurance-grid, .example-grid, .myth-card, .decision-grid, .cinema-inner, .list, .story-grid, .faq-grid, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
+      .hero-grid, .split, .guide-panel, .path-strip, .offer-grid, .situation-grid, .proof-rail, .receipt-grid, .case-grid, .plain-steps, .reassurance-grid, .example-grid, .myth-card, .decision-grid, .cinema-inner, .list, .story-grid, .faq-grid, .pricing-grid, .cta-inner { grid-template-columns: 1fr; }
       .apps-hero .hero-grid { grid-template-columns: 1fr; }
       .workflow-poster { min-height: 480px; }
       .app-story { grid-template-columns: 1fr; }
@@ -1795,6 +1970,8 @@ function shell({ title, description, active = "/", body }) {
       .actions { width: 100%; max-width: 100%; }
       .btn { width: 100%; max-width: 100%; }
       .path, .offer-card, .app-story, .situation-card, .plain-step, .reassurance-card, .example-card, .myth-card, .decision-card, .price, .question { padding: 22px; }
+      .guide-panel, .guide-card, .proof-tile, .receipt-card, .case-card { padding: 22px; }
+      .guide-card { min-height: 300px; transform: none; }
       .story-visual { min-height: 160px; }
       .scene-canvas { opacity: .34; }
     }
@@ -1859,7 +2036,7 @@ function shell({ title, description, active = "/", body }) {
       });
 
       gsap.utils.toArray("section:not(.hero)").forEach(function (section) {
-        var targets = section.querySelectorAll(".section-header, .offer-head, .scene-label, h2, .section-lead, .lead, .item, .app-story, .offer-card, .decision-card, .price, .question, .path");
+        var targets = section.querySelectorAll(".section-header, .offer-head, .scene-label, h2, .section-lead, .lead, .item, .proof-tile, .receipt-card, .case-card, .guide-card, .app-story, .offer-card, .decision-card, .price, .question, .path");
         if (!targets.length) return;
         gsap.from(targets, {
           autoAlpha: 0,
@@ -1878,7 +2055,7 @@ function shell({ title, description, active = "/", body }) {
       gsap.to(".floating-chip", { y: -12, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: .35 });
       gsap.to(".holo-console", { y: -10, rotateY: -10, duration: 3.8, ease: "sine.inOut", yoyo: true, repeat: -1 });
 
-      gsap.utils.toArray(".offer-card, .item, .app-story, .decision-card, .price, .question, .path, .mockup, .workflow-poster, .holo-console").forEach(function (card) {
+      gsap.utils.toArray(".offer-card, .item, .proof-tile, .receipt-card, .case-card, .guide-card, .app-story, .decision-card, .price, .question, .path, .mockup, .workflow-poster, .holo-console").forEach(function (card) {
         card.addEventListener("mousemove", function (event) {
           var rect = card.getBoundingClientRect();
           var x = (event.clientX - rect.left) / rect.width - .5;
@@ -2056,6 +2233,14 @@ function home() {
     </section>
     <section>
       <div class="container">
+        <div class="section-header"><h2>Proof should feel obvious before the first call.</h2><p>A premium website is not just a nice page. It shows the business is active, reachable, credible, and ready for the next customer.</p></div>
+        <div class="proof-rail">
+          ${proofPoints.map(([title, text]) => `<article class="proof-tile"><strong>${title}</strong><p>${text}</p></article>`).join("")}
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="container">
         <div class="offer-head">
           <h2>Choose the starting point that sounds like you.</h2>
           <p>One clear decision first. The product names can come later.</p>
@@ -2063,6 +2248,12 @@ function home() {
         <div class="situation-grid">
           ${situations.map(([title, heading, text, cta, href], index) => `<a class="situation-card" href="${href}"><span class="situation-number">0${index + 1}</span><h3>${title}</h3><p><b>${heading}</b></p><p>${text}</p><span>${cta}</span></a>`).join("")}
         </div>
+      </div>
+    </section>
+    <section class="quiet-band">
+      <div class="container guide-panel">
+        <div class="guide-copy"><span class="scene-label">Talk to Steve</span><h2>A premium build still starts with a straight conversation.</h2><p>Most small business owners do not need more tech noise. They need someone to translate the mess: what customers need to see, what should be online, what is worth automating, and what is not worth paying for yet.</p><div class="receipt-grid">${trustReceipts.map(([title, text]) => `<article class="receipt-card"><strong>${title}</strong><p>${text}</p></article>`).join("")}</div></div>
+        <aside class="guide-card" aria-label="Steve helps choose the right build"><div class="guide-avatar">S</div><div><h3>Steve filters the options before you spend.</h3><p>Bring the Facebook advice, Shopify pressure, Google listing myths, and website doubts. The job is to find the smallest serious next step.</p></div></aside>
       </div>
     </section>
     <section class="quiet-band">
@@ -2078,6 +2269,14 @@ function home() {
         <div class="section-header"><h2>Built for real business jobs.</h2><p>Use the website as the polished front door. Add the serious parts when customers need to do something.</p></div>
         <div class="example-grid">
           ${examples.map(([title, text]) => `<article class="example-card"><h3>${title}</h3><p>${text}</p></article>`).join("")}
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="container">
+        <div class="section-header"><h2>Make the work visible.</h2><p>These are the kinds of local business problems Penny Wise can turn into a clear website or workflow. Real client logos can sit here once you are ready to show them.</p></div>
+        <div class="case-grid">
+          ${caseStudies.map(([title, label, problem, answer]) => `<article class="case-card"><div><strong>${label}</strong><h3>${title}</h3><p>${problem}</p></div><div class="case-answer">${answer}</div></article>`).join("")}
         </div>
       </div>
     </section>
