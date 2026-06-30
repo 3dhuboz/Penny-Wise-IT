@@ -2883,7 +2883,890 @@ function shell({ title, description, active = "/", body }) {
       .story-visual { min-height: 160px; }
       .scene-canvas { opacity: .34; }
     }
+    /* Flagship home redesign pass: premium, image-led, motion-ready. */
+    .route-home {
+      --home-ink: #0c1418;
+      --home-teal: #2f505b;
+      --home-teal-deep: #172b31;
+      --home-cream: #fbf4e5;
+      --home-paper: #fffaf0;
+      --home-copper: #e5973c;
+      --home-red: #d64136;
+      --home-line: rgba(251,244,229,.24);
+      background: var(--home-teal);
+    }
+    .route-home .site-header {
+      position: fixed;
+      padding: 22px clamp(14px, 3vw, 38px) 0;
+      z-index: 40;
+    }
+    .route-home .nav-wrap {
+      max-width: min(1500px, calc(100vw - 48px));
+      min-height: 86px;
+      padding: 10px 18px 10px 12px;
+      border: 1px solid rgba(255,250,240,.68);
+      border-radius: 999px;
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.16), rgba(255,255,255,.05)),
+        rgba(35,68,77,.72);
+      box-shadow: 0 24px 70px rgba(4,13,16,.26);
+      backdrop-filter: blur(18px) saturate(1.2);
+    }
+    .route-home .site-header.is-scrolled .nav-wrap {
+      min-height: 72px;
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.15), rgba(255,255,255,.04)),
+        rgba(23,43,49,.86);
+      box-shadow: 0 20px 60px rgba(4,13,16,.34);
+    }
+    .route-home .brand {
+      padding: 7px 18px 7px 8px;
+      border: 1px solid rgba(255,236,198,.72);
+      border-radius: 999px;
+      background:
+        linear-gradient(110deg, rgba(255,250,240,.98), rgba(244,217,174,.90));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.82),
+        0 18px 42px rgba(3,12,15,.18);
+      filter: none;
+    }
+    .route-home .brand-logo {
+      width: clamp(176px, 17vw, 252px);
+      filter: none;
+    }
+    .route-home nav {
+      gap: 8px;
+    }
+    .route-home nav a {
+      min-height: 46px;
+      padding: 11px 15px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: rgba(255,250,240,.84);
+      font-size: .92rem;
+      font-weight: 850;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease, color .2s ease;
+    }
+    .route-home nav a:hover,
+    .route-home nav a.active {
+      color: #fffaf0;
+      border-color: rgba(255,250,240,.22);
+      background: rgba(255,250,240,.11);
+      transform: translateY(-1px);
+    }
+    .route-home .nav-cta {
+      min-width: 176px;
+      margin-left: 10px;
+      justify-content: center;
+      color: #101820;
+      border-color: rgba(255,255,255,.35);
+      background:
+        linear-gradient(180deg, #f3b25d, #d98327);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.42),
+        0 18px 42px rgba(216,131,39,.25);
+    }
+    .route-home .hero-home {
+      min-height: 940px;
+      padding-top: clamp(138px, 12vw, 178px);
+      padding-bottom: 84px;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(14,22,25,.16), rgba(14,22,25,0) 42%, rgba(14,22,25,.10)),
+        repeating-linear-gradient(90deg, rgba(255,250,240,.035) 0 1px, transparent 1px 72px),
+        repeating-linear-gradient(0deg, rgba(255,250,240,.03) 0 1px, transparent 1px 72px),
+        linear-gradient(145deg, #355865 0%, #2f505b 40%, #183238 100%);
+      color: #fffaf0;
+    }
+    .route-home .hero-home::before {
+      background:
+        linear-gradient(180deg, rgba(255,250,240,.08), rgba(255,250,240,0) 28%),
+        linear-gradient(0deg, rgba(12,20,24,.72), rgba(12,20,24,0) 42%);
+      opacity: 1;
+    }
+    .route-home .hero-home::after {
+      display: block;
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 160px;
+      background: linear-gradient(180deg, rgba(251,244,229,0), #fbf4e5 82%);
+      pointer-events: none;
+    }
+    .route-home .hero-grid {
+      grid-template-columns: minmax(0, .96fr) minmax(420px, .82fr);
+      align-items: center;
+      gap: clamp(36px, 6vw, 96px);
+      max-width: min(1500px, calc(100vw - 72px));
+      position: relative;
+      z-index: 2;
+    }
+    .route-home .hero-copy {
+      max-width: 860px;
+      min-height: 610px;
+      align-content: center;
+    }
+    .route-home .hero-kicker {
+      margin-bottom: 26px;
+      padding: 12px 17px;
+      color: rgba(255,250,240,.92);
+      border-color: rgba(255,250,240,.48);
+      background: rgba(255,250,240,.06);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
+    }
+    .route-home .hero-kicker::before {
+      background: #50dfa8;
+      box-shadow: 0 0 18px rgba(80,223,168,.62);
+    }
+    .route-home .hero-home h1 {
+      max-width: 920px;
+      font-size: clamp(4.9rem, 7.4vw, 8.3rem);
+      line-height: .82;
+      letter-spacing: 0;
+      color: #fffaf0;
+      text-shadow: 0 14px 0 rgba(0,0,0,.18);
+    }
+    .route-home .lead {
+      max-width: 760px;
+      margin-top: 30px;
+      color: rgba(255,250,240,.80);
+      font-size: clamp(1.18rem, 1.6vw, 1.42rem);
+      line-height: 1.48;
+    }
+    .route-home .hero-home .actions {
+      margin-top: 34px;
+      gap: 12px;
+    }
+    .route-home .btn {
+      min-height: 58px;
+      border-radius: 999px;
+      color: #fffaf0;
+      border-color: rgba(255,250,240,.52);
+      background: rgba(255,250,240,.07);
+      backdrop-filter: blur(10px);
+    }
+    .route-home .btn-primary {
+      color: #101820;
+      border-color: rgba(255,255,255,.36);
+      background: linear-gradient(180deg, #f6ba6c, #da8529);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.45),
+        0 22px 52px rgba(216,131,39,.26);
+    }
+    .route-home .hero-stat-grid {
+      margin-top: 44px;
+      padding-top: 26px;
+      gap: clamp(18px, 3vw, 42px);
+      border-top-color: rgba(255,250,240,.25);
+    }
+    .route-home .hero-stat b {
+      color: #fffaf0;
+      font-size: clamp(1.35rem, 1.8vw, 1.8rem);
+    }
+    .route-home .hero-stat span {
+      color: rgba(255,250,240,.70);
+    }
+    .route-home .clarity-note {
+      max-width: 720px;
+      margin-top: 24px;
+      border-color: rgba(255,250,240,.24);
+      background: rgba(255,250,240,.075);
+      color: #fffaf0;
+    }
+    .hero-wordline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 22px;
+    }
+    .hero-wordline span {
+      display: inline-flex;
+      min-height: 36px;
+      align-items: center;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,250,240,.22);
+      border-radius: 999px;
+      color: rgba(255,250,240,.82);
+      background: rgba(255,250,240,.055);
+      font-size: .82rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .route-home .poster-board {
+      min-height: 650px;
+      border-radius: 48px;
+      transform: rotate(1.6deg);
+    }
+    .hero-showcase {
+      position: relative;
+      min-height: 650px;
+      perspective: 1200px;
+    }
+    .hero-showcase::before {
+      content: "";
+      position: absolute;
+      inset: 7% -2% 5% 8%;
+      border-radius: 50px;
+      background: rgba(5,15,18,.38);
+      filter: blur(20px);
+      transform: rotate(-4deg);
+      z-index: -2;
+    }
+    .route-home .hero-visual-image {
+      position: absolute;
+      inset: 4% 2% 8% 2%;
+      width: 92%;
+      height: 86%;
+      object-fit: cover;
+      border: 1px solid rgba(255,250,240,.42);
+      border-radius: 46px;
+      box-shadow:
+        0 42px 110px rgba(3,12,15,.36),
+        inset 0 1px 0 rgba(255,255,255,.28);
+    }
+    .hero-device,
+    .hero-mini-card {
+      position: absolute;
+      border: 1px solid rgba(255,250,240,.40);
+      background:
+        linear-gradient(145deg, rgba(255,250,240,.92), rgba(235,219,190,.78));
+      color: #101820;
+      box-shadow: 0 28px 70px rgba(4,13,16,.25);
+      backdrop-filter: blur(10px);
+    }
+    .hero-device {
+      right: -3%;
+      bottom: 11%;
+      width: min(260px, 40%);
+      min-height: 370px;
+      padding: 17px;
+      border-radius: 34px;
+      transform: rotate(-4deg);
+    }
+    .hero-device::before {
+      content: "";
+      display: block;
+      width: 42%;
+      height: 6px;
+      margin: 0 auto 16px;
+      border-radius: 999px;
+      background: rgba(16,24,32,.25);
+    }
+    .device-screen {
+      min-height: 295px;
+      padding: 18px;
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, rgba(47,80,91,.95), rgba(16,24,32,.96));
+      color: #fffaf0;
+      display: grid;
+      align-content: space-between;
+      gap: 14px;
+    }
+    .device-screen strong {
+      font-size: .74rem;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+      color: #f6ba6c;
+    }
+    .device-screen b {
+      display: block;
+      font-size: 1.45rem;
+      line-height: .96;
+      color: #fffaf0;
+    }
+    .screen-lines span {
+      display: block;
+      height: 10px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: rgba(255,250,240,.18);
+    }
+    .screen-lines span:nth-child(2) { width: 70%; }
+    .screen-lines span:nth-child(3) { width: 46%; }
+    .screen-button {
+      display: inline-flex;
+      width: fit-content;
+      padding: 10px 13px;
+      border-radius: 999px;
+      color: #101820;
+      background: #f6ba6c;
+      font-weight: 950;
+      font-size: .76rem;
+    }
+    .hero-mini-card {
+      left: -6%;
+      top: 15%;
+      width: min(250px, 44%);
+      padding: 18px;
+      border-radius: 26px;
+      transform: rotate(-6deg);
+    }
+    .hero-mini-card b {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+    .hero-mini-card span,
+    .hero-mini-card p {
+      color: rgba(16,24,32,.66);
+      font-size: .88rem;
+      line-height: 1.35;
+    }
+    .hero-mini-card p { margin: 0; }
+    .hero-mini-card.alt {
+      left: auto;
+      right: 8%;
+      top: 0;
+      width: min(280px, 46%);
+      transform: rotate(3deg);
+      background:
+        linear-gradient(145deg, rgba(217,65,54,.95), rgba(188,52,42,.92));
+      color: #fffaf0;
+    }
+    .hero-mini-card.alt span,
+    .hero-mini-card.alt p {
+      color: rgba(255,250,240,.82);
+    }
+    .route-home .hero-visual-caption {
+      left: 4%;
+      bottom: 5%;
+      max-width: 318px;
+      padding: 20px 22px;
+      border-radius: 28px;
+      color: #fffaf0;
+      background: rgba(16,24,32,.78);
+      border-color: rgba(255,250,240,.28);
+      box-shadow: 0 28px 70px rgba(4,13,16,.30);
+    }
+    .logo-strip {
+      position: relative;
+      z-index: 3;
+      padding: 28px 0;
+      overflow: hidden;
+      background: #fbf4e5;
+    }
+    .logo-strip .container {
+      max-width: min(1500px, calc(100vw - 72px));
+      grid-template-columns: minmax(200px, .26fr) minmax(0, 1fr);
+      gap: 26px;
+      border-top: 1px solid rgba(47,80,91,.22);
+      border-bottom: 1px solid rgba(47,80,91,.16);
+      padding: 20px 0;
+    }
+    .logo-strip strong {
+      color: #172b31;
+      letter-spacing: .13em;
+    }
+    .logo-cloud {
+      display: flex;
+      gap: 12px;
+      overflow: hidden;
+      mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    }
+    .logo-track {
+      display: flex;
+      min-width: max-content;
+      gap: 12px;
+      animation: logo-drift 32s linear infinite;
+    }
+    @keyframes logo-drift {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .logo-pill {
+      min-width: 190px;
+      min-height: 58px;
+      border-color: rgba(47,80,91,.22);
+      color: #172b31;
+      background: rgba(255,255,255,.55);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.74);
+    }
+    .route-home main > section:not(.hero-home) {
+      background: #fbf4e5;
+      color: #172b31;
+    }
+    .route-home .premium-examples {
+      padding-top: 96px;
+      background:
+        linear-gradient(180deg, #fbf4e5, #fffaf0);
+    }
+    .route-home .portfolio-grid {
+      gap: 22px;
+    }
+    .route-home .portfolio-card {
+      min-height: 520px;
+      border-radius: 42px;
+      box-shadow: 0 34px 90px rgba(23,43,49,.18);
+    }
+    .route-home .portfolio-card h3 {
+      font-size: clamp(2rem, 3.5vw, 3.35rem);
+      text-shadow: 0 8px 22px rgba(0,0,0,.28);
+    }
+    .route-home .systems-showcase {
+      background:
+        repeating-linear-gradient(90deg, rgba(255,250,240,.028) 0 1px, transparent 1px 78px),
+        linear-gradient(145deg, #172b31, #2f505b 72%);
+      color: #fffaf0;
+    }
+    .systems-layout {
+      display: grid;
+      grid-template-columns: minmax(0, .8fr) minmax(420px, .84fr);
+      align-items: center;
+      gap: clamp(34px, 6vw, 84px);
+    }
+    .systems-layout h2 {
+      color: #fffaf0;
+      font-size: clamp(3rem, 6.6vw, 7rem);
+      line-height: .86;
+    }
+    .systems-layout .section-lead {
+      color: rgba(255,250,240,.76) !important;
+      max-width: 700px;
+    }
+    .system-panel {
+      position: relative;
+      min-height: 560px;
+      border-radius: 48px;
+      border: 1px solid rgba(255,250,240,.24);
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(16,24,32,.08), rgba(16,24,32,.72)),
+        url("/visuals/higgsfield-premium-hero.png") center / cover no-repeat;
+      box-shadow: 0 42px 120px rgba(4,13,16,.34);
+    }
+    .system-panel::after {
+      content: "Book it. Order it. Quote it. Follow it up.";
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      bottom: 28px;
+      padding: 22px;
+      border: 1px solid rgba(255,250,240,.25);
+      border-radius: 28px;
+      color: #fffaf0;
+      background: rgba(16,24,32,.74);
+      backdrop-filter: blur(14px);
+      font-weight: 950;
+      font-size: clamp(1.5rem, 2.3vw, 2.5rem);
+      line-height: .98;
+    }
+    .system-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .system-list a {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 18px 20px;
+      border: 1px solid rgba(255,250,240,.22);
+      border-radius: 24px;
+      color: #fffaf0;
+      background: rgba(255,250,240,.06);
+      text-decoration: none;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+    }
+    .system-list a:hover {
+      transform: translateX(6px);
+      border-color: rgba(246,186,108,.60);
+      background: rgba(255,250,240,.11);
+    }
+    .system-list b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1.12rem;
+    }
+    .system-list span {
+      color: rgba(255,250,240,.68);
+      font-size: .94rem;
+      line-height: 1.38;
+    }
+    .system-list i {
+      color: #f6ba6c;
+      font-style: normal;
+      font-weight: 950;
+    }
+    .route-home .case-story,
+    .route-home .advice-feature {
+      max-width: min(1500px, calc(100vw - 72px));
+    }
+    .route-home .case-visual,
+    .route-home .advice-card,
+    .route-home .wide-proof-image {
+      border: 1px solid rgba(47,80,91,.16);
+      box-shadow: 0 36px 100px rgba(23,43,49,.17);
+    }
+    .route-home .quiet-band {
+      background:
+        repeating-linear-gradient(90deg, rgba(255,250,240,.028) 0 1px, transparent 1px 80px),
+        linear-gradient(145deg, #14252b, #2f505b);
+      color: #fffaf0;
+    }
+    .route-home .quiet-band .testimonial-card {
+      border-color: rgba(255,250,240,.22);
+      background: rgba(255,250,240,.08);
+      color: #fffaf0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .route-home .quiet-band .testimonial-card p {
+      color: rgba(255,250,240,.88);
+    }
+    .route-home .quiet-band .testimonial-card strong {
+      color: #f6ba6c;
+    }
+    .route-home main > .cta-band {
+      background:
+        linear-gradient(180deg, #fffaf0, #fbf4e5);
+      color: #172b31;
+    }
+    @media (max-width: 980px) {
+      .route-home .site-header {
+        padding: 14px 14px 0;
+      }
+      .route-home .nav-wrap {
+        max-width: none;
+        min-height: 64px;
+        padding: 9px 10px;
+        border-radius: 999px;
+      }
+      .route-home .brand {
+        padding: 5px 9px 5px 5px;
+      }
+      .route-home .brand-logo {
+        width: min(52vw, 180px);
+      }
+      .route-home nav a:not(.nav-cta) {
+        display: none;
+      }
+      .route-home .nav-cta {
+        min-width: 0;
+        min-height: 42px;
+        margin-left: 0;
+        padding: 9px 14px;
+        font-size: .82rem;
+        white-space: nowrap;
+      }
+      .route-home .hero-home {
+        min-height: auto;
+        padding-top: 112px;
+        padding-bottom: 56px;
+      }
+      .route-home .hero-grid,
+      .systems-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        max-width: min(100%, calc(100vw - 32px));
+        gap: 32px;
+      }
+      .route-home .hero-copy {
+        min-height: auto;
+      }
+      .route-home .hero-home h1 {
+        max-width: 100%;
+        font-size: clamp(3.3rem, 15vw, 5.1rem);
+        line-height: .86;
+        text-shadow: 0 8px 0 rgba(0,0,0,.14);
+      }
+      .route-home .lead {
+        margin-top: 22px;
+        font-size: 1.05rem;
+      }
+      .route-home .hero-stat-grid {
+        display: none;
+      }
+      .route-home .hero-wordline {
+        gap: 7px;
+      }
+      .route-home .poster-board {
+        min-height: 430px;
+        margin-top: 12px;
+        transform: none;
+      }
+      .hero-showcase {
+        min-height: 430px;
+      }
+      .route-home .hero-visual-image {
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 32px;
+      }
+      .hero-mini-card {
+        left: 4%;
+        top: 7%;
+        width: min(220px, 58%);
+        padding: 14px;
+        border-radius: 22px;
+      }
+      .hero-mini-card.alt {
+        right: 4%;
+        top: 39%;
+        width: min(230px, 58%);
+      }
+      .hero-device {
+        right: 5%;
+        bottom: -16px;
+        width: min(210px, 54%);
+        min-height: 255px;
+        padding: 12px;
+        border-radius: 26px;
+      }
+      .device-screen {
+        min-height: 202px;
+        padding: 14px;
+        border-radius: 19px;
+      }
+      .route-home .hero-visual-caption {
+        position: relative;
+        left: auto;
+        bottom: auto;
+        max-width: none;
+        margin-top: 14px;
+        transform: none;
+      }
+      .logo-strip .container {
+        max-width: min(100%, calc(100vw - 32px));
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      .portfolio-grid,
+      .testimonial-grid,
+      .case-points,
+      .receipt-strip-grid {
+        grid-template-columns: 1fr;
+      }
+      .route-home .portfolio-card,
+      .system-panel,
+      .route-home .case-visual,
+      .route-home .advice-card,
+      .route-home .founder-portrait {
+        min-height: 380px;
+        border-radius: 32px;
+      }
+      .case-story,
+      .advice-feature {
+        grid-template-columns: 1fr;
+        max-width: min(100%, calc(100vw - 32px));
+      }
+      .systems-layout h2,
+      .route-home main > .cta-band h2 {
+        font-size: clamp(2.65rem, 13vw, 4.4rem);
+      }
+    }
+    @media (max-width: 560px) {
+      .route-home .nav-wrap {
+        gap: 8px;
+      }
+      .route-home .brand-logo {
+        width: min(47vw, 162px);
+      }
+      .route-home .nav-cta {
+        padding: 8px 12px;
+        font-size: .78rem;
+      }
+      .route-home .hero-home {
+        padding-top: 102px;
+      }
+      .route-home .hero-home h1 {
+        font-size: clamp(2.95rem, 14vw, 4.1rem);
+      }
+      .route-home .hero-wordline span {
+        font-size: .68rem;
+        min-height: 32px;
+      }
+      .route-home .hero-home .actions {
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+      .route-home .btn {
+        width: 100%;
+      }
+      .route-home .poster-board,
+      .hero-showcase {
+        min-height: 390px;
+      }
+      .hero-mini-card {
+        width: 58%;
+      }
+      .hero-mini-card.alt {
+        width: 60%;
+        top: 36%;
+      }
+      .hero-device {
+        width: 54%;
+      }
+      .device-screen b {
+        font-size: 1.08rem;
+      }
+      .screen-lines span:nth-child(3) {
+        display: none;
+      }
+      .route-home .portfolio-card,
+      .system-panel,
+      .route-home .case-visual,
+      .route-home .advice-card {
+        min-height: 330px;
+      }
+      .system-list a {
+        grid-template-columns: 1fr;
+      }
+      .system-list i {
+        display: none;
+      }
+    }
+    .route-home .hero-home {
+      min-height: 820px;
+      padding-top: clamp(118px, 10vw, 150px);
+      padding-bottom: 54px;
+    }
+    .route-home .hero-copy {
+      min-height: 520px;
+    }
+    .route-home .hero-home h1 {
+      font-size: clamp(4.25rem, 6.2vw, 7rem);
+      line-height: .84;
+    }
+    .route-home .poster-board,
+    .hero-showcase {
+      min-height: 565px;
+    }
+    .hero-device {
+      min-height: 330px;
+    }
+    .device-screen {
+      min-height: 255px;
+    }
+    @media (max-width: 980px) {
+      .route-home .hero-home {
+        padding-top: 100px;
+        padding-bottom: 42px;
+      }
+      .route-home .hero-home h1 {
+        font-size: clamp(3rem, 12.8vw, 4.55rem);
+        line-height: .88;
+      }
+      .route-home .poster-board,
+      .hero-showcase {
+        min-height: 350px;
+      }
+      .route-home .hero-wordline {
+        display: none;
+      }
+      .home-mobile-reassurance {
+        display: none;
+      }
+    }
+    @media (max-width: 560px) {
+      .route-home .hero-home {
+        padding-top: 94px;
+        padding-bottom: 36px;
+      }
+      .route-home .hero-home h1 {
+        font-size: clamp(2.55rem, 11.4vw, 3.35rem);
+        line-height: .91;
+      }
+      .route-home .lead {
+        margin-top: 18px;
+        font-size: .98rem;
+        line-height: 1.4;
+      }
+      .route-home .hero-home .actions {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 10px;
+        margin-top: 22px;
+      }
+      .route-home .btn {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+        min-height: 50px;
+        padding: 12px 10px;
+        font-size: .84rem;
+      }
+      .route-home .poster-board,
+      .hero-showcase {
+        min-height: 285px;
+      }
+      .hero-mini-card {
+        display: none;
+      }
+      .hero-device {
+        right: 4%;
+        bottom: -8px;
+        width: 48%;
+        min-height: 198px;
+      }
+      .device-screen {
+        min-height: 148px;
+      }
+      .route-home .hero-visual-caption {
+        display: none;
+      }
+    }
+    .route-home main > section.systems-showcase,
+    .route-home main > section.quiet-band {
+      background:
+        repeating-linear-gradient(90deg, rgba(255,250,240,.03) 0 1px, transparent 1px 82px),
+        repeating-linear-gradient(0deg, rgba(255,250,240,.02) 0 1px, transparent 1px 82px),
+        linear-gradient(145deg, #14252b 0%, #2f505b 72%, #1b333a 100%) !important;
+      color: #fffaf0;
+    }
+    .route-home main > section.systems-showcase h2,
+    .route-home main > section.quiet-band h2,
+    .route-home main > section.quiet-band .section-header h2,
+    .route-home main > section.quiet-band .myth-card h3 {
+      color: #fffaf0;
+    }
+    .route-home main > section.systems-showcase .section-lead,
+    .route-home main > section.quiet-band .section-lead,
+    .route-home main > section.quiet-band .section-header p,
+    .route-home main > section.quiet-band .myth-card p {
+      color: rgba(255,250,240,.76) !important;
+    }
+    .route-home main > section.systems-showcase .scene-label,
+    .route-home main > section.quiet-band .scene-label,
+    .route-home main > section.quiet-band .myth-card strong {
+      color: #f6ba6c;
+      border-color: rgba(246,186,108,.30);
+      background: rgba(246,186,108,.08);
+    }
+    .route-home main > section.systems-showcase .system-list a,
+    .route-home main > section.quiet-band .testimonial-card,
+    .route-home main > section.quiet-band .myth-card {
+      border-color: rgba(255,250,240,.22);
+      color: #fffaf0;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(255,250,240,.10), transparent 34%),
+        linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.10),
+        0 24px 80px rgba(4,13,16,.18);
+    }
+    .route-home main > section.systems-showcase .system-list span,
+    .route-home main > section.systems-showcase .system-list a span,
+    .route-home main > section.quiet-band .testimonial-card p {
+      color: rgba(255,250,240,.78);
+    }
+    .route-home main > section.systems-showcase .system-list b {
+      color: #fffaf0;
+    }
+    .route-home main > section.systems-showcase .system-list i,
+    .route-home main > section.quiet-band .testimonial-card strong {
+      color: #f6ba6c;
+    }
     @media (prefers-reduced-motion: reduce) {
+      .logo-track {
+        animation: none;
+      }
       html { scroll-behavior: auto; }
       *, *::before, *::after {
         animation-duration: .01ms !important;
@@ -2927,9 +3810,12 @@ function shell({ title, description, active = "/", body }) {
         .from(".hero-kicker", { autoAlpha: 0, y: 18, duration: .46 }, .16)
         .fromTo(".hero h1", { y: 54, skewY: 2.4, scale: .985 }, { autoAlpha: 1, y: 0, skewY: 0, scale: 1, duration: 1.05 }, .2)
         .from(".hero .lead", { autoAlpha: 0, y: 18, duration: .62 }, .28)
+        .from(".hero-wordline span", { autoAlpha: 0, y: 12, stagger: .055, duration: .38 }, .34)
         .from(".poster-board", { autoAlpha: 0, y: 30, rotate: -1, scale: .965, duration: .82 }, .30)
         .from(".hero-visual-image", { clipPath: "inset(8% round 42px)", scale: 1.06, duration: .9 }, .34)
         .from(".visual-sheen", { xPercent: -60, duration: 1.05 }, .42)
+        .from(".hero-mini-card", { autoAlpha: 0, y: 24, rotate: -10, scale: .92, stagger: .11, duration: .58 }, .50)
+        .from(".hero-device", { autoAlpha: 0, y: 36, rotate: 4, scale: .9, duration: .7 }, .62)
         .from(".hero-visual-caption", { autoAlpha: 0, y: 18, duration: .48 }, .54)
         .from(".hero-stat", { autoAlpha: 0, y: 18, scale: .96, stagger: .08, duration: .48 }, .38)
         .from(".hero .mockup, .workflow-poster", { autoAlpha: 0, y: 28, scale: .985, duration: .85 }, .34)
@@ -2947,7 +3833,7 @@ function shell({ title, description, active = "/", body }) {
       });
 
       gsap.utils.toArray("section:not(.hero)").forEach(function (section) {
-        var targets = section.querySelectorAll(".section-header, .offer-head, .scene-label, h2, .section-lead, .lead, .item, .proof-tile, .receipt-card, .case-card, .guide-card, .app-story, .offer-card, .decision-card, .price, .question, .path, .logo-pill, .wide-proof-image, .portfolio-card, .founder-portrait, .testimonial-card, .case-visual, .case-point, .receipt-strip-card, .advice-card");
+        var targets = section.querySelectorAll(".section-header, .offer-head, .scene-label, h2, .section-lead, .lead, .item, .proof-tile, .receipt-card, .case-card, .guide-card, .app-story, .offer-card, .decision-card, .price, .question, .path, .logo-pill, .wide-proof-image, .portfolio-card, .founder-portrait, .testimonial-card, .case-visual, .case-point, .receipt-strip-card, .advice-card, .system-panel, .system-list a");
         if (!targets.length) return;
         gsap.from(targets, {
           autoAlpha: 0,
@@ -2965,8 +3851,10 @@ function shell({ title, description, active = "/", body }) {
       gsap.to(".orbit-ring", { rotate: "+=360", duration: 32, ease: "none", repeat: -1, stagger: 6 });
       gsap.to(".floating-chip", { y: -12, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: .35 });
       gsap.to(".holo-console", { y: -10, rotateY: -10, duration: 3.8, ease: "sine.inOut", yoyo: true, repeat: -1 });
+      gsap.to(".hero-showcase", { y: -14, rotate: .7, duration: 4.2, ease: "sine.inOut", yoyo: true, repeat: -1 });
+      gsap.to(".hero-device", { y: -10, rotate: -2.5, duration: 3.4, ease: "sine.inOut", yoyo: true, repeat: -1 });
 
-      gsap.utils.toArray(".offer-card, .item, .proof-tile, .receipt-card, .case-card, .guide-card, .app-story, .decision-card, .price, .question, .path, .mockup, .workflow-poster, .holo-console").forEach(function (card) {
+      gsap.utils.toArray(".offer-card, .item, .proof-tile, .receipt-card, .case-card, .guide-card, .app-story, .decision-card, .price, .question, .path, .mockup, .workflow-poster, .holo-console, .portfolio-card, .system-panel, .hero-showcase").forEach(function (card) {
         card.addEventListener("mousemove", function (event) {
           var rect = card.getBoundingClientRect();
           var x = (event.clientX - rect.left) / rect.width - .5;
@@ -3115,25 +4003,37 @@ function home() {
     <section class="hero hero-home">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <span class="hero-kicker">Premium local websites + honest build advice</span>
-          <h1>A proper local website without learning the tech.</h1>
-          <p class="lead">Steve helps Central QLD businesses get online, look credible, and add bookings, orders, or admin help only when it is worth it.</p>
+          <span class="hero-kicker">Premium websites + practical business systems</span>
+          <h1>Proper local websites that make customers trust you.</h1>
+          <p class="lead">Websites, bookings, and online ordering set up properly, explained in plain English, and built around how real customers decide.</p>
+          <div class="hero-wordline" aria-label="What the website helps customers do"><span>Easy to find</span><span>Easy to trust</span><span>Easy to contact</span></div>
           <div class="hero-stat-grid" aria-label="Penny Wise offer highlights">
-            <div class="hero-stat"><b>Advice first</b><span>clear recommendation before spend</span></div>
+            <div class="hero-stat"><b>Premium</b><span>the business looks properly established</span></div>
             <div class="hero-stat"><b>Owned</b><span>domain, brand, customer path</span></div>
-            <div class="hero-stat"><b>Useful</b><span>systems only when needed</span></div>
+            <div class="hero-stat"><b>Practical</b><span>bookings and orders only when useful</span></div>
           </div>
           <div class="actions">
-            <a class="btn btn-primary" href="${talkUrl}">Ask Steve what fits</a>
-            <a class="btn btn-secondary" href="${builderUrl}">Start a website draft</a>
+            <a class="btn btn-primary" href="${talkUrl}">Talk to Steve</a>
+            <a class="btn btn-secondary" href="/pricing">See packages</a>
           </div>
           <p class="home-mobile-reassurance">Bring the hearsay, doubts, and half-advice. Steve will help sort what matters, what can wait, and what is worth building properly.</p>
-          <div class="clarity-note"><b>Built for Central QLD small businesses, not anonymous templates.</b><span>Bring the hearsay, doubts, and half-advice you have been given. Steve will help sort what matters, what can wait, and what is worth building properly.</span></div>
+          <div class="clarity-note"><b>Built for Central QLD small businesses, not anonymous templates.</b><span>Bring the Facebook advice, Shopify pressure, Google-listing myths, and weekly-menu worries. Steve will sort what matters before you spend.</span></div>
         </div>
         <div class="poster-board" aria-label="Penny Wise premium website preview">
-          <img class="hero-visual-image" src="/visuals/higgsfield-premium-hero.png" width="2048" height="1536" alt="Premium website and customer workflow mockup on a warm studio desk" fetchpriority="high" decoding="async">
-          <span class="visual-sheen" aria-hidden="true"></span>
-          <div class="hero-visual-caption"><b>Not a blank brochure</b><span>Customers get proof, answers, and a clear next step before they call.</span></div>
+          <div class="hero-showcase">
+            <img class="hero-visual-image" src="/visuals/higgsfield-premium-hero.png" width="2048" height="1536" alt="Premium website and customer workflow mockup on a warm studio desk" fetchpriority="high" decoding="async">
+            <span class="visual-sheen" aria-hidden="true"></span>
+            <div class="hero-mini-card"><b>Before they call</b><p>Customers check photos, proof, menu, hours, prices, and whether the business feels real.</p></div>
+            <div class="hero-mini-card alt"><b>Give them something solid.</b><p>One proper place to trust, compare, and take the next step.</p></div>
+            <div class="hero-device" aria-hidden="true">
+              <div class="device-screen">
+                <div><strong>Customer path</strong><b>Book, order, quote, or call.</b></div>
+                <div class="screen-lines"><span></span><span></span><span></span></div>
+                <span class="screen-button">Next step ready</span>
+              </div>
+            </div>
+            <div class="hero-visual-caption"><b>Not a blank brochure</b><span>Customers get proof, answers, and a clear next step before they call.</span></div>
+          </div>
         </div>
       </div>
     </section>
@@ -3154,7 +4054,18 @@ function home() {
       <div class="container">
         <strong>Built for practical local operators</strong>
         <div class="logo-cloud">
-          ${proofLogos.map((item) => `<span class="logo-pill">${item}</span>`).join("")}
+          <div class="logo-track">
+            ${[...proofLogos, ...proofLogos].map((item) => `<span class="logo-pill">${item}</span>`).join("")}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="premium-examples">
+      <div class="container">
+        <div class="section-header"><h2>Make the business feel established before the first conversation.</h2><p>Good design is not decoration. It is the difference between a customer feeling unsure and feeling ready to enquire, book, order, or compare you properly.</p></div>
+        <div class="portfolio-grid">
+          ${portfolioPreviews.map(([title, category, text, label]) => `<article class="portfolio-card"><strong>${category}</strong><h3>${title}</h3><p>${text}</p><span>${label}</span></article>`).join("")}
         </div>
       </div>
     </section>
@@ -3184,6 +4095,20 @@ function home() {
             <article class="case-point"><strong>Outcome</strong><p>Clear menu, photos, Google/Facebook links, enquiry path, and upgrade room.</p></article>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="systems-showcase">
+      <div class="container systems-layout">
+        <div>
+          <span class="scene-label">Bookings, orders, enquiries, follow-up</span>
+          <h2>Add the useful systems after the website earns them.</h2>
+          <p class="section-lead">This is where Penny Wise should feel different from a cheap AI website. Start with credibility, then add the customer flow that saves time, keeps the brand yours, or makes buying easier.</p>
+          <div class="system-list">
+            ${appPlatforms.slice(0, 4).map(([name, text]) => `<a href="/apps"><span><b>${name}</b>${text}</span><i>View</i></a>`).join("")}
+          </div>
+        </div>
+        <div class="system-panel" aria-label="Website systems and booking tools preview"></div>
       </div>
     </section>
 
