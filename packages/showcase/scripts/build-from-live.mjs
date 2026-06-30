@@ -93,6 +93,14 @@ const proofPoints = [
   ["Own the customer", "Your brand, your domain, your enquiries, and less dependence on noisy platform feeds."],
 ];
 
+const buildReceipts = [
+  ["Owned domain", "A proper web address and one clear place customers can trust."],
+  ["Response path", "Calls, forms, bookings, orders, or quotes directed to the right next step."],
+  ["Pricing clarity", "Start lean, then add paid systems only when the business case is clear."],
+  ["No platform lock-in", "Facebook, Google, and Shopify can help, but they should not own the relationship."],
+  ["Launch support", "Plain-English help before and after the first version goes live."],
+];
+
 const caseStudies = [
   ["Weekly-menu food business", "Problem", "Customers see old Facebook posts and ask the same menu questions.", "Build a current menu page, update path, photos, Google/Facebook links, and optional pickup ordering."],
   ["Service operator", "Problem", "Jobs arrive through calls, screenshots, and scattered messages.", "Build a proper enquiry path with service areas, quote details, photos, status updates, and follow-up."],
@@ -1938,7 +1946,11 @@ function shell({ title, description, active = "/", body }) {
       --copper-2: #f3eee4;
       background: #344f5c;
     }
-    .route-home .scene-canvas { opacity: .045; filter: saturate(.2) contrast(.8); }
+    .route-home .scene-canvas {
+      opacity: .14;
+      filter: saturate(.45) contrast(.85);
+      mask-image: linear-gradient(90deg, transparent 0 38%, rgba(0,0,0,.2) 48%, #000 72%);
+    }
     .route-home .ambient {
       background:
         radial-gradient(circle at 68% 28%, rgba(255,255,255,.08), transparent 24rem),
@@ -1962,6 +1974,11 @@ function shell({ title, description, active = "/", body }) {
       background: transparent;
       border-bottom: 0;
       box-shadow: none;
+    }
+    .route-home .site-header.is-scrolled .nav-wrap {
+      min-height: 68px;
+      background: rgba(52,79,92,.82);
+      box-shadow: 0 18px 60px rgba(7,18,24,.20);
     }
     .route-home .nav-wrap {
       max-width: min(1368px, calc(100vw - 72px));
@@ -2064,6 +2081,16 @@ function shell({ title, description, active = "/", body }) {
       border-radius: 52px;
       transform: rotate(-2deg);
       z-index: -2;
+    }
+    .route-home .poster-board .visual-sheen {
+      position: absolute;
+      inset: 0;
+      border-radius: 42px;
+      pointer-events: none;
+      background: linear-gradient(115deg, transparent 0 34%, rgba(255,255,255,.24) 46%, transparent 58% 100%);
+      mix-blend-mode: soft-light;
+      opacity: .55;
+      transform: translateX(-24%);
     }
     .route-home .hero-visual-image {
       display: block;
@@ -2310,6 +2337,198 @@ function shell({ title, description, active = "/", body }) {
       font-size: 1.24rem;
       line-height: 1.28;
       color: #344f5c;
+    }
+    .decision-band {
+      padding-top: 72px;
+      padding-bottom: 78px;
+    }
+    .decision-band .situation-grid {
+      margin-top: 30px;
+    }
+    .route-home .decision-band .situation-card {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.68), rgba(255,255,255,.34)),
+        #f7f5ee;
+      box-shadow: 0 22px 70px rgba(24,52,62,.10);
+    }
+    .case-story {
+      display: grid;
+      grid-template-columns: minmax(360px, .88fr) minmax(0, 1fr);
+      gap: clamp(32px, 5vw, 76px);
+      align-items: center;
+      margin-top: 34px;
+    }
+    .case-visual {
+      position: relative;
+      min-height: 560px;
+      border-radius: 46px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(52,79,92,.04), rgba(52,79,92,.28)),
+        url("/visuals/premium-site-stack.svg") center / cover no-repeat;
+      box-shadow: 0 36px 110px rgba(24,52,62,.18);
+    }
+    .case-visual::after {
+      content: "Decision before build";
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      bottom: 28px;
+      padding: 18px 20px;
+      border-radius: 24px;
+      color: #f7fbf8;
+      background: rgba(24,52,62,.78);
+      border: 1px solid rgba(247,251,248,.28);
+      backdrop-filter: blur(12px);
+      font-weight: 950;
+    }
+    .case-copy h2 {
+      margin-bottom: 18px;
+      font-size: clamp(2.6rem, 5vw, 5rem);
+      line-height: .92;
+    }
+    .case-copy p {
+      max-width: 760px;
+      color: rgba(52,79,92,.76);
+    }
+    .case-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 28px;
+    }
+    .case-point {
+      min-height: 156px;
+      padding: 20px;
+      border: 1px solid rgba(52,79,92,.22);
+      border-radius: 26px;
+      background: rgba(255,255,255,.48);
+    }
+    .case-point strong,
+    .receipt-strip-card strong {
+      display: block;
+      margin-bottom: 10px;
+      color: #344f5c;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+    }
+    .case-point p,
+    .receipt-strip-card p {
+      margin-bottom: 0;
+      color: rgba(52,79,92,.76);
+    }
+    .receipt-strip-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 32px;
+    }
+    .receipt-strip-card {
+      min-height: 168px;
+      padding: 20px;
+      border-radius: 28px;
+      border: 1px solid rgba(52,79,92,.20);
+      background: linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.25));
+      box-shadow: 0 18px 50px rgba(24,52,62,.08);
+    }
+    .advice-feature {
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(340px, .62fr);
+      gap: clamp(32px, 5vw, 76px);
+      align-items: center;
+    }
+    .advice-card {
+      min-height: 520px;
+      border-radius: 48px;
+      background:
+        linear-gradient(180deg, rgba(52,79,92,.02), rgba(52,79,92,.68)),
+        url("/visuals/local-proof-board.svg") center / cover no-repeat;
+      box-shadow: 0 36px 100px rgba(7,18,24,.24);
+      position: relative;
+      overflow: hidden;
+    }
+    .advice-card::after {
+      content: "Bring the Facebook advice, Shopify pressure, Google listing myths, and website doubts.";
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      bottom: 28px;
+      padding: 20px;
+      border-radius: 26px;
+      color: #f7fbf8;
+      background: rgba(24,52,62,.80);
+      border: 1px solid rgba(247,251,248,.26);
+      backdrop-filter: blur(14px);
+      font-weight: 850;
+    }
+    .home-mobile-reassurance {
+      display: none;
+    }
+    .route-home .quiet-band .myth-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 34px;
+    }
+    .route-home .quiet-band .myth-card {
+      min-height: 280px;
+      grid-template-columns: 1fr;
+      align-content: space-between;
+      padding: 28px;
+      border: 1px solid rgba(247,251,248,.18);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(247,251,248,.10), transparent 28%),
+        linear-gradient(145deg, rgba(255,255,255,.095), rgba(255,255,255,.035));
+      box-shadow: 0 28px 90px rgba(7,18,24,.16);
+    }
+    .route-home .quiet-band .myth-card:first-child {
+      grid-column: span 2;
+      min-height: 320px;
+      grid-template-columns: minmax(0, .58fr) minmax(0, 1fr);
+      align-items: end;
+    }
+    .route-home .quiet-band .myth-card h3 {
+      max-width: 560px;
+      font-size: clamp(1.65rem, 3.2vw, 3.2rem);
+      line-height: .95;
+      color: #f7fbf8;
+    }
+    .route-home .quiet-band .myth-card p {
+      color: rgba(247,251,248,.76);
+      font-size: 1.02rem;
+      line-height: 1.55;
+    }
+    .route-home main > .cta-band {
+      padding: 88px 22px;
+      background: #f7f5ee;
+      color: #344f5c;
+      border-top: 1px solid rgba(52,79,92,.18);
+      border-bottom: 0;
+      box-shadow: none;
+    }
+    .route-home main > .cta-band .cta-inner {
+      padding-top: 34px;
+      border-top: 1px solid rgba(52,79,92,.24);
+    }
+    .route-home main > .cta-band h2 {
+      max-width: 760px;
+      font-size: clamp(2.6rem, 6.2vw, 6.2rem);
+      line-height: .88;
+      color: #344f5c;
+    }
+    .route-home main > .cta-band p {
+      max-width: 680px;
+      color: rgba(52,79,92,.72);
+      font-size: 1.1rem;
+    }
+    .route-home main > .cta-band .btn-primary {
+      color: #f7fbf8;
+      background: #344f5c;
+    }
+    .route-home main > .cta-band .btn-secondary {
+      color: #344f5c;
+      border-color: rgba(52,79,92,.30);
     }
     .route-home .hero-home .actions { margin-top: 28px; }
     .route-home .btn {
@@ -2564,8 +2783,8 @@ function shell({ title, description, active = "/", body }) {
         padding-bottom: 48px;
       }
       .route-home .hero-home h1 {
-        font-size: clamp(2.62rem, 12vw, 3.35rem);
-        line-height: .92;
+        font-size: clamp(2.25rem, 10.4vw, 2.95rem);
+        line-height: .96;
         letter-spacing: 0;
         text-shadow: none;
       }
@@ -2584,19 +2803,60 @@ function shell({ title, description, active = "/", body }) {
       .route-home .clarity-note {
         display: none;
       }
+      .home-mobile-reassurance {
+        display: block;
+        margin-top: 14px;
+        color: rgba(247,251,248,.82);
+        font-size: .92rem;
+        line-height: 1.42;
+      }
       .logo-strip .container,
       .logo-cloud,
       .portfolio-grid,
       .founder-feature,
-      .testimonial-grid {
+      .testimonial-grid,
+      .case-story,
+      .case-points,
+      .receipt-strip-grid,
+      .advice-feature,
+      .route-home .quiet-band .myth-grid,
+      .route-home .quiet-band .myth-card:first-child,
+      .route-home main > .cta-band .cta-inner {
         grid-template-columns: 1fr;
       }
       .logo-cloud {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
       .portfolio-card,
-      .founder-portrait {
+      .founder-portrait,
+      .case-visual,
+      .advice-card {
         min-height: 330px;
+      }
+      .decision-band {
+        padding-top: 48px;
+        padding-bottom: 50px;
+      }
+      .receipt-strip-grid {
+        gap: 10px;
+      }
+      .receipt-strip-card,
+      .case-point {
+        min-height: auto;
+      }
+      .route-home .scene-canvas {
+        display: none;
+      }
+      .route-home .quiet-band .myth-card,
+      .route-home .quiet-band .myth-card:first-child {
+        grid-column: auto;
+        min-height: auto;
+      }
+      .route-home main > .cta-band {
+        padding: 62px 18px;
+      }
+      .route-home main > .cta-band h2 {
+        font-size: clamp(2.3rem, 12vw, 3.5rem);
       }
       .poster-board { display: none; }
       .route-home .poster-board { display: block; }
@@ -2668,9 +2928,10 @@ function shell({ title, description, active = "/", body }) {
         .fromTo(".hero h1", { y: 54, skewY: 2.4, scale: .985 }, { autoAlpha: 1, y: 0, skewY: 0, scale: 1, duration: 1.05 }, .2)
         .from(".hero .lead", { autoAlpha: 0, y: 18, duration: .62 }, .28)
         .from(".poster-board", { autoAlpha: 0, y: 30, rotate: -1, scale: .965, duration: .82 }, .30)
+        .from(".hero-visual-image", { clipPath: "inset(8% round 42px)", scale: 1.06, duration: .9 }, .34)
+        .from(".visual-sheen", { xPercent: -60, duration: 1.05 }, .42)
         .from(".hero-visual-caption", { autoAlpha: 0, y: 18, duration: .48 }, .54)
         .from(".hero-stat", { autoAlpha: 0, y: 18, scale: .96, stagger: .08, duration: .48 }, .38)
-        .from(".hero .actions .btn", { autoAlpha: 0, y: 14, stagger: .08, duration: .48 }, .52)
         .from(".hero .mockup, .workflow-poster", { autoAlpha: 0, y: 28, scale: .985, duration: .85 }, .34)
         .from(".hero .mock-row", { autoAlpha: 0, x: 18, stagger: .08, duration: .42 }, .58)
         .from(".workflow-step", { autoAlpha: 0, x: 18, stagger: .08, duration: .42 }, .58)
@@ -2686,7 +2947,7 @@ function shell({ title, description, active = "/", body }) {
       });
 
       gsap.utils.toArray("section:not(.hero)").forEach(function (section) {
-        var targets = section.querySelectorAll(".section-header, .offer-head, .scene-label, h2, .section-lead, .lead, .item, .proof-tile, .receipt-card, .case-card, .guide-card, .app-story, .offer-card, .decision-card, .price, .question, .path, .logo-pill, .wide-proof-image, .portfolio-card, .founder-portrait, .testimonial-card");
+        var targets = section.querySelectorAll(".section-header, .offer-head, .scene-label, h2, .section-lead, .lead, .item, .proof-tile, .receipt-card, .case-card, .guide-card, .app-story, .offer-card, .decision-card, .price, .question, .path, .logo-pill, .wide-proof-image, .portfolio-card, .founder-portrait, .testimonial-card, .case-visual, .case-point, .receipt-strip-card, .advice-card");
         if (!targets.length) return;
         gsap.from(targets, {
           autoAlpha: 0,
@@ -2722,7 +2983,8 @@ function shell({ title, description, active = "/", body }) {
     import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js";
     var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var canvas = document.querySelector(".scene-canvas");
-    if (canvas && !reduceMotion) {
+    var disableHomeMobileThree = document.body.classList.contains("route-home") && window.innerWidth < 900;
+    if (canvas && !reduceMotion && !disableHomeMobileThree) {
       var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
       var scene = new THREE.Scene();
@@ -2848,31 +3110,46 @@ function home() {
   return shell({
     active: "/",
     title: "Penny Wise I.T - Premium Websites and Business Systems",
-    description: "Premium websites, customer tools, and automation for Australian small businesses that want a clear, guided build without the tech headache.",
+    description: "Owner-led website advice, premium local presence, and practical customer systems for Central QLD businesses.",
     body: `<main>
     <section class="hero hero-home">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <span class="hero-kicker">Premium websites + practical business systems</span>
-          <h1>Professional websites and tools without the tech headache.</h1>
-          <p class="lead">Penny Wise I.T helps local businesses launch with a polished website, then add bookings, ordering, forms, follow-ups, or automation only when it clearly helps the business.</p>
+          <span class="hero-kicker">Premium local websites + honest build advice</span>
+          <h1>A proper local website without learning the tech.</h1>
+          <p class="lead">Steve helps Central QLD businesses get online, look credible, and add bookings, orders, or admin help only when it is worth it.</p>
           <div class="hero-stat-grid" aria-label="Penny Wise offer highlights">
-            <div class="hero-stat"><b>Local</b><span>Central QLD business focus</span></div>
-            <div class="hero-stat"><b>Pro</b><span>managed polish available</span></div>
-            <div class="hero-stat"><b>Yours</b><span>brand, domain, customers</span></div>
+            <div class="hero-stat"><b>Advice first</b><span>clear recommendation before spend</span></div>
+            <div class="hero-stat"><b>Owned</b><span>domain, brand, customer path</span></div>
+            <div class="hero-stat"><b>Useful</b><span>systems only when needed</span></div>
           </div>
           <div class="actions">
-            <a class="btn btn-primary" href="${builderUrl}">Start my website</a>
-            <a class="btn btn-secondary" href="${talkUrl}">Ask Steve what fits</a>
+            <a class="btn btn-primary" href="${talkUrl}">Ask Steve what fits</a>
+            <a class="btn btn-secondary" href="${builderUrl}">Start a website draft</a>
           </div>
+          <p class="home-mobile-reassurance">Bring the hearsay, doubts, and half-advice. Steve will help sort what matters, what can wait, and what is worth building properly.</p>
           <div class="clarity-note"><b>Built for Central QLD small businesses, not anonymous templates.</b><span>Bring the hearsay, doubts, and half-advice you have been given. Steve will help sort what matters, what can wait, and what is worth building properly.</span></div>
         </div>
         <div class="poster-board" aria-label="Penny Wise premium website preview">
-          <img class="hero-visual-image" src="/visuals/higgsfield-premium-hero.png" width="2048" height="1536" alt="Premium website and customer workflow mockup on a warm studio desk">
+          <img class="hero-visual-image" src="/visuals/higgsfield-premium-hero.png" width="2048" height="1536" alt="Premium website and customer workflow mockup on a warm studio desk" fetchpriority="high" decoding="async">
+          <span class="visual-sheen" aria-hidden="true"></span>
           <div class="hero-visual-caption"><b>Not a blank brochure</b><span>Customers get proof, answers, and a clear next step before they call.</span></div>
         </div>
       </div>
     </section>
+
+    <section class="decision-band">
+      <div class="container">
+        <div class="offer-head">
+          <h2>Choose the starting point that sounds like you.</h2>
+          <p>One clear decision first. The product names can come after the business problem is understood.</p>
+        </div>
+        <div class="situation-grid">
+          ${situations.map(([title, heading, text, cta, href], index) => `<a class="situation-card" href="${href}"><span class="situation-number">0${index + 1}</span><h3>${title}</h3><p><b>${heading}</b></p><p>${text}</p><span>${cta}</span></a>`).join("")}
+        </div>
+      </div>
+    </section>
+
     <section class="logo-strip" aria-label="Business categories Penny Wise can support">
       <div class="container">
         <strong>Built for practical local operators</strong>
@@ -2881,72 +3158,47 @@ function home() {
         </div>
       </div>
     </section>
+
     <section>
       <div class="container">
-        <div class="section-header"><h2>Proof should feel obvious before the first call.</h2><p>A premium website is not just a nice page. It shows the business is active, reachable, credible, and ready for the next customer.</p></div>
-        <div class="proof-rail">
-          ${proofPoints.map(([title, text]) => `<article class="proof-tile"><strong>${title}</strong><p>${text}</p></article>`).join("")}
-        </div>
+        <div class="section-header"><h2>A website should make the next customer more confident.</h2><p>Facebook, Google, and Shopify can all be useful. Your own website gives people one reliable place to check the business before they call, book, order, or compare you.</p></div>
         <figure class="wide-proof-image">
-          <img src="/visuals/local-proof-board.svg" width="1200" height="620" alt="Editorial board showing the details customers check before they contact a local business">
+          <img src="/visuals/local-proof-board.svg" width="1200" height="620" alt="Editorial board showing the details customers check before they contact a local business" loading="lazy" decoding="async">
         </figure>
-      </div>
-    </section>
-    <section>
-      <div class="container">
-        <div class="section-header"><h2>Website work should look like real business progress.</h2><p>These are the kinds of outcomes to show before asking a customer to call, book, order, or trust the business.</p></div>
-        <div class="portfolio-grid">
-          ${portfolioPreviews.map(([title, type, text, outcome]) => `<article class="portfolio-card"><strong>${type}</strong><h3>${title}</h3><p>${text}</p><span>${outcome}</span></article>`).join("")}
+        <div class="receipt-strip-grid">
+          ${buildReceipts.map(([title, text]) => `<article class="receipt-strip-card"><strong>${title}</strong><p>${text}</p></article>`).join("")}
         </div>
       </div>
     </section>
+
     <section>
-      <div class="container founder-feature">
-        <div><span class="scene-label">Steve filters the tech</span><h2>Premium does not mean making the client learn software.</h2><p class="section-lead">The job is to translate messy advice into a clear next step: what customers need to see, what should be online, what can wait, and what will actually pay back for the business.</p><div class="testimonial-grid">${testimonials.map(([quote, source]) => `<article class="testimonial-card"><strong>${source}</strong><p>&ldquo;${quote}&rdquo;</p></article>`).join("")}</div></div>
-        <div class="founder-portrait" aria-label="Penny Wise practical website planning visual"></div>
+      <div class="container case-story">
+        <div class="case-visual" aria-label="Premium website decision path example"></div>
+        <div class="case-copy">
+          <span class="scene-label">Example build logic</span>
+          <h2>Start with the customer decision, not the software.</h2>
+          <p>A weekly-menu food business does not need a bloated system on day one. It needs the current menu, location, hours, proof, a clean update path, and a way for people to take the next step without digging through old posts.</p>
+          <div class="case-points">
+            <article class="case-point"><strong>Problem</strong><p>Customers see old Facebook posts and ask the same menu questions.</p></article>
+            <article class="case-point"><strong>Decision</strong><p>Build the credible front door first. Add ordering only if demand proves it.</p></article>
+            <article class="case-point"><strong>Outcome</strong><p>Clear menu, photos, Google/Facebook links, enquiry path, and upgrade room.</p></article>
+          </div>
+        </div>
       </div>
     </section>
-    <section>
-      <div class="container">
-        <div class="offer-head">
-          <h2>Choose the starting point that sounds like you.</h2>
-          <p>One clear decision first. The product names can come later.</p>
-        </div>
-        <div class="situation-grid">
-          ${situations.map(([title, heading, text, cta, href], index) => `<a class="situation-card" href="${href}"><span class="situation-number">0${index + 1}</span><h3>${title}</h3><p><b>${heading}</b></p><p>${text}</p><span>${cta}</span></a>`).join("")}
-        </div>
-      </div>
-    </section>
+
     <section class="quiet-band">
-      <div class="container guide-panel">
-        <div class="guide-copy"><span class="scene-label">Talk to Steve</span><h2>A premium build still starts with a straight conversation.</h2><p>Most small business owners do not need more tech noise. They need someone to translate the mess: what customers need to see, what should be online, what is worth automating, and what is not worth paying for yet.</p><div class="receipt-grid">${trustReceipts.map(([title, text]) => `<article class="receipt-card"><strong>${title}</strong><p>${text}</p></article>`).join("")}</div></div>
-        <aside class="guide-card" aria-label="Steve helps choose the right build"><div class="guide-avatar">S</div><div><h3>Steve filters the options before you spend.</h3><p>Bring the Facebook advice, Shopify pressure, Google listing myths, and website doubts. The job is to find the smallest serious next step.</p></div></aside>
-      </div>
-    </section>
-    <section class="quiet-band">
-      <div class="container split">
-        <div><span class="scene-label">How it works</span><h2>Simple steps. No tech lecture.</h2><p class="section-lead">A premium build should feel calm and guided. The first job is to understand the business, not bury you in product names.</p></div>
-        <div class="plain-steps">
-          ${howItWorks.map(([title, text]) => `<article class="plain-step"><h3>${title}</h3><p>${text}</p></article>`).join("")}
+      <div class="container advice-feature">
+        <div>
+          <span class="scene-label">Steve filters the noise</span>
+          <h2>Premium means clear advice, not unnecessary complexity.</h2>
+          <p class="section-lead">Most small business owners do not need more tech noise. They need someone to translate the mess: what customers need to see, what should be online, what can wait, and what is worth paying for.</p>
+          <div class="testimonial-grid">${testimonials.map(([quote, source]) => `<article class="testimonial-card"><strong>${source}</strong><p>&ldquo;${quote}&rdquo;</p></article>`).join("")}</div>
         </div>
+        <div class="advice-card" aria-label="Steve filters website advice before a business spends"></div>
       </div>
     </section>
-    <section>
-      <div class="container">
-        <div class="section-header"><h2>Built for real business jobs.</h2><p>Use the website as the polished front door. Add the serious parts when customers need to do something.</p></div>
-        <div class="example-grid">
-          ${examples.map(([title, text]) => `<article class="example-card"><h3>${title}</h3><p>${text}</p></article>`).join("")}
-        </div>
-      </div>
-    </section>
-    <section>
-      <div class="container">
-        <div class="section-header"><h2>Make the work visible.</h2><p>These are the kinds of local business problems Penny Wise can turn into a clear website or workflow. Real client logos can sit here once you are ready to show them.</p></div>
-        <div class="case-grid">
-          ${caseStudies.map(([title, label, problem, answer]) => `<article class="case-card"><div><strong>${label}</strong><h3>${title}</h3><p>${problem}</p></div><div class="case-answer">${answer}</div></article>`).join("")}
-        </div>
-      </div>
-    </section>
+
     <section class="quiet-band">
       <div class="container">
         <div class="section-header">
@@ -2958,18 +3210,7 @@ function home() {
         </div>
       </div>
     </section>
-    <section class="cinema-band">
-      <div class="container">
-        <div class="section-header">
-          <h2>Premium means clear advice, not unnecessary complexity.</h2>
-          <p>Start with the right level of build. Add more only when it earns its place.</p>
-        </div>
-        <div class="reassurance-grid">
-          ${reassurance.map(([title, text]) => `<article class="reassurance-card"><h3>${title}</h3><p>${text}</p></article>`).join("")}
-        </div>
-      </div>
-    </section>
-    ${ctaBand({ title: "Start with a professional first step.", text: "Build a guided website draft, or talk to Steve about what is worth building before you spend more.", primary: "Start my website", secondary: "Ask Steve what fits", primaryHref: builderUrl, secondaryHref: talkUrl })}
+    ${ctaBand({ title: "Show Steve what you are trying to fix.", text: "Send the current website, Facebook page, Google listing, Shopify idea, or business problem. The answer may be a website, a workflow, or nothing bigger yet.", primary: "Ask Steve what fits", secondary: "Start a website draft", primaryHref: talkUrl, secondaryHref: builderUrl })}
   </main>`,
   });
 }
