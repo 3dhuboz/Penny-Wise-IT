@@ -3763,6 +3763,256 @@ function shell({ title, description, active = "/", body }) {
     .route-home main > section.quiet-band .testimonial-card strong {
       color: #f6ba6c;
     }
+    /* Approved concept correction: compact agency header and image-led hero. */
+    .route-home .site-header {
+      padding: 18px clamp(18px, 3vw, 42px) 0;
+    }
+    .route-home .nav-wrap {
+      max-width: min(1760px, calc(100vw - 64px));
+      min-height: 74px;
+      padding: 8px 20px 8px 10px;
+      border-radius: 999px;
+      border-color: rgba(255,250,240,.58);
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.12), rgba(255,255,255,.035)),
+        rgba(18,35,40,.80);
+      box-shadow: 0 20px 58px rgba(3,12,15,.25);
+    }
+    .route-home .brand {
+      padding: 5px 14px 5px 6px;
+      min-height: 54px;
+    }
+    .route-home .brand-logo {
+      width: clamp(164px, 14vw, 218px);
+    }
+    .route-home nav a {
+      min-height: 40px;
+      padding: 9px 13px;
+      font-size: .88rem;
+    }
+    .route-home .nav-cta {
+      min-width: 160px;
+      min-height: 48px;
+      padding-inline: 20px;
+    }
+    .route-home .hero-home {
+      min-height: min(820px, calc(100vh - 0px));
+      padding-top: clamp(104px, 8.2vw, 132px);
+      padding-bottom: 36px;
+      background:
+        linear-gradient(90deg, rgba(9,16,18,.18), rgba(9,16,18,0) 42%, rgba(9,16,18,.08)),
+        repeating-linear-gradient(90deg, rgba(255,250,240,.032) 0 1px, transparent 1px 72px),
+        repeating-linear-gradient(0deg, rgba(255,250,240,.025) 0 1px, transparent 1px 72px),
+        linear-gradient(145deg, #315460 0%, #294a54 44%, #0f2025 100%);
+    }
+    .route-home .hero-grid {
+      max-width: min(1760px, calc(100vw - 64px));
+      grid-template-columns: minmax(0, .92fr) minmax(500px, 1fr);
+      align-items: center;
+      gap: clamp(28px, 4.2vw, 62px);
+    }
+    .route-home .hero-copy {
+      min-height: auto;
+      max-width: 820px;
+      align-content: center;
+      padding-bottom: 0;
+    }
+    .route-home .hero-kicker {
+      margin-bottom: 24px;
+      padding: 10px 15px;
+      font-size: .74rem;
+    }
+    .route-home .hero-home h1 {
+      max-width: 820px;
+      font-size: clamp(3.7rem, 4.8vw, 5.45rem);
+      line-height: .9;
+      text-shadow: 0 9px 0 rgba(0,0,0,.18);
+    }
+    .route-home .lead {
+      max-width: 650px;
+      margin-top: 24px;
+      font-size: clamp(1.05rem, 1.32vw, 1.24rem);
+      line-height: 1.48;
+    }
+    .route-home .hero-wordline {
+      display: none;
+    }
+    .route-home .hero-stat-grid {
+      display: flex;
+      gap: 12px;
+      margin-top: 22px;
+      padding-top: 0;
+      border-top: 0;
+    }
+    .route-home .hero-stat {
+      min-width: 0;
+      padding: 8px 11px;
+      border: 1px solid rgba(255,250,240,.18);
+      border-radius: 999px;
+      background: rgba(255,250,240,.06);
+    }
+    .route-home .hero-stat b {
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      font-size: .78rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .route-home .hero-stat span {
+      display: none;
+    }
+    .route-home .hero-home .actions {
+      margin-top: 26px;
+    }
+    .route-home .btn {
+      min-height: 50px;
+      padding: 13px 19px;
+      font-size: .92rem;
+    }
+    .route-home .clarity-note {
+      display: none;
+    }
+    .route-home .poster-board,
+    .hero-showcase {
+      min-height: clamp(500px, 45vw, 620px);
+      margin-top: 0;
+      transform: none;
+    }
+    .route-home .poster-board::before {
+      inset: 12% 3% 0 9%;
+      filter: blur(26px);
+      opacity: .88;
+    }
+    .route-home .poster-board::after {
+      display: none;
+    }
+    .route-home .hero-visual-image {
+      inset: 2% 0 4% 0;
+      width: 100%;
+      height: 94%;
+      border-radius: 36px;
+    }
+    .hero-mini-card {
+      top: 12%;
+      left: -3%;
+      width: min(245px, 42%);
+      padding: 16px;
+    }
+    .hero-mini-card.alt {
+      top: 4%;
+      right: 4%;
+      width: min(282px, 46%);
+    }
+    .hero-device {
+      right: -3%;
+      bottom: 4%;
+      width: min(246px, 38%);
+      min-height: 318px;
+    }
+    .device-screen {
+      min-height: 242px;
+    }
+    .route-home .hero-visual-caption {
+      left: 5%;
+      bottom: 4%;
+      max-width: 300px;
+    }
+    @media (max-width: 1100px) {
+      .route-home .hero-grid {
+        grid-template-columns: minmax(0, .88fr) minmax(420px, .92fr);
+      }
+      .route-home .hero-home h1 {
+        font-size: clamp(3.4rem, 5.6vw, 4.8rem);
+      }
+      .route-home .poster-board,
+      .hero-showcase {
+        min-height: 470px;
+      }
+      .route-home nav a:not(.nav-cta) {
+        display: none;
+      }
+    }
+    @media (max-width: 760px) {
+      .route-home .site-header {
+        padding: 14px 14px 0;
+      }
+      .route-home .nav-wrap {
+        max-width: none;
+        min-height: 62px;
+        padding: 8px 10px;
+      }
+      .route-home .brand {
+        min-height: 48px;
+      }
+      .route-home .brand-logo {
+        width: min(46vw, 164px);
+      }
+      .route-home .nav-cta {
+        min-height: 42px;
+        min-width: 0;
+        padding-inline: 13px;
+        font-size: .76rem;
+      }
+      .route-home .hero-home {
+        min-height: auto;
+        padding-top: 100px;
+        padding-bottom: 30px;
+      }
+      .route-home .hero-grid {
+        max-width: min(100%, calc(100vw - 32px));
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+      .route-home .hero-kicker {
+        margin-bottom: 22px;
+      }
+      .route-home .hero-home h1 {
+        max-width: 100%;
+        font-size: clamp(2.62rem, 11.2vw, 3.42rem);
+        line-height: .94;
+        text-shadow: 0 6px 0 rgba(0,0,0,.16);
+      }
+      .route-home .lead {
+        margin-top: 18px;
+        font-size: .98rem;
+      }
+      .route-home .hero-stat-grid,
+      .home-mobile-reassurance {
+        display: none;
+      }
+      .route-home .hero-home .actions {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 10px;
+        margin-top: 22px;
+      }
+      .route-home .hero-home .btn {
+        flex: 1 1 0;
+        min-width: 0;
+        min-height: 50px;
+        padding: 12px 10px;
+        font-size: .84rem;
+      }
+      .route-home .poster-board,
+      .hero-showcase {
+        min-height: 300px;
+      }
+      .hero-mini-card,
+      .hero-mini-card.alt,
+      .route-home .hero-visual-caption {
+        display: none;
+      }
+      .hero-device {
+        right: 4%;
+        bottom: -8px;
+        width: 48%;
+        min-height: 198px;
+      }
+      .device-screen {
+        min-height: 148px;
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       .logo-track {
         animation: none;
