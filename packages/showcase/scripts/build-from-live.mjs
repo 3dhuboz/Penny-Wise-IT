@@ -4013,6 +4013,815 @@ function shell({ title, description, active = "/", body }) {
         min-height: 148px;
       }
     }
+    /* Flagship reference pass: match the approved compact, image-led agency page. */
+    .route-home {
+      --max: 1240px;
+      --flag-bg: #061313;
+      --flag-panel: #0b2527;
+      --flag-ink: #f7f2e8;
+      --flag-muted: rgba(247,242,232,.72);
+      --flag-cream: #f5eee3;
+      --flag-teal: #274d56;
+      --flag-orange: #e98c33;
+      background: var(--flag-bg);
+      color: var(--flag-ink);
+    }
+    .route-home .ambient {
+      background:
+        radial-gradient(circle at 18% 22%, rgba(233,140,51,.18), transparent 21rem),
+        radial-gradient(circle at 78% 18%, rgba(42,94,100,.52), transparent 28rem),
+        linear-gradient(180deg, rgba(6,19,19,.16), rgba(6,19,19,.88));
+    }
+    .route-home .scene-canvas { opacity: .12; }
+    .route-home .noise {
+      opacity: .12;
+      background-size: 58px 58px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,.9), transparent 74%);
+    }
+    .route-home .site-header {
+      padding: 0;
+      background: rgba(4,12,12,.96);
+      border-bottom: 1px solid rgba(247,242,232,.08);
+      backdrop-filter: blur(18px);
+      box-shadow: none;
+    }
+    .route-home .site-header.is-scrolled {
+      background: rgba(4,12,12,.98);
+      border-bottom-color: rgba(233,140,51,.20);
+      box-shadow: 0 12px 34px rgba(0,0,0,.22);
+    }
+    .route-home .nav-wrap {
+      max-width: var(--max);
+      min-height: 54px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      gap: 28px;
+    }
+    .route-home .brand {
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+    .route-home .brand::after { display: none; }
+    .route-home .brand-logo {
+      width: clamp(108px, 10vw, 138px);
+      filter: none;
+    }
+    .route-home nav {
+      gap: clamp(12px, 1.4vw, 24px);
+      flex-wrap: nowrap;
+    }
+    .route-home nav a:not(.nav-cta) {
+      min-height: auto;
+      padding: 5px 0;
+      border-radius: 0;
+      color: rgba(247,242,232,.78);
+      font-size: .69rem;
+      line-height: 1;
+      letter-spacing: -.01em;
+      white-space: nowrap;
+    }
+    .route-home nav a:hover,
+    .route-home nav a.active {
+      color: #fff6e8;
+      background: transparent;
+    }
+    .route-home .nav-cta {
+      min-width: 0;
+      min-height: 34px;
+      margin-left: 0;
+      padding: 9px 15px;
+      border: 0;
+      color: #15100a;
+      background: linear-gradient(135deg, #f3ab56, #d87924);
+      box-shadow: 0 12px 24px rgba(216,121,36,.26);
+      font-size: .74rem;
+    }
+    .route-home .hero-home {
+      min-height: 0;
+      padding: clamp(34px, 4vw, 52px) 22px 0;
+      background:
+        linear-gradient(90deg, rgba(6,19,19,.90) 0%, rgba(7,26,27,.76) 43%, rgba(7,24,24,.38) 100%),
+        radial-gradient(circle at 78% 20%, rgba(233,140,51,.22), transparent 24rem),
+        radial-gradient(circle at 42% 75%, rgba(45,105,96,.30), transparent 28rem),
+        var(--flag-bg);
+    }
+    .route-home .hero-home::before {
+      opacity: .20;
+      background:
+        linear-gradient(rgba(247,242,232,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(247,242,232,.045) 1px, transparent 1px);
+      background-size: 58px 58px;
+    }
+    .route-home .hero-home::after { display: none; }
+    .route-home .hero-grid {
+      max-width: var(--max);
+      display: grid;
+      grid-template-columns: minmax(320px, .62fr) minmax(540px, 1fr);
+      align-items: center;
+      gap: clamp(28px, 3.8vw, 58px);
+    }
+    .route-home .hero-copy {
+      max-width: 520px;
+      align-content: center;
+      padding: 0 0 28px;
+    }
+    .route-home .hero-kicker {
+      display: inline-flex;
+      width: fit-content;
+      margin: 0 0 16px;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      color: #d9903a;
+      font-size: .58rem;
+      letter-spacing: .13em;
+    }
+    .route-home .hero-kicker::before {
+      width: 5px;
+      height: 5px;
+      background: #43e7ac;
+      box-shadow: 0 0 14px rgba(67,231,172,.8);
+    }
+    .route-home .hero-home h1 {
+      max-width: 520px;
+      margin-bottom: 14px;
+      font-size: clamp(2.6rem, 4.45vw, 4.5rem);
+      line-height: .92;
+      letter-spacing: -.015em;
+      text-shadow: 0 7px 0 rgba(0,0,0,.26), 0 28px 70px rgba(0,0,0,.50);
+    }
+    .route-home .lead {
+      max-width: 510px;
+      margin: 0;
+      color: var(--flag-muted);
+      font-size: clamp(.88rem, 1.05vw, 1.03rem);
+      line-height: 1.5;
+      text-shadow: none;
+    }
+    .route-home .hero-home .actions {
+      margin-top: 18px;
+      gap: 9px;
+    }
+    .route-home .hero-home .btn {
+      min-height: 38px;
+      padding: 10px 15px;
+      font-size: .72rem;
+      border-radius: 3px;
+      border-color: rgba(247,242,232,.26);
+      box-shadow: none;
+    }
+    .route-home .hero-home .btn-primary {
+      color: #15100a;
+      background: linear-gradient(135deg, #f3a64d, #d87924);
+    }
+    .route-home .hero-home .btn-secondary {
+      color: #f7f2e8;
+      background: rgba(255,255,255,.04);
+    }
+    .route-home .hero-stat-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-top: 14px;
+    }
+    .route-home .hero-stat {
+      display: inline-flex;
+      align-items: center;
+      width: auto;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+    .route-home .hero-stat::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      margin-right: 6px;
+      border-radius: 50%;
+      background: rgba(233,140,51,.92);
+      box-shadow: 0 0 12px rgba(233,140,51,.55);
+    }
+    .route-home .hero-stat b {
+      color: rgba(247,242,232,.66);
+      font-size: .58rem;
+      letter-spacing: -.01em;
+      text-transform: none;
+    }
+    .route-home .hero-stat span,
+    .route-home .hero-wordline,
+    .route-home .clarity-note,
+    .route-home .home-mobile-reassurance {
+      display: none;
+    }
+    .route-home .poster-board,
+    .route-home .hero-showcase {
+      min-height: clamp(300px, 31vw, 430px);
+      margin: 0;
+      transform: none;
+    }
+    .route-home .poster-board::before {
+      inset: 8% 5% 0 6%;
+      background: radial-gradient(ellipse at center, rgba(233,140,51,.28), transparent 64%);
+      filter: blur(30px);
+      opacity: .75;
+    }
+    .route-home .poster-board::after,
+    .route-home .visual-sheen,
+    .route-home .hero-mini-card,
+    .route-home .hero-device,
+    .route-home .hero-visual-caption {
+      display: none;
+    }
+    .route-home .hero-visual-image {
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 8px;
+      box-shadow:
+        0 20px 60px rgba(0,0,0,.42),
+        0 0 0 1px rgba(247,242,232,.12);
+    }
+    .route-home .decision-band,
+    .route-home .case-band,
+    .route-home .systems-showcase,
+    .route-home .advice-band {
+      display: none;
+    }
+    .route-home .logo-strip {
+      padding: 20px 22px 22px;
+      background: #071b1e;
+      color: #f7f2e8;
+      border-top: 1px solid rgba(233,140,51,.22);
+      border-bottom: 1px solid rgba(247,242,232,.06);
+    }
+    .route-home .logo-strip .container {
+      max-width: var(--max);
+      grid-template-columns: minmax(170px,.28fr) minmax(0,1fr);
+      gap: 20px;
+      padding-top: 0;
+      border-top: 0;
+    }
+    .route-home .logo-strip strong {
+      color: #d9903a;
+      font-size: .58rem;
+      letter-spacing: .12em;
+    }
+    .route-home .logo-cloud {
+      overflow: visible;
+    }
+    .route-home .logo-track {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0,1fr));
+      gap: 12px;
+      width: 100%;
+      animation: none;
+    }
+    .route-home .logo-track .logo-pill:nth-child(n+7) {
+      display: none;
+    }
+    .route-home .logo-pill {
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: rgba(247,242,232,.52);
+      font-size: .68rem;
+      letter-spacing: .02em;
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      opacity: .92;
+    }
+    .route-home .premium-examples {
+      padding: 48px 22px;
+      background: #071414 !important;
+      color: #f7f2e8;
+    }
+    .route-home .premium-examples .container {
+      max-width: var(--max);
+      display: grid;
+      grid-template-columns: minmax(280px,.52fr) minmax(0,1fr);
+      gap: clamp(28px, 4vw, 54px);
+      align-items: center;
+    }
+    .route-home .premium-examples .section-header {
+      display: block;
+      margin: 0;
+    }
+    .route-home .premium-examples .section-header h2 {
+      max-width: 410px;
+      color: #f7f2e8;
+      font-size: clamp(1.7rem, 2.75vw, 2.9rem);
+      line-height: .96;
+    }
+    .route-home .premium-examples .section-header p {
+      max-width: 380px;
+      margin-top: 14px;
+      color: rgba(247,242,232,.68);
+      font-size: .9rem;
+      line-height: 1.55;
+    }
+    .route-home .portfolio-grid {
+      display: grid;
+      grid-template-columns: .92fr 1.08fr .92fr;
+      align-items: end;
+      gap: 14px;
+      margin: 0;
+      perspective: 1000px;
+    }
+    .route-home .portfolio-card {
+      min-height: 240px;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 18px 52px rgba(0,0,0,.34);
+      transform: rotate(-2.5deg);
+      background:
+        linear-gradient(180deg, rgba(7,20,20,.02) 0 22%, rgba(7,20,20,.92) 100%),
+        url("/visuals/hero-local-business-devices.png") center / cover no-repeat;
+    }
+    .route-home .portfolio-card:nth-child(2) {
+      min-height: 300px;
+      transform: rotate(1.2deg) translateY(-12px);
+      background:
+        linear-gradient(180deg, rgba(7,20,20,.04) 0 24%, rgba(7,20,20,.92) 100%),
+        url("/visuals/premium-site-stack.svg") center / cover no-repeat;
+    }
+    .route-home .portfolio-card:nth-child(3) {
+      transform: rotate(2.4deg);
+      background:
+        linear-gradient(180deg, rgba(7,20,20,.02) 0 26%, rgba(7,20,20,.90) 100%),
+        url("/visuals/local-proof-board.svg") center / cover no-repeat;
+    }
+    .route-home .portfolio-card::before {
+      inset: 9px;
+      border-radius: 6px;
+      border-color: rgba(247,242,232,.22);
+    }
+    .route-home .portfolio-card h3 {
+      max-width: 260px;
+      font-size: clamp(1.15rem, 1.55vw, 1.55rem);
+    }
+    .route-home .portfolio-card p {
+      font-size: .78rem;
+      line-height: 1.42;
+    }
+    .route-home .portfolio-card span:last-child {
+      padding: 7px 10px;
+      font-size: .64rem;
+    }
+    .route-home .booking-feature {
+      padding: 44px 22px;
+      background: var(--flag-cream) !important;
+      color: #132326;
+    }
+    .booking-grid {
+      max-width: var(--max);
+      display: grid;
+      grid-template-columns: minmax(320px,.86fr) minmax(330px,.78fr);
+      gap: clamp(28px, 4vw, 60px);
+      align-items: center;
+    }
+    .booking-image {
+      position: relative;
+      margin: 0;
+      min-height: 320px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 22px 60px rgba(39,77,86,.18);
+    }
+    .booking-image img {
+      width: 100%;
+      height: 100%;
+      min-height: 320px;
+      display: block;
+      object-fit: cover;
+      object-position: center;
+      filter: saturate(.98) contrast(1.02);
+    }
+    .booking-image figcaption {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      max-width: 240px;
+      padding: 10px 12px;
+      border-radius: 4px;
+      color: #f7f2e8;
+      background: rgba(7,20,20,.82);
+      font-size: .72rem;
+      font-weight: 850;
+      box-shadow: 0 16px 32px rgba(0,0,0,.22);
+    }
+    .booking-copy .scene-label {
+      color: #b96523;
+      border: 0;
+      padding: 0;
+      background: transparent;
+    }
+    .booking-copy h2 {
+      max-width: 520px;
+      color: #132326;
+      font-size: clamp(2rem, 3.2vw, 3.65rem);
+      line-height: .96;
+    }
+    .booking-copy p {
+      max-width: 520px;
+      color: rgba(19,35,38,.72);
+      font-size: .98rem;
+      line-height: 1.58;
+    }
+    .feature-list {
+      display: grid;
+      gap: 8px;
+      margin: 20px 0 22px;
+      padding: 0;
+      list-style: none;
+      color: rgba(19,35,38,.82);
+      font-weight: 760;
+    }
+    .feature-list li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 8px;
+      align-items: start;
+      font-size: .88rem;
+    }
+    .feature-list li::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      margin-top: .42em;
+      border-radius: 50%;
+      background: #d87924;
+      box-shadow: 0 0 0 4px rgba(216,121,36,.12);
+    }
+    .booking-copy .btn-primary {
+      width: fit-content;
+      min-height: 38px;
+      color: #fff8ec;
+      background: linear-gradient(135deg, #f3a64d, #d87924);
+      border-radius: 3px;
+      font-size: .76rem;
+    }
+    .route-home .myth-band {
+      padding: 52px 22px;
+      background: #071b1e !important;
+      color: #f7f2e8;
+    }
+    .route-home .myth-band .container {
+      max-width: var(--max);
+      display: grid;
+      grid-template-columns: minmax(260px,.46fr) minmax(0,1fr);
+      gap: clamp(28px, 4vw, 54px);
+      align-items: start;
+    }
+    .route-home .myth-band .section-header {
+      display: block;
+      margin: 0;
+    }
+    .route-home .myth-band .section-header h2 {
+      color: #f7f2e8;
+      font-size: clamp(1.8rem, 3.35vw, 3.6rem);
+      line-height: .96;
+    }
+    .route-home .myth-band .section-header p {
+      margin-top: 14px;
+      color: rgba(247,242,232,.70);
+      font-size: .9rem;
+      line-height: 1.55;
+    }
+    .route-home .myth-band .myth-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+      margin: 0;
+    }
+    .route-home .myth-band .myth-card,
+    .route-home .myth-band .myth-card:first-child {
+      min-height: 0;
+      grid-column: auto;
+      grid-template-columns: minmax(0, .58fr) minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(247,242,232,.10);
+      border-radius: 4px;
+      background: rgba(255,255,255,.035);
+      box-shadow: none;
+    }
+    .route-home .myth-band .myth-card strong {
+      color: #d9903a;
+      font-size: .56rem;
+      margin-bottom: 7px;
+    }
+    .route-home .myth-band .myth-card h3 {
+      max-width: 230px;
+      color: #f7f2e8;
+      font-size: clamp(.95rem, 1.12vw, 1.14rem);
+      line-height: 1.06;
+    }
+    .route-home .myth-band .myth-card p {
+      color: rgba(247,242,232,.64);
+      font-size: .76rem;
+      line-height: 1.48;
+    }
+    .route-home main > .cta-band {
+      padding: 48px 22px 34px;
+      background:
+        linear-gradient(90deg, rgba(6,19,19,.96) 0 55%, rgba(6,19,19,.55)),
+        url("/visuals/hero-local-business-devices.png") right center / min(58vw, 760px) auto no-repeat,
+        #061313;
+      color: #f7f2e8;
+      border-top: 1px solid rgba(233,140,51,.18);
+    }
+    .route-home main > .cta-band .cta-inner {
+      max-width: var(--max);
+      display: grid;
+      grid-template-columns: minmax(280px,.58fr) minmax(280px,.42fr);
+      gap: 28px;
+      align-items: end;
+      padding-top: 0;
+      border-top: 0;
+    }
+    .route-home main > .cta-band h2 {
+      max-width: 560px;
+      color: #f7f2e8;
+      font-size: clamp(2rem, 3.65vw, 4.1rem);
+      line-height: .94;
+    }
+    .route-home main > .cta-band p {
+      max-width: 540px;
+      color: rgba(247,242,232,.70);
+      font-size: .92rem;
+      line-height: 1.55;
+    }
+    .route-home main > .cta-band .actions {
+      justify-content: flex-end;
+    }
+    .route-home main > .cta-band .btn {
+      min-height: 38px;
+      border-radius: 3px;
+      font-size: .74rem;
+    }
+    .route-home main > .cta-band .btn-primary {
+      color: #15100a;
+      background: linear-gradient(135deg, #f3a64d, #d87924);
+    }
+    .route-home main > .cta-band .btn-secondary {
+      color: #f7f2e8;
+      border-color: rgba(247,242,232,.30);
+      background: rgba(255,255,255,.04);
+    }
+    .route-home .footer {
+      background: #061313;
+      color: rgba(247,242,232,.48);
+      border-top: 1px solid rgba(247,242,232,.08);
+    }
+    @media (max-width: 980px) {
+      .route-home .hero-grid,
+      .route-home .premium-examples .container,
+      .booking-grid,
+      .route-home .myth-band .container,
+      .route-home main > .cta-band .cta-inner {
+        grid-template-columns: 1fr;
+      }
+      .route-home nav a:not(.nav-cta) {
+        display: none;
+      }
+      .route-home .hero-copy {
+        max-width: 720px;
+      }
+      .route-home .hero-home h1,
+      .route-home .lead {
+        max-width: 720px;
+      }
+      .route-home .poster-board,
+      .route-home .hero-showcase {
+        min-height: 360px;
+      }
+      .route-home .premium-examples .portfolio-grid {
+        grid-template-columns: repeat(3, minmax(0,1fr));
+      }
+      .route-home .myth-band .myth-grid {
+        grid-template-columns: 1fr;
+      }
+      .route-home main > .cta-band .actions {
+        justify-content: flex-start;
+      }
+    }
+    @media (max-width: 620px) {
+      .route-home .nav-wrap {
+        min-height: 52px;
+        padding: 0 14px;
+      }
+      .route-home .brand-logo {
+        width: 112px;
+      }
+      .route-home .nav-cta {
+        min-height: 34px;
+        padding-inline: 12px;
+      }
+      .route-home .hero-home {
+        padding: 32px 16px 0;
+      }
+      .route-home .hero-grid {
+        max-width: 100%;
+        gap: 22px;
+      }
+      .route-home .hero-copy {
+        padding-bottom: 0;
+      }
+      .route-home .hero-home h1 {
+        font-size: clamp(2.55rem, 14.2vw, 3.72rem);
+        line-height: .9;
+      }
+      .route-home .lead {
+        font-size: .94rem;
+      }
+      .route-home .hero-home .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .route-home .hero-home .btn {
+        width: 100%;
+        padding-inline: 10px;
+      }
+      .route-home .hero-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0,1fr));
+        gap: 8px;
+      }
+      .route-home .hero-stat b {
+        font-size: .54rem;
+      }
+      .route-home .poster-board,
+      .route-home .hero-showcase {
+        min-height: 230px;
+      }
+      .route-home .logo-strip {
+        padding: 16px;
+      }
+      .route-home .logo-strip .container {
+        display: block;
+      }
+      .route-home .logo-strip strong {
+        display: block;
+        margin-bottom: 10px;
+      }
+      .route-home .logo-track {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 6px;
+      }
+      .route-home .premium-examples,
+      .route-home .booking-feature,
+      .route-home .myth-band,
+      .route-home main > .cta-band {
+        padding: 34px 16px;
+      }
+      .route-home .premium-examples .portfolio-grid {
+        grid-template-columns: 1fr;
+      }
+      .route-home .portfolio-card,
+      .route-home .portfolio-card:nth-child(2),
+      .route-home .portfolio-card:nth-child(3) {
+        min-height: 210px;
+        transform: none;
+      }
+      .booking-image,
+      .booking-image img {
+        min-height: 230px;
+      }
+      .route-home .myth-band .myth-card,
+      .route-home .myth-band .myth-card:first-child {
+        grid-template-columns: 1fr;
+      }
+      .route-home main > .cta-band {
+        background:
+          linear-gradient(180deg, rgba(6,19,19,.88), rgba(6,19,19,.98)),
+          url("/visuals/hero-local-business-devices.png") center top / cover no-repeat,
+          #061313;
+      }
+    }
+    /* Flagship reference pass 2: readability, scale, and proof-strip fix. */
+    .route-home .brand {
+      min-height: 36px;
+      padding: 4px 10px 4px 4px;
+      border: 1px solid rgba(247,242,232,.18);
+      border-radius: 999px;
+      background:
+        linear-gradient(115deg, rgba(255,255,255,.72), transparent 34%),
+        #f2dfbd;
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    }
+    .route-home .brand-logo {
+      width: clamp(130px, 11vw, 164px);
+      filter: none;
+    }
+    .route-home .hero-grid {
+      grid-template-columns: minmax(420px, .78fr) minmax(620px, 1.06fr);
+      gap: clamp(34px, 5vw, 74px);
+    }
+    .route-home .hero-copy {
+      max-width: 650px;
+    }
+    .route-home .hero-home h1 {
+      max-width: 640px;
+      font-size: clamp(3rem, 3.7vw, 4.15rem);
+      line-height: .91;
+    }
+    .route-home .lead {
+      max-width: 590px;
+      font-size: clamp(.92rem, 1vw, 1rem);
+    }
+    .route-home .poster-board,
+    .route-home .hero-showcase {
+      min-height: clamp(350px, 30vw, 455px);
+    }
+    .route-home main > .logo-strip {
+      background: #071b1e !important;
+      color: #f7f2e8;
+    }
+    .route-home main > .logo-strip .container {
+      border-color: transparent;
+    }
+    .route-home main > .logo-strip strong {
+      color: #d9903a;
+    }
+    .route-home main > .logo-strip .logo-pill {
+      color: rgba(247,242,232,.62);
+      border-color: transparent;
+      background: transparent;
+    }
+    @media (max-width: 980px) {
+      .route-home .hero-grid {
+        grid-template-columns: 1fr;
+      }
+      .route-home .hero-home h1 {
+        max-width: 720px;
+        font-size: clamp(2.7rem, 8.2vw, 4rem);
+      }
+    }
+    @media (max-width: 620px) {
+      .route-home .brand {
+        min-height: 34px;
+      }
+      .route-home .brand-logo {
+        width: 124px;
+      }
+      .route-home .hero-home h1 {
+        font-size: clamp(2.25rem, 11vw, 3.06rem);
+        line-height: .93;
+      }
+      .route-home .poster-board,
+      .route-home .hero-showcase {
+        min-height: 220px;
+      }
+    }
+    /* Flagship reference pass 3: downstream contrast repair. */
+    .route-home main > section.premium-examples .section-header p {
+      color: rgba(247,242,232,.70) !important;
+    }
+    .route-home main > section.cta-band {
+      background:
+        linear-gradient(90deg, rgba(6,19,19,.96) 0 55%, rgba(6,19,19,.55)),
+        url("/visuals/hero-local-business-devices.png") right center / min(58vw, 760px) auto no-repeat,
+        #061313 !important;
+      color: #f7f2e8 !important;
+    }
+    .route-home main > section.cta-band h2 {
+      color: #f7f2e8 !important;
+    }
+    .route-home main > section.cta-band p {
+      color: rgba(247,242,232,.72) !important;
+    }
+    .route-home main > section.cta-band .btn-primary {
+      color: #15100a !important;
+      background: linear-gradient(135deg, #f3a64d, #d87924) !important;
+    }
+    .route-home main > section.cta-band .btn-secondary {
+      color: #f7f2e8 !important;
+      border-color: rgba(247,242,232,.30) !important;
+      background: rgba(255,255,255,.04) !important;
+    }
+    @media (max-width: 620px) {
+      .route-home main > section.cta-band {
+        background:
+          linear-gradient(180deg, rgba(6,19,19,.88), rgba(6,19,19,.98)),
+          url("/visuals/hero-local-business-devices.png") center top / cover no-repeat,
+          #061313 !important;
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       .logo-track {
         animation: none;
@@ -4271,7 +5080,7 @@ function home() {
         </div>
         <div class="poster-board" aria-label="Penny Wise premium website preview">
           <div class="hero-showcase">
-            <img class="hero-visual-image" src="/visuals/higgsfield-premium-hero.png" width="2048" height="1536" alt="Premium website and customer workflow mockup on a warm studio desk" fetchpriority="high" decoding="async">
+            <img class="hero-visual-image" src="/visuals/hero-local-business-devices.png" width="1680" height="945" alt="Premium local business website, phone ordering, and tablet orders preview on a warm cafe counter" fetchpriority="high" decoding="async">
             <span class="visual-sheen" aria-hidden="true"></span>
             <div class="hero-mini-card"><b>Before they call</b><p>Customers check photos, proof, menu, hours, prices, and whether the business feels real.</p></div>
             <div class="hero-mini-card alt"><b>Give them something solid.</b><p>One proper place to trust, compare, and take the next step.</p></div>
@@ -4320,19 +5129,28 @@ function home() {
       </div>
     </section>
 
-    <section>
-      <div class="container">
-        <div class="section-header"><h2>A website should make the next customer more confident.</h2><p>Facebook, Google, and Shopify can all be useful. Your own website gives people one reliable place to check the business before they call, book, order, or compare you.</p></div>
-        <figure class="wide-proof-image">
-          <img src="/visuals/local-proof-board.svg" width="1200" height="620" alt="Editorial board showing the details customers check before they contact a local business" loading="lazy" decoding="async">
+    <section class="booking-feature">
+      <div class="container booking-grid">
+        <figure class="booking-image">
+          <img src="/visuals/hero-local-business-devices.png" width="1680" height="945" alt="Local food website and ordering tools shown across laptop, phone, and tablet" loading="lazy" decoding="async">
+          <figcaption>New order received - from a customer who checked properly first.</figcaption>
         </figure>
-        <div class="receipt-strip-grid">
-          ${buildReceipts.map(([title, text]) => `<article class="receipt-strip-card"><strong>${title}</strong><p>${text}</p></article>`).join("")}
+        <div class="booking-copy">
+          <span class="scene-label">Bookings & simple systems</span>
+          <h2>Take bookings, take orders, look professional.</h2>
+          <p>Replace messy messages with clear paths that help customers make the next step: book, order, ask for a quote, or call with confidence.</p>
+          <ul class="feature-list">
+            <li>Online bookings with reminders</li>
+            <li>Online ordering and pickup windows</li>
+            <li>Live availability and capacity control</li>
+            <li>Customer updates and follow-ups</li>
+          </ul>
+          <a class="btn btn-primary" href="/apps">See how it works</a>
         </div>
       </div>
     </section>
 
-    <section>
+    <section class="case-band">
       <div class="container case-story">
         <div class="case-visual" aria-label="Premium website decision path example"></div>
         <div class="case-copy">
@@ -4362,7 +5180,7 @@ function home() {
       </div>
     </section>
 
-    <section class="quiet-band">
+    <section class="quiet-band advice-band">
       <div class="container advice-feature">
         <div>
           <span class="scene-label">Steve filters the noise</span>
@@ -4374,7 +5192,7 @@ function home() {
       </div>
     </section>
 
-    <section class="quiet-band">
+    <section class="quiet-band myth-band">
       <div class="container">
         <div class="section-header">
           <h2>Worth knowing before you rely on Facebook, Google, or Shopify alone.</h2>
@@ -4536,6 +5354,7 @@ await copyAsset("pennywise-it-icon-small.svg", "favicon.svg");
 await copyVisual("premium-site-stack.svg");
 await copyVisual("local-proof-board.svg");
 await copyVisual("higgsfield-premium-hero.png");
+await copyVisual("hero-local-business-devices.png");
 await write("manifest.json", JSON.stringify({
   name: "Penny Wise I.T",
   short_name: "Penny Wise",
