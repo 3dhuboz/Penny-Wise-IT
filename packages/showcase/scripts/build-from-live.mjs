@@ -4822,6 +4822,165 @@ function shell({ title, description, active = "/", body }) {
           #061313 !important;
       }
     }
+    /* Flagship reference pass 4: wider editorial composition and cleaner proof/examples. */
+    .route-home {
+      --max: 1360px;
+    }
+    .route-home .hero-home {
+      padding-top: clamp(28px, 3.1vw, 44px);
+    }
+    .route-home .hero-grid {
+      grid-template-columns: minmax(430px, .72fr) minmax(700px, 1.14fr);
+      gap: clamp(42px, 5.4vw, 86px);
+    }
+    .route-home .hero-copy {
+      max-width: 660px;
+    }
+    .route-home .hero-home h1 {
+      max-width: 650px;
+      font-size: clamp(3.05rem, 3.55vw, 4.05rem);
+      line-height: .9;
+    }
+    .route-home .poster-board,
+    .route-home .hero-showcase {
+      min-height: clamp(390px, 30.5vw, 500px);
+    }
+    .route-home .hero-visual-image {
+      border-radius: 6px;
+      box-shadow:
+        0 24px 70px rgba(0,0,0,.44),
+        0 0 0 1px rgba(247,242,232,.16);
+    }
+    .route-home main > .logo-strip {
+      padding-top: 18px;
+      padding-bottom: 18px;
+    }
+    .route-home main > .logo-strip .container {
+      grid-template-columns: minmax(190px,.2fr) minmax(0,1fr);
+      gap: 24px;
+    }
+    .route-home .logo-track {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      overflow: visible;
+    }
+    .route-home main > .logo-strip .logo-pill {
+      min-width: 0;
+      min-height: 34px;
+      padding: 7px 6px;
+      overflow: visible;
+      white-space: normal;
+      line-height: 1.05;
+      text-wrap: balance;
+      font-size: .61rem;
+    }
+    .route-home .premium-examples {
+      padding-top: 54px;
+      padding-bottom: 58px;
+    }
+    .route-home .premium-examples .container {
+      grid-template-columns: minmax(290px,.46fr) minmax(0,1fr);
+      gap: clamp(34px, 5vw, 76px);
+    }
+    .route-home .portfolio-grid {
+      grid-template-columns: .86fr 1.18fr .86fr;
+      gap: 18px;
+      align-items: center;
+    }
+    .route-home .portfolio-card {
+      min-height: 278px;
+      padding: 22px;
+      background:
+        linear-gradient(180deg, rgba(7,20,20,.02) 0 24%, rgba(7,20,20,.72) 62%, rgba(7,20,20,.98) 100%),
+        url("/visuals/hero-local-business-devices.png") center / cover no-repeat;
+    }
+    .route-home .portfolio-card:nth-child(2) {
+      min-height: 360px;
+      background:
+        linear-gradient(180deg, rgba(7,20,20,.08) 0 25%, rgba(7,20,20,.74) 60%, rgba(7,20,20,.98) 100%),
+        url("/visuals/premium-site-stack.svg") center / cover no-repeat;
+    }
+    .route-home .portfolio-card:nth-child(3) {
+      min-height: 278px;
+      background:
+        linear-gradient(180deg, rgba(7,20,20,.05) 0 25%, rgba(7,20,20,.74) 62%, rgba(7,20,20,.98) 100%),
+        url("/visuals/higgsfield-premium-hero.png") center / cover no-repeat;
+    }
+    .route-home .portfolio-card strong {
+      color: #f3a64d;
+      text-shadow: 0 2px 18px rgba(0,0,0,.44);
+    }
+    .route-home .portfolio-card h3 {
+      font-size: clamp(1.25rem, 1.7vw, 1.85rem);
+      text-shadow: 0 8px 24px rgba(0,0,0,.54);
+    }
+    .route-home .portfolio-card p {
+      max-width: 280px;
+      color: rgba(247,242,232,.82);
+      font-size: .78rem;
+      line-height: 1.4;
+      text-shadow: 0 8px 24px rgba(0,0,0,.56);
+    }
+    .route-home .portfolio-card span:last-child {
+      color: #061313;
+      background: #f7f2e8;
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    }
+    @media (max-width: 1180px) {
+      .route-home .hero-grid {
+        grid-template-columns: minmax(380px, .72fr) minmax(520px, 1fr);
+        gap: 34px;
+      }
+      .route-home .hero-home h1 {
+        font-size: clamp(2.85rem, 4.3vw, 3.7rem);
+      }
+      .route-home .poster-board,
+      .route-home .hero-showcase {
+        min-height: 350px;
+      }
+    }
+    @media (max-width: 980px) {
+      .route-home .hero-grid {
+        grid-template-columns: 1fr;
+      }
+      .route-home .logo-track {
+        grid-template-columns: repeat(3, minmax(0,1fr));
+      }
+    }
+    @media (max-width: 620px) {
+      .route-home .hero-home {
+        padding-top: 28px;
+      }
+      .route-home .hero-home h1 {
+        font-size: clamp(2.28rem, 10.9vw, 3.02rem);
+      }
+      .route-home .logo-track {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+      .route-home .portfolio-card,
+      .route-home .portfolio-card:nth-child(2),
+      .route-home .portfolio-card:nth-child(3) {
+        min-height: 230px;
+      }
+    }
+    /* Flagship reference pass 5: mobile examples must stack cleanly, never spill sideways. */
+    @media (max-width: 760px) {
+      .route-home .premium-examples .container {
+        grid-template-columns: 1fr;
+        gap: 22px;
+      }
+      .route-home .portfolio-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        perspective: none;
+      }
+      .route-home .portfolio-card,
+      .route-home .portfolio-card:nth-child(2),
+      .route-home .portfolio-card:nth-child(3) {
+        min-height: 230px;
+        transform: none;
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       .logo-track {
         animation: none;
