@@ -5438,6 +5438,149 @@ function shell({ title, description, active = "/", body }) {
       color: #132326;
       box-shadow: 0 14px 30px rgba(0,0,0,.28);
     }
+    /* Flagship reference pass 11: this proof section should feel curated, not like three loose cards fighting each other. */
+    .route-home .premium-examples {
+      padding-top: clamp(78px, 8.4vw, 128px);
+      padding-bottom: clamp(82px, 8.6vw, 132px);
+      background:
+        radial-gradient(circle at 58% 34%, rgba(233,140,51,.16), transparent 28rem),
+        radial-gradient(circle at 84% 18%, rgba(247,242,232,.08), transparent 24rem),
+        linear-gradient(180deg, #061313 0%, #071918 100%) !important;
+    }
+    .route-home .premium-examples::before {
+      right: 4vw;
+      top: -1.2vw;
+      opacity: .8;
+      transform: none;
+    }
+    .route-home .premium-examples .container {
+      grid-template-columns: minmax(340px,.42fr) minmax(0,1fr);
+      gap: clamp(52px, 7vw, 112px);
+      align-items: center;
+    }
+    .route-home .premium-examples .section-header {
+      position: relative;
+      padding: clamp(22px, 2vw, 34px) 0;
+    }
+    .route-home .premium-examples .section-header::before {
+      content: "";
+      display: block;
+      width: 74px;
+      height: 4px;
+      margin-bottom: 24px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #43e7ac, #f3a64d);
+      box-shadow: 0 0 22px rgba(67,231,172,.22);
+    }
+    .route-home .premium-examples .section-header h2 {
+      max-width: 560px;
+      font-size: clamp(2.8rem, 4.55vw, 5.65rem);
+      line-height: .88;
+      letter-spacing: -.025em;
+    }
+    .route-home .premium-examples .section-header p {
+      max-width: 500px;
+      margin-top: 22px;
+      font-size: clamp(1rem, 1.14vw, 1.16rem);
+    }
+    .route-home .portfolio-grid {
+      display: grid;
+      grid-template-columns: minmax(0,.86fr) minmax(0,1.08fr);
+      grid-template-rows: minmax(220px, .92fr) minmax(220px, .92fr);
+      gap: clamp(18px, 2vw, 28px);
+      align-items: stretch;
+      min-height: clamp(560px, 45vw, 690px);
+      perspective: 1200px;
+    }
+    .route-home .portfolio-card,
+    .route-home .portfolio-card:nth-child(1),
+    .route-home .portfolio-card:nth-child(2),
+    .route-home .portfolio-card:nth-child(3) {
+      min-height: 0;
+      height: 100%;
+      transform: none;
+      padding: clamp(22px, 2vw, 30px);
+      border-radius: 30px;
+      clip-path: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      border: 1px solid rgba(247,242,232,.14);
+      background:
+        linear-gradient(180deg, rgba(7,20,20,.08) 0 36%, rgba(7,20,20,.74) 72%, rgba(7,20,20,.96) 100%),
+        url("/visuals/hero-local-business-devices.png") center / cover no-repeat;
+      box-shadow:
+        0 28px 74px rgba(0,0,0,.34),
+        inset 0 0 0 1px rgba(255,255,255,.035);
+    }
+    .route-home .portfolio-card:nth-child(1) {
+      grid-row: 1 / span 2;
+      min-height: clamp(520px, 42vw, 680px);
+      transform: rotate(-1.2deg);
+      background:
+        linear-gradient(180deg, rgba(7,20,20,.04) 0 38%, rgba(7,20,20,.72) 72%, rgba(7,20,20,.98) 100%),
+        url("/visuals/hero-local-business-devices.png") center / cover no-repeat;
+    }
+    .route-home .portfolio-card:nth-child(2) {
+      transform: translateY(-14px) rotate(.7deg);
+      background:
+        linear-gradient(180deg, rgba(8,34,36,.03) 0 34%, rgba(8,34,36,.70) 70%, rgba(7,20,20,.95) 100%),
+        url("/visuals/premium-site-stack.svg") center / cover no-repeat;
+    }
+    .route-home .portfolio-card:nth-child(3) {
+      transform: translateY(14px) rotate(-.6deg);
+      background:
+        linear-gradient(180deg, rgba(8,34,36,.02) 0 30%, rgba(8,34,36,.62) 66%, rgba(7,20,20,.94) 100%),
+        url("/visuals/local-proof-board.svg") center / cover no-repeat;
+    }
+    .route-home .portfolio-card::before {
+      inset: 12px;
+      border-radius: 24px;
+      border-color: rgba(247,242,232,.18);
+    }
+    .route-home .portfolio-card::after {
+      background:
+        radial-gradient(circle at 82% 12%, rgba(247,242,232,.18), transparent 13rem),
+        linear-gradient(180deg, transparent 40%, rgba(0,0,0,.24));
+      opacity: .78;
+    }
+    .route-home .portfolio-card strong {
+      margin-bottom: 14px;
+      color: #f3a64d;
+    }
+    .route-home .portfolio-card h3 {
+      max-width: 360px;
+      margin-top: 0;
+      font-size: clamp(1.45rem, 2.2vw, 2.45rem);
+      line-height: .94;
+    }
+    .route-home .portfolio-card:nth-child(1) h3 {
+      font-size: clamp(1.8rem, 2.8vw, 3.25rem);
+    }
+    .route-home .portfolio-card p {
+      max-width: 360px;
+      font-size: clamp(.9rem, .98vw, 1rem);
+      color: rgba(247,242,232,.78);
+    }
+    .route-home .portfolio-card span:last-child {
+      margin-top: 18px;
+      box-shadow: 0 16px 34px rgba(0,0,0,.32);
+    }
+    @media (max-width: 980px) {
+      .route-home .portfolio-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+        min-height: 0;
+      }
+      .route-home .portfolio-card,
+      .route-home .portfolio-card:nth-child(1),
+      .route-home .portfolio-card:nth-child(2),
+      .route-home .portfolio-card:nth-child(3) {
+        grid-row: auto;
+        min-height: 270px;
+        transform: none;
+      }
+    }
     .route-home .booking-feature {
       position: relative;
       overflow: hidden;
