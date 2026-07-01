@@ -7,6 +7,7 @@ const root = dirname(scriptDir);
 const dist = join(root, "dist");
 const brandDir = join(root, "assets", "brand");
 const visualsDir = join(root, "assets", "visuals");
+const videoDir = join(root, "assets", "video");
 
 const builderUrl = "https://builder.pennywiseit.com.au/sign-up";
 const talkUrl = "mailto:steve@pennywiseit.com.au?subject=Penny%20Wise%20I.T%20website%20enquiry";
@@ -4981,6 +4982,329 @@ function shell({ title, description, active = "/", body }) {
         transform: none;
       }
     }
+    /* Flagship reference pass 6: remove the boxed desktop hero and blend the scene into the page. */
+    @media (min-width: 981px) {
+      .route-home .hero-home {
+        min-height: clamp(620px, calc(100vh - 190px), 730px);
+        padding: 0 22px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 22% 34%, rgba(233,140,51,.10), transparent 25rem),
+          linear-gradient(90deg, #061313 0%, #071818 42%, rgba(7,24,24,.58) 68%, rgba(7,24,24,.22) 100%);
+      }
+      .route-home .hero-home::before {
+        z-index: 0;
+        opacity: .16;
+      }
+      .route-home .hero-home::after {
+        content: "";
+        display: block;
+        position: absolute;
+        z-index: 0;
+        inset: 0 0 0 auto;
+        width: min(65vw, 1180px);
+        height: 100%;
+        transform: none;
+        background:
+          linear-gradient(90deg, #061313 0%, rgba(6,19,19,.88) 10%, rgba(6,19,19,.38) 31%, rgba(6,19,19,.04) 60%),
+          linear-gradient(180deg, rgba(6,19,19,.30), rgba(6,19,19,.03) 24%, rgba(6,19,19,.14) 100%),
+          url("/visuals/hero-local-business-devices.png") center right / cover no-repeat;
+        opacity: .98;
+        pointer-events: none;
+      }
+      .route-home .hero-grid {
+        display: block;
+        min-height: inherit;
+        max-width: min(1360px, calc(100vw - 176px));
+      }
+      .route-home .hero-copy {
+        width: min(47vw, 620px);
+        max-width: 620px;
+        min-height: inherit;
+        display: grid;
+        align-content: center;
+        padding: 32px 0 42px;
+        position: relative;
+        z-index: 2;
+      }
+      .route-home .poster-board {
+        display: none;
+      }
+      .route-home .hero-home h1 {
+        max-width: 610px;
+        font-size: clamp(3.18rem, 4.05vw, 4.85rem);
+        line-height: .88;
+      }
+      .route-home .lead {
+        max-width: 585px;
+        font-size: clamp(.98rem, 1.07vw, 1.08rem);
+      }
+      .route-home .hero-stat-grid {
+        margin-top: 18px;
+      }
+      .route-home .hero-home .actions {
+        margin-top: 24px;
+      }
+      .route-home main > .logo-strip {
+        position: relative;
+        z-index: 2;
+        margin-top: 0;
+        padding-top: 20px;
+        padding-bottom: 22px;
+        background:
+          linear-gradient(90deg, rgba(7,27,30,.96), rgba(7,27,30,.90)),
+          #071b1e !important;
+      }
+      .route-home .premium-examples {
+        padding-top: clamp(72px, 7vw, 116px);
+      }
+      .route-home .premium-examples .container {
+        align-items: end;
+      }
+    }
+    @media (min-width: 981px) and (max-width: 1280px) {
+      .route-home .hero-grid {
+        max-width: min(1240px, calc(100vw - 64px));
+      }
+      .route-home .hero-copy {
+        width: min(50vw, 580px);
+      }
+      .route-home .hero-home h1 {
+        font-size: clamp(2.95rem, 4.2vw, 4.2rem);
+      }
+    }
+    /* Flagship reference pass 7: hard-anchor the desktop copy rail so the scene never eats the message. */
+    @media (min-width: 981px) {
+      .route-home .hero-grid {
+        position: relative;
+        max-width: min(1660px, calc(100vw - 176px));
+        margin-inline: auto;
+      }
+      .route-home .hero-copy {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: min(42vw, 610px);
+        max-width: 610px;
+        min-height: 0;
+        margin: 0 !important;
+        padding: 32px 0 42px;
+      }
+      .route-home .hero-home::after {
+        width: min(66vw, 1220px);
+        background:
+          linear-gradient(90deg, #061313 0%, rgba(6,19,19,.94) 9%, rgba(6,19,19,.58) 25%, rgba(6,19,19,.10) 55%),
+          linear-gradient(180deg, rgba(6,19,19,.32), rgba(6,19,19,.02) 24%, rgba(6,19,19,.16) 100%),
+          url("/visuals/hero-local-business-devices.png") center right / cover no-repeat;
+      }
+    }
+    @media (min-width: 981px) and (max-width: 1280px) {
+      .route-home .hero-grid {
+        max-width: min(1240px, calc(100vw - 64px));
+      }
+      .route-home .hero-copy {
+        width: min(47vw, 560px);
+      }
+    }
+    /* Flagship reference pass 8: explicit desktop width so the absolute copy rail cannot collapse to centre. */
+    @media (min-width: 981px) {
+      .route-home .hero-grid {
+        width: min(1660px, calc(100vw - 176px));
+        max-width: min(1660px, calc(100vw - 176px));
+        min-height: inherit;
+      }
+      .route-home .hero-copy {
+        left: 0;
+        right: auto;
+        top: 0;
+        bottom: 0;
+        display: grid;
+        align-content: center;
+      }
+      .route-home .hero-home h1 {
+        max-width: 620px;
+      }
+      .route-home .lead {
+        max-width: 590px;
+      }
+    }
+    @media (min-width: 981px) and (max-width: 1280px) {
+      .route-home .hero-grid {
+        width: min(1240px, calc(100vw - 64px));
+        max-width: min(1240px, calc(100vw - 64px));
+      }
+    }
+    /* Flagship reference pass 9: Seedance motion stage with controlled premium layout. */
+    .hero-visual-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      opacity: 0;
+      filter: saturate(1.04) contrast(1.05) brightness(.94);
+      transition: opacity .6s ease;
+      z-index: 2;
+    }
+    .hero-visual-video[src],
+    .hero-visual-video:playing {
+      opacity: .98;
+    }
+    @media (min-width: 981px) {
+      .route-home .hero-home {
+        min-height: clamp(650px, calc(100vh - 56px), 790px);
+        padding: clamp(72px, 7.5vw, 112px) 32px 0;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 28%, rgba(233,140,51,.16), transparent 26rem),
+          linear-gradient(90deg, rgba(5,17,17,.98) 0%, rgba(5,17,17,.95) 36%, rgba(7,32,34,.86) 68%, rgba(5,17,17,.98) 100%),
+          var(--flag-bg);
+      }
+      .route-home .hero-home::after {
+        display: none;
+      }
+      .route-home .hero-grid {
+        display: grid;
+        width: min(1580px, calc(100vw - 88px));
+        max-width: min(1580px, calc(100vw - 88px));
+        min-height: auto;
+        grid-template-columns: minmax(430px, .70fr) minmax(720px, 1.14fr);
+        gap: clamp(42px, 5.2vw, 92px);
+        align-items: center;
+        margin-inline: auto;
+      }
+      .route-home .hero-copy {
+        position: relative !important;
+        inset: auto !important;
+        width: auto;
+        max-width: 620px;
+        min-height: auto;
+        margin: 0 !important;
+        padding: 0 0 34px;
+        align-content: center;
+      }
+      .route-home .hero-home h1 {
+        max-width: 620px;
+        font-size: clamp(3.35rem, 4.45vw, 5.1rem);
+        line-height: .88;
+      }
+      .route-home .lead {
+        max-width: 590px;
+        font-size: clamp(.99rem, 1.07vw, 1.12rem);
+        line-height: 1.5;
+      }
+      .route-home .poster-board {
+        display: block;
+        position: relative;
+        min-height: clamp(450px, 40vw, 610px);
+        margin: 0;
+        transform: none;
+        isolation: isolate;
+      }
+      .route-home .poster-board::before {
+        content: "";
+        display: block;
+        position: absolute;
+        z-index: -1;
+        inset: 8% -6% -10% 3%;
+        background:
+          radial-gradient(ellipse at 58% 55%, rgba(236,146,55,.32), transparent 56%),
+          radial-gradient(ellipse at 34% 22%, rgba(72,124,105,.34), transparent 45%);
+        filter: blur(42px);
+        opacity: .95;
+      }
+      .route-home .poster-board::after {
+        content: "";
+        display: block;
+        position: absolute;
+        z-index: 4;
+        inset: -1px;
+        pointer-events: none;
+        background:
+          linear-gradient(90deg, rgba(5,17,17,.92), rgba(5,17,17,.30) 15%, transparent 30%),
+          linear-gradient(180deg, transparent 70%, rgba(5,17,17,.28));
+        mix-blend-mode: multiply;
+        opacity: .68;
+      }
+      .route-home .hero-showcase {
+        position: relative;
+        min-height: clamp(450px, 40vw, 610px);
+        overflow: hidden;
+        border-radius: 30px;
+        clip-path: polygon(2.8% 0, 100% 0, 100% 89%, 93% 100%, 0 96%, 0 8%);
+        box-shadow:
+          0 34px 90px rgba(0,0,0,.54),
+          0 0 0 1px rgba(247,242,232,.12),
+          inset 0 0 0 1px rgba(255,255,255,.08);
+        transform: translateZ(0);
+        background: #091616;
+      }
+      .route-home .hero-showcase::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        background:
+          linear-gradient(90deg, rgba(5,17,17,.48), transparent 24%, transparent 86%, rgba(5,17,17,.20)),
+          linear-gradient(180deg, rgba(255,248,232,.08), transparent 30%, rgba(0,0,0,.18));
+      }
+      .route-home .hero-visual-image,
+      .route-home .hero-visual-video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .route-home .hero-visual-image {
+        z-index: 1;
+        filter: saturate(1.03) contrast(1.03) brightness(.92);
+      }
+      .route-home .hero-visual-video {
+        display: block;
+        z-index: 2;
+        opacity: .98;
+      }
+      .route-home .visual-sheen {
+        display: block;
+        z-index: 6;
+        opacity: .16;
+        background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.40), transparent 52%);
+        animation: sheenSweep 6.8s ease-in-out infinite;
+      }
+      .route-home .hero-mini-card,
+      .route-home .hero-device,
+      .route-home .hero-visual-caption {
+        display: none;
+      }
+      .route-home main > .logo-strip {
+        margin-top: 0;
+        background: linear-gradient(90deg, #071b1e, #082124 55%, #071b1e) !important;
+      }
+      .route-home .premium-examples {
+        padding-top: clamp(28px, 3.4vw, 48px);
+      }
+    }
+    @media (min-width: 981px) and (max-width: 1280px) {
+      .route-home .hero-grid {
+        width: min(1220px, calc(100vw - 48px));
+        max-width: min(1220px, calc(100vw - 48px));
+        grid-template-columns: minmax(390px, .74fr) minmax(560px, 1fr);
+        gap: 38px;
+      }
+      .route-home .hero-home h1 {
+        font-size: clamp(2.95rem, 4.45vw, 4.25rem);
+      }
+    }
+    @media (max-width: 980px) {
+      .route-home .hero-visual-video {
+        display: none;
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       .logo-track {
         animation: none;
@@ -4992,6 +5316,7 @@ function shell({ title, description, active = "/", body }) {
         scroll-behavior: auto !important;
         transition-duration: .01ms !important;
       }
+      .hero-visual-video { display: none !important; }
       .scene-canvas { display: none; }
     }
   </style>
@@ -5020,6 +5345,7 @@ function shell({ title, description, active = "/", body }) {
       var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (!window.gsap || reduceMotion) return;
       gsap.registerPlugin(window.ScrollTrigger);
+      gsap.config({ nullTargetWarn: false });
       var intro = gsap.timeline({ defaults: { ease: "power3.out" } });
       intro
         .from(".site-header", { autoAlpha: 0, y: -18, duration: .55 }, 0)
@@ -5239,6 +5565,9 @@ function home() {
         </div>
         <div class="poster-board" aria-label="Penny Wise premium website preview">
           <div class="hero-showcase">
+            <video class="hero-visual-video" muted loop playsinline autoplay preload="metadata" poster="/visuals/hero-local-business-devices.png" aria-hidden="true">
+              <source src="/video/hero-local-business-devices-loop.mp4" type="video/mp4">
+            </video>
             <img class="hero-visual-image" src="/visuals/hero-local-business-devices.png" width="1680" height="945" alt="Premium local business website, phone ordering, and tablet orders preview on a warm cafe counter" fetchpriority="high" decoding="async">
             <span class="visual-sheen" aria-hidden="true"></span>
             <div class="hero-mini-card"><b>Before they call</b><p>Customers check photos, proof, menu, hours, prices, and whether the business feels real.</p></div>
@@ -5484,6 +5813,12 @@ async function copyVisual(sourceName, targetPath = `visuals/${sourceName}`) {
   await copyFile(join(visualsDir, sourceName), file);
 }
 
+async function copyVideo(sourceName, targetPath = `video/${sourceName}`) {
+  const file = join(dist, targetPath);
+  await mkdir(dirname(file), { recursive: true });
+  await copyFile(join(videoDir, sourceName), file);
+}
+
 try {
   await rm(dist, { recursive: true, force: true });
 } catch (error) {
@@ -5514,6 +5849,7 @@ await copyVisual("premium-site-stack.svg");
 await copyVisual("local-proof-board.svg");
 await copyVisual("higgsfield-premium-hero.png");
 await copyVisual("hero-local-business-devices.png");
+await copyVideo("hero-local-business-devices-loop.mp4");
 await write("manifest.json", JSON.stringify({
   name: "Penny Wise I.T",
   short_name: "Penny Wise",
