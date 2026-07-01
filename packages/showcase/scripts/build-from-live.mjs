@@ -5524,14 +5524,14 @@ function shell({ title, description, active = "/", body }) {
     .route-home .portfolio-card:nth-child(2) {
       transform: translateY(-14px) rotate(.7deg);
       background:
-        linear-gradient(180deg, rgba(8,34,36,.03) 0 34%, rgba(8,34,36,.70) 70%, rgba(7,20,20,.95) 100%),
-        url("/visuals/premium-site-stack.svg") center / cover no-repeat;
+        linear-gradient(180deg, rgba(8,34,36,.10) 0 30%, rgba(8,34,36,.60) 67%, rgba(7,20,20,.96) 100%),
+        url("/visuals/service-site-real-photo.jpg") center / cover no-repeat;
     }
     .route-home .portfolio-card:nth-child(3) {
       transform: translateY(14px) rotate(-.6deg);
       background:
-        linear-gradient(180deg, rgba(8,34,36,.02) 0 30%, rgba(8,34,36,.62) 66%, rgba(7,20,20,.94) 100%),
-        url("/visuals/local-proof-board.svg") center / cover no-repeat;
+        linear-gradient(180deg, rgba(8,34,36,.08) 0 28%, rgba(8,34,36,.58) 64%, rgba(7,20,20,.95) 100%),
+        url("/visuals/club-event-real-photo.jpg") center / cover no-repeat;
     }
     .route-home .portfolio-card::before {
       inset: 12px;
@@ -6377,6 +6377,8 @@ await copyVisual("premium-site-stack.svg");
 await copyVisual("local-proof-board.svg");
 await copyVisual("higgsfield-premium-hero.png");
 await copyVisual("hero-local-business-devices.png");
+await copyVisual("service-site-real-photo.jpg");
+await copyVisual("club-event-real-photo.jpg");
 await copyVideo("hero-local-business-devices-loop.mp4");
 await write("manifest.json", JSON.stringify({
   name: "Penny Wise I.T",
