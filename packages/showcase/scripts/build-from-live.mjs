@@ -5305,6 +5305,391 @@ function shell({ title, description, active = "/", body }) {
         display: none;
       }
     }
+    /* Flagship reference pass 10: bring the rest of the index up to the hero's premium motion/photo system. */
+    .route-home .premium-examples {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(64px, 8vw, 118px) 32px clamp(68px, 8vw, 118px);
+      background:
+        radial-gradient(circle at 70% 8%, rgba(233,140,51,.12), transparent 28rem),
+        radial-gradient(circle at 24% 72%, rgba(45,105,96,.26), transparent 28rem),
+        linear-gradient(180deg, #061313 0%, #071717 100%) !important;
+    }
+    .route-home .premium-examples::before {
+      content: "TRUST";
+      position: absolute;
+      right: -2vw;
+      top: -3.5vw;
+      color: rgba(247,242,232,.035);
+      font-size: clamp(7rem, 20vw, 24rem);
+      font-weight: 950;
+      line-height: .78;
+      letter-spacing: -.04em;
+      pointer-events: none;
+    }
+    .route-home .premium-examples::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(247,242,232,.032) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(247,242,232,.026) 1px, transparent 1px);
+      background-size: 58px 58px;
+      mask-image: linear-gradient(180deg, transparent, #000 10%, #000 82%, transparent);
+      opacity: .72;
+    }
+    .route-home .premium-examples .container {
+      max-width: min(1480px, calc(100vw - 88px));
+      position: relative;
+      z-index: 1;
+      grid-template-columns: minmax(320px,.48fr) minmax(0,1fr);
+      gap: clamp(46px, 6vw, 94px);
+      align-items: center;
+    }
+    .route-home .premium-examples .section-header h2 {
+      max-width: 520px;
+      font-size: clamp(2.35rem, 4.2vw, 5rem);
+      line-height: .9;
+      text-shadow: 0 20px 54px rgba(0,0,0,.42);
+    }
+    .route-home .premium-examples .section-header p {
+      max-width: 470px;
+      color: rgba(247,242,232,.74) !important;
+      font-size: clamp(.98rem, 1.12vw, 1.13rem);
+    }
+    .route-home .portfolio-grid {
+      gap: clamp(18px, 2.2vw, 30px);
+      align-items: center;
+      grid-template-columns: minmax(0,1fr) minmax(0,1.12fr) minmax(0,1fr);
+    }
+    .route-home .portfolio-card {
+      position: relative;
+      overflow: hidden;
+      min-height: clamp(330px, 31vw, 470px);
+      padding: 28px;
+      border: 1px solid rgba(247,242,232,.12);
+      border-radius: 28px;
+      clip-path: polygon(4% 0, 100% 0, 100% 88%, 93% 100%, 0 96%, 0 8%);
+      box-shadow:
+        0 34px 84px rgba(0,0,0,.44),
+        inset 0 0 0 1px rgba(255,255,255,.035);
+    }
+    .route-home .portfolio-card:nth-child(1) {
+      transform: rotate(-3.2deg) translateY(18px);
+    }
+    .route-home .portfolio-card:nth-child(2) {
+      min-height: clamp(390px, 36vw, 560px);
+      transform: rotate(.7deg) translateY(-4px);
+      box-shadow:
+        0 42px 110px rgba(0,0,0,.54),
+        inset 0 0 0 1px rgba(255,255,255,.05);
+    }
+    .route-home .portfolio-card:nth-child(3) {
+      min-height: clamp(350px, 30vw, 470px);
+      transform: rotate(2deg) translateY(10px);
+      background:
+        linear-gradient(180deg, rgba(7,20,20,.00) 0 34%, rgba(7,20,20,.58) 64%, rgba(7,20,20,.94) 100%),
+        url("/visuals/local-proof-board.svg") center / cover no-repeat;
+    }
+    .route-home .portfolio-card::before {
+      inset: 12px;
+      border-radius: 22px;
+      border-color: rgba(247,242,232,.18);
+    }
+    .route-home .portfolio-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(7,20,20,.02) 0 42%, rgba(7,20,20,.88) 82%, rgba(7,20,20,.98) 100%),
+        radial-gradient(circle at 26% 18%, rgba(247,242,232,.18), transparent 18rem);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .route-home .portfolio-card > * {
+      position: relative;
+      z-index: 1;
+    }
+    .route-home .portfolio-card strong {
+      color: #f3a64d;
+      font-size: .62rem;
+      letter-spacing: .12em;
+    }
+    .route-home .portfolio-card h3 {
+      max-width: 320px;
+      margin-top: auto;
+      font-size: clamp(1.4rem, 2vw, 2.15rem);
+      line-height: .96;
+      text-shadow: 0 14px 28px rgba(0,0,0,.55);
+    }
+    .route-home .portfolio-card p {
+      max-width: 310px;
+      color: rgba(247,242,232,.76);
+      font-size: .88rem;
+      line-height: 1.45;
+    }
+    .route-home .portfolio-card span:last-child {
+      width: fit-content;
+      margin-top: 16px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #f7f2e8;
+      color: #132326;
+      box-shadow: 0 14px 30px rgba(0,0,0,.28);
+    }
+    .route-home .booking-feature {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(74px, 8.5vw, 128px) 32px;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(216,121,36,.12), transparent 22rem),
+        linear-gradient(135deg, #f7f0e4 0%, #efe4d4 48%, #f8f2e8 100%) !important;
+    }
+    .route-home .booking-feature::before {
+      content: "";
+      position: absolute;
+      inset: 24px;
+      border: 1px solid rgba(19,35,38,.08);
+      border-radius: 34px;
+      pointer-events: none;
+    }
+    .booking-grid {
+      max-width: min(1440px, calc(100vw - 88px));
+      grid-template-columns: minmax(500px,1.02fr) minmax(360px,.74fr);
+      gap: clamp(52px, 7vw, 112px);
+      position: relative;
+      z-index: 1;
+    }
+    .booking-image {
+      min-height: clamp(410px, 35vw, 560px);
+      border-radius: 30px;
+      clip-path: polygon(0 0, 96% 0, 100% 11%, 100% 100%, 7% 100%, 0 90%);
+      box-shadow:
+        0 36px 100px rgba(39,77,86,.25),
+        0 0 0 1px rgba(19,35,38,.10);
+    }
+    .booking-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(255,255,255,.22), transparent 30%, transparent 76%, rgba(6,19,19,.18));
+      pointer-events: none;
+    }
+    .booking-image img {
+      min-height: clamp(410px, 35vw, 560px);
+      filter: saturate(1.02) contrast(1.04);
+      transform: scale(1.015);
+    }
+    .booking-image figcaption {
+      left: 22px;
+      bottom: 22px;
+      max-width: 330px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(7,20,20,.88);
+      backdrop-filter: blur(12px);
+    }
+    .booking-copy {
+      position: relative;
+    }
+    .booking-copy::before {
+      content: "01";
+      position: absolute;
+      right: 0;
+      top: -36px;
+      color: rgba(19,35,38,.08);
+      font-size: clamp(5rem, 11vw, 10rem);
+      font-weight: 950;
+      line-height: .8;
+    }
+    .booking-copy h2 {
+      position: relative;
+      max-width: 620px;
+      font-size: clamp(2.6rem, 4.4vw, 5.2rem);
+      line-height: .9;
+      letter-spacing: -.02em;
+    }
+    .booking-copy p {
+      max-width: 590px;
+      font-size: clamp(1rem, 1.12vw, 1.14rem);
+    }
+    .feature-list {
+      gap: 13px;
+      margin: 28px 0 30px;
+    }
+    .feature-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(19,35,38,.10);
+      font-size: .98rem;
+    }
+    .booking-copy .btn-primary {
+      border-radius: 999px;
+      padding-inline: 22px;
+      box-shadow: 0 18px 42px rgba(216,121,36,.24);
+    }
+    .route-home .myth-band {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(78px, 8vw, 128px) 32px;
+      background:
+        radial-gradient(circle at 76% 8%, rgba(247,242,232,.10), transparent 26rem),
+        linear-gradient(135deg, #1d454c 0%, #0b2529 48%, #071b1e 100%) !important;
+    }
+    .route-home .myth-band::before {
+      content: "HEARSAY";
+      position: absolute;
+      left: -1vw;
+      bottom: -3vw;
+      color: rgba(247,242,232,.035);
+      font-size: clamp(5rem, 17vw, 19rem);
+      font-weight: 950;
+      letter-spacing: -.05em;
+      line-height: .8;
+    }
+    .route-home .myth-band .container {
+      max-width: min(1440px, calc(100vw - 88px));
+      grid-template-columns: minmax(360px,.42fr) minmax(0,1fr);
+      gap: clamp(54px, 6vw, 100px);
+      position: relative;
+      z-index: 1;
+    }
+    .route-home .myth-band .section-header h2 {
+      max-width: 520px;
+      font-size: clamp(2.55rem, 4.45vw, 5.4rem);
+      line-height: .88;
+    }
+    .route-home .myth-band .section-header p {
+      max-width: 480px;
+      font-size: clamp(.98rem, 1.12vw, 1.12rem);
+    }
+    .route-home .myth-band .myth-grid {
+      gap: 16px;
+    }
+    .route-home .myth-band .myth-card,
+    .route-home .myth-band .myth-card:first-child {
+      position: relative;
+      overflow: hidden;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 22px 24px;
+      border: 1px solid rgba(247,242,232,.13);
+      border-radius: 24px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.075), rgba(255,255,255,.026)),
+        rgba(255,255,255,.035);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 22px 54px rgba(0,0,0,.18);
+    }
+    .route-home .myth-band .myth-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 18px;
+      bottom: 18px;
+      width: 4px;
+      border-radius: 999px;
+      background: linear-gradient(#f3a64d, #43e7ac);
+      opacity: .82;
+    }
+    .route-home .myth-band .myth-card h3 {
+      max-width: 330px;
+      font-size: clamp(1.12rem, 1.35vw, 1.45rem);
+    }
+    .route-home .myth-band .myth-card p {
+      color: rgba(247,242,232,.72);
+      font-size: .9rem;
+      line-height: 1.55;
+    }
+    .route-home main > .cta-band {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(74px, 7vw, 116px) 32px 54px;
+      background:
+        linear-gradient(90deg, rgba(6,19,19,.98) 0 45%, rgba(6,19,19,.78) 64%, rgba(6,19,19,.38)),
+        url("/visuals/hero-local-business-devices.png") right center / min(62vw, 940px) auto no-repeat,
+        #061313 !important;
+    }
+    .route-home main > .cta-band::before {
+      content: "";
+      position: absolute;
+      inset: 24px;
+      border: 1px solid rgba(247,242,232,.10);
+      border-radius: 34px;
+      pointer-events: none;
+    }
+    .route-home main > .cta-band .cta-inner {
+      max-width: min(1440px, calc(100vw - 88px));
+      position: relative;
+      z-index: 1;
+    }
+    .route-home main > .cta-band h2 {
+      max-width: 650px;
+      font-size: clamp(2.7rem, 4.9vw, 6rem);
+      line-height: .88;
+    }
+    .route-home main > .cta-band p {
+      max-width: 610px;
+      font-size: clamp(.98rem, 1.12vw, 1.12rem);
+    }
+    .route-home main > .cta-band .btn {
+      min-height: 48px;
+      border-radius: 999px;
+      padding-inline: 22px;
+      font-size: .82rem;
+    }
+    @media (max-width: 980px) {
+      .route-home .premium-examples,
+      .route-home .booking-feature,
+      .route-home .myth-band,
+      .route-home main > .cta-band {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .route-home .premium-examples .container,
+      .booking-grid,
+      .route-home .myth-band .container,
+      .route-home main > .cta-band .cta-inner {
+        max-width: 100%;
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+      .route-home .portfolio-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .route-home .portfolio-card,
+      .route-home .portfolio-card:nth-child(1),
+      .route-home .portfolio-card:nth-child(2),
+      .route-home .portfolio-card:nth-child(3) {
+        min-height: 260px;
+        transform: none;
+      }
+      .route-home .booking-feature::before,
+      .route-home main > .cta-band::before {
+        inset: 10px;
+        border-radius: 24px;
+      }
+      .booking-image,
+      .booking-image img {
+        min-height: 270px;
+      }
+      .booking-copy::before {
+        display: none;
+      }
+      .route-home .myth-band .myth-grid {
+        grid-template-columns: 1fr;
+      }
+      .route-home main > .cta-band {
+        background:
+          linear-gradient(180deg, rgba(6,19,19,.82), rgba(6,19,19,.98) 48%),
+          url("/visuals/hero-local-business-devices.png") center top / cover no-repeat,
+          #061313 !important;
+      }
+      .route-home main > .cta-band .actions {
+        justify-content: flex-start;
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       .logo-track {
         animation: none;
